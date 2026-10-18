@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "observed_date": "2026-10-18",
+  "timezone": "Asia/Kolkata",
+  "source": "read-only ADB inspection in the originating chat",
+  "marketing_name": "vivo S1 Pro",
+  "reported_model": "vivo 1920",
+  "soc": "SM6125",
+  "soc_family": "Qualcomm Snapdragon 665",
+  "board_platform": "trinket",
+  "primary_abi": "arm64-v8a",
+  "android_version": "12",
+  "android_api": 31,
+  "observed_mem_total_kib": 7834636,
+  "observed_mem_available_kib": 5335020,
+  "observed_data_available_gib_rounded": 95,
+  "adb_shell_uid": 2000,
+  "su_available_in_adb_shell": false,
+  "bootloader_locked": true,
+  "verified_boot_state": "green",
+  "termux_installed": true,
+  "gpu_driver_capabilities": null,
+  "cpu_instruction_extensions": null,
+  "storage_throughput_bytes_per_second": null,
+  "performance_measured": false,
+  "notes": [
+    "Memory and storage figures are one observation and must be refreshed before a run.",
+    "The df value was rounded; it is not an exact storage entitlement.",
+    "Root availability was tested through the ADB shell only.",
+    "Do not infer optional ARM instructions or accelerator support from the marketing chipset name."
+  ]
+}

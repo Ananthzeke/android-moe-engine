@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "reviewed_date": "2026-10-18",
+  "support_policy": "Every entry is a candidate. Support requires exact artifact, converter, backend, and physical-target evidence.",
+  "models": [
+    {
+      "id": "Qwen/Qwen3.5-2B",
+      "role": "small_baseline",
+      "architecture": "dense_hybrid_attention",
+      "source": "https://huggingface.co/Qwen/Qwen3.5-2B",
+      "verified_on_target": false,
+      "artifact_sha256": null
+    },
+    {
+      "id": "Qwen/Qwen3.5-4B",
+      "role": "larger_small_baseline",
+      "architecture": "dense_hybrid_attention",
+      "source": "https://huggingface.co/Qwen/Qwen3.5-4B",
+      "verified_on_target": false,
+      "artifact_sha256": null
+    },
+    {
+      "id": "google/gemma-4-E2B",
+      "role": "intermediate_candidate",
+      "architecture": "dense_with_per_layer_embeddings",
+      "source": "https://huggingface.co/google/gemma-4-E2B",
+      "verified_on_target": false,
+      "artifact_sha256": null,
+      "note": "Approximately 5.1B total including embedding tables; E2B denotes effective computation, not total weight count. Verify instruction-tuned variant at import."
+    },
+    {
+      "id": "google/gemma-4-26B-A4B",
+      "role": "first_large_moe_candidate",
+      "architecture": "mixture_of_experts",
+      "source": "https://huggingface.co/google/gemma-4-26B-A4B",
+      "verified_on_target": false,
+      "artifact_sha256": null,
+      "note": "Model card lists 25.2B parameters and 3.8B active, with a separate vision encoder. Verify the selected instruction-tuned text path."
+    },
+    {
+      "id": "Qwen/Qwen3.6-35B-A3B",
+      "role": "second_large_moe_candidate",
+      "architecture": "mixture_of_experts_hybrid_attention",
+      "source": "https://huggingface.co/Qwen/Qwen3.6-35B-A3B",
+      "verified_on_target": false,
+      "artifact_sha256": null,
+      "note": "35B language parameters, about 3B active. Converter compatibility and GatedDeltaNet state handling require separate proof."
+    },
+    {
+      "id": "Qwen/Qwen3.8-27B",
+      "role": "deferred_dense_comparison",
+      "architecture": "dense_hybrid_attention",
+      "source": "https://huggingface.co/Qwen/Qwen3.8-27B",
+      "verified_on_target": false,
+      "artifact_sha256": null,
+      "note": "Newer dense model, not the initial expert-streaming target."
+    }
+  ]
+}

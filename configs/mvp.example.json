@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "status": "proposed_not_implemented",
+  "backend_candidate": "mnn",
+  "execution": "cpu",
+  "model_candidate": "Qwen/Qwen3.5-2B",
+  "context_tokens": 512,
+  "max_new_tokens": 64,
+  "cpu_threads": 4,
+  "active_sessions": 1,
+  "owned_memory_limit_mib": 3072,
+  "expert_cache_limit_mib": 1024,
+  "system_headroom_mib": 1024,
+  "read_chunk_limit_kib": 1024,
+  "io_queue_depth": 1,
+  "prefetch": false,
+  "reference_mode": "unmodified_backend",
+  "weight_quantization_candidate_bits": 4,
+  "notes": [
+    "These are starting hypotheses, not measured optimal settings or allocation guarantees.",
+    "The expert cache is a subset of the total owned budget, not additional memory.",
+    "A dense run does not reserve an unused expert cache.",
+    "Context includes prompt and generated tokens. Reject overflow; do not silently truncate.",
+    "Refuse streaming if the smallest valid live expert working set exceeds the admitted cache.",
+    "Backend allocations must be measured and covered before describing the total as a hard cap."
+  ]
+}
