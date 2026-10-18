@@ -122,4 +122,16 @@ The full verifier passes formatting, metadata/link validation, and all three CTe
 
 The first sandbox sanitizer attempt failed because LeakSanitizer reported it cannot run under ptrace. The full verifier subsequently passed outside that sandbox with leak detection retained. No sanitizer checks were disabled. Environments using ptrace need an execution context that permits LeakSanitizer thread inspection.
 
+Final manual-build checks used `PATH=/tmp/ame-dev-tools/bin:$PATH` for tool discovery (equivalent to activating the bootstrapped venv):
+
+```sh
+cmake --preset host-debug -B /tmp/ame-fresh-manual-build
+cmake --build /tmp/ame-fresh-manual-build
+ctest --preset host-debug --test-dir /tmp/ame-fresh-manual-build
+mkdir -p /tmp/ame-no-tests
+ctest --preset host-debug --test-dir /tmp/ame-no-tests
+```
+
+The fresh directory configured with GCC 11.4.0, built successfully, and passed all three tests. The empty-directory CTest command returned exit code 8 with `No tests were found!!!`. All three host test presets set `execution.noTestsAction` to `error`, so missing test discovery fails verification. The normal full verifier also passed after this change, including all three sanitizer tests with leak detection retained.
+
 Preset discovery confirms the three host configure presets; the Android configure preset is hidden without `ANDROID_NDK_HOME`. No NDK is installed in this environment, so cross-build, ELF architecture/linkage, physical-device probe, inference, model support, and streaming remain unverified. No weights or backends were downloaded. Phase 0 remains incomplete.

@@ -16,12 +16,13 @@ Fix C++ formatting separately:
 .venv/bin/python tools/verify.py --format
 ```
 
-For a single development build, use the venv tool paths:
+For a single development build, activate the venv so CMake can discover Ninja:
 
 ```sh
-.venv/bin/cmake --preset host-debug
-.venv/bin/cmake --build --preset host-debug
-.venv/bin/ctest --preset host-debug
+. .venv/bin/activate
+cmake --preset host-debug
+cmake --build --preset host-debug
+ctest --preset host-debug
 ./build/host-debug/ame --help
 ```
 

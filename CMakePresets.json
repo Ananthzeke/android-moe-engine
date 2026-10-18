@@ -78,6 +78,9 @@
       "configurePreset": "host-debug",
       "output": {
         "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error"
       }
     },
     {
@@ -85,6 +88,9 @@
       "configurePreset": "host-release",
       "output": {
         "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error"
       }
     },
     {
@@ -92,6 +98,9 @@
       "configurePreset": "host-sanitizers",
       "output": {
         "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error"
       }
     }
   ]
