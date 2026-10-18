@@ -1,0 +1,137 @@
+{
+  "groups": {
+    "physical_target": {
+      "decode_tokens_per_second": {
+        "count": 3,
+        "maximum": 4.466321632502132,
+        "median": 4.3698610339560355,
+        "minimum": 4.361843911623247
+      },
+      "load_seconds": {
+        "count": 3,
+        "maximum": 1.598462031,
+        "median": 1.594677187,
+        "minimum": 1.582864426
+      },
+      "request_ttft_seconds": {
+        "count": 3,
+        "maximum": 2.022011249,
+        "median": 2.020157708,
+        "minimum": 2.015194531
+      },
+      "runs": 3,
+      "token_ids_identical_across_runs": true,
+      "vm_hwm_kib_end": {
+        "count": 3,
+        "maximum": 1370216,
+        "median": 1370088,
+        "minimum": 1370068
+      }
+    }
+  },
+  "notes": [
+    "Host results do not establish phone throughput.",
+    "A physical_target tag is supplied by the run command, not inferred.",
+    "Missing counters remain null; no zero is substituted."
+  ],
+  "problems": [],
+  "runs": [
+    {
+      "decode_tokens_per_second": 4.466321632502132,
+      "exit_code": 0,
+      "load_seconds": 1.582864426,
+      "measurement_status": "ok",
+      "output_token_ids": [
+        248068,
+        198,
+        90700,
+        8340,
+        25,
+        271,
+        16,
+        13,
+        220,
+        2972,
+        27382,
+        1386,
+        279,
+        6007,
+        3296,
+        64700
+      ],
+      "prefill_seconds": 2.018648385,
+      "record": "evidence/phase3/run-05/result.json",
+      "request_ttft_seconds": 2.022011249,
+      "run_id": "phone-qwen35-2b-q4km-05",
+      "status": "completed",
+      "tag": "physical_target",
+      "termination_reason": "exit_zero",
+      "vm_hwm_kib_end": 1370216
+    },
+    {
+      "decode_tokens_per_second": 4.3698610339560355,
+      "exit_code": 0,
+      "load_seconds": 1.594677187,
+      "measurement_status": "ok",
+      "output_token_ids": [
+        248068,
+        198,
+        90700,
+        8340,
+        25,
+        271,
+        16,
+        13,
+        220,
+        2972,
+        27382,
+        1386,
+        279,
+        6007,
+        3296,
+        64700
+      ],
+      "prefill_seconds": 2.016523698,
+      "record": "evidence/phase3/run-06/result.json",
+      "request_ttft_seconds": 2.020157708,
+      "run_id": "phone-qwen35-2b-q4km-06",
+      "status": "completed",
+      "tag": "physical_target",
+      "termination_reason": "exit_zero",
+      "vm_hwm_kib_end": 1370088
+    },
+    {
+      "decode_tokens_per_second": 4.361843911623247,
+      "exit_code": 0,
+      "load_seconds": 1.598462031,
+      "measurement_status": "ok",
+      "output_token_ids": [
+        248068,
+        198,
+        90700,
+        8340,
+        25,
+        271,
+        16,
+        13,
+        220,
+        2972,
+        27382,
+        1386,
+        279,
+        6007,
+        3296,
+        64700
+      ],
+      "prefill_seconds": 2.011709165,
+      "record": "evidence/phase3/run-07/result.json",
+      "request_ttft_seconds": 2.015194531,
+      "run_id": "phone-qwen35-2b-q4km-07",
+      "status": "completed",
+      "tag": "physical_target",
+      "termination_reason": "exit_zero",
+      "vm_hwm_kib_end": 1370068
+    }
+  ],
+  "schema_version": 1
+}

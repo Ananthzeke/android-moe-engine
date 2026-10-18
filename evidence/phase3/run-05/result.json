@@ -1,0 +1,35 @@
+{
+  "command": [
+    "bench/phone_run.sh",
+    "evidence/phase3/run-05",
+    "phone-qwen35-2b-q4km-05"
+  ],
+  "exit_code": 0,
+  "finished_at": "2026-10-18T19:45:40Z",
+  "measurement": {
+    "bytes": 2784,
+    "path": "evidence/phase3/run-05/measurement.json",
+    "run_id": "phone-qwen35-2b-q4km-05",
+    "schema_version": 1,
+    "sha256": "d36377df5edec911c2215148e561805b8390739e7d333bbe9bb16cfd010fd03a",
+    "status": "ok",
+    "tag": "physical_target"
+  },
+  "run_id": "phone-qwen35-2b-q4km-05",
+  "schema_version": 1,
+  "started_at": "2026-10-18T19:45:32Z",
+  "status": "completed",
+  "stderr": {
+    "bytes": 0,
+    "path": "evidence/phase3/run-05/stderr.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stdout": {
+    "bytes": 0,
+    "path": "evidence/phase3/run-05/stdout.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "tag": "physical_target",
+  "termination_reason": "exit_zero",
+  "wall_seconds": 7.79147032299079
+}

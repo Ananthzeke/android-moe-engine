@@ -1,0 +1,15 @@
+{
+  "command": [
+    "bench/phone_run.sh",
+    "evidence/phase3/run-05",
+    "phone-qwen35-2b-q4km-05"
+  ],
+  "cwd": "/home/ananth/Documents/ChatGPT/Custom OS",
+  "host_pid": 1421638,
+  "measurement_path": "evidence/phase3/run-05/measurement.json",
+  "run_id": "phone-qwen35-2b-q4km-05",
+  "schema_version": 1,
+  "started_at": "2026-10-18T19:45:32Z",
+  "tag": "physical_target",
+  "timeout_seconds": 120.0
+}
