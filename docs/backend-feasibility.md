@@ -219,11 +219,59 @@ What this does **not** establish:
 - The LRU cache did not help: each tensor switch recreated the store, so hits were
   zero and 5.96 GB was read for 13 prompt/generated tokens. A shared per-tensor cache
   over one arena is the next unit.
-- The target 26B/35B artifacts have not run. Their preflight estimates are not bounded
-  process memory.
+- The target 26B artifact has not run. The 35B target has now run; the measured peak
+  was about 2.06 GiB, but its preflight estimate is still not a hard bound.
 - The no-prefetch profile is a streaming tradeoff, not a general default. On the
   dense Qwen3.5-2B, `0002` kept tokens identical but moved load from 3.50 to 5.26 s,
   TTFT from 0.42 to 7.01 s, and decode from 9.69 to 0.50 tok/s while peak RSS fell
   from 1.82 to 1.31 GiB. Apply it only when expert pages should stay unfaulted.
 - One prompt, one seed, no cancellation or failure injection, and no long-context or
   prefill-union stress test were run.
+## Target 35B storage-backed run (2026-10-19)
+
+The catalog's first large candidate now has a real phone run. The artifact is
+`ggml-org/Qwen3.6-35B-A3B-GGUF`, `Qwen3.6-35B-A3B-Q4_K_M.gguf`, 20,419,565,568
+bytes, SHA-256 `671e47e0ec53c665d048b98c3ecbfd5236b5ca9c3e02ed19fc8f81f7b85140c7`.
+It is qwen35moe: 40 layers, 256 experts, top-8 routing, 34,660,610,688 parameters,
+20,408,576,512 tensor bytes, of which 18,119,393,280 are routed expert bytes.
+
+Settings: prompt `The capital of France is` (5 tokens), 8 generated tokens, context
+512, batch 64, 4 threads, greedy sampling, seed 1234, `--moe-slots 64` (one repeat at
+48), `--moe-arena-mib 256`. The conditional no-prefetch profile was active.
+
+| Run | Slots | TTFT s | Decode tok/s | Peak VmHWM KiB | Arena bytes |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 01 | 64 | 17.824 | 0.368 | 2,162,792 | 37,748,736 |
+| 02 | 48 | 10.296 | 0.583 | 2,159,888 | 28,311,552 |
+| 03 | 64 | 9.648 | 0.609 | 2,160,700 | 37,748,736 |
+
+All three produced the same token IDs:
+`11751, 11, 264, 3177, 34756, 364, 1141, 8807` (" Paris, a city renowned for its
+rich"). Load was 1.57-1.69 s, the CPU compute buffer was 63.19 MiB, RSS after load was
+163,584 KiB, and peak RSS was about 2.06 GiB. Every run made 960 materialize calls,
+9,999 application reads, and 5,897,650,176 application-read bytes; hits were zero,
+misses 9,999, and the maximum expert union was 37. CPU thermal zones rose from about
+36.1 C to 50.6 C around a measured run.
+
+This is the first exact storage-backed execution of the target 35B artifact on the
+phone. A 20.4 GB weight set, which full-resident admission correctly refuses, completed
+short text generation with a 28-38 MB project arena and about 2.06 GiB peak process
+RSS. The earlier metadata-only streaming estimate was 2,303,339,008 bytes; the measured
+peak was close, but it remains an observation, not a cap.
+
+Limits, kept explicit:
+
+- No full-resident reference logits or tokens were obtained. The 20.4 GB artifact does
+  not fit phone memory or the available host. Parity evidence is the bitwise synthetic
+  runtime gate plus identical tokens across three runs and two arena sizes.
+- The process peak is not an enforced cap. The arena is project-owned; mmap pages, OS
+  page cache, the 63 MiB compute buffer, shared experts (133,693,440 bytes), and
+  allocator behavior are not fully covered.
+- Store hits are zero because each tensor switch recreates its store. The run read
+  5.90 GB for 9 forwards (prefill plus 8 decode steps), so the current I/O path is not
+  cache-efficient.
+- One prompt, one seed, context 512, 8 tokens, no cancellation/failure injection, no
+  long-context or prefill-union stress test, and no 1,024/2,048 context.
+- Decode is 0.37-0.61 token/s; TTFT is 9.6-17.8 s. Feasibility is established; useful
+  interactive speed is not.
+

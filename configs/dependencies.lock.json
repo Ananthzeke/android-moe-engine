@@ -69,6 +69,20 @@
         "evidence/runtime/qwen15-stream-06.json",
         "evidence/runtime/qwen15-stream-07.json"
       ]
+    },
+    {
+      "id": "ggml-org/Qwen3.6-35B-A3B-GGUF",
+      "artifact_file": "Qwen3.6-35B-A3B-Q4_K_M.gguf",
+      "artifact_sha256": "671e47e0ec53c665d048b98c3ecbfd5236b5ca9c3e02ed19fc8f81f7b85140c7",
+      "file_bytes": 20419565568,
+      "source": "https://huggingface.co/ggml-org/Qwen3.6-35B-A3B-GGUF",
+      "role": "target_moe",
+      "evidence": [
+        "evidence/phase4/qwen36-stream-01.json",
+        "evidence/phase4/qwen36-stream-02.json",
+        "evidence/phase4/qwen36-stream-03.json",
+        "evidence/phase4/qwen36-stream-aggregate.json"
+      ]
     }
   ],
   "patches": [

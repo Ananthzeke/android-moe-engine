@@ -44,7 +44,7 @@
       "source": "https://huggingface.co/Qwen/Qwen3.6-35B-A3B",
       "verified_on_target": false,
       "artifact_sha256": null,
-      "note": "35B language parameters, about 3B active. Converter compatibility and GatedDeltaNet state handling require separate proof. A metadata-only Q4_K_M preflight found a 2.30 GB streaming estimate; no streaming runtime or large-model inference exists.",
+      "note": "35B language parameters, about 3B active. Converter compatibility and GatedDeltaNet state handling require separate proof. A metadata-only Q4_K_M preflight found a 2.30 GB streaming estimate; no streaming runtime or large-model inference exists. The exact prequantized GGUF artifact is separately recorded and verified on the phone.",
       "metadata_index_evidence": "evidence/phase4/qwen36-35b-a3b-q4km-index.json",
       "observed_tensor_bytes": 20408576512,
       "observed_decode_expert_live_bytes_per_layer": 17498112,
@@ -95,6 +95,24 @@
         "evidence/runtime/qwen15-stream-07.json"
       ],
       "note": "Integration fixture, not a catalog target. The exact artifact completed storage-backed expert streaming on the phone with identical tokens across seven runs. No full-resident reference parity was obtained; the synthetic runtime gate is bitwise. Peak process RSS was about 1.2 GiB after mmap prefetch was disabled, but no overall hard cap is proven."
+    },
+    {
+      "id": "ggml-org/Qwen3.6-35B-A3B-GGUF",
+      "role": "first_large_moe_candidate_gguf",
+      "architecture": "mixture_of_experts_hybrid_attention",
+      "source": "https://huggingface.co/ggml-org/Qwen3.6-35B-A3B-GGUF",
+      "verified_on_target": true,
+      "artifact_sha256": "671e47e0ec53c665d048b98c3ecbfd5236b5ca9c3e02ed19fc8f81f7b85140c7",
+      "artifact_file": "Qwen3.6-35B-A3B-Q4_K_M.gguf",
+      "artifact_bytes": 20419565568,
+      "quantization": "Q4_K_M",
+      "evidence": [
+        "evidence/phase4/qwen36-stream-01.json",
+        "evidence/phase4/qwen36-stream-02.json",
+        "evidence/phase4/qwen36-stream-03.json",
+        "evidence/phase4/qwen36-stream-aggregate.json"
+      ],
+      "note": "Text-only storage-backed expert streaming on the physical phone: 3 runs, identical tokens, 28-38 MB arena, ~2.06 GiB peak RSS, 0.37-0.61 decode tokens/s at context 512. No full-resident reference parity; process peak is not a hard cap."
     }
   ]
 }

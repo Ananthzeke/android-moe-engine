@@ -1,0 +1,162 @@
+{
+  "schema_version": 1,
+  "artifact": {
+    "id": "ggml-org/Qwen3.6-35B-A3B-GGUF",
+    "file": "Qwen3.6-35B-A3B-Q4_K_M.gguf",
+    "sha256": "671e47e0ec53c665d048b98c3ecbfd5236b5ca9c3e02ed19fc8f81f7b85140c7",
+    "bytes": 20419565568,
+    "architecture": "qwen35moe",
+    "n_layer": 40,
+    "n_expert": 256,
+    "top_k": 8,
+    "parameters": 34660610688,
+    "tensor_bytes": 20408576512,
+    "expert_tensor_bytes": 18119393280
+  },
+  "prompt": "The capital of France is",
+  "max_new_tokens": 8,
+  "context_tokens": 512,
+  "batch_size": 64,
+  "threads": 4,
+  "seed": 1234,
+  "sampling": "greedy",
+  "runs": [
+    {
+      "run": 1,
+      "file": "evidence/phase4/qwen36-stream-01.json",
+      "slots": 64,
+      "arena_bytes": 37748736,
+      "load_seconds": 1.69110078,
+      "ttft_seconds": 17.823581035,
+      "prefill_seconds": 17.817038795,
+      "decode_seconds": 18.99682218,
+      "decode_tokens_per_second": 0.3684826827178313,
+      "peak_rss_kib": 2162792,
+      "rss_end_kib": 2159276,
+      "mem_available_kib_end": 6053860,
+      "materialize_calls": 960,
+      "tensor_switches": 960,
+      "reads": 9999,
+      "read_bytes": 5897650176,
+      "hits": 0,
+      "misses": 9999,
+      "max_union": 37,
+      "token_ids": [
+        11751,
+        11,
+        264,
+        3177,
+        34756,
+        364,
+        1141,
+        8807
+      ],
+      "text": " Paris, a city renowned for its rich",
+      "status": "ok"
+    },
+    {
+      "run": 2,
+      "file": "evidence/phase4/qwen36-stream-02.json",
+      "slots": 48,
+      "arena_bytes": 28311552,
+      "load_seconds": 1.614954375,
+      "ttft_seconds": 10.295562392,
+      "prefill_seconds": 10.291815048,
+      "decode_seconds": 11.996735985,
+      "decode_tokens_per_second": 0.5834920438986387,
+      "peak_rss_kib": 2159888,
+      "rss_end_kib": 2159408,
+      "mem_available_kib_end": 6084384,
+      "materialize_calls": 960,
+      "tensor_switches": 960,
+      "reads": 9999,
+      "read_bytes": 5897650176,
+      "hits": 0,
+      "misses": 9999,
+      "max_union": 37,
+      "token_ids": [
+        11751,
+        11,
+        264,
+        3177,
+        34756,
+        364,
+        1141,
+        8807
+      ],
+      "text": " Paris, a city renowned for its rich",
+      "status": "ok"
+    },
+    {
+      "run": 3,
+      "file": "evidence/phase4/qwen36-stream-03.json",
+      "slots": 64,
+      "arena_bytes": 37748736,
+      "load_seconds": 1.625821145,
+      "ttft_seconds": 9.647959684,
+      "prefill_seconds": 9.64436135,
+      "decode_seconds": 11.489616037,
+      "decode_tokens_per_second": 0.6092457726574941,
+      "peak_rss_kib": 2160700,
+      "rss_end_kib": 2159300,
+      "mem_available_kib_end": 6087932,
+      "materialize_calls": 960,
+      "tensor_switches": 960,
+      "reads": 9999,
+      "read_bytes": 5897650176,
+      "hits": 0,
+      "misses": 9999,
+      "max_union": 37,
+      "token_ids": [
+        11751,
+        11,
+        264,
+        3177,
+        34756,
+        364,
+        1141,
+        8807
+      ],
+      "text": " Paris, a city renowned for its rich",
+      "status": "ok"
+    }
+  ],
+  "summary": {
+    "ttft_seconds": {
+      "count": 3,
+      "median": 10.295562392,
+      "min": 9.647959684,
+      "max": 17.823581035
+    },
+    "decode_tokens_per_second": {
+      "count": 3,
+      "median": 0.5834920438986387,
+      "min": 0.3684826827178313,
+      "max": 0.6092457726574941
+    },
+    "peak_rss_kib": {
+      "count": 3,
+      "median": 2160700,
+      "min": 2159888,
+      "max": 2162792
+    },
+    "load_seconds": {
+      "count": 3,
+      "median": 1.625821145,
+      "min": 1.614954375,
+      "max": 1.69110078
+    },
+    "arena_bytes": [
+      28311552,
+      37748736
+    ]
+  },
+  "token_ids_identical_across_runs": true,
+  "notes": [
+    "Storage-backed expert streaming with the runtime materializer and conditional no-prefetch loader profile.",
+    "No full-resident reference ran; the exact 20.4 GB weight set does not fit phone memory or the available host.",
+    "Parity evidence is the bitwise synthetic runtime gate plus identical tokens across three runs and two arena sizes.",
+    "Store hits were zero because each tensor switch recreated the store.",
+    "Peak RSS is not a hard cap; the arena is project-owned, while mmap, page cache, compute, and shared weights are not fully covered."
+  ]
+}

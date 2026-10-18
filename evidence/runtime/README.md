@@ -30,4 +30,4 @@ kept beside it.
 
 Limits: no full-resident reference parity was obtained for this model; the bitwise
 claim is the synthetic gate. Store hits were zero because each tensor switch recreated
-the store. The process peak is not a hard cap, and the 35B target was not run here.
+the store. The process peak is not a hard cap. The 35B target is recorded separately under [evidence/phase4](../phase4).

@@ -1,16 +1,31 @@
-# Phase 4 preflight evidence
+# Phase 4 evidence
 
-No large-model inference ran. These records are metadata-first indexes:
+## Real 35B storage-backed run
 
-- [Qwen3.6-35B-A3B Q4_K_M](qwen36-35b-a3b-q4km-index.json): 20,419,565,568-byte
-  artifact, indexed from a 64 MiB prefix. Full-resident execution refused.
-- [Qwen3.5-2B Q4_K_M](qwen35-2b-q4km-index.json): 1,280,835,840-byte artifact, dense,
-  indexed from a 16 MiB prefix.
+Artifact: `ggml-org/Qwen3.6-35B-A3B-GGUF`, `Qwen3.6-35B-A3B-Q4_K_M.gguf`, 20,419,565,568
+bytes, SHA-256 `671e47e0ec53c665d048b98c3ecbfd5236b5ca9c3e02ed19fc8f81f7b85140c7`.
+qwen35moe, 40 layers, 256 experts, top-8 routing, 20,408,576,512 tensor bytes.
 
-The index reads GGUF metadata and tensor information, computes routed and shared
-expert byte extents, checks declared file bounds, and applies a conservative
-memory preflight. It does not load weights, infer, or reserve memory.
+- [Aggregate](qwen36-stream-aggregate.json) and [Markdown](qwen36-stream-aggregate.md).
+- Raw runs [01](qwen36-stream-01.json), [02](qwen36-stream-02.json),
+  [03](qwen36-stream-03.json), with stderr and before/after probes.
+- Three runs, slots 64/48/64, context 512, batch 64, greedy.
+- Identical token IDs: `11751, 11, 264, 3177, 34756, 364, 1141, 8807`.
+- TTFT median 10.296 s, decode median 0.583 tok/s, peak VmHWM median 2,160,700 KiB.
+- Arena 28,311,552 / 37,748,736 bytes; 9,999 reads and 5,897,650,176 application bytes;
+  no cache hits; maximum union 37.
+- CPU thermal zones about 36.1 C to 50.6 C around a measured run.
 
-The streaming estimate (2,303,339,008 bytes) is not an admission: backend workspace,
-KV/recurrent state, shared-expert residency, page cache, and the measured compute
-buffer are not covered. The next experiment is the runtime integration patch.
+No full-resident reference ran. The 20.4 GB artifact does not fit phone memory or the
+available host. Parity evidence is the synthetic runtime gate plus identical tokens
+across runs and arena sizes. The process peak is not a hard cap.
+
+## Metadata preflight
+
+- [Qwen3.6-35B-A3B index](qwen36-35b-a3b-q4km-index.json) and
+  [manifest](qwen36-35b-a3b-q4km.manifest).
+- [Qwen3.5-2B dense index](qwen35-2b-q4km-index.json).
+
+The preflight reads metadata and tensor information only. It refuses full-resident
+weights and computes a 2.30 GB streaming estimate; the measured peak was about
+2.16 GiB, but that agreement is an observation, not a guarantee.

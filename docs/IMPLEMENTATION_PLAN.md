@@ -214,10 +214,9 @@ Exit checks:
 
 ### Phase 4 preflight (2026-10-19)
 
-Status: **preflight only; no large-model inference ran**. The streaming integration is
-not implemented, and a full-resident 35B model cannot fit the phone's available
-memory. The preflight indexed artifact metadata without loading tensor payloads and
-recorded an explicit refusal.
+Status: preflight completed before implementation, followed by a real streaming run.
+At preflight time the runtime integration did not exist, and full-resident execution
+was refused. The metadata-only index is retained below; the executed result follows.
 
 ```sh
 .venv/bin/python tools/gguf_index.py \
@@ -248,18 +247,43 @@ Admission preflight used 5,599,531,008 available bytes (the phone probe snapshot
   union), which is below available memory but leaves workspace, KV/recurrent state,
   shared-expert handling, page cache, and the 505.53 MiB-scale compute buffer
   unproven. The result is `requires_backend_workspace_proof`, not an admission.
-- Storage: the artifact fits the 102,177,562,624 available bytes, but transfer,
-  temporary, and repack space were not reserved. No model was transferred.
+- Storage: the artifact fits the 102,177,562,624 available bytes. Transfer space was
+  later reserved by the actual 19.0 GiB transfer; temporary and repack space were not
+  needed for the prequantized GGUF.
 
 The dense Qwen3.5-2B artifact was also indexed for comparison: 1,269,873,920 tensor
 bytes, no expert tensors, `admit_weights_only`. That index covers weights only; the
 executed baseline used a 505.53 MiB compute buffer and reached 1.37 GiB peak VmHWM.
 
-A real 14.3B MoE fixture has since streamed on the phone (see
-[the feasibility report](backend-feasibility.md)). It demonstrates the mechanism but
-does not complete the 35B experiment: the target artifact has not run, and its
-`2.30 GB streaming estimate` is not a measured process bound. The next Phase 4 unit is
-a 35B run with the same patches and a measured workspace/state record.
+### Phase 4 result (2026-10-19)
+
+A real 14.3B MoE fixture and then the target 35B artifact streamed on the phone with
+the runtime materializer and the conditional no-prefetch profile. The 35B artifact is
+`ggml-org/Qwen3.6-35B-A3B-GGUF` `Qwen3.6-35B-A3B-Q4_K_M.gguf`, 20,419,565,568 bytes,
+SHA-256 `671e47e0ec53c665d048b98c3ecbfd5236b5ca9c3e02ed19fc8f81f7b85140c7`.
+
+```sh
+# phone, after applying patches/0001 and 0002
+llama_baseline_stream --model Qwen3.6-35B-A3B-Q4_K_M.gguf \
+  --prompt-file prompt.txt --max-new-tokens 8 --context 512 --batch-size 64 \
+  --threads 4 --temperature 0 --stream --manifest qwen36-35b.manifest \
+  --moe-slots 64 --moe-arena-mib 256 --output run.json
+```
+
+| Runs | TTFT median s | Decode tok/s median | Peak VmHWM KiB median | Arena bytes | Tokens |
+| ---: | ---: | ---: | ---: | --- | --- |
+| 3 | 10.296 | 0.583 | 2,160,700 | 28,311,552 / 37,748,736 | identical |
+
+All three runs produced `11751, 11, 264, 3177, 34756, 364, 1141, 8807` (" Paris, a
+city renowned for its rich"). Load was 1.57-1.69 s, the compute buffer was 63.19 MiB,
+RSS after load was 163,584 KiB, peak RSS was about 2.06 GiB, and 5,897,650,176
+application bytes were read over 9,999 calls. Store hits were zero. The aggregate is in
+[`evidence/phase4/qwen36-stream-aggregate.json`](../evidence/phase4/qwen36-stream-aggregate.json).
+
+The success is narrow: no full-resident reference logits or tokens exist for this
+artifact, the process peak is not an enforced cap, the store did not cache across
+tensor switches, and only one prompt/seed at context 512 was run. Exit checks 2 and the
+1,024/2,048-context part of this phase remain open.
 
 ## Phase 5: Improve only the measured limiter
 

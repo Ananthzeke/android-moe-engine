@@ -2,7 +2,7 @@
 
 An Android inference-engine research project for running quantized language models under limited memory, including storage-backed execution of larger mixture-of-experts models.
 
-The first physical target is a vivo S1 Pro with a Snapdragon 665, Android 12, and an 8 GB RAM configuration. Root is not required. The large-model question is whether exact expert streaming can complete useful work on this hardware within a declared memory budget. Small-model baseline throughput is measured; large-model streaming feasibility remains unmeasured.
+The first physical target is a vivo S1 Pro with a Snapdragon 665, Android 12, and an 8 GB RAM configuration. Root is not required. The large-model question is whether exact expert streaming can complete useful work on this hardware within a declared memory budget. This repository now has a measured result for one exact 35B artifact at context 512, with explicit limits on speed, reference parity, and memory coverage.
 
 ## Current state
 
@@ -13,12 +13,13 @@ This repository contains a buildable C++20 host coding foundation and a read-onl
 - a pinned Android NDK r27c cross-build whose AArch64 ELF was executed on the connected phone;
 - a bounded expert residency store with move-only leases, byte-based LRU, checked demand reads, and cancellation;
 - a llama.cpp baseline on host and phone for Qwen3.5-2B Q4_K_M, plus an expert-ID remap gate against the real CPU `MUL_MAT_ID` kernel that is bitwise identical on both;
-- a small llama.cpp runtime patch that materializes selected experts into the project arena, and a real 14.3B MoE storage-backed decode on the phone;
+- a small llama.cpp runtime patch that materializes selected experts into the project arena, validated bitwise and exercised on a real 14.3B MoE;
+- a real 35B MoE storage-backed decode on the phone: three runs, identical tokens, a 28-38 MB arena, and about 2.06 GiB peak RSS;
 - a bounded run recorder and aggregator with atomic start/final records and hash checks;
 - a metadata-first GGUF index that computes expert extents and refuses an over-budget large artifact;
 - an offline local/CI verifier for Debug, Release, and host ASan/UBSan.
 
-The probe ran on the physical vivo 1920 and its snapshot is retained at [evidence/phase0/probe-vivo-1920.json](evidence/phase0/probe-vivo-1920.json). The Qwen3.5-2B baseline reached 4.36-4.50 decode tokens/s at context 512 with peak process RSS around 1.37 GiB; the host reference and the kernel-boundary gate are recorded in [evidence/phase1](evidence/phase1). A recorded three-trial phone campaign is in [evidence/phase3](evidence/phase3). A metadata-only preflight of Qwen3.6-35B-A3B Q4_K_M in [evidence/phase4](evidence/phase4) computes a 2.30 GB streaming estimate but refuses full-resident execution. The Qwen1.5-MoE-A2.7B fixture then ran a real storage-backed decode on the phone: seven runs produced identical tokens, a 120-160 MB arena, about 1.2 GiB peak RSS after mmap prefetch was disabled, and about 2.0 decode tokens/s; see [evidence/runtime](evidence/runtime). This is not a hard engine cap, the LRU cache had zero hits, and the catalog's 35B target has not run. Commands beyond `probe` still describe planned interfaces.
+The probe ran on the physical vivo 1920 and its snapshot is retained at [evidence/phase0/probe-vivo-1920.json](evidence/phase0/probe-vivo-1920.json). The Qwen3.5-2B baseline reached 4.36-4.50 decode tokens/s at context 512 with peak process RSS around 1.37 GiB; the host reference and the kernel-boundary gate are recorded in [evidence/phase1](evidence/phase1). A recorded three-trial phone campaign is in [evidence/phase3](evidence/phase3). A metadata-only preflight of Qwen3.6-35B-A3B Q4_K_M in [evidence/phase4](evidence/phase4) computes a 2.30 GB streaming estimate but refuses full-resident execution. The Qwen1.5-MoE-A2.7B fixture ran a real storage-backed decode on the phone: seven runs produced identical tokens, a 120-160 MB arena, about 1.2 GiB peak RSS after mmap prefetch was disabled, and about 2.0 decode tokens/s; see [evidence/runtime](evidence/runtime). The target Qwen3.6-35B-A3B Q4_K_M artifact then ran at context 512 with a 28-38 MB arena, about 2.06 GiB peak RSS, 0.37-0.61 decode tokens/s, and identical tokens across three runs; see [evidence/phase4](evidence/phase4). This is not a hard engine cap, the LRU cache had zero hits, no full-resident reference parity was obtained for the large artifacts, and nothing beyond context 512 has run. Commands beyond `probe` still describe planned interfaces.
 
 ## Start implementation
 
