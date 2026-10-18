@@ -112,7 +112,7 @@
         "evidence/phase4/qwen36-stream-03.json",
         "evidence/phase4/qwen36-stream-aggregate.json"
       ],
-      "note": "Text-only storage-backed expert streaming on the physical phone: 3 runs, identical tokens, 28-38 MB arena, ~2.06 GiB peak RSS, 0.37-0.61 decode tokens/s at context 512. No full-resident reference parity; process peak is not a hard cap."
+      "note": "Text-only storage-backed expert streaming on the physical phone: 5 runs across contexts 512, 1024, and 2048, identical tokens, 28-38 MB arena, ~2.06-2.09 GiB peak RSS, 0.37-0.69 decode tokens/s. No full-resident reference parity; process peak is not a hard cap."
     }
   ]
 }

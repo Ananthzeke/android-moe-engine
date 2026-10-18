@@ -1,11 +1,7 @@
-| quantity | value |
-| --- | ---: |
-| runs | 3 |
-| TTFT median (min/max) s | 10.296 (9.648 / 17.824) |
-| decode tok/s median (min/max) | 0.583 (0.368 / 0.609) |
-| peak VmHWM KiB median | 2160700 |
-| load seconds median | 1.626 |
-| arena bytes | 28311552, 37748736 |
-| reads / application bytes | 9999 / 5,897,650,176 |
-| max expert union | 37 |
-| token IDs identical | **True** |
+| context | runs | TTFT median s | decode tok/s median | peak VmHWM KiB median | arena bytes |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 512 | 3 | 10.296 | 0.583 | 2160700 | 28311552, 37748736 |
+| 1024 | 1 | 10.328 | 0.598 | 2169872 | 37748736 |
+| 2048 | 1 | 8.772 | 0.688 | 2190576 | 37748736 |
+
+Token IDs identical across all 5 runs: **True**.

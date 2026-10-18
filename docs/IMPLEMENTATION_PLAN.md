@@ -270,20 +270,23 @@ llama_baseline_stream --model Qwen3.6-35B-A3B-Q4_K_M.gguf \
   --moe-slots 64 --moe-arena-mib 256 --output run.json
 ```
 
-| Runs | TTFT median s | Decode tok/s median | Peak VmHWM KiB median | Arena bytes | Tokens |
-| ---: | ---: | ---: | ---: | --- | --- |
-| 3 | 10.296 | 0.583 | 2,160,700 | 28,311,552 / 37,748,736 | identical |
+| Context | Runs | TTFT median s | Decode tok/s median | Peak VmHWM KiB median |
+| ---: | ---: | ---: | ---: | ---: |
+| 512 | 3 | 10.296 | 0.583 | 2,160,700 |
+| 1024 | 1 | 10.328 | 0.598 | 2,169,872 |
+| 2048 | 1 | 8.772 | 0.688 | 2,190,576 |
 
-All three runs produced `11751, 11, 264, 3177, 34756, 364, 1141, 8807` (" Paris, a
+All five runs produced `11751, 11, 264, 3177, 34756, 364, 1141, 8807` (" Paris, a
 city renowned for its rich"). Load was 1.57-1.69 s, the compute buffer was 63.19 MiB,
-RSS after load was 163,584 KiB, peak RSS was about 2.06 GiB, and 5,897,650,176
-application bytes were read over 9,999 calls. Store hits were zero. The aggregate is in
+RSS after load was 163,584 KiB, peak RSS was about 2.06-2.09 GiB, the arena was
+28,311,552 or 37,748,736 bytes, and 5,897,650,176 application bytes were read over
+9,999 calls. Store hits were zero. The aggregate is in
 [`evidence/phase4/qwen36-stream-aggregate.json`](../evidence/phase4/qwen36-stream-aggregate.json).
 
 The success is narrow: no full-resident reference logits or tokens exist for this
 artifact, the process peak is not an enforced cap, the store did not cache across
-tensor switches, and only one prompt/seed at context 512 was run. Exit checks 2 and the
-1,024/2,048-context part of this phase remain open.
+tensor switches, and only one prompt/seed was run. Exit check 2 (reference-correct
+token or logit evidence) remains open.
 
 ## Phase 5: Improve only the measured limiter
 

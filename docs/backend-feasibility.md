@@ -235,17 +235,20 @@ bytes, SHA-256 `671e47e0ec53c665d048b98c3ecbfd5236b5ca9c3e02ed19fc8f81f7b85140c7
 It is qwen35moe: 40 layers, 256 experts, top-8 routing, 34,660,610,688 parameters,
 20,408,576,512 tensor bytes, of which 18,119,393,280 are routed expert bytes.
 
-Settings: prompt `The capital of France is` (5 tokens), 8 generated tokens, context
-512, batch 64, 4 threads, greedy sampling, seed 1234, `--moe-slots 64` (one repeat at
-48), `--moe-arena-mib 256`. The conditional no-prefetch profile was active.
+Settings: prompt `The capital of France is` (5 tokens), 8 generated tokens, contexts
+512, 1024, and 2048, batch 64, 4 threads, greedy sampling, seed 1234,
+`--moe-slots 64` (one repeat at 48), `--moe-arena-mib 256`. The conditional
+no-prefetch profile was active.
 
-| Run | Slots | TTFT s | Decode tok/s | Peak VmHWM KiB | Arena bytes |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| 01 | 64 | 17.824 | 0.368 | 2,162,792 | 37,748,736 |
-| 02 | 48 | 10.296 | 0.583 | 2,159,888 | 28,311,552 |
-| 03 | 64 | 9.648 | 0.609 | 2,160,700 | 37,748,736 |
+| Run | Context | Slots | TTFT s | Decode tok/s | Peak VmHWM KiB | Arena bytes |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 01 | 512 | 64 | 17.824 | 0.368 | 2,162,792 | 37,748,736 |
+| 02 | 512 | 48 | 10.296 | 0.583 | 2,159,888 | 28,311,552 |
+| 03 | 512 | 64 | 9.648 | 0.609 | 2,160,700 | 37,748,736 |
+| 04 | 1024 | 64 | 10.328 | 0.598 | 2,169,872 | 37,748,736 |
+| 05 | 2048 | 64 | 8.772 | 0.688 | 2,190,576 | 37,748,736 |
 
-All three produced the same token IDs:
+All five produced the same token IDs:
 `11751, 11, 264, 3177, 34756, 364, 1141, 8807` (" Paris, a city renowned for its
 rich"). Load was 1.57-1.69 s, the CPU compute buffer was 63.19 MiB, RSS after load was
 163,584 KiB, and peak RSS was about 2.06 GiB. Every run made 960 materialize calls,
@@ -270,8 +273,7 @@ Limits, kept explicit:
 - Store hits are zero because each tensor switch recreates its store. The run read
   5.90 GB for 9 forwards (prefill plus 8 decode steps), so the current I/O path is not
   cache-efficient.
-- One prompt, one seed, context 512, 8 tokens, no cancellation/failure injection, no
-  long-context or prefill-union stress test, and no 1,024/2,048 context.
+- One prompt, one seed, 8 tokens, contexts 512-2048, no cancellation/failure injection,
+  and no long-context or prefill-union stress test beyond these short prompts.
 - Decode is 0.37-0.61 token/s; TTFT is 9.6-17.8 s. Feasibility is established; useful
   interactive speed is not.
-

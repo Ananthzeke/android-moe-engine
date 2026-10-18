@@ -1,6 +1,6 @@
 # Architecture
 
-Status: accepted design direction. A host coding foundation, a read-only device probe, a bounded residency store, and a verified llama.cpp text baseline exist. A small runtime patch materializes selected experts into the project arena, and a real 14.3B MoE fixture completed storage-backed decode on the phone. The pinned NDK cross-build runs on the physical phone. See [phase 0](IMPLEMENTATION_PLAN.md#phase-0-evidence-2026-10-19), [phase 1](IMPLEMENTATION_PLAN.md#phase-1-evidence-2026-10-19), and [the feasibility report](backend-feasibility.md). A real 35B target ran at context 512 with about 2.06 GiB peak RSS and a 28-38 MB arena. There is no hard engine memory cap, no full-resident reference parity, and no context beyond 512.
+Status: accepted design direction. A host coding foundation, a read-only device probe, a bounded residency store, and a verified llama.cpp text baseline exist. A small runtime patch materializes selected experts into the project arena, and a real 14.3B MoE fixture completed storage-backed decode on the phone. The pinned NDK cross-build runs on the physical phone. See [phase 0](IMPLEMENTATION_PLAN.md#phase-0-evidence-2026-10-19), [phase 1](IMPLEMENTATION_PLAN.md#phase-1-evidence-2026-10-19), and [the feasibility report](backend-feasibility.md). A real 35B target ran at contexts 512, 1024, and 2048 with about 2.06-2.09 GiB peak RSS and a 28-38 MB arena. There is no hard engine memory cap, no full-resident reference parity, and no cancellation/failure proof.
 
 ## Problem and target
 
@@ -52,7 +52,7 @@ The table distinguishes implemented foundation code from planned modules. No pub
 | `src/model/` (partial) | Internal checked extent arithmetic exists. Index, identity, and quantized layouts remain planned. |
 | `src/runtime/` | One engine session, memory admission, backend instance, KV and recurrent state, cancellation, and accounting coverage. |
 | `src/residency/` (store implemented) | Fixed aligned expert arena, slot index, move-only leases, demand reads, byte-based LRU, and cancellation. Tested with sparse files above 4 GiB. |
-| `src/backend/` (prototype) | llama.cpp is the provisional production backend. A runtime materializer, a manifest-driven arena, and two small upstream patches exist. Allocation instrumentation, a shared per-tensor cache, and context beyond 512 do not. |
+| `src/backend/` (prototype) | llama.cpp is the provisional production backend. A runtime materializer, a manifest-driven arena, and two small upstream patches exist. Allocation instrumentation, a shared per-tensor cache, and cancellation/failure proof do not. |
 | `src/probe/` (implemented) | Read-only host/Android observation of memory, CPU, storage, OS, thermal, and power state. No device profile inference and no performance claim. |
 | `apps/cli/` (foundation) | Help/version, invalid-argument diagnostics, and `ame probe`. Engine calls remain planned. |
 | `bench/` | Reference runs, artifact provenance, telemetry, parity, and result aggregation. |
