@@ -2,7 +2,7 @@
 
 An Android inference-engine research project for running quantized language models under limited memory, including storage-backed execution of larger mixture-of-experts models.
 
-The first physical target is a vivo S1 Pro with a Snapdragon 665, Android 12, and an 8 GB RAM configuration. Root is not required. The large-model question is whether exact expert streaming can complete useful work on this hardware within a declared memory budget. Throughput and feasibility remain unmeasured.
+The first physical target is a vivo S1 Pro with a Snapdragon 665, Android 12, and an 8 GB RAM configuration. Root is not required. The large-model question is whether exact expert streaming can complete useful work on this hardware within a declared memory budget. Small-model baseline throughput is measured; large-model streaming feasibility remains unmeasured.
 
 ## Current state
 
@@ -23,7 +23,7 @@ The probe ran on the physical vivo 1920 and its snapshot is retained at [evidenc
 
 Give DeepSeek access to this repository and paste [the build prompt](prompts/DEEPSEEK_BUILD.md). The prompt directs it through a working small-model baseline, an expert-lifetime feasibility experiment, bounded residency, and physical-device evaluation.
 
-The proposed engine reuses a pinned backend's graph execution, tokenizer, and numerical kernels. This project owns expert storage, memory reservations, residency, cancellation, and evidence. MNN is the first integration candidate; llama.cpp is the next candidate. The inspected pinned revisions both implement the selected model families, but neither has been built or executed here. A failed source-level feasibility gate can select llama.cpp before residency implementation. The MVP has one production backend.
+The engine reuses pinned llama.cpp for graph execution, tokenizer, model mathematics, and numerical kernels. This project owns expert storage, memory reservations, residency, cancellation, and evidence. MNN was the first integration candidate but retained every expert module and failed the bounded-lifetime gate. llama.cpp is the provisional production backend: it builds for the target, runs the selected small artifact on the phone, and exposes a shape-preserving expert-ID boundary that passed a bitwise gate. The runtime expert-streaming patch is still missing. The MVP has one production backend.
 
 The design also draws from source inspection of LiteRT-LM and current AirLLM. It adopts explicit resource/request lifetimes, supported prefill plans, selective weight ownership, and accounting for materialization peaks. These references do not establish phone compatibility or change the production backend.
 
