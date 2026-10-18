@@ -83,11 +83,13 @@ with tempfile.TemporaryDirectory() as directory:
     path.write_bytes(header + b"\0" * (data_start - len(header)) + b"\0" * (running + 1024))
 
     output = Path(directory) / "index.json"
+    manifest = Path(directory) / "experts.manifest"
     result = subprocess.run([sys.executable, str(tool), "--input", str(path),
                              "--file-size", str(file_size),
                              "--mem-available-kib", "1",
                              "--storage-available-bytes", "1",
-                             "--output", str(output)],
+                             "--output", str(output),
+                             "--manifest-out", str(manifest)],
                             capture_output=True, text=True)
     if result.returncode != 0:
         raise SystemExit(f"GGUF index failed: {result.stdout}{result.stderr}")
@@ -109,6 +111,12 @@ with tempfile.TemporaryDirectory() as directory:
         raise SystemExit(f"Admission did not refuse: {report['admission']}")
     if report["admission"]["streaming_decode_live_bytes_estimate"] != 4192:
         raise SystemExit(f"Unexpected streaming estimate: {report['admission']}")
+    manifest_lines = [line for line in manifest.read_text().splitlines() if line.startswith("tensor ")]
+    if len(manifest_lines) != 3:
+        raise SystemExit(f"Unexpected manifest entries: {manifest_lines}")
+    fields = manifest_lines[0].split()
+    if fields[1] != "blk.0.ffn_down_exps.weight" or int(fields[7]) != 288:
+        raise SystemExit(f"Unexpected manifest row: {manifest_lines[0]}")
 
     truncated = Path(directory) / "truncated.gguf"
     truncated.write_bytes(header[:16])

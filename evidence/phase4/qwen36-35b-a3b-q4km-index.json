@@ -2,7 +2,7 @@
   "admission": {
     "decision": "refuse",
     "full_resident_tensor_bytes": 20408576512,
-    "mem_available_bytes": 5599531008,
+    "mem_available_bytes": 5011972096,
     "reason": "tensor_bytes_exceed_available_memory",
     "streaming_decision": "requires_backend_workspace_proof",
     "streaming_decode_live_bytes_estimate": 2303339008,
@@ -14,6 +14,7 @@
     "decode_live_bytes_per_layer": 17498112,
     "decode_union_bytes_per_layer": 14155776,
     "expert_bytes_per_layer": 1769472,
+    "expert_bytes_per_layer_min": 1769472,
     "expert_bytes_total": 18119393280,
     "expert_tensor_count": 120,
     "layers": [
@@ -34,7 +35,8 @@
             "nbytes": 150994944,
             "offset": 729997312,
             "role": "ffn_down_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_gate_exps": {
             "absolute_offset": 893095424,
@@ -48,7 +50,8 @@
             "nbytes": 150994944,
             "offset": 882106368,
             "role": "ffn_gate_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_up_exps": {
             "absolute_offset": 1047309824,
@@ -62,7 +65,8 @@
             "nbytes": 150994944,
             "offset": 1036320768,
             "role": "ffn_up_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           }
         }
       },
@@ -83,7 +87,8 @@
             "nbytes": 150994944,
             "offset": 1224368896,
             "role": "ffn_down_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_gate_exps": {
             "absolute_offset": 1387467008,
@@ -97,7 +102,8 @@
             "nbytes": 150994944,
             "offset": 1376477952,
             "role": "ffn_gate_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_up_exps": {
             "absolute_offset": 1541681408,
@@ -111,7 +117,8 @@
             "nbytes": 150994944,
             "offset": 1530692352,
             "role": "ffn_up_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           }
         }
       },
@@ -132,7 +139,8 @@
             "nbytes": 150994944,
             "offset": 1718740480,
             "role": "ffn_down_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_gate_exps": {
             "absolute_offset": 1881838592,
@@ -146,7 +154,8 @@
             "nbytes": 150994944,
             "offset": 1870849536,
             "role": "ffn_gate_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_up_exps": {
             "absolute_offset": 2036052992,
@@ -160,7 +169,8 @@
             "nbytes": 150994944,
             "offset": 2025063936,
             "role": "ffn_up_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           }
         }
       },
@@ -181,7 +191,8 @@
             "nbytes": 150994944,
             "offset": 2215342336,
             "role": "ffn_down_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_gate_exps": {
             "absolute_offset": 2378440448,
@@ -195,7 +206,8 @@
             "nbytes": 150994944,
             "offset": 2367451392,
             "role": "ffn_gate_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_up_exps": {
             "absolute_offset": 2532654848,
@@ -209,7 +221,8 @@
             "nbytes": 150994944,
             "offset": 2521665792,
             "role": "ffn_up_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           }
         }
       },
@@ -230,7 +243,8 @@
             "nbytes": 150994944,
             "offset": 2700529920,
             "role": "ffn_down_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_gate_exps": {
             "absolute_offset": 2863628032,
@@ -244,7 +258,8 @@
             "nbytes": 150994944,
             "offset": 2852638976,
             "role": "ffn_gate_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_up_exps": {
             "absolute_offset": 3017842432,
@@ -258,7 +273,8 @@
             "nbytes": 150994944,
             "offset": 3006853376,
             "role": "ffn_up_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           }
         }
       },
@@ -279,7 +295,8 @@
             "nbytes": 150994944,
             "offset": 3194901504,
             "role": "ffn_down_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_gate_exps": {
             "absolute_offset": 3357999616,
@@ -293,7 +310,8 @@
             "nbytes": 150994944,
             "offset": 3347010560,
             "role": "ffn_gate_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_up_exps": {
             "absolute_offset": 3512214016,
@@ -307,7 +325,8 @@
             "nbytes": 150994944,
             "offset": 3501224960,
             "role": "ffn_up_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           }
         }
       },
@@ -328,7 +347,8 @@
             "nbytes": 150994944,
             "offset": 3689273088,
             "role": "ffn_down_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_gate_exps": {
             "absolute_offset": 3852371200,
@@ -342,7 +362,8 @@
             "nbytes": 150994944,
             "offset": 3841382144,
             "role": "ffn_gate_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_up_exps": {
             "absolute_offset": 4006585600,
@@ -356,7 +377,8 @@
             "nbytes": 150994944,
             "offset": 3995596544,
             "role": "ffn_up_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           }
         }
       },
@@ -377,7 +399,8 @@
             "nbytes": 150994944,
             "offset": 4185874944,
             "role": "ffn_down_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_gate_exps": {
             "absolute_offset": 4348973056,
@@ -391,7 +414,8 @@
             "nbytes": 150994944,
             "offset": 4337984000,
             "role": "ffn_gate_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_up_exps": {
             "absolute_offset": 4503187456,
@@ -405,7 +429,8 @@
             "nbytes": 150994944,
             "offset": 4492198400,
             "role": "ffn_up_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           }
         }
       },
@@ -426,7 +451,8 @@
             "nbytes": 150994944,
             "offset": 4671062528,
             "role": "ffn_down_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_gate_exps": {
             "absolute_offset": 4834160640,
@@ -440,7 +466,8 @@
             "nbytes": 150994944,
             "offset": 4823171584,
             "role": "ffn_gate_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_up_exps": {
             "absolute_offset": 4988375040,
@@ -454,7 +481,8 @@
             "nbytes": 150994944,
             "offset": 4977385984,
             "role": "ffn_up_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           }
         }
       },
@@ -475,7 +503,8 @@
             "nbytes": 150994944,
             "offset": 5165434112,
             "role": "ffn_down_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_gate_exps": {
             "absolute_offset": 5328532224,
@@ -489,7 +518,8 @@
             "nbytes": 150994944,
             "offset": 5317543168,
             "role": "ffn_gate_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_up_exps": {
             "absolute_offset": 5482746624,
@@ -503,7 +533,8 @@
             "nbytes": 150994944,
             "offset": 5471757568,
             "role": "ffn_up_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           }
         }
       },
@@ -524,7 +555,8 @@
             "nbytes": 150994944,
             "offset": 5659805696,
             "role": "ffn_down_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_gate_exps": {
             "absolute_offset": 5822903808,
@@ -538,7 +570,8 @@
             "nbytes": 150994944,
             "offset": 5811914752,
             "role": "ffn_gate_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_up_exps": {
             "absolute_offset": 5977118208,
@@ -552,7 +585,8 @@
             "nbytes": 150994944,
             "offset": 5966129152,
             "role": "ffn_up_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           }
         }
       },
@@ -573,7 +607,8 @@
             "nbytes": 150994944,
             "offset": 6156407552,
             "role": "ffn_down_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_gate_exps": {
             "absolute_offset": 6319505664,
@@ -587,7 +622,8 @@
             "nbytes": 150994944,
             "offset": 6308516608,
             "role": "ffn_gate_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_up_exps": {
             "absolute_offset": 6473720064,
@@ -601,7 +637,8 @@
             "nbytes": 150994944,
             "offset": 6462731008,
             "role": "ffn_up_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           }
         }
       },
@@ -622,7 +659,8 @@
             "nbytes": 150994944,
             "offset": 6641595136,
             "role": "ffn_down_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_gate_exps": {
             "absolute_offset": 6804693248,
@@ -636,7 +674,8 @@
             "nbytes": 150994944,
             "offset": 6793704192,
             "role": "ffn_gate_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_up_exps": {
             "absolute_offset": 6958907648,
@@ -650,7 +689,8 @@
             "nbytes": 150994944,
             "offset": 6947918592,
             "role": "ffn_up_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           }
         }
       },
@@ -671,7 +711,8 @@
             "nbytes": 150994944,
             "offset": 7135966720,
             "role": "ffn_down_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_gate_exps": {
             "absolute_offset": 7299064832,
@@ -685,7 +726,8 @@
             "nbytes": 150994944,
             "offset": 7288075776,
             "role": "ffn_gate_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_up_exps": {
             "absolute_offset": 7453279232,
@@ -699,7 +741,8 @@
             "nbytes": 150994944,
             "offset": 7442290176,
             "role": "ffn_up_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           }
         }
       },
@@ -720,7 +763,8 @@
             "nbytes": 150994944,
             "offset": 7630338304,
             "role": "ffn_down_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_gate_exps": {
             "absolute_offset": 7793436416,
@@ -734,7 +778,8 @@
             "nbytes": 150994944,
             "offset": 7782447360,
             "role": "ffn_gate_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_up_exps": {
             "absolute_offset": 7947650816,
@@ -748,7 +793,8 @@
             "nbytes": 150994944,
             "offset": 7936661760,
             "role": "ffn_up_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           }
         }
       },
@@ -769,7 +815,8 @@
             "nbytes": 150994944,
             "offset": 8126940160,
             "role": "ffn_down_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_gate_exps": {
             "absolute_offset": 8290038272,
@@ -783,7 +830,8 @@
             "nbytes": 150994944,
             "offset": 8279049216,
             "role": "ffn_gate_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_up_exps": {
             "absolute_offset": 8444252672,
@@ -797,7 +845,8 @@
             "nbytes": 150994944,
             "offset": 8433263616,
             "role": "ffn_up_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           }
         }
       },
@@ -818,7 +867,8 @@
             "nbytes": 150994944,
             "offset": 8612127744,
             "role": "ffn_down_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_gate_exps": {
             "absolute_offset": 8775225856,
@@ -832,7 +882,8 @@
             "nbytes": 150994944,
             "offset": 8764236800,
             "role": "ffn_gate_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_up_exps": {
             "absolute_offset": 8929440256,
@@ -846,7 +897,8 @@
             "nbytes": 150994944,
             "offset": 8918451200,
             "role": "ffn_up_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           }
         }
       },
@@ -867,7 +919,8 @@
             "nbytes": 150994944,
             "offset": 9106499328,
             "role": "ffn_down_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_gate_exps": {
             "absolute_offset": 9269597440,
@@ -881,7 +934,8 @@
             "nbytes": 150994944,
             "offset": 9258608384,
             "role": "ffn_gate_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_up_exps": {
             "absolute_offset": 9423811840,
@@ -895,7 +949,8 @@
             "nbytes": 150994944,
             "offset": 9412822784,
             "role": "ffn_up_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           }
         }
       },
@@ -916,7 +971,8 @@
             "nbytes": 150994944,
             "offset": 9600870912,
             "role": "ffn_down_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_gate_exps": {
             "absolute_offset": 9763969024,
@@ -930,7 +986,8 @@
             "nbytes": 150994944,
             "offset": 9752979968,
             "role": "ffn_gate_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_up_exps": {
             "absolute_offset": 9918183424,
@@ -944,7 +1001,8 @@
             "nbytes": 150994944,
             "offset": 9907194368,
             "role": "ffn_up_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           }
         }
       },
@@ -965,7 +1023,8 @@
             "nbytes": 150994944,
             "offset": 10097472768,
             "role": "ffn_down_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_gate_exps": {
             "absolute_offset": 10260570880,
@@ -979,7 +1038,8 @@
             "nbytes": 150994944,
             "offset": 10249581824,
             "role": "ffn_gate_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_up_exps": {
             "absolute_offset": 10414785280,
@@ -993,7 +1053,8 @@
             "nbytes": 150994944,
             "offset": 10403796224,
             "role": "ffn_up_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           }
         }
       },
@@ -1014,7 +1075,8 @@
             "nbytes": 150994944,
             "offset": 10582660352,
             "role": "ffn_down_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_gate_exps": {
             "absolute_offset": 10745758464,
@@ -1028,7 +1090,8 @@
             "nbytes": 150994944,
             "offset": 10734769408,
             "role": "ffn_gate_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_up_exps": {
             "absolute_offset": 10899972864,
@@ -1042,7 +1105,8 @@
             "nbytes": 150994944,
             "offset": 10888983808,
             "role": "ffn_up_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           }
         }
       },
@@ -1063,7 +1127,8 @@
             "nbytes": 150994944,
             "offset": 11077031936,
             "role": "ffn_down_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_gate_exps": {
             "absolute_offset": 11240130048,
@@ -1077,7 +1142,8 @@
             "nbytes": 150994944,
             "offset": 11229140992,
             "role": "ffn_gate_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_up_exps": {
             "absolute_offset": 11394344448,
@@ -1091,7 +1157,8 @@
             "nbytes": 150994944,
             "offset": 11383355392,
             "role": "ffn_up_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           }
         }
       },
@@ -1112,7 +1179,8 @@
             "nbytes": 150994944,
             "offset": 11571403520,
             "role": "ffn_down_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_gate_exps": {
             "absolute_offset": 11734501632,
@@ -1126,7 +1194,8 @@
             "nbytes": 150994944,
             "offset": 11723512576,
             "role": "ffn_gate_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_up_exps": {
             "absolute_offset": 11888716032,
@@ -1140,7 +1209,8 @@
             "nbytes": 150994944,
             "offset": 11877726976,
             "role": "ffn_up_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           }
         }
       },
@@ -1161,7 +1231,8 @@
             "nbytes": 150994944,
             "offset": 12068005376,
             "role": "ffn_down_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_gate_exps": {
             "absolute_offset": 12231103488,
@@ -1175,7 +1246,8 @@
             "nbytes": 150994944,
             "offset": 12220114432,
             "role": "ffn_gate_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_up_exps": {
             "absolute_offset": 12385317888,
@@ -1189,7 +1261,8 @@
             "nbytes": 150994944,
             "offset": 12374328832,
             "role": "ffn_up_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           }
         }
       },
@@ -1210,7 +1283,8 @@
             "nbytes": 150994944,
             "offset": 12553192960,
             "role": "ffn_down_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_gate_exps": {
             "absolute_offset": 12716291072,
@@ -1224,7 +1298,8 @@
             "nbytes": 150994944,
             "offset": 12705302016,
             "role": "ffn_gate_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_up_exps": {
             "absolute_offset": 12870505472,
@@ -1238,7 +1313,8 @@
             "nbytes": 150994944,
             "offset": 12859516416,
             "role": "ffn_up_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           }
         }
       },
@@ -1259,7 +1335,8 @@
             "nbytes": 150994944,
             "offset": 13047564544,
             "role": "ffn_down_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_gate_exps": {
             "absolute_offset": 13210662656,
@@ -1273,7 +1350,8 @@
             "nbytes": 150994944,
             "offset": 13199673600,
             "role": "ffn_gate_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_up_exps": {
             "absolute_offset": 13364877056,
@@ -1287,7 +1365,8 @@
             "nbytes": 150994944,
             "offset": 13353888000,
             "role": "ffn_up_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           }
         }
       },
@@ -1308,7 +1387,8 @@
             "nbytes": 150994944,
             "offset": 13541936128,
             "role": "ffn_down_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_gate_exps": {
             "absolute_offset": 13705034240,
@@ -1322,7 +1402,8 @@
             "nbytes": 150994944,
             "offset": 13694045184,
             "role": "ffn_gate_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_up_exps": {
             "absolute_offset": 13859248640,
@@ -1336,7 +1417,8 @@
             "nbytes": 150994944,
             "offset": 13848259584,
             "role": "ffn_up_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           }
         }
       },
@@ -1357,7 +1439,8 @@
             "nbytes": 150994944,
             "offset": 14038537984,
             "role": "ffn_down_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_gate_exps": {
             "absolute_offset": 14201636096,
@@ -1371,7 +1454,8 @@
             "nbytes": 150994944,
             "offset": 14190647040,
             "role": "ffn_gate_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_up_exps": {
             "absolute_offset": 14355850496,
@@ -1385,7 +1469,8 @@
             "nbytes": 150994944,
             "offset": 14344861440,
             "role": "ffn_up_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           }
         }
       },
@@ -1406,7 +1491,8 @@
             "nbytes": 150994944,
             "offset": 14523725568,
             "role": "ffn_down_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_gate_exps": {
             "absolute_offset": 14686823680,
@@ -1420,7 +1506,8 @@
             "nbytes": 150994944,
             "offset": 14675834624,
             "role": "ffn_gate_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_up_exps": {
             "absolute_offset": 14841038080,
@@ -1434,7 +1521,8 @@
             "nbytes": 150994944,
             "offset": 14830049024,
             "role": "ffn_up_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           }
         }
       },
@@ -1455,7 +1543,8 @@
             "nbytes": 150994944,
             "offset": 15018097152,
             "role": "ffn_down_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_gate_exps": {
             "absolute_offset": 15181195264,
@@ -1469,7 +1558,8 @@
             "nbytes": 150994944,
             "offset": 15170206208,
             "role": "ffn_gate_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_up_exps": {
             "absolute_offset": 15335409664,
@@ -1483,7 +1573,8 @@
             "nbytes": 150994944,
             "offset": 15324420608,
             "role": "ffn_up_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           }
         }
       },
@@ -1504,7 +1595,8 @@
             "nbytes": 150994944,
             "offset": 15512468736,
             "role": "ffn_down_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_gate_exps": {
             "absolute_offset": 15675566848,
@@ -1518,7 +1610,8 @@
             "nbytes": 150994944,
             "offset": 15664577792,
             "role": "ffn_gate_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_up_exps": {
             "absolute_offset": 15829781248,
@@ -1532,7 +1625,8 @@
             "nbytes": 150994944,
             "offset": 15818792192,
             "role": "ffn_up_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           }
         }
       },
@@ -1553,7 +1647,8 @@
             "nbytes": 150994944,
             "offset": 16009070592,
             "role": "ffn_down_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_gate_exps": {
             "absolute_offset": 16172168704,
@@ -1567,7 +1662,8 @@
             "nbytes": 150994944,
             "offset": 16161179648,
             "role": "ffn_gate_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_up_exps": {
             "absolute_offset": 16326383104,
@@ -1581,7 +1677,8 @@
             "nbytes": 150994944,
             "offset": 16315394048,
             "role": "ffn_up_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           }
         }
       },
@@ -1602,7 +1699,8 @@
             "nbytes": 150994944,
             "offset": 16494258176,
             "role": "ffn_down_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_gate_exps": {
             "absolute_offset": 16657356288,
@@ -1616,7 +1714,8 @@
             "nbytes": 150994944,
             "offset": 16646367232,
             "role": "ffn_gate_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_up_exps": {
             "absolute_offset": 16811570688,
@@ -1630,7 +1729,8 @@
             "nbytes": 150994944,
             "offset": 16800581632,
             "role": "ffn_up_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           }
         }
       },
@@ -1651,7 +1751,8 @@
             "nbytes": 150994944,
             "offset": 16988629760,
             "role": "ffn_down_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_gate_exps": {
             "absolute_offset": 17151727872,
@@ -1665,7 +1766,8 @@
             "nbytes": 150994944,
             "offset": 17140738816,
             "role": "ffn_gate_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_up_exps": {
             "absolute_offset": 17305942272,
@@ -1679,7 +1781,8 @@
             "nbytes": 150994944,
             "offset": 17294953216,
             "role": "ffn_up_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           }
         }
       },
@@ -1700,7 +1803,8 @@
             "nbytes": 150994944,
             "offset": 17483001344,
             "role": "ffn_down_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_gate_exps": {
             "absolute_offset": 17646099456,
@@ -1714,7 +1818,8 @@
             "nbytes": 150994944,
             "offset": 17635110400,
             "role": "ffn_gate_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_up_exps": {
             "absolute_offset": 17800313856,
@@ -1728,7 +1833,8 @@
             "nbytes": 150994944,
             "offset": 17789324800,
             "role": "ffn_up_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           }
         }
       },
@@ -1749,7 +1855,8 @@
             "nbytes": 150994944,
             "offset": 17979603200,
             "role": "ffn_down_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_gate_exps": {
             "absolute_offset": 18142701312,
@@ -1763,7 +1870,8 @@
             "nbytes": 150994944,
             "offset": 18131712256,
             "role": "ffn_gate_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_up_exps": {
             "absolute_offset": 18296915712,
@@ -1777,7 +1885,8 @@
             "nbytes": 150994944,
             "offset": 18285926656,
             "role": "ffn_up_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           }
         }
       },
@@ -1798,7 +1907,8 @@
             "nbytes": 150994944,
             "offset": 18464790784,
             "role": "ffn_down_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_gate_exps": {
             "absolute_offset": 18627888896,
@@ -1812,7 +1922,8 @@
             "nbytes": 150994944,
             "offset": 18616899840,
             "role": "ffn_gate_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_up_exps": {
             "absolute_offset": 18782103296,
@@ -1826,7 +1937,8 @@
             "nbytes": 150994944,
             "offset": 18771114240,
             "role": "ffn_up_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           }
         }
       },
@@ -1847,7 +1959,8 @@
             "nbytes": 150994944,
             "offset": 18959162368,
             "role": "ffn_down_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_gate_exps": {
             "absolute_offset": 19122260480,
@@ -1861,7 +1974,8 @@
             "nbytes": 150994944,
             "offset": 19111271424,
             "role": "ffn_gate_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_up_exps": {
             "absolute_offset": 19276474880,
@@ -1875,7 +1989,8 @@
             "nbytes": 150994944,
             "offset": 19265485824,
             "role": "ffn_up_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           }
         }
       },
@@ -1896,7 +2011,8 @@
             "nbytes": 150994944,
             "offset": 19453533952,
             "role": "ffn_down_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_gate_exps": {
             "absolute_offset": 19616632064,
@@ -1910,7 +2026,8 @@
             "nbytes": 150994944,
             "offset": 19605643008,
             "role": "ffn_gate_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_up_exps": {
             "absolute_offset": 19770846464,
@@ -1924,7 +2041,8 @@
             "nbytes": 150994944,
             "offset": 19759857408,
             "role": "ffn_up_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           }
         }
       },
@@ -1945,7 +2063,8 @@
             "nbytes": 150994944,
             "offset": 19950135808,
             "role": "ffn_down_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_gate_exps": {
             "absolute_offset": 20113233920,
@@ -1959,7 +2078,8 @@
             "nbytes": 150994944,
             "offset": 20102244864,
             "role": "ffn_gate_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           },
           "ffn_up_exps": {
             "absolute_offset": 20267448320,
@@ -1973,7 +2093,8 @@
             "nbytes": 150994944,
             "offset": 20256459264,
             "role": "ffn_up_exps",
-            "type": "q4_K"
+            "type": "q4_K",
+            "type_id": 12
           }
         }
       }
@@ -2049,7 +2170,7 @@
     "Backend workspace, KV/recurrent state, packing, and page-cache behavior are not covered.",
     "No inference or expert streaming was executed."
   ],
-  "observed_at": "2026-10-18T19:51:29Z",
+  "observed_at": "2026-10-18T20:22:10Z",
   "schema_version": 1,
   "source": {
     "file_size": 20419565568,
@@ -2059,7 +2180,7 @@
   },
   "storage": {
     "artifact_bytes": 20419565568,
-    "available_bytes": 102177562624,
+    "available_bytes": 98000000000,
     "fits_available_storage": true,
     "transfer_and_temporary_space_reserved": false
   },
