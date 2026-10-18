@@ -177,7 +177,10 @@ the phase 1/4 plan permits:
 - Prompt `The capital of France is` (5 tokens), 8 greedy tokens, context 512, batch
   512, 4 threads, seed 1234.
 
-Seven runs are recorded in [the aggregate](../evidence/runtime/qwen15-stream-aggregate.json).
+Seven measured runs are recorded in [the aggregate](../evidence/runtime/qwen15-stream-aggregate.json).
+A later run with the final conditional-prefetch patch reproduced the same tokens and a
+1,254,620 KiB peak but was slower; it is retained separately because the page-cache and
+thermal state were not controlled.
 The first three used the original eager-mmap-prefetch loader; the last four used
 `init_mappings(false)`. All seven produced the **same** token IDs:
 `32671, 624, 59604, 198, 39572, 198, 94409, 198`.
@@ -218,6 +221,9 @@ What this does **not** establish:
   over one arena is the next unit.
 - The target 26B/35B artifacts have not run. Their preflight estimates are not bounded
   process memory.
+- The no-prefetch profile is a streaming tradeoff, not a general default. On the
+  dense Qwen3.5-2B, `0002` kept tokens identical but moved load from 3.50 to 5.26 s,
+  TTFT from 0.42 to 7.01 s, and decode from 9.69 to 0.50 tok/s while peak RSS fell
+  from 1.82 to 1.31 GiB. Apply it only when expert pages should stay unfaulted.
 - One prompt, one seed, no cancellation or failure injection, and no long-context or
   prefill-union stress test were run.
-

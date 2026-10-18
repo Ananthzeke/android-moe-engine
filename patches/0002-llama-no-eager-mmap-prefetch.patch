@@ -1,13 +1,22 @@
 diff --git a/src/llama-model.cpp b/src/llama-model.cpp
-index 803a832..78f672f 100644
+index 803a832..ffd1726 100644
 --- a/src/llama-model.cpp
 +++ b/src/llama-model.cpp
-@@ -1887,7 +1887,7 @@ bool llama_model_base::load_tensors(llama_model_loader & ml) {
+@@ -4,6 +4,7 @@
+ #include "llama-ext.h"
+ #include "llama-hparams.h"
+ #include "llama-impl.h"
++#include "ggml-moe.h"
+ #include "llama-mmap.h"
+ #include "llama-cparams.h"
+ #include "llama-model-loader.h"
+@@ -1887,7 +1888,8 @@ bool llama_model_base::load_tensors(llama_model_loader & ml) {
      // per-tensor activation precision policy
      prec_policy.load(ml, *this);
  
 -    ml.init_mappings(true, use_mlock ? &pimpl->mlock_mmaps : nullptr);
-+    ml.init_mappings(false, use_mlock ? &pimpl->mlock_mmaps : nullptr); // streaming profile: no MAP_POPULATE
++    const bool prefetch_mappings = !ggml_moe_materializer_active();
++    ml.init_mappings(prefetch_mappings, use_mlock ? &pimpl->mlock_mmaps : nullptr);
      pimpl->mappings.reserve(ml.mappings.size());
  
      // create the backend buffers

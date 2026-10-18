@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-10-18T20:38:08Z",
+  "run": {
+    "id": "dense-no-prefetch",
+    "tag": "host",
+    "backend": {
+      "name": "llama.cpp",
+      "version": "0.7.0-dev",
+      "commit": "ff5a23376725e5a889fa0bfb987b7541dc304da0",
+      "binary_sha256": null
+    }
+  },
+  "model": {
+    "path": "/media/ananth/17AB9D0651C6CC1F/ame-tools/models/qwen3.5-2b/Qwen3.5-2B-Q4_K_M.gguf",
+    "artifact_sha256": "aaf42c8b7c3cab2bf3d69c355048d4a0ee9973d48f16c731c0520ee914699223",
+    "file_bytes": 1280835840
+  },
+  "model_info": {
+    "description": "qwen35 2B Q4_K - Medium",
+    "parameters": 1881825088,
+    "tensor_bytes": 1269873920,
+    "n_ctx_train": 262144,
+    "n_embd": 2048,
+    "n_layer": 24
+  },
+  "options": {
+    "context_tokens": 512,
+    "max_new_tokens": 16,
+    "threads": 4,
+    "batch_size": 512,
+    "seed": 1234,
+    "temperature": 0,
+    "top_k": 40,
+    "top_p": 0.95,
+    "mmap": true,
+    "chat_template": true,
+    "gpu_layers": 0
+  },
+  "prompt": {
+    "text": "<|im_start|>user\u000aWhat is the capital of France?<|im_end|>\u000a<|im_start|>assistant\u000a"
+  },
+  "prompt_token_count": 15,
+  "prompt_token_ids": [
+    248045,
+    846,
+    198,
+    3710,
+    369,
+    279,
+    6511,
+    314,
+    9338,
+    30,
+    248046,
+    198,
+    248045,
+    74455,
+    198
+  ],
+  "output": {
+    "token_ids": [
+      248068,
+      271,
+      248069,
+      271,
+      760,
+      6511,
+      314,
+      9338,
+      369,
+      2972,
+      57590,
+      159034,
+      271,
+      46162,
+      303,
+      279
+    ],
+    "text": "<think>\u000a\u000a</think>\u000a\u000aThe capital of France is **Paris**.\u000a\u000aLocated in the",
+    "tokens": 16,
+    "finish_reason": "limit"
+  },
+  "timing": {
+    "load_seconds": 5.262364239,
+    "model_load_seconds": 4.991613775,
+    "context_init_seconds": 0.270750464,
+    "tokenize_seconds": 0.00057363,
+    "prefill_seconds": 6.325041239,
+    "request_ttft_seconds": 7.005559073,
+    "decode_seconds": 29.879435923,
+    "decode_tokens_per_second": 0.5020175092547045,
+    "generate_seconds": 36.885289415,
+    "wall_seconds": 42.163546086
+  },
+  "memory": {
+    "rss_kib_after_load": 1068648,
+    "rss_kib_after_prefill": 914480,
+    "rss_kib_end": 1302368,
+    "vm_hwm_kib_end": 1310100,
+    "threads_end": 1,
+    "mem_available_kib_after_load": 613656,
+    "mem_available_kib_after_prefill": 540704,
+    "mem_available_kib_end": 1099140,
+    "project_owned_bytes": null,
+    "scope": "process RSS/VmHWM samples and system MemAvailable; backend allocation coverage not instrumented"
+  },
+  "status": "ok",
+  "finish_reason": "limit",
+  "streaming": {
+    "installed": false,
+    "manifest": null,
+    "slots": 0,
+    "arena_bytes": 0,
+    "materialize_calls": 0,
+    "tensor_switches": 0,
+    "reads": 0,
+    "read_bytes": 0,
+    "hits": 0,
+    "misses": 0,
+    "evictions": 0,
+    "max_union": 0
+  },
+  "unavailable": [
+    {
+      "field": "run.binary_sha256",
+      "reason": "not_supplied"
+    },
+    {
+      "field": "memory.project_owned_bytes",
+      "reason": "backend_allocation_coverage_not_instrumented"
+    }
+  ]
+}

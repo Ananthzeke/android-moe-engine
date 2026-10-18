@@ -1,9 +1,9 @@
 diff --git a/ggml/include/ggml-moe.h b/ggml/include/ggml-moe.h
 new file mode 100644
-index 0000000..8282fff
+index 0000000..10305b3
 --- /dev/null
 +++ b/ggml/include/ggml-moe.h
-@@ -0,0 +1,24 @@
+@@ -0,0 +1,25 @@
 +#pragma once
 +
 +#include <stdbool.h>
@@ -22,6 +22,7 @@ index 0000000..8282fff
 +                                        const struct ggml_tensor * ids);
 +
 +void ggml_moe_set_materializer(ggml_moe_materialize_fn materializer);
++bool ggml_moe_materializer_active(void);
 +const struct ggml_tensor * ggml_moe_staged_weights(void);
 +const struct ggml_tensor * ggml_moe_staged_ids(void);
 +
@@ -29,7 +30,7 @@ index 0000000..8282fff
 +}
 +#endif
 diff --git a/ggml/src/ggml-cpu/ggml-cpu.c b/ggml/src/ggml-cpu/ggml-cpu.c
-index ab82e3d..b9066cb 100644
+index ab82e3d..a9a5dca 100644
 --- a/ggml/src/ggml-cpu/ggml-cpu.c
 +++ b/ggml/src/ggml-cpu/ggml-cpu.c
 @@ -13,6 +13,7 @@
@@ -40,7 +41,7 @@ index ab82e3d..b9066cb 100644
  #include "common.h"
  #include "tiled/tiled.h"
  
-@@ -1471,6 +1472,29 @@ UseGgmlGemm2:;
+@@ -1471,6 +1472,33 @@ UseGgmlGemm2:;
      }
  }
  
@@ -51,6 +52,10 @@ index ab82e3d..b9066cb 100644
 +
 +void ggml_moe_set_materializer(ggml_moe_materialize_fn materializer) {
 +    g_moe_materializer = materializer;
++}
++
++bool ggml_moe_materializer_active(void) {
++    return g_moe_materializer != NULL;
 +}
 +
 +#if defined(__GNUC__) || defined(__clang__)
@@ -70,7 +75,7 @@ index ab82e3d..b9066cb 100644
  // ggml_compute_forward_mul_mat_id
  
  #define MMID_MATRIX_ROW(row_id, i1) matrix_rows[(row_id)*ids->ne[0]*ids->ne[1] + (i1)]
-@@ -1564,7 +1588,22 @@ static void ggml_compute_forward_mul_mat_id(
+@@ -1564,7 +1592,22 @@ static void ggml_compute_forward_mul_mat_id(
      const int ith = params->ith;
      const int nth = params->nth;
  
@@ -94,7 +99,7 @@ index ab82e3d..b9066cb 100644
  
      const bool src1_cont = ggml_is_contiguous(src1);
  
-@@ -1582,8 +1621,8 @@ static void ggml_compute_forward_mul_mat_id(
+@@ -1582,8 +1625,8 @@ static void ggml_compute_forward_mul_mat_id(
      GGML_ASSERT(nb2 <= nb3);
  
      // row groups
@@ -105,7 +110,7 @@ index ab82e3d..b9066cb 100644
  
      void * wdata_cur = params->wdata;
  
-@@ -1594,8 +1633,8 @@ static void ggml_compute_forward_mul_mat_id(
+@@ -1594,8 +1637,8 @@ static void ggml_compute_forward_mul_mat_id(
      int64_t * matrix_row_counts = // [n_as]
          incr_ptr_aligned(&wdata_cur, n_as*sizeof(int64_t), sizeof(int64_t));
  
@@ -116,7 +121,7 @@ index ab82e3d..b9066cb 100644
  
      char (*atomic_current_chunk)[CACHE_LINE_SIZE] = // [n_as]
          incr_ptr_aligned(&wdata_cur, CACHE_LINE_SIZE * n_as, CACHE_LINE_SIZE);
-@@ -1648,9 +1687,9 @@ static void ggml_compute_forward_mul_mat_id(
+@@ -1648,9 +1691,9 @@ static void ggml_compute_forward_mul_mat_id(
          memset(matrix_row_counts, 0, n_as*sizeof(int64_t));
  
          // group rows by src0 matrix
@@ -128,7 +133,7 @@ index ab82e3d..b9066cb 100644
  
                  assert(i02 >= 0 && i02 < n_as);
  
-@@ -1676,11 +1715,13 @@ static void ggml_compute_forward_mul_mat_id(
+@@ -1676,11 +1719,13 @@ static void ggml_compute_forward_mul_mat_id(
          }
  
          // tiled takes over if profitable for this expert (see tiled.h)

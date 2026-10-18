@@ -18,8 +18,12 @@ Artifact: `gdax/Qwen1.5-MoE-A2.7B_gguf`, file `Qwen1.5-MoE-A2.7B_q4_k_m.gguf`,
 `09555491f85f40208e3999f3ced97b064f7c7c0b88bb3fedcbd5df51aad7d1ed`, qwen2moe,
 24 layers, 60 experts, top-4 routing, 14.3B parameters.
 
-Seven runs used the patched runtime materializer. Runs 01-03 used eager mmap prefetch;
-runs 04-07 disabled it. All seven produced the same token IDs. The
+Seven measured runs used the patched runtime materializer. Runs 01-03 used eager mmap
+prefetch; runs 04-07 ran with prefetch disabled. All seven produced the same token
+IDs. Run 08 re-ran the final conditional-prefetch patch: the same token IDs and a
+1,254,620 KiB peak, but slower TTFT and decode, consistent with an uncontrolled page
+cache/thermal state. It is kept separately rather than folded into the campaign
+medians. The
 [aggregate](qwen15-stream-aggregate.md) records medians, arena sizes, reads, peak RSS,
 and the prefetch comparison. Raw harness records and before/after probe snapshots are
 kept beside it.

@@ -98,4 +98,6 @@ Add two small patches to pinned llama.cpp. [`0001`](../patches/0001-ggml-moe-mat
 
 The measured effect is large and recorded: with prefetch, a 9.48 GB Qwen1.5-MoE fixture peaked at 5.2-6.1 GiB process RSS and decoded at about 1.0 token/s; without it, the same seven-run token sequence peaked at about 1.20 GiB and decoded at about 2.0 token/s. TTFT fell from 4.9-8.4 s to about 2.1 s. This makes the loader's mapping policy part of the residency contract, not an implementation detail.
 
+The no-prefetch change is scoped to the streaming profile. On the dense Qwen3.5-2B it reproduced token IDs exactly but reduced decode from 9.69 to 0.50 token/s and moved TTFT from 0.42 to 7.01 s, while peak RSS fell from 1.82 to 1.31 GiB. Do not make it the default for dense execution; make the loader policy part of the declared execution profile.
+
 Keep the claims narrow. The project arena was 120-160 MB, not a process cap. The LRU had zero hits because each tensor switch recreated its store; 5.96 GB was read for 13 prompt/generated tokens. No full-resident reference parity exists for this model; bitwise equivalence is established at the synthetic kernel/runtime gate. The 35B target has not run. The next units are one shared arena with per-tensor slot maps, bounded prefill microbatches, cancellation/failure cleanup, and allocation coverage.
