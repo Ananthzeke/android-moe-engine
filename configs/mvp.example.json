@@ -22,6 +22,7 @@
     "A dense run does not reserve an unused expert cache.",
     "Context includes prompt and generated tokens. Reject overflow; do not silently truncate.",
     "Refuse streaming if the smallest valid live expert working set exceeds the admitted cache.",
-    "Backend allocations must be measured and covered before describing the total as a hard cap."
+    "Backend allocations must be measured and covered before describing the total as a hard cap.",
+    "A measured 1,024-slot cache on the 35B artifact reduced reads 23.5% but increased read time and lowered decode; the implementation default is 64 slots with demand reads."
   ]
 }

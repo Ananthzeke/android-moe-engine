@@ -992,6 +992,8 @@ int main(int argc, char* argv[]) {
   json.unsigned_value(stream_stats.reads);
   json.key("read_bytes");
   json.unsigned_value(stream_stats.read_bytes);
+  json.key("read_seconds");
+  json.double_value(stream_stats.read_seconds);
   json.key("hits");
   json.unsigned_value(stream_stats.hits);
   json.key("misses");

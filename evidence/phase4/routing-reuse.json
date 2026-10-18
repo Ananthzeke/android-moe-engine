@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "trace": "routing-35b-ctx2048.trace",
+  "calls": 960,
+  "forwards": 8,
+  "tensors_per_forward": 120,
+  "selected_keys_per_forward": [
+    3279,
+    960,
+    960,
+    960,
+    960,
+    960,
+    960,
+    960
+  ],
+  "consecutive_overlap": [
+    612,
+    237,
+    351,
+    453,
+    384,
+    390,
+    516
+  ],
+  "union_across_forwards": 5496,
+  "common_experts_per_tensor_across_forwards": {
+    "median": 1.0,
+    "min": 0,
+    "max": 3
+  },
+  "lru_simulation": [
+    {
+      "slots": 64,
+      "hits": 0,
+      "misses": 9999,
+      "hit_rate": 0.0,
+      "application_read_bytes": 5897650176
+    },
+    {
+      "slots": 128,
+      "hits": 0,
+      "misses": 9999,
+      "hit_rate": 0.0,
+      "application_read_bytes": 5897650176
+    },
+    {
+      "slots": 256,
+      "hits": 0,
+      "misses": 9999,
+      "hit_rate": 0.0,
+      "application_read_bytes": 5897650176
+    },
+    {
+      "slots": 512,
+      "hits": 0,
+      "misses": 9999,
+      "hit_rate": 0.0,
+      "application_read_bytes": 5897650176
+    },
+    {
+      "slots": 960,
+      "hits": 1728,
+      "misses": 8271,
+      "hit_rate": 0.17281728172817282,
+      "application_read_bytes": 4878434304
+    },
+    {
+      "slots": 1024,
+      "hits": 2349,
+      "misses": 7650,
+      "hit_rate": 0.23492349234923493,
+      "application_read_bytes": 4512153600
+    },
+    {
+      "slots": 1920,
+      "hits": 3191,
+      "misses": 6808,
+      "hit_rate": 0.3191319131913191,
+      "application_read_bytes": 4015521792
+    },
+    {
+      "slots": 2048,
+      "hits": 3343,
+      "misses": 6656,
+      "hit_rate": 0.3343334333433343,
+      "application_read_bytes": 3925868544
+    },
+    {
+      "slots": 3279,
+      "hits": 4202,
+      "misses": 5797,
+      "hit_rate": 0.42024202420242024,
+      "application_read_bytes": 3419209728
+    },
+    {
+      "slots": 4096,
+      "hits": 4389,
+      "misses": 5610,
+      "hit_rate": 0.4389438943894389,
+      "application_read_bytes": 3308912640
+    },
+    {
+      "slots": 5496,
+      "hits": 4503,
+      "misses": 5496,
+      "hit_rate": 0.45034503450345037,
+      "application_read_bytes": 3241672704
+    },
+    {
+      "slots": 8192,
+      "hits": 4503,
+      "misses": 5496,
+      "hit_rate": 0.45034503450345037,
+      "application_read_bytes": 3241672704
+    }
+  ],
+  "notes": [
+    "Keys are (tensor, expert); gate, up, and down tensors do not share weights.",
+    "The trace covers prefill plus seven decode steps at context 2048.",
+    "A capacity below one decode working set (960 keys) yields no hits."
+  ]
+}

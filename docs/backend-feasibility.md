@@ -270,10 +270,35 @@ Limits, kept explicit:
 - The process peak is not an enforced cap. The arena is project-owned; mmap pages, OS
   page cache, the 63 MiB compute buffer, shared experts (133,693,440 bytes), and
   allocator behavior are not fully covered.
-- Store hits are zero because each tensor switch recreates its store. The run read
-  5.90 GB for 9 forwards (prefill plus 8 decode steps), so the current I/O path is not
-  cache-efficient.
+- Store hits are zero and the run read 5.90 GB for 9 forwards (prefill plus 8
+  decode steps). Application read time was 16.6-21.4 s of a 22-28 s generation, so
+  storage reads are the measured limiter. A larger cache was tested and rejected; see
+  below.
 - One prompt, one seed, 8 tokens, contexts 512-2048, no cancellation/failure injection,
   and no long-context or prefill-union stress test beyond these short prompts.
 - Decode is 0.37-0.61 token/s; TTFT is 9.6-17.8 s. Feasibility is established; useful
   interactive speed is not.
+### Cache-capacity experiment (negative result)
+
+The routing trace in [routing-reuse.json](../evidence/phase4/routing-reuse.json)
+covers 960 materializations, 8 forwards, and 5,496 distinct (tensor, expert) keys.
+Decode forwards each select 960 keys; consecutive overlaps are 237-612 keys. A
+capacity below 960 slots cannot hit by construction. The LRU simulation predicts a
+23.5% hit rate at 1,024 slots and 45% at 5,496 slots, but the latter would require a
+3.2 GB arena.
+
+A 1,024-slot multi-table cache (604 MB arena) was run against the default 64-slot
+(38 MB) path on the same artifact and settings:
+
+| Slots | Arena bytes | Hits | Application bytes | Read seconds | TTFT s | Decode tok/s | Peak VmHWM KiB |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 1024 | 603,979,776 | 2,349 | 4,512,153,600 | 21.62 | 12.77 | 0.461 | 2,761,520 |
+| 64 | 37,748,736 | 0 | 5,897,650,176 | 16.62 | 9.60 | 0.561 | 2,209,768 |
+
+Token IDs were identical. The larger cache cut application bytes by 23.5% but
+increased read time by 5.0 s, reduced decode by 18%, and raised peak RSS by 539 MiB.
+This is a **measured loss**, not a speedup. Keep demand reads and the small arena as
+the default; do not adopt a large global LRU from this evidence. The experiment is one
+consecutive pair under uncontrolled page-cache/thermal state, and a per-tensor or
+prefetch policy was not compared.
+

@@ -177,12 +177,14 @@ paths are implemented and covered by the host verifier, including a sparse file 
 4 GiB, a short-read failure, pinned-slot refusal, and a borrowed arena. A synthetic
 `MUL_MAT_ID` gate confirms bitwise equality with a 4-expert union.
 
-The real 14.3B MoE run used a 120-160 MB arena but stuck at zero cache hits: each
-tensor switch recreated its store. The next unit is one shared arena with per-tensor
-slot maps so that decode reuses experts across tokens. The run also shows why a store
-arena is not a process cap: with eager mmap prefetch the process peaked at 5.2-6.1
-GiB; disabling it lowered the peak to about 1.2 GiB, still without complete backend
-allocation coverage.
+The real 14.3B and 35B runs used 28-160 MB arenas with zero cache hits. A
+multi-table cache over one arena was then implemented and tested on the 35B artifact:
+1,024 slots reduced application bytes by 23.5% but increased read time by 5.0 s,
+reduced decode by 18%, and raised peak RSS by 539 MiB. The demand-read 64-slot path is
+retained. The run also shows why a store arena is not a process cap: with eager mmap
+prefetch the process peaked at 5.2-6.1 GiB; disabling it lowered the peak to about
+1.2 GiB (14.3B) or 2.06-2.09 GiB (35B), still without complete backend allocation
+coverage.
 
 ## Phase 3: Make physical-device comparison reproducible
 
@@ -284,9 +286,10 @@ RSS after load was 163,584 KiB, peak RSS was about 2.06-2.09 GiB, the arena was
 [`evidence/phase4/qwen36-stream-aggregate.json`](../evidence/phase4/qwen36-stream-aggregate.json).
 
 The success is narrow: no full-resident reference logits or tokens exist for this
-artifact, the process peak is not an enforced cap, the store did not cache across
-tensor switches, and only one prompt/seed was run. Exit check 2 (reference-correct
-token or logit evidence) remains open.
+artifact, the process peak is not an enforced cap, and only one prompt/seed was run.
+Application read time was 16.6-21.4 s of a 22-28 s generation. A 1,024-slot cache was
+a measured loss and was rejected. Exit check 2 (reference-correct token or logit
+evidence) remains open.
 
 ## Phase 5: Improve only the measured limiter
 

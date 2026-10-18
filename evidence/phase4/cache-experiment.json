@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "experiment": "35B expert-cache capacity",
+  "settings": {
+    "context_tokens": 2048,
+    "max_new_tokens": 8,
+    "batch_size": 64,
+    "threads": 4,
+    "prompt": "The capital of France is",
+    "artifact_sha256": "671e47e0ec53c665d048b98c3ecbfd5236b5ca9c3e02ed19fc8f81f7b85140c7"
+  },
+  "runs": [
+    {
+      "run": 8,
+      "slots": 1024,
+      "arena_bytes": 603979776,
+      "hits": 2349,
+      "misses": 7650,
+      "read_bytes": 4512153600,
+      "read_seconds": 21.620776555000003,
+      "ttft_seconds": 12.77266161,
+      "decode_tokens_per_second": 0.4611191599778877,
+      "peak_rss_kib": 2761520,
+      "token_ids": [
+        11751,
+        11,
+        264,
+        3177,
+        34756,
+        364,
+        1141,
+        8807
+      ]
+    },
+    {
+      "run": 9,
+      "slots": 64,
+      "arena_bytes": 37748736,
+      "hits": 0,
+      "misses": 9999,
+      "read_bytes": 5897650176,
+      "read_seconds": 16.62377169100008,
+      "ttft_seconds": 9.601845517,
+      "decode_tokens_per_second": 0.5607676022461938,
+      "peak_rss_kib": 2209768,
+      "token_ids": [
+        11751,
+        11,
+        264,
+        3177,
+        34756,
+        364,
+        1141,
+        8807
+      ]
+    }
+  ],
+  "token_ids_identical": true,
+  "result": "measured_loss",
+  "conclusion": [
+    "The 1024-slot cache reduced application reads from 5,897,650,176 to 4,512,153,600 bytes (-23.5%).",
+    "Read time rose from 16.62 s to 21.62 s and decode fell from 0.561 to 0.461 tok/s.",
+    "Peak RSS rose from 2,209,768 to 2,761,520 KiB because the arena grew by 566 MiB.",
+    "Keep demand reads and the small arena as the default; do not adopt a large global LRU from this evidence."
+  ],
+  "limits": [
+    "One consecutive pair under uncontrolled page-cache and thermal state.",
+    "The routing trace shows a decode working set of 960 keys, so capacities below 960 cannot hit.",
+    "No per-tensor or prefetch policy was compared."
+  ]
+}

@@ -10,6 +10,7 @@ struct MoeStreamStats {
   std::uint64_t tensor_switches{0};
   std::uint64_t reads{0};
   std::uint64_t read_bytes{0};
+  double read_seconds{0.0};
   std::uint64_t hits{0};
   std::uint64_t misses{0};
   std::uint64_t evictions{0};

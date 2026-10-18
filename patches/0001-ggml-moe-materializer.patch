@@ -1,9 +1,9 @@
 diff --git a/ggml/include/ggml-moe.h b/ggml/include/ggml-moe.h
 new file mode 100644
-index 0000000..10305b3
+index 0000000..cea141e
 --- /dev/null
 +++ b/ggml/include/ggml-moe.h
-@@ -0,0 +1,25 @@
+@@ -0,0 +1,26 @@
 +#pragma once
 +
 +#include <stdbool.h>
@@ -23,6 +23,7 @@ index 0000000..10305b3
 +
 +void ggml_moe_set_materializer(ggml_moe_materialize_fn materializer);
 +bool ggml_moe_materializer_active(void);
++uint32_t ggml_moe_max_slots(void);
 +const struct ggml_tensor * ggml_moe_staged_weights(void);
 +const struct ggml_tensor * ggml_moe_staged_ids(void);
 +
@@ -30,7 +31,7 @@ index 0000000..10305b3
 +}
 +#endif
 diff --git a/ggml/src/ggml-cpu/ggml-cpu.c b/ggml/src/ggml-cpu/ggml-cpu.c
-index ab82e3d..a9a5dca 100644
+index ab82e3d..007bf03 100644
 --- a/ggml/src/ggml-cpu/ggml-cpu.c
 +++ b/ggml/src/ggml-cpu/ggml-cpu.c
 @@ -13,6 +13,7 @@
@@ -41,7 +42,7 @@ index ab82e3d..a9a5dca 100644
  #include "common.h"
  #include "tiled/tiled.h"
  
-@@ -1471,6 +1472,33 @@ UseGgmlGemm2:;
+@@ -1471,6 +1472,40 @@ UseGgmlGemm2:;
      }
  }
  
@@ -61,6 +62,13 @@ index ab82e3d..a9a5dca 100644
 +#if defined(__GNUC__) || defined(__clang__)
 +__attribute__((weak))
 +#endif
++uint32_t ggml_moe_max_slots(void) {
++    return 0;
++}
++
++#if defined(__GNUC__) || defined(__clang__)
++__attribute__((weak))
++#endif
 +const struct ggml_tensor * ggml_moe_staged_weights(void) {
 +    return NULL;
 +}
@@ -75,7 +83,7 @@ index ab82e3d..a9a5dca 100644
  // ggml_compute_forward_mul_mat_id
  
  #define MMID_MATRIX_ROW(row_id, i1) matrix_rows[(row_id)*ids->ne[0]*ids->ne[1] + (i1)]
-@@ -1564,7 +1592,22 @@ static void ggml_compute_forward_mul_mat_id(
+@@ -1564,7 +1599,22 @@ static void ggml_compute_forward_mul_mat_id(
      const int ith = params->ith;
      const int nth = params->nth;
  
@@ -99,7 +107,7 @@ index ab82e3d..a9a5dca 100644
  
      const bool src1_cont = ggml_is_contiguous(src1);
  
-@@ -1582,8 +1625,8 @@ static void ggml_compute_forward_mul_mat_id(
+@@ -1582,8 +1632,8 @@ static void ggml_compute_forward_mul_mat_id(
      GGML_ASSERT(nb2 <= nb3);
  
      // row groups
@@ -110,7 +118,7 @@ index ab82e3d..a9a5dca 100644
  
      void * wdata_cur = params->wdata;
  
-@@ -1594,8 +1637,8 @@ static void ggml_compute_forward_mul_mat_id(
+@@ -1594,8 +1644,8 @@ static void ggml_compute_forward_mul_mat_id(
      int64_t * matrix_row_counts = // [n_as]
          incr_ptr_aligned(&wdata_cur, n_as*sizeof(int64_t), sizeof(int64_t));
  
@@ -121,7 +129,7 @@ index ab82e3d..a9a5dca 100644
  
      char (*atomic_current_chunk)[CACHE_LINE_SIZE] = // [n_as]
          incr_ptr_aligned(&wdata_cur, CACHE_LINE_SIZE * n_as, CACHE_LINE_SIZE);
-@@ -1648,9 +1691,9 @@ static void ggml_compute_forward_mul_mat_id(
+@@ -1648,9 +1698,9 @@ static void ggml_compute_forward_mul_mat_id(
          memset(matrix_row_counts, 0, n_as*sizeof(int64_t));
  
          // group rows by src0 matrix
@@ -133,7 +141,7 @@ index ab82e3d..a9a5dca 100644
  
                  assert(i02 >= 0 && i02 < n_as);
  
-@@ -1676,11 +1719,13 @@ static void ggml_compute_forward_mul_mat_id(
+@@ -1676,11 +1726,13 @@ static void ggml_compute_forward_mul_mat_id(
          }
  
          // tiled takes over if profitable for this expert (see tiled.h)
@@ -149,3 +157,15 @@ index ab82e3d..a9a5dca 100644
          const void * wdata = (src1->type == vec_dot_type) ? src1->data : params->wdata;
          const size_t row_size = ggml_row_size(vec_dot_type, ne10);
  
+@@ -2897,7 +2949,10 @@ struct ggml_cplan ggml_graph_plan(
+                         const struct ggml_tensor * src1 = node->src[1];
+                         const struct ggml_tensor * ids = node->src[2];
+                         const enum ggml_type vec_dot_type = type_traits_cpu[src0->type].vec_dot_type;
+-                        const int n_as = src0->ne[2];
++                        int n_as = src0->ne[2];
++                        if (ggml_moe_materializer_active() && ggml_moe_max_slots() > (uint32_t) n_as) {
++                            n_as = (int) ggml_moe_max_slots();
++                        }
+                         // src1
+                         if (src1->type != vec_dot_type) {
+                             cur += ggml_row_size(vec_dot_type, ggml_nelements(src1)) + sizeof(int64_t);
