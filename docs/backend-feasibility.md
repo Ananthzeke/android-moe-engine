@@ -275,8 +275,10 @@ Limits, kept explicit:
   storage reads are the measured limiter. A larger cache was tested and rejected; see
   below.
 - One prompt, one seed, 8 tokens, contexts 512-2048, and no long-context or
-  prefill-union stress test beyond these short prompts. Cancellation during decode
-  was tested on the phone; injected read failure and memory-pressure tests were not.
+  prefill-union stress test beyond these short prompts. Cancellation and an injected
+  100 MB read failure were tested on the phone; memory-pressure and cold-cache
+  control were not. The injected failure aborts with a diagnostic and no structured
+  JSON, then a fresh process reproduces the baseline prefix.
 - Decode is 0.37-0.61 token/s; TTFT is 9.6-17.8 s. Feasibility is established; useful
   interactive speed is not.
 ### Cache-capacity experiment (negative result)

@@ -18,6 +18,9 @@ qwen35moe, 40 layers, 256 experts, top-8 routing, 20,408,576,512 tensor bytes.
 - Arena 28,311,552 / 37,748,736 bytes; 9,999 reads and 5,897,650,176 application bytes;
   no cache hits; maximum union 37.
 - CPU thermal zones about 36.1 C to 50.6 C around a measured run.
+- [Injected read failure](qwen36-iofail-01.err): 100 MB cap, abort at
+  `blk.1.ffn_up_exps.weight`, exit 134; [fresh request](qwen36-after-iofail-01.json)
+  returned `11751, 11` and the model SHA-256 was unchanged.
 - [Cancellation record](qwen36-cancel-01.json): 7 partial tokens, no error, exit 0;
   [fresh request after cancellation](qwen36-after-cancel-01.json) returned the
   baseline prefix `11751, 11` and the model SHA-256 was unchanged.

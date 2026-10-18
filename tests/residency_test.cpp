@@ -4,6 +4,7 @@
 
 #include <array>
 #include <cstdint>
+#include <cstdlib>
 #include <cstring>
 #include <filesystem>
 #include <fstream>
@@ -275,6 +276,33 @@ void check_external_arena() {
   std::filesystem::remove_all(directory);
 }
 
+void check_injected_read_failure() {
+  const auto directory = temporary_directory();
+  const auto path = directory / "read_failure.bin";
+  write_pattern(path, 2, 64, 64);
+  auto source = FileSource::open(path.string());
+  expect(source.ok(), "fault source opens");
+  if (source.ok()) {
+    expect(::setenv("AME_IO_FAIL_AFTER_BYTES", "64", 1) == 0, "set fault limit");
+    std::array<std::byte, 96> buffer{};
+    ame::Cancellation stop;
+    const auto failed = source.value().read_exact(0, buffer, stop);
+    expect(!failed.ok() && failed.error() == ame::residency::FileError::ReadFailed,
+           "injected read failure");
+    expect(::unsetenv("AME_IO_FAIL_AFTER_BYTES") == 0, "clear fault limit");
+    const auto recovered =
+        source.value().read_exact(0, std::span<std::byte>(buffer).first(32), stop);
+    expect(recovered.ok(), "source recovers after clearing injection");
+    expect(::setenv("AME_IO_FAIL_AFTER_BYTES", "64", 1) == 0, "reset fault limit");
+    const auto too_long =
+        source.value().read_exact(0, std::span<std::byte>(buffer).first(96), stop);
+    expect(!too_long.ok() && too_long.error() == ame::residency::FileError::ReadFailed,
+           "same source retains its read count");
+    expect(::unsetenv("AME_IO_FAIL_AFTER_BYTES") == 0, "clear reset fault limit");
+  }
+  std::filesystem::remove_all(directory);
+}
+
 void check_sparse_large_file() {
   const auto directory = temporary_directory();
   const auto path = directory / "sparse.bin";
@@ -328,6 +356,7 @@ int main() {
   check_layout();
   check_store();
   check_external_arena();
+  check_injected_read_failure();
   check_sparse_large_file();
   return failures == 0 ? 0 : 1;
 }

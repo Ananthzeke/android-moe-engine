@@ -6,11 +6,27 @@
 
 #include <algorithm>
 #include <cerrno>
+#include <charconv>
+#include <cstdlib>
+#include <cstring>
+#include <limits>
 
 namespace ame::residency {
 namespace {
 
 constexpr std::size_t kReadChunk = 1024U * 1024U;
+
+// Test-only fault injection. AME_IO_FAIL_AFTER_BYTES limits the bytes a single
+// source may read; the next read fails without touching the file.
+std::uint64_t failure_limit() {
+  const char* text = std::getenv("AME_IO_FAIL_AFTER_BYTES");
+  if (text == nullptr || text[0] == '\0') {
+    return std::numeric_limits<std::uint64_t>::max();
+  }
+  std::uint64_t value = 0;
+  const auto result = std::from_chars(text, text + std::strlen(text), value);
+  return result.ec == std::errc{} ? value : std::numeric_limits<std::uint64_t>::max();
+}
 
 }  // namespace
 
@@ -79,6 +95,11 @@ Result<void, FileError> FileSource::read_exact(std::uint64_t offset,
     }
     const std::size_t remaining = destination.size() - completed;
     const std::size_t chunk = std::min(remaining, kReadChunk);
+    const std::uint64_t limit = failure_limit();
+    if (bytes_read_ > limit || chunk > limit - bytes_read_) {
+      return FileError::ReadFailed;
+    }
+    bytes_read_ += chunk;
     const ssize_t count = ::pread(descriptor_, destination.data() + completed, chunk,
                                   static_cast<off_t>(offset + completed));
     if (count < 0) {

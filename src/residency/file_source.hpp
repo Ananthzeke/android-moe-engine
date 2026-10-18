@@ -41,6 +41,7 @@ class FileSource {
   FileSource(int descriptor, std::uint64_t size_bytes) noexcept;
   int descriptor_ = -1;
   std::uint64_t size_bytes_ = 0;
+  mutable std::uint64_t bytes_read_ = 0;
 };
 
 }  // namespace ame::residency
