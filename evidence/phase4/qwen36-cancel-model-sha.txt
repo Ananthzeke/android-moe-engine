@@ -1,0 +1,1 @@
+671e47e0ec53c665d048b98c3ecbfd5236b5ca9c3e02ed19fc8f81f7b85140c7  /data/local/tmp/ame-engine/models/Qwen3.6-35B-A3B-Q4_K_M.gguf
