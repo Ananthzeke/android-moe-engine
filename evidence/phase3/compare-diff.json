@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "same_status": false,
+  "same_artifact": true,
+  "same_prompt_tokens": true,
+  "same_output_tokens": false,
+  "same_finish_reason": false,
+  "metrics": {
+    "left": {"ttft_seconds":17.823581035,"decode_tokens_per_second":0.3684826827178313,"peak_rss_kib":2162792},
+    "right": {"ttft_seconds":10.58741833,"decode_tokens_per_second":0.5171908563623202,"peak_rss_kib":2207968}
+  },
+  "differences": ["status", "output.token_ids", "output.finish_reason"]
+}

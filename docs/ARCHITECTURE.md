@@ -17,7 +17,7 @@ ame probe --output runs/device.json
 ame inspect --model models/package --config configs/mvp.example.json
 ame run --model models/package --config configs/mvp.example.json \
 	--prompt-file prompts/input.txt --record-dir runs/one
-ame compare --case cases/offload.json --record-dir runs/comparison
+ame compare --left runs/run-01.json --right runs/run-02.json
 ```
 
 `probe` reads device capabilities without a serial or private application data. `inspect` computes a model-specific admission plan without loading all expert weights. `run` performs the same validation internally. A caller never coordinates expert reads or eviction.

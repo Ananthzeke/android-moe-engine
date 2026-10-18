@@ -11,3 +11,12 @@ records.
 The aggregate reports only completed runs whose measurement hashes match. It does not
 claim a cold OS cache, controlled thermal state, or allocation coverage. Host results
 are not included in the phone group.
+## `ame compare` checks
+
+- [Equal runs](compare-same.json): 35B run 01 against run 02; status, artifact,
+  prompt tokens, output tokens, and finish reason match.
+- [Different runs](compare-diff.json): 35B run 01 against the cancelled run; status,
+  output tokens, and finish reason differ.
+
+The comparator parses the measurement JSON without executing a model. Exit 0 means
+all compared fields match, 1 means a difference, and 3 means a file/JSON failure.
