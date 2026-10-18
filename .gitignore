@@ -20,3 +20,8 @@
 *.o
 __pycache__/
 *.pyc
+/.venv/
+/CMakeUserPresets.json
+/CMakeFiles/
+/CMakeCache.txt
+/Testing/

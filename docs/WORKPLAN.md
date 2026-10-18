@@ -11,3 +11,7 @@ This checklist tracks the design handoff, not implementation of the engine.
 
 The user selected the repository name `android-moe-engine` and private visibility.
 The requested implementation work belongs to the later DeepSeek handoff.
+
+## Host coding groundwork
+
+Implemented the host build, checked extent primitive, help/version CLI, coding rules, and offline local/CI verifier. See [recorded validation](VALIDATION.md#coding-foundation-evidence-2026-10-19). Android toolchain/device and inference gates remain incomplete; continue with the remaining Phase 0 checks.

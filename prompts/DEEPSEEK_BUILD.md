@@ -11,7 +11,9 @@ Read these files before editing:
 3. `docs/IMPLEMENTATION_PLAN.md` and `docs/VALIDATION.md`.
 4. `docs/RESEARCH.md`, `docs/UPSTREAM_DESIGNS.md`, `docs/MODELS.md`, and the three JSON files in `configs/`.
 
-The repository is currently a design scaffold. It has no inference implementation or benchmark results. Commands and C++ interfaces in the architecture are proposed project APIs, not existing backend APIs. Inspect source before writing integrations.
+Start by following `CONTRIBUTING.md` to bootstrap pinned tools and running `.venv/bin/python tools/verify.py`. Preserve and extend the existing C++20 host foundation; do not rewrite it. Complete the remaining Phase 0 gates before Phase 1.
+
+The repository has a host coding foundation (checked extents and help/version CLI), but no inference implementation or benchmark results. Commands and C++ interfaces in the architecture are proposed project APIs, not existing backend APIs. Inspect source before writing integrations.
 
 ## Target and objective
 
@@ -57,7 +59,7 @@ Create a concise task checklist. Implement phases 0 through 4 in order, completi
 
 ### Phase 0: Build and inspect
 
-Create a host-testable C++20 core, CMake build, dependency lock, and native ARM64 CLI. Resolve and pin the actual Android NDK and compiler. Probe supported CPU instructions before setting ISA flags. Inspect the resulting ELF and linkage. Implement a read-only `ame probe` and run it on the connected phone. If no phone is accessible, label all work host-only and preserve the physical-target checks as incomplete.
+Extend the existing host-testable C++20 core and CMake presets with a dependency lock and native ARM64 CLI. Resolve and pin the actual Android NDK and compiler. Probe supported CPU instructions before setting ISA flags. Inspect the resulting ELF and linkage. Implement a read-only `ame probe` and run it on the connected phone. If no phone is accessible, label all work host-only and preserve the physical-target checks as incomplete.
 
 ### Phase 1: Baseline and expert-lifetime experiment
 

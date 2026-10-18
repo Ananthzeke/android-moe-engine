@@ -1,0 +1,12 @@
+name: Host foundation
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - run: python3 -m venv .venv
+      - run: .venv/bin/python -m pip install -r requirements-dev.txt
+      - run: .venv/bin/python tools/verify.py

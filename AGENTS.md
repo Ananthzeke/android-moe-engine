@@ -32,3 +32,7 @@ Build a real CPU inference path and prove whether bounded expert streaming is fe
 Implement phases in order. Complete a phase's acceptance checks before expanding scope. Keep a functional small-model baseline if the MoE gate fails. Update the architecture when a proven integration changes a contract, and record the evidence for that change in `docs/DESIGN_DECISION.md`.
 
 Commit reviewable units with the commands and evidence needed to reproduce them. Keep large weights and private logs untracked. Do not change the phone's root, bootloader, ROM, or thermal protection as part of this project.
+
+## Coding foundation checks
+
+Follow [coding rules](docs/CODING.md) and [contribution commands](CONTRIBUTING.md). Bootstrap pinned tools once, then run `.venv/bin/python tools/verify.py` before handoff; use `--format` separately to fix C++ style. The verifier covers Debug, Release, and host ASan/UBSan. Preserve the internal validation boundary and keep proposed engine APIs unimplemented until their source gates pass.

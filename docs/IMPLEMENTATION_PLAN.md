@@ -4,6 +4,8 @@ This plan delivers a small working engine first, then a falsifiable storage-offl
 
 ## Phase 0: Reproduce the target and pin the build
 
+Host groundwork is implemented: C++20 CMake/Ninja, strict project warnings, help/version CLI, checked extents, and Debug/Release/ASan+UBSan tests via [the verifier](../CONTRIBUTING.md). Phase 0 is incomplete: no NDK pin, Android ELF verification, read-only probe, dependency lock for the chosen backend, or phone execution has passed.
+
 Deliver a host CMake build, an Android ARM64 cross-build, a minimal `ame probe`, and a machine-readable dependency lock. Probe before choosing ISA flags. Do not compile the whole program for instructions unsupported by this phone.
 
 Start by evaluating these inspected revisions. A newer revision requires a recorded reason and the same gates:

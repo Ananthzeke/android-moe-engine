@@ -70,3 +70,9 @@ The accepted changes are:
 We rejected an immediate LiteRT-LM backend switch, a Python/CUDA AirLLM port, a new universal container, and default prefetch. Whole-layer streaming and next-unit overlap remain later measured experiments. LiteRT-LM may be an external small-model characterization, with conversion and build differences explicit.
 
 The decision follows source inspection and design review only. No native hook, allocation ceiling, model compatibility, Android build, inference result, or speed has been verified by this revision. The phase 1 implementation still owns those proofs. This update reconciles the existing architecture, plan, validation contract, and DeepSeek prompt before handoff.
+
+## Host coding foundation (2026-10-19)
+
+Choose CLI plus one internal checked-file-extent primitive over CLI-only scaffolding or a full engine skeleton. CLI-only offers little domain validation; empty runtime libraries and public engine declarations would freeze backend-dependent interfaces before the source gate. The private constructor and explicit extent errors prove containment without a generic result framework. Empty extents including EOF are valid positions; future required tensors add nonempty/layout checks.
+
+Use C++20, target-scoped strict warnings, pinned development tools, and one offline verifier for Debug, Release, and host ASan/UBSan. No backend or model is downloaded by verification. Planned modules retain ownership READMEs only. Android ARM64/API31 has a conditional preset, but NDK identity, cross-build, ELF inspection, and phone execution remain unverified; this does not complete Phase 0. See [contribution instructions](../CONTRIBUTING.md) for commands.

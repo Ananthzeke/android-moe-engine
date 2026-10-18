@@ -6,7 +6,7 @@ The first physical target is a vivo S1 Pro with a Snapdragon 665, Android 12, an
 
 ## Current state
 
-This repository contains the architecture, implementation plan, device observations, model candidates, and an implementation prompt for DeepSeek. It does not contain an inference runtime, compiled binary, downloaded model, or benchmark result. Commands in the design describe the intended interface.
+This repository contains a buildable C++20 host coding foundation: a help/version CLI, an internal checked-file-extent module, boundary tests, and an offline local/CI verifier. It has no inference runtime, downloaded model, or benchmark result. Android cross-build and phone execution remain unverified. Commands in the architecture describe future interfaces.
 
 ## Start implementation
 
@@ -32,13 +32,7 @@ The design also draws from source inspection of LiteRT-LM and current AirLLM. It
 
 [The device profile](configs/device-vivo-s1-pro.json) records a snapshot, not permanent memory availability. [The model catalog](configs/model-candidates.json) records candidates, not verified support. [The MVP configuration](configs/mvp.example.json) proposes conservative settings that implementation must admit or reject using fresh observations.
 
-Validate this scaffold with Python 3.10 or newer:
-
-```sh
-python3 tools/check_scaffold.py
-```
-
-This check validates documentation links and configuration consistency. It does not test inference.
+Follow [contribution instructions](CONTRIBUTING.md) to bootstrap pinned tools, then run `.venv/bin/python tools/verify.py`. This checks formatting, documentation/configuration, and Debug, Release, and ASan/UBSan host builds and tests. See [coding rules](docs/CODING.md). It does not test inference.
 
 ## Scope
 

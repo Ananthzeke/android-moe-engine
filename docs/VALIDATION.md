@@ -104,3 +104,22 @@ A supervisor reconciles a start record without a final record as interrupted or 
 Require declared correctness and covered-memory ceilings first. Report median, minimum, maximum, trial count, and individual outcomes for the small campaign. Aggregate from machine-readable records with a script and verify every reported number against those records.
 
 An intervention that saves memory but increases latency can be useful. Name that tradeoff instead of calling it a speedup. If a required counter is missing, narrow the conclusion or mark the experiment incomplete. Preserve negative results and the simpler working path.
+
+## Coding foundation evidence (2026-10-19)
+
+Host checks use GCC 11.4.0, Python 3.10.12, CMake 3.31.6, clang-format 18.1.8, and the `ninja==1.11.1.4` Python package (binary version `1.11.1.git.kitware.jobserver-1`). Commands from the repository root:
+
+```sh
+/tmp/ame-dev-tools/bin/python tools/verify.py --format
+/tmp/ame-dev-tools/bin/python tools/verify.py
+python3 -O tools/check_scaffold.py
+python3 tests/check_scaffold_test.py
+/tmp/ame-dev-tools/bin/cmake --list-presets=all
+git diff --check
+```
+
+The full verifier passes formatting, metadata/link validation, and all three CTest cases in each of Debug, Release, and ASan/UBSan. Extent cases cover N-1/N/N+1, empty extents at EOF, offsets above 4 GiB, and UINT64_MAX without allocating large files. Compile-time checks exclude unchecked/default construction. CLI tests check help/version success and invalid arguments' nonzero exit/diagnostic behavior. Temporary configuration tests run the validator under Python `-O`, reject invalid support metadata and duplicate IDs, and allow extra configurations, anchors, and complete evidence references. These tests establish reference validation only, not the truth of a claimed external experiment.
+
+The first sandbox sanitizer attempt failed because LeakSanitizer reported it cannot run under ptrace. The full verifier subsequently passed outside that sandbox with leak detection retained. No sanitizer checks were disabled. Environments using ptrace need an execution context that permits LeakSanitizer thread inspection.
+
+Preset discovery confirms the three host configure presets; the Android configure preset is hidden without `ANDROID_NDK_HOME`. No NDK is installed in this environment, so cross-build, ELF architecture/linkage, physical-device probe, inference, model support, and streaming remain unverified. No weights or backends were downloaded. Phase 0 remains incomplete.

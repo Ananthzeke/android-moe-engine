@@ -1,6 +1,6 @@
 # Architecture
 
-Status: accepted design direction, with source-level feasibility gates still open. No engine implementation exists yet.
+Status: accepted design direction, with source-level feasibility gates still open. A host coding foundation exists; no inference engine exists yet.
 
 ## Problem and target
 
@@ -44,18 +44,20 @@ If MNN fails the gate, apply the same gate to pinned llama.cpp before implementi
 
 ## Module ownership
 
-The paths below are the intended implementation layout. They do not exist in this scaffold.
+The table distinguishes implemented foundation code from planned modules. No public engine SDK is installed.
 
 | Path | Knowledge and state owned |
 | --- | --- |
-| `include/ame/engine.hpp` | Public engine, options, token sink, errors, and outcomes. |
-| `src/model/` | Immutable validated model index, source identity, extent arithmetic, and quantized layouts. |
+| `include/ame/engine.hpp` (planned, absent) | Public engine, options, token sink, errors, and outcomes after source gates. |
+| `src/model/` (partial) | Internal checked extent arithmetic exists. Index, identity, and quantized layouts remain planned. |
 | `src/runtime/` | One engine session, memory admission, backend instance, KV and recurrent state, cancellation, and accounting coverage. |
 | `src/residency/` | Fixed aligned expert arena, slot index, leases, demand reads, and eviction. |
 | `src/backend/` | The selected backend integration and allocation instrumentation. No cache policy. |
-| `apps/cli/` | Argument parsing and calls to the public engine. |
+| `apps/cli/` (foundation) | Only help/version and invalid-argument diagnostics exist. Engine calls remain planned. |
 | `bench/` | Reference runs, artifact provenance, telemetry, parity, and result aggregation. |
 | `patches/` | Small ordered upstream patches against a pinned commit. |
+
+Runtime, residency, backend, bench, and patches currently contain ownership READMEs only. `CheckedFileExtent::within` returns a checked value or a small error enum. It accepts empty extents including EOF and checks length against `file_size - offset` only after checking offset. It proves no tensor layout or file identity contract. See [coding rules](CODING.md).
 
 Use CMake and a pinned Android NDK for the host-testable core and ARM64 executable. Resolve the exact available toolchain in phase 0. Pin the selected backend in a machine-readable lock file before its first build. Do not copy an entire backend into this repository for the scaffold.
 
