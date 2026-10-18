@@ -8,6 +8,7 @@
 #include <unistd.h>
 
 #include <algorithm>
+#include <atomic>
 #include <cerrno>
 #include <charconv>
 #include <chrono>
@@ -18,6 +19,7 @@
 #include <ctime>
 #include <filesystem>
 #include <fstream>
+#include <thread>
 #include <iostream>
 #include <iterator>
 #include <optional>
@@ -31,9 +33,9 @@
 
 namespace {
 
-volatile std::sig_atomic_t g_cancelled = 0;
+std::atomic<bool> g_cancelled{false};
 
-void handle_signal(int) { g_cancelled = 1; }
+void handle_signal(int) { g_cancelled.store(true, std::memory_order_relaxed); }
 
 using Clock = std::chrono::steady_clock;
 
@@ -256,6 +258,7 @@ struct Options {
   std::string run_id;
   std::string tag = "host";
   std::uint32_t max_new_tokens = 32;
+  std::uint32_t cancel_after_ms = 0;
   std::uint32_t context = 512;
   std::uint32_t threads = 4;
   std::uint32_t batch_size = 0;
@@ -329,7 +332,8 @@ ParseResult parse_options(int argc, char* argv[], Options& options) {
                              argument == "--batch-size" || argument == "--seed" ||
                              argument == "--temperature" || argument == "--top-k" ||
                              argument == "--top-p" || argument == "--manifest" ||
-                             argument == "--moe-slots" || argument == "--moe-arena-mib";
+                             argument == "--moe-slots" || argument == "--moe-arena-mib" ||
+                             argument == "--cancel-after-ms";
     if (!needs_value || index + 1 >= argc) {
       return {false, "Unsupported or incomplete argument: " + std::string(argument)};
     }
@@ -385,6 +389,8 @@ ParseResult parse_options(int argc, char* argv[], Options& options) {
           options.moe_slots = narrowed;
         } else if (argument == "--moe-arena-mib") {
           options.moe_arena_mib = narrowed;
+        } else if (argument == "--cancel-after-ms") {
+          options.cancel_after_ms = narrowed;
         } else {
           options.top_k = narrowed;
         }
@@ -536,11 +542,19 @@ int main(int argc, char* argv[]) {
                    "       [--top-p F] [--no-mmap] [--artifact-sha HEX] [--output PATH]\n"
                    "       [--backend-commit SHA] [--binary-sha HEX] [--run-id ID]\n"
                    "       [--tag TAG] [--no-prompt-text] [--stream --manifest PATH]\n"
-                   "       [--moe-slots N] [--moe-arena-mib N]\n";
+                   "       [--moe-slots N] [--moe-arena-mib N]\n"
+                   "       [--cancel-after-ms N]\n";
       return 0;
     }
     std::cerr << parsed.error << '\n';
     return 2;
+  }
+
+  if (options.cancel_after_ms != 0) {
+    std::thread([milliseconds = options.cancel_after_ms] {
+      std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
+      g_cancelled.store(true, std::memory_order_relaxed);
+    }).detach();
   }
 
   JsonWriter json;
@@ -630,7 +644,7 @@ int main(int argc, char* argv[]) {
   context_params.n_threads_batch = static_cast<int32_t>(options.threads);
   context_params.no_perf = true;
   context_params.moe_cache_size = 0;
-  context_params.abort_callback = [](void*) -> bool { return g_cancelled != 0; };
+  context_params.abort_callback = [](void*) -> bool { return g_cancelled.load(); };
   context_params.abort_callback_data = nullptr;
 
   llama_context* context = llama_init_from_model(model, context_params);
@@ -801,13 +815,13 @@ int main(int argc, char* argv[]) {
   }
   const Clock::time_point prefill_end = Clock::now();
   if (!prefill_ok) {
-    (void)emit_status(options, g_cancelled != 0 ? "cancelled" : "error",
-                      g_cancelled != 0 ? "cancelled" : "error", "prefill decode failed");
+    (void)emit_status(options, g_cancelled.load() ? "cancelled" : "error",
+                      g_cancelled.load() ? "cancelled" : "error", "prefill decode failed");
     llama_batch_free(batch);
     llama_free(context);
     llama_model_free(model);
     llama_backend_free();
-    return 1;
+    return g_cancelled.load() ? 0 : 1;
   }
   const Sample after_prefill = take_sample();
 
@@ -832,7 +846,7 @@ int main(int argc, char* argv[]) {
   bool decode_failed = false;
 
   while (generated.size() < options.max_new_tokens) {
-    if (g_cancelled != 0) {
+    if (g_cancelled.load()) {
       finish_reason = "cancelled";
       break;
     }
@@ -868,7 +882,7 @@ int main(int argc, char* argv[]) {
     std::vector<llama_token> next{token};
     if (!decode_chunk(next, static_cast<int32_t>(prompt_count + generated.size() - 1))) {
       decode_failed = true;
-      finish_reason = g_cancelled != 0 ? "cancelled" : "error";
+      finish_reason = g_cancelled.load() ? "cancelled" : "error";
       break;
     }
   }
@@ -956,15 +970,23 @@ int main(int argc, char* argv[]) {
       "instrumented");
   json.end_object();
 
+  json.key("cancellation");
+  json.begin_object();
+  json.key("requested");
+  json.bool_value(g_cancelled.load());
+  json.key("after_ms");
+  json.unsigned_value(options.cancel_after_ms);
+  json.end_object();
+
   json.key("status");
-  if (g_cancelled != 0) {
+  if (g_cancelled.load()) {
     json.string_value("cancelled");
   } else if (decode_failed) {
     json.string_value("error");
   } else {
     json.string_value("ok");
   }
-  if (decode_failed) {
+  if (decode_failed && !g_cancelled.load()) {
     json.key("error");
     json.string_value("decode failed");
   }
@@ -1045,7 +1067,7 @@ int main(int argc, char* argv[]) {
   llama_model_free(model);
   llama_backend_free();
 
-  if (decode_failed && g_cancelled == 0) {
+  if (decode_failed && !g_cancelled.load()) {
     return 1;
   }
   return 0;

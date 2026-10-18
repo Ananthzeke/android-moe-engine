@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-10-18T21:23:28Z",
+  "run": {
+    "id": "cancel-host-decode",
+    "tag": "host",
+    "backend": {
+      "name": "llama.cpp",
+      "version": "0.7.0-dev",
+      "commit": "ff5a23376725e5a889fa0bfb987b7541dc304da0",
+      "binary_sha256": null
+    }
+  },
+  "model": {
+    "path": "/media/ananth/17AB9D0651C6CC1F/ame-tools/models/qwen3.5-2b/Qwen3.5-2B-Q4_K_M.gguf",
+    "artifact_sha256": "aaf42c8b7c3cab2bf3d69c355048d4a0ee9973d48f16c731c0520ee914699223",
+    "file_bytes": 1280835840
+  },
+  "model_info": {
+    "description": "qwen35 2B Q4_K - Medium",
+    "parameters": 1881825088,
+    "tensor_bytes": 1269873920,
+    "n_ctx_train": 262144,
+    "n_embd": 2048,
+    "n_layer": 24
+  },
+  "options": {
+    "context_tokens": 512,
+    "max_new_tokens": 256,
+    "threads": 4,
+    "batch_size": 512,
+    "seed": 1234,
+    "temperature": 0,
+    "top_k": 40,
+    "top_p": 0.95,
+    "mmap": true,
+    "chat_template": true,
+    "gpu_layers": 0
+  },
+  "prompt": {
+    "text": "<|im_start|>user\u000aWhat is the capital of France?<|im_end|>\u000a<|im_start|>assistant\u000a"
+  },
+  "prompt_token_count": 15,
+  "prompt_token_ids": [
+    248045,
+    846,
+    198,
+    3710,
+    369,
+    279,
+    6511,
+    314,
+    9338,
+    30,
+    248046,
+    198,
+    248045,
+    74455,
+    198
+  ],
+  "output": {
+    "token_ids": [
+      248068
+    ],
+    "text": "<think>",
+    "tokens": 1,
+    "finish_reason": "cancelled"
+  },
+  "timing": {
+    "load_seconds": 2.793393178,
+    "model_load_seconds": 2.649459305,
+    "context_init_seconds": 0.143933873,
+    "tokenize_seconds": 0.000155103,
+    "prefill_seconds": 1.145222762,
+    "request_ttft_seconds": 1.149232595,
+    "decode_seconds": 0,
+    "decode_tokens_per_second": null,
+    "generate_seconds": 1.197465767,
+    "wall_seconds": 4.003787936
+  },
+  "memory": {
+    "rss_kib_after_load": 1267036,
+    "rss_kib_after_prefill": 1166552,
+    "rss_kib_end": 1212896,
+    "vm_hwm_kib_end": 1312804,
+    "threads_end": 1,
+    "mem_available_kib_after_load": 738992,
+    "mem_available_kib_after_prefill": 678992,
+    "mem_available_kib_end": 708996,
+    "project_owned_bytes": null,
+    "scope": "process RSS/VmHWM samples and system MemAvailable; backend allocation coverage not instrumented"
+  },
+  "cancellation": {
+    "requested": true,
+    "after_ms": 4000
+  },
+  "status": "cancelled",
+  "finish_reason": "cancelled",
+  "streaming": {
+    "installed": false,
+    "manifest": null,
+    "slots": 0,
+    "arena_bytes": 0,
+    "materialize_calls": 0,
+    "tensor_switches": 0,
+    "reads": 0,
+    "read_bytes": 0,
+    "read_seconds": 0,
+    "hits": 0,
+    "misses": 0,
+    "evictions": 0,
+    "max_union": 0
+  },
+  "unavailable": [
+    {
+      "field": "run.binary_sha256",
+      "reason": "not_supplied"
+    },
+    {
+      "field": "memory.project_owned_bytes",
+      "reason": "backend_allocation_coverage_not_instrumented"
+    }
+  ]
+}

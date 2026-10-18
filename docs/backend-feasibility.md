@@ -274,8 +274,9 @@ Limits, kept explicit:
   decode steps). Application read time was 16.6-21.4 s of a 22-28 s generation, so
   storage reads are the measured limiter. A larger cache was tested and rejected; see
   below.
-- One prompt, one seed, 8 tokens, contexts 512-2048, no cancellation/failure injection,
-  and no long-context or prefill-union stress test beyond these short prompts.
+- One prompt, one seed, 8 tokens, contexts 512-2048, and no long-context or
+  prefill-union stress test beyond these short prompts. Cancellation during decode
+  was tested on the phone; injected read failure and memory-pressure tests were not.
 - Decode is 0.37-0.61 token/s; TTFT is 9.6-17.8 s. Feasibility is established; useful
   interactive speed is not.
 ### Cache-capacity experiment (negative result)
@@ -301,4 +302,3 @@ This is a **measured loss**, not a speedup. Keep demand reads and the small aren
 the default; do not adopt a large global LRU from this evidence. The experiment is one
 consecutive pair under uncontrolled page-cache/thermal state, and a per-tensor or
 prefetch policy was not compared.
-

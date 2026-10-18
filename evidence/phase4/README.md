@@ -18,6 +18,9 @@ qwen35moe, 40 layers, 256 experts, top-8 routing, 20,408,576,512 tensor bytes.
 - Arena 28,311,552 / 37,748,736 bytes; 9,999 reads and 5,897,650,176 application bytes;
   no cache hits; maximum union 37.
 - CPU thermal zones about 36.1 C to 50.6 C around a measured run.
+- [Cancellation record](qwen36-cancel-01.json): 7 partial tokens, no error, exit 0;
+  [fresh request after cancellation](qwen36-after-cancel-01.json) returned the
+  baseline prefix `11751, 11` and the model SHA-256 was unchanged.
 - Application read time 16.6-21.4 s of a 22-28 s generation; storage reads are the measured limiter.
 
 No full-resident reference ran. The 20.4 GB artifact does not fit phone memory or the
