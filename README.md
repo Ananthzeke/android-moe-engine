@@ -38,6 +38,7 @@ The design also draws from source inspection of LiteRT-LM and current AirLLM. It
 - [Sources and inspected backend code](docs/RESEARCH.md) distinguishes observations from hypotheses.
 - [LiteRT-LM and AirLLM research](docs/UPSTREAM_DESIGNS.md) records useful mechanisms, limits, and adopted changes.
 - [Design decision](docs/DESIGN_DECISION.md) records alternatives and independent review.
+- [Final build report](docs/FINAL_REPORT.md) summarizes artifacts, results, limits, and next units.
 - [DeepSeek build prompt](prompts/DEEPSEEK_BUILD.md) is the implementation handoff.
 - [Repository preparation checklist](docs/WORKPLAN.md) tracks this initial handoff.
 
