@@ -140,3 +140,25 @@ and is not interpreted. Power-supply nodes were unreadable from the ADB shell.
   expert streaming.
 - Allocation coverage, per-layer expert extents from the real GGUF, quantized staging,
   prefill microbatch limits, and eviction policy under a real model remain open.
+## Runtime materializer prototype (2026-10-19)
+
+[`patches/0001-ggml-moe-materializer.patch`](../patches/0001-ggml-moe-materializer.patch)
+adds an optional hook at the start of `ggml_compute_forward_mul_mat_id`. The project
+hook receives the original expert tensor and selected-ID tensor, acquires the union
+from a fixed arena, fills a compact staged tensor with the same type and row strides,
+remaps IDs to arena slots, and returns the descriptors. All worker threads use them
+after a barrier. The tiled fast path is skipped when staging is active because it
+reads `dst->src[0]` directly. The patch does not change routing, arithmetic, or
+accumulation.
+
+The [runtime gate](../evidence/runtime/moe-stream-gate-host.json) runs a real
+`GGML_OP_MUL_MAT_ID` graph twice: once with the complete resident expert tensor and
+once with the materializer installed. The selected union is 4 of 8 experts; 4 reads
+(8,192 bytes) fill an 8,192-byte arena. Outputs are bitwise identical on host and
+phone, with zero mismatched floats. The [dense regression](../evidence/runtime/dense-regression-post-patch.json)
+reproduces the pre-patch Qwen3.5-2B token IDs exactly.
+
+Limits: the materializer and staged descriptors are process-global and assume one
+active generation. Capacity or I/O failure aborts instead of falling back. A real MoE
+run, prefill microbatch proof, cancellation cleanup, and allocation coverage are still
+required before describing the engine as a bounded streaming implementation.

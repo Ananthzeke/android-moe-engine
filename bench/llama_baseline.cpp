@@ -27,6 +27,7 @@
 #include <vector>
 
 #include "llama.h"
+#include "moe_stream.hpp"
 
 namespace {
 
@@ -265,6 +266,10 @@ struct Options {
   bool mmap = true;
   bool chat = false;
   bool include_prompt_text = true;
+  bool stream = false;
+  std::string manifest;
+  std::uint32_t moe_slots = 64;
+  std::uint32_t moe_arena_mib = 512;
 };
 
 struct ParseResult {
@@ -308,6 +313,10 @@ ParseResult parse_options(int argc, char* argv[], Options& options) {
       options.include_prompt_text = false;
       continue;
     }
+    if (argument == "--stream") {
+      options.stream = true;
+      continue;
+    }
     if (argument == "--help") {
       return {false, "help"};
     }
@@ -319,7 +328,8 @@ ParseResult parse_options(int argc, char* argv[], Options& options) {
                              argument == "--context" || argument == "--threads" ||
                              argument == "--batch-size" || argument == "--seed" ||
                              argument == "--temperature" || argument == "--top-k" ||
-                             argument == "--top-p";
+                             argument == "--top-p" || argument == "--manifest" ||
+                             argument == "--moe-slots" || argument == "--moe-arena-mib";
     if (!needs_value || index + 1 >= argc) {
       return {false, "Unsupported or incomplete argument: " + std::string(argument)};
     }
@@ -338,6 +348,8 @@ ParseResult parse_options(int argc, char* argv[], Options& options) {
       options.binary_sha = value;
     } else if (argument == "--backend-commit") {
       options.backend_commit = value;
+    } else if (argument == "--manifest") {
+      options.manifest = value;
     } else if (argument == "--run-id") {
       options.run_id = value;
     } else if (argument == "--tag") {
@@ -369,6 +381,10 @@ ParseResult parse_options(int argc, char* argv[], Options& options) {
           options.batch_size = narrowed;
         } else if (argument == "--seed") {
           options.seed = narrowed;
+        } else if (argument == "--moe-slots") {
+          options.moe_slots = narrowed;
+        } else if (argument == "--moe-arena-mib") {
+          options.moe_arena_mib = narrowed;
         } else {
           options.top_k = narrowed;
         }
@@ -386,6 +402,9 @@ ParseResult parse_options(int argc, char* argv[], Options& options) {
   }
   if (options.threads == 0) {
     return {false, "--threads must be positive"};
+  }
+  if (options.stream && options.manifest.empty()) {
+    return {false, "--stream requires --manifest"};
   }
   if (!options.prompt_file.empty()) {
     std::ifstream stream(options.prompt_file, std::ios::binary);
@@ -516,7 +535,8 @@ int main(int argc, char* argv[]) {
                    "       [--batch-size N] [--seed N] [--temperature F] [--top-k N]\n"
                    "       [--top-p F] [--no-mmap] [--artifact-sha HEX] [--output PATH]\n"
                    "       [--backend-commit SHA] [--binary-sha HEX] [--run-id ID]\n"
-                   "       [--tag TAG] [--no-prompt-text]\n";
+                   "       [--tag TAG] [--no-prompt-text] [--stream --manifest PATH]\n"
+                   "       [--moe-slots N] [--moe-arena-mib N]\n";
       return 0;
     }
     std::cerr << parsed.error << '\n';
@@ -570,6 +590,19 @@ int main(int argc, char* argv[]) {
 
   llama_backend_init();
 
+  if (options.stream) {
+    const std::uint64_t arena_bytes =
+        static_cast<std::uint64_t>(options.moe_arena_mib) * 1024ULL * 1024ULL;
+    if (!ame::backend::install_moe_stream(options.model, options.manifest, options.moe_slots,
+                                          arena_bytes)) {
+      const auto stats = ame::backend::moe_stream_stats();
+      std::cerr << "moe stream install failed: " << stats.error << '\n';
+      (void)emit_status(options, "error", "error", "moe stream install failed");
+      llama_backend_free();
+      return 1;
+    }
+  }
+
   const Clock::time_point load_start = Clock::now();
   llama_model_params model_params = llama_model_default_params();
   model_params.n_gpu_layers = 0;
@@ -578,6 +611,7 @@ int main(int argc, char* argv[]) {
   model_params.lazy_mode =
       options.mmap ? LLAMA_LAZY_MODE_AUTO : LLAMA_LAZY_MODE_OFF;
   model_params.check_tensors = false;
+  model_params.use_extra_bufts = !options.stream;
 
   llama_model* model = llama_model_load_from_file(options.model.c_str(), model_params);
   if (model == nullptr) {
@@ -843,6 +877,10 @@ int main(int argc, char* argv[]) {
   }
   const Clock::time_point generate_end = Clock::now();
   const Sample end_sample = take_sample();
+  ame::backend::MoeStreamStats stream_stats{};
+  if (options.stream) {
+    stream_stats = ame::backend::moe_stream_stats();
+  }
 
   json.key("output");
   json.begin_object();
@@ -932,6 +970,38 @@ int main(int argc, char* argv[]) {
   }
   json.key("finish_reason");
   json.string_value(finish_reason);
+  json.key("streaming");
+  json.begin_object();
+  json.key("installed");
+  json.bool_value(options.stream);
+  json.key("manifest");
+  if (options.manifest.empty()) {
+    json.null_value();
+  } else {
+    json.string_value(options.manifest);
+  }
+  json.key("slots");
+  json.unsigned_value(stream_stats.slots);
+  json.key("arena_bytes");
+  json.unsigned_value(stream_stats.arena_bytes);
+  json.key("materialize_calls");
+  json.unsigned_value(stream_stats.materialize_calls);
+  json.key("tensor_switches");
+  json.unsigned_value(stream_stats.tensor_switches);
+  json.key("reads");
+  json.unsigned_value(stream_stats.reads);
+  json.key("read_bytes");
+  json.unsigned_value(stream_stats.read_bytes);
+  json.key("hits");
+  json.unsigned_value(stream_stats.hits);
+  json.key("misses");
+  json.unsigned_value(stream_stats.misses);
+  json.key("evictions");
+  json.unsigned_value(stream_stats.evictions);
+  json.key("max_union");
+  json.unsigned_value(stream_stats.max_union);
+  json.end_object();
+
   json.key("unavailable");
   json.begin_array();
   const auto note_unavailable = [&json](std::string_view field, std::string_view reason) {
@@ -964,6 +1034,9 @@ int main(int argc, char* argv[]) {
     std::cerr << "output write failed: " << write_error << '\n';
   }
 
+  if (options.stream) {
+    ame::backend::uninstall_moe_stream();
+  }
   llama_sampler_free(sampler);
   llama_batch_free(batch);
   llama_free(context);

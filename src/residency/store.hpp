@@ -26,6 +26,9 @@ struct ExpertEntry {
 struct StoreOptions {
   std::uint32_t slot_count{0};
   std::uint32_t alignment{64};
+  // Optional caller-owned arena. When non-empty it must be aligned and at least
+  // slot_count * slot_bytes. The store never frees borrowed memory.
+  std::span<std::byte> external_arena{};
 };
 
 struct StoreStats {

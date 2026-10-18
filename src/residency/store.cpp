@@ -77,8 +77,12 @@ Store::Store(FileSource source, std::vector<EntryState> entries, StoreOptions op
       slots_(options.slot_count),
       slot_taken_(options.slot_count, 0),
       slot_bytes_(slot_bytes) {
-  void* raw = nullptr;
   const std::size_t bytes = static_cast<std::size_t>(slot_bytes * options.slot_count);
+  if (!options.external_arena.empty()) {
+    arena_ = options.external_arena.first(bytes);
+    return;
+  }
+  void* raw = nullptr;
   if (::posix_memalign(&raw, options.alignment, bytes) == 0) {
     arena_owner_ = std::unique_ptr<std::byte, void (*)(void*)>(
         static_cast<std::byte*>(raw), [](void* pointer) { std::free(pointer); });
@@ -128,6 +132,13 @@ Result<std::unique_ptr<Store>, StoreError> Store::create(FileSource source,
   for (std::size_t index = 1; index < states.size(); ++index) {
     if (states[index - 1].key == states[index].key) {
       return StoreError::DuplicateKey;
+    }
+  }
+  if (!options.external_arena.empty()) {
+    const auto required = payload_bytes * options.slot_count;
+    if (options.external_arena.size() < required ||
+        reinterpret_cast<std::uintptr_t>(options.external_arena.data()) % options.alignment != 0) {
+      return StoreError::Misaligned;
     }
   }
   auto store = std::unique_ptr<Store>(

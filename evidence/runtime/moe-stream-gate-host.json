@@ -1,0 +1,14 @@
+{
+  "identical": true,
+  "reference_values": 128,
+  "materialize_calls": 1,
+  "tensor_switches": 1,
+  "reads": 4,
+  "read_bytes": 8192,
+  "arena_bytes": 8192,
+  "slots": 4,
+  "mismatched": 0,
+  "max_difference": 0,
+  "reference_first": [1.78826, 4.12679, 6.46532, 3.6433],
+  "candidate_first": [1.78826, 4.12679, 6.46532, 3.6433]
+}

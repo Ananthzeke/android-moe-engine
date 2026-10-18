@@ -134,6 +134,10 @@ Results:
 - The selected Android NDK's libc++ does not expose `std::stop_token`; the internal
   boundary uses a project-owned atomic `Cancellation` instead. The design decision
   records this portability deviation.
+- A small runtime patch now calls the project materializer from the real
+  `GGML_OP_MUL_MAT_ID` kernel. A synthetic 8-expert graph with a 4-expert union is
+  bitwise identical on host and phone; the unpatched dense Qwen3.5-2B output is
+  unchanged. This validates the hook and arena view, not a real MoE run.
 
 Still open: the runtime patch, real-artifact quantized expert extents and companions,
 per-layer union measurement, prefill microbatch scheduling, backend allocation

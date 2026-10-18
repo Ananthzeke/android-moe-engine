@@ -199,6 +199,7 @@ def expert_index(parsed, file_size, top_k, arch):
             "name": name,
             "role": role,
             "type": TYPE_TABLE[tensor["type_id"]][0],
+            "type_id": tensor["type_id"],
             "dims": dims,
             "offset": tensor["offset"],
             "absolute_offset": absolute,
@@ -215,13 +216,10 @@ def expert_index(parsed, file_size, top_k, arch):
     if not layers:
         return None
     ordered = [layers[key] for key in sorted(layers)]
-    per_layer = ordered[0]["expert_bytes"]
-    if any(layer["expert_bytes"] != per_layer for layer in ordered):
-        raise ValueError("layer_expert_bytes_not_uniform")
+    per_layer_min = min(layer["expert_bytes"] for layer in ordered)
+    per_layer = max(layer["expert_bytes"] for layer in ordered)
     shared_per_layer = [shared_by_layer.get(layer["layer"], 0) for layer in ordered]
-    if any(value != shared_per_layer[0] for value in shared_per_layer):
-        raise ValueError("shared_expert_bytes_not_uniform")
-    shared_per_layer_bytes = shared_per_layer[0]
+    shared_per_layer_bytes = max(shared_per_layer) if shared_per_layer else 0
     n_expert = ordered[0]["n_expert"]
     if top_k <= 0 or top_k > n_expert:
         raise ValueError("invalid_top_k")
@@ -231,6 +229,7 @@ def expert_index(parsed, file_size, top_k, arch):
         "n_expert": n_expert,
         "top_k": top_k,
         "expert_bytes_per_layer": per_layer,
+        "expert_bytes_per_layer_min": per_layer_min,
         "shared_expert_bytes_per_layer": shared_per_layer_bytes,
         "decode_union_bytes_per_layer": decode_union,
         "decode_live_bytes_per_layer": decode_union + shared_per_layer_bytes,
@@ -254,6 +253,7 @@ def main():
     parser.add_argument("--mem-available-kib", type=int, default=0)
     parser.add_argument("--storage-available-bytes", type=int, default=0)
     parser.add_argument("--max-prefix-bytes", type=int, default=128 * 1024 * 1024)
+    parser.add_argument("--manifest-out", help="write the project expert manifest")
     arguments = parser.parse_args()
 
     with open(arguments.input, "rb") as stream:
@@ -347,6 +347,19 @@ def main():
             "No inference or expert streaming was executed.",
         ],
     }
+    if arguments.manifest_out:
+        lines = ["# ame-expert-manifest 1",
+                 f"# source {arguments.url or 'local'} {arguments.file_size} {prefix_hash}"]
+        if experts:
+            for layer in experts["layers"]:
+                for role in sorted(layer["roles"]):
+                    entry = layer["roles"][role]
+                    lines.append(
+                        f"tensor {entry['name']} {layer['layer']} {role} {entry['type_id']} "
+                        f"{entry['type']} {experts['n_expert']} {entry['expert_bytes']} "
+                        f"{entry['expert_bytes']} "
+                        f"{entry['absolute_offset']} {entry['nbytes']}")
+        Path(arguments.manifest_out).write_text("\n".join(lines) + "\n")
     text = json.dumps(report, indent=2, sort_keys=True) + "\n"
     if arguments.output:
         Path(arguments.output).write_text(text)

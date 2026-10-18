@@ -1,0 +1,146 @@
+diff --git a/ggml/include/ggml-moe.h b/ggml/include/ggml-moe.h
+new file mode 100644
+index 0000000..8282fff
+--- /dev/null
++++ b/ggml/include/ggml-moe.h
+@@ -0,0 +1,24 @@
++#pragma once
++
++#include <stdbool.h>
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++struct ggml_tensor;
++
++// Optional expert materialization hook. It is called once per MUL_MAT_ID op by
++// thread 0. Returning true directs the kernel to read ggml_moe_staged_weights()
++// and ggml_moe_staged_ids(); returning false keeps the original tensors. The
++// staged descriptors must stay valid until the next hook call.
++typedef bool (*ggml_moe_materialize_fn)(const struct ggml_tensor * weights,
++                                        const struct ggml_tensor * ids);
++
++void ggml_moe_set_materializer(ggml_moe_materialize_fn materializer);
++const struct ggml_tensor * ggml_moe_staged_weights(void);
++const struct ggml_tensor * ggml_moe_staged_ids(void);
++
++#ifdef __cplusplus
++}
++#endif
+diff --git a/ggml/src/ggml-cpu/ggml-cpu.c b/ggml/src/ggml-cpu/ggml-cpu.c
+index ab82e3d..b9066cb 100644
+--- a/ggml/src/ggml-cpu/ggml-cpu.c
++++ b/ggml/src/ggml-cpu/ggml-cpu.c
+@@ -13,6 +13,7 @@
+ #include "vec.h"
+ #include "ops.h"
+ #include "ggml.h"
++#include "ggml-moe.h"
+ #include "common.h"
+ #include "tiled/tiled.h"
+ 
+@@ -1471,6 +1472,29 @@ UseGgmlGemm2:;
+     }
+ }
+ 
++// Project-provided expert materialization hook. One active generation is the MVP
++// contract; g_moe_staged is shared by the graph's worker threads after the barrier.
++static ggml_moe_materialize_fn g_moe_materializer = NULL;
++static int g_moe_staged = 0;
++
++void ggml_moe_set_materializer(ggml_moe_materialize_fn materializer) {
++    g_moe_materializer = materializer;
++}
++
++#if defined(__GNUC__) || defined(__clang__)
++__attribute__((weak))
++#endif
++const struct ggml_tensor * ggml_moe_staged_weights(void) {
++    return NULL;
++}
++
++#if defined(__GNUC__) || defined(__clang__)
++__attribute__((weak))
++#endif
++const struct ggml_tensor * ggml_moe_staged_ids(void) {
++    return NULL;
++}
++
+ // ggml_compute_forward_mul_mat_id
+ 
+ #define MMID_MATRIX_ROW(row_id, i1) matrix_rows[(row_id)*ids->ne[0]*ids->ne[1] + (i1)]
+@@ -1564,7 +1588,22 @@ static void ggml_compute_forward_mul_mat_id(
+     const int ith = params->ith;
+     const int nth = params->nth;
+ 
+-    const enum ggml_type type = src0->type;
++    const struct ggml_tensor * src0_eff = src0;
++    const struct ggml_tensor * ids_eff  = ids;
++
++    if (ith == 0) {
++        g_moe_staged = (g_moe_materializer != NULL && g_moe_materializer(src0, ids)) ? 1 : 0;
++    }
++    ggml_barrier(params->threadpool);
++    if (g_moe_staged) {
++        src0_eff = ggml_moe_staged_weights();
++        ids_eff  = ggml_moe_staged_ids();
++        if (src0_eff == NULL || ids_eff == NULL) {
++            GGML_ABORT("MoE materializer returned incomplete staging");
++        }
++    }
++
++    const enum ggml_type type = src0_eff->type;
+ 
+     const bool src1_cont = ggml_is_contiguous(src1);
+ 
+@@ -1582,8 +1621,8 @@ static void ggml_compute_forward_mul_mat_id(
+     GGML_ASSERT(nb2 <= nb3);
+ 
+     // row groups
+-    const int n_ids = ids->ne[0]; // n_expert_used
+-    const int n_as  = ne02;       // n_expert
++    const int n_ids = ids_eff->ne[0]; // n_expert_used
++    const int n_as  = (int) src0_eff->ne[2]; // n_expert in the staged view
+ 
+     void * wdata_cur = params->wdata;
+ 
+@@ -1594,8 +1633,8 @@ static void ggml_compute_forward_mul_mat_id(
+     int64_t * matrix_row_counts = // [n_as]
+         incr_ptr_aligned(&wdata_cur, n_as*sizeof(int64_t), sizeof(int64_t));
+ 
+-    struct mmid_row_mapping * matrix_rows = // [n_as][ids->ne[0]*ids->ne[1]]
+-        incr_ptr_aligned(&wdata_cur, n_as*ids->ne[0]*ids->ne[1]*sizeof(struct mmid_row_mapping), sizeof(int64_t));
++    struct mmid_row_mapping * matrix_rows = // [n_as][ids_eff->ne[0]*ids_eff->ne[1]]
++        incr_ptr_aligned(&wdata_cur, n_as*ids_eff->ne[0]*ids_eff->ne[1]*sizeof(struct mmid_row_mapping), sizeof(int64_t));
+ 
+     char (*atomic_current_chunk)[CACHE_LINE_SIZE] = // [n_as]
+         incr_ptr_aligned(&wdata_cur, CACHE_LINE_SIZE * n_as, CACHE_LINE_SIZE);
+@@ -1648,9 +1687,9 @@ static void ggml_compute_forward_mul_mat_id(
+         memset(matrix_row_counts, 0, n_as*sizeof(int64_t));
+ 
+         // group rows by src0 matrix
+-        for (int64_t iid1 = 0; iid1 < ids->ne[1]; ++iid1) {
++        for (int64_t iid1 = 0; iid1 < ids_eff->ne[1]; ++iid1) {
+             for (int id = 0; id < n_ids; ++id) {
+-                const int32_t i02 = *(const int32_t *) ((const char *) ids->data + iid1*ids->nb[1] + id*ids->nb[0]);
++                const int32_t i02 = *(const int32_t *) ((const char *) ids_eff->data + iid1*ids_eff->nb[1] + id*ids_eff->nb[0]);
+ 
+                 assert(i02 >= 0 && i02 < n_as);
+ 
+@@ -1676,11 +1715,13 @@ static void ggml_compute_forward_mul_mat_id(
+         }
+ 
+         // tiled takes over if profitable for this expert (see tiled.h)
+-        if (ggml_compute_forward_mul_mat_id_tiled(params, dst, cur_a, cne1, (const int32_t *) &MMID_MATRIX_ROW(cur_a, 0), tiled_scratch)) {
++        // The tiled path reads dst->src[0] directly. When the materializer staged a
++        // compact expert tensor, use the vec_dot path with src0_eff instead.
++        if (!g_moe_staged && ggml_compute_forward_mul_mat_id_tiled(params, dst, cur_a, cne1, (const int32_t *) &MMID_MATRIX_ROW(cur_a, 0), tiled_scratch)) {
+             continue;
+         }
+ 
+-        const char * src0_cur = (const char *) src0->data + cur_a * nb02;
++        const char * src0_cur = (const char *) src0_eff->data + cur_a * src0_eff->nb[2];
+         const void * wdata = (src1->type == vec_dot_type) ? src1->data : params->wdata;
+         const size_t row_size = ggml_row_size(vec_dot_type, ne10);
+ 

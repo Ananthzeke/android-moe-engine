@@ -2,6 +2,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include <array>
 #include <cstdint>
 #include <cstring>
 #include <filesystem>
@@ -242,6 +243,38 @@ void check_store() {
   std::filesystem::remove_all(directory);
 }
 
+void check_external_arena() {
+  const auto directory = temporary_directory();
+  const auto path = directory / "external.bin";
+  write_pattern(path, 2, 64, 64);
+  auto source = FileSource::open(path.string());
+  expect(source.ok(), "external arena source");
+  if (!source.ok()) {
+    return;
+  }
+  alignas(64) std::array<std::byte, 128> arena{};
+  StoreOptions options;
+  options.slot_count = 2;
+  options.alignment = 64;
+  options.external_arena = std::span<std::byte>(arena);
+  const auto entries = make_entries(2, 64, 64);
+  auto store = Store::create(std::move(source).value(), entries, options);
+  expect(store.ok(), "external arena store creation");
+  if (store.ok()) {
+    expect(store.value()->arena().data() == arena.data(), "borrowed arena is used");
+    ame::Cancellation stop;
+    const ExpertKey key{0, 0};
+    auto lease = store.value()->acquire(std::span<const ExpertKey>(&key, 1), stop);
+    expect(lease.ok(), "external arena acquire");
+    if (lease.ok()) {
+      expect(lease.value().payload(key).data() >= arena.data() &&
+                 lease.value().payload(key).data() < arena.data() + arena.size(),
+             "payload points into borrowed arena");
+    }
+  }
+  std::filesystem::remove_all(directory);
+}
+
 void check_sparse_large_file() {
   const auto directory = temporary_directory();
   const auto path = directory / "sparse.bin";
@@ -294,6 +327,7 @@ static_assert(std::is_move_constructible_v<Lease>);
 int main() {
   check_layout();
   check_store();
+  check_external_arena();
   check_sparse_large_file();
   return failures == 0 ? 0 : 1;
 }
