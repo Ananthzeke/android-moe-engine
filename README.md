@@ -6,13 +6,20 @@ The first physical target is a vivo S1 Pro with a Snapdragon 665, Android 12, an
 
 ## Current state
 
-This repository contains a buildable C++20 host coding foundation: a help/version CLI, an internal checked-file-extent module, boundary tests, and an offline local/CI verifier. It has no inference runtime, downloaded model, or benchmark result. Android cross-build and phone execution remain unverified. Commands in the architecture describe future interfaces.
+This repository contains a buildable C++20 host coding foundation and a read-only device probe:
+
+- a help/version/probe CLI, an internal checked-file-extent module, and boundary tests;
+- fixture-tested observation of memory, CPU, storage, OS, thermal, and power data;
+- a pinned Android NDK r27c cross-build whose AArch64 ELF was executed on the connected phone;
+- an offline local/CI verifier for Debug, Release, and host ASan/UBSan.
+
+The probe ran on the physical vivo 1920 and its snapshot is retained at [evidence/phase0/probe-vivo-1920.json](evidence/phase0/probe-vivo-1920.json). It reports a current device state, not guaranteed resources. There is still no inference runtime, downloaded model, backend build, or benchmark result. Commands in the architecture beyond `probe` describe future interfaces.
 
 ## Start implementation
 
 Give DeepSeek access to this repository and paste [the build prompt](prompts/DEEPSEEK_BUILD.md). The prompt directs it through a working small-model baseline, an expert-lifetime feasibility experiment, bounded residency, and physical-device evaluation.
 
-The proposed engine reuses a pinned backend's graph execution, tokenizer, and numerical kernels. This project owns expert storage, memory reservations, residency, cancellation, and evidence. MNN is the first integration candidate. A failed source-level feasibility gate can select llama.cpp before residency implementation. The MVP has one production backend.
+The proposed engine reuses a pinned backend's graph execution, tokenizer, and numerical kernels. This project owns expert storage, memory reservations, residency, cancellation, and evidence. MNN is the first integration candidate; llama.cpp is the next candidate. The inspected pinned revisions both implement the selected model families, but neither has been built or executed here. A failed source-level feasibility gate can select llama.cpp before residency implementation. The MVP has one production backend.
 
 The design also draws from source inspection of LiteRT-LM and current AirLLM. It adopts explicit resource/request lifetimes, supported prefill plans, selective weight ownership, and accounting for materialization peaks. These references do not establish phone compatibility or change the production backend.
 
@@ -30,7 +37,7 @@ The design also draws from source inspection of LiteRT-LM and current AirLLM. It
 
 ## Configuration examples
 
-[The device profile](configs/device-vivo-s1-pro.json) records a snapshot, not permanent memory availability. [The model catalog](configs/model-candidates.json) records candidates, not verified support. [The MVP configuration](configs/mvp.example.json) proposes conservative settings that implementation must admit or reject using fresh observations.
+[The device profile](configs/device-vivo-s1-pro.json) records a snapshot, not permanent memory availability. [The model catalog](configs/model-candidates.json) records candidates, not verified support. [The dependency lock](configs/dependencies.lock.json) pins the NDK and inspected backend revisions. [The MVP configuration](configs/mvp.example.json) proposes conservative settings that implementation must admit or reject using fresh observations.
 
 Follow [contribution instructions](CONTRIBUTING.md) to bootstrap pinned tools, then run `.venv/bin/python tools/verify.py`. This checks formatting, documentation/configuration, and Debug, Release, and ASan/UBSan host builds and tests. See [coding rules](docs/CODING.md). It does not test inference.
 

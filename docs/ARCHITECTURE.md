@@ -1,6 +1,6 @@
 # Architecture
 
-Status: accepted design direction, with source-level feasibility gates still open. A host coding foundation exists; no inference engine exists yet.
+Status: accepted design direction, with source-level feasibility gates still open. A host coding foundation and a read-only device probe exist; no inference engine exists yet. The pinned NDK cross-build runs on the physical phone. See [phase 0 evidence](IMPLEMENTATION_PLAN.md#phase-0-evidence-2026-10-19).
 
 ## Problem and target
 
@@ -53,11 +53,14 @@ The table distinguishes implemented foundation code from planned modules. No pub
 | `src/runtime/` | One engine session, memory admission, backend instance, KV and recurrent state, cancellation, and accounting coverage. |
 | `src/residency/` | Fixed aligned expert arena, slot index, leases, demand reads, and eviction. |
 | `src/backend/` | The selected backend integration and allocation instrumentation. No cache policy. |
-| `apps/cli/` (foundation) | Only help/version and invalid-argument diagnostics exist. Engine calls remain planned. |
+| `src/probe/` (implemented) | Read-only host/Android observation of memory, CPU, storage, OS, thermal, and power state. No device profile inference and no performance claim. |
+| `apps/cli/` (foundation) | Help/version, invalid-argument diagnostics, and `ame probe`. Engine calls remain planned. |
 | `bench/` | Reference runs, artifact provenance, telemetry, parity, and result aggregation. |
 | `patches/` | Small ordered upstream patches against a pinned commit. |
 
 Runtime, residency, backend, bench, and patches currently contain ownership READMEs only. `CheckedFileExtent::within` returns a checked value or a small error enum. It accepts empty extents including EOF and checks length against `file_size - offset` only after checking offset. It proves no tensor layout or file identity contract. See [coding rules](CODING.md).
+
+The probe records raw observations. It does not interpret thermal-zone sentinels or unavailable power-supply nodes, and it does not turn a snapshot into a reservation. Its host mode reports `execution_tag: host`; only an on-Android run reports `physical_target`, and an Android property that marks an emulator reports `emulator`.
 
 Use CMake and a pinned Android NDK for the host-testable core and ARM64 executable. Resolve the exact available toolchain in phase 0. Pin the selected backend in a machine-readable lock file before its first build. Do not copy an entire backend into this repository for the scaffold.
 

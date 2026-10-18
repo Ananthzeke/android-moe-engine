@@ -52,6 +52,26 @@ def validate(root):
     require(0 < options["expert_cache_limit_mib"] < options["owned_memory_limit_mib"], "Invalid memory limits")
     require(0 < options["max_new_tokens"] < options["context_tokens"] <= 2048, "Invalid token limits")
     require(options["read_chunk_limit_kib"] > 0 and options["io_queue_depth"] == 1, "Invalid I/O limits")
+    lock = configs.get("dependencies.lock")
+    require(lock is not None, "Missing dependency lock")
+    require(lock["schema_version"] == 1, "Unsupported dependency lock schema")
+    ndk = lock["android"]["ndk"]
+    require(re.fullmatch(r"[0-9a-f]{64}", ndk["archive_sha256"]),
+            "NDK archive SHA must be 64 lowercase hexadecimal characters")
+    require(ndk["target_abi"] == "arm64-v8a" and ndk["target_api"] == 31,
+            "Unsupported Android target")
+    require(ndk["source"].startswith("https://"), "NDK source must be HTTPS")
+    identifiers = set()
+    for backend in lock["backends"]:
+        require(re.fullmatch(r"[0-9a-f]{40}", backend["commit"]),
+                "Backend commit must be a full 40-character SHA")
+        require(backend["repository"].startswith("https://"), "Backend source must be HTTPS")
+        require(backend["id"] not in identifiers, "Duplicate backend ID")
+        identifiers.add(backend["id"])
+    for model in lock["models"]:
+        require(re.fullmatch(r"[0-9a-f]{64}", model["artifact_sha256"]),
+                "Locked model requires an artifact SHA")
+        evidence(root, model.get("evidence"))
     device = configs["device-vivo-s1-pro"]
     require(type(device["performance_measured"]) is bool, "Performance status must be boolean")
     if device["performance_measured"]:

@@ -4,7 +4,7 @@ This plan delivers a small working engine first, then a falsifiable storage-offl
 
 ## Phase 0: Reproduce the target and pin the build
 
-Host groundwork is implemented: C++20 CMake/Ninja, strict project warnings, help/version CLI, checked extents, and Debug/Release/ASan+UBSan tests via [the verifier](../CONTRIBUTING.md). Phase 0 is incomplete: no NDK pin, Android ELF verification, read-only probe, dependency lock for the chosen backend, or phone execution has passed.
+Phase 0 cross-build and physical-target observation are implemented: C++20 CMake/Ninja, strict project warnings, help/version/probe CLI, checked extents, Debug/Release/ASan+UBSan tests, a pinned NDK r27c, an inspected AArch64 ELF, a dependency lock, and a read-only probe executed on the phone. Backend builds, model conversion, and inference remain. See [Phase 0 evidence](#phase-0-evidence-2026-10-19).
 
 Deliver a host CMake build, an Android ARM64 cross-build, a minimal `ame probe`, and a machine-readable dependency lock. Probe before choosing ISA flags. Do not compile the whole program for instructions unsupported by this phone.
 
@@ -25,6 +25,37 @@ Exit checks:
 - `ame probe` runs on the physical phone and reports allowed memory, CPU, storage, and OS observations without serials or private files.
 - Running without ADB produces an explicit unavailable-target result. It does not fabricate a device profile or treat an emulator as this phone.
 - The dependency lock and build commands reproduce the selected sources.
+
+### Phase 0 evidence (2026-10-19)
+
+Pinned inputs are recorded in [the dependency lock](../configs/dependencies.lock.json). Commands were run from the repository root; the NDK was installed outside the repository and referenced through `ANDROID_NDK_HOME`.
+
+```sh
+.venv/bin/python tools/verify.py
+ANDROID_NDK_HOME=<ndk-root> .venv/bin/cmake --preset android-arm64 \
+  -DCMAKE_MAKE_PROGRAM="$PWD/.venv/bin/ninja"
+ANDROID_NDK_HOME=<ndk-root> .venv/bin/cmake --build --preset android-arm64
+readelf -h -l -d build/android-arm64/ame
+adb push build/android-arm64/ame /data/local/tmp/ame
+adb shell /data/local/tmp/ame probe --output /data/local/tmp/device.json
+adb pull /data/local/tmp/device.json evidence/phase0/probe-vivo-1920.json
+```
+
+Results:
+
+- Host verification passed formatting, repository validation, and all four CTest cases in Debug, Release, and ASan/UBSan configurations.
+- NDK r27c, package revision 27.2.12479018, Linux archive SHA-256 `59c2f6dc96743b5daf5d1626684640b20a6bd2b1d85b13156b90333741bad5cc`. The Android clang is 18.0.3 (12470979).
+- The produced file is an ELF64 AArch64 PIE with interpreter `/system/bin/linker64` and `NEEDED` entries `libm.so`, `libdl.so`, and `libc.so`. A disassembly scan found no dot-product, i8mm, or bf16 matrix instructions.
+- `ame probe` executed on the physical vivo 1920 (Android 12, API 31, kernel 4.14.180-perf+, page size 4096). The retained snapshot reports 8 CPUs (implementer 0x41, part 0x801), maximum 1,804,800 kHz, 7,834,636 KiB MemTotal, 5,454,608 KiB MemAvailable, and 102,177,562,624 available bytes on `/data`.
+- The probe reported 38 thermal zones and retained the first 32 sorted zone names, marking truncation. Several zones report sentinel values such as `-40000` millidegrees or implausible values; these are raw observations and are not treated as temperatures. Power-supply attributes were unreadable from the ADB shell uid 2000 and are `null` with reasons.
+- No serial number, account, or application-private file was read.
+
+Residual Phase 0 gaps, kept explicit:
+
+- A real file larger than 4 GiB has not been read. Checked offsets above 4 GiB are tested, and the ELF is 64-bit, but the index and I/O layers do not exist yet.
+- The dependency lock pins backend source revisions but no backend has been built, so compiler flags and linker identity for a backend are not locked.
+- No model was downloaded or converted.
+- The probe is device-local rather than an ADB host orchestrator. A host run reports `execution_tag: host` and never fabricates the phone profile; the design decision records this deviation.
 
 ## Phase 1: Establish baseline and prove the backend boundary
 

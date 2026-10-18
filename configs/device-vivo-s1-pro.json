@@ -27,6 +27,10 @@
     "Memory and storage figures are one observation and must be refreshed before a run.",
     "The df value was rounded; it is not an exact storage entitlement.",
     "Root availability was tested through the ADB shell only.",
-    "Do not infer optional ARM instructions or accelerator support from the marketing chipset name."
-  ]
+    "Do not infer optional ARM instructions or accelerator support from the marketing chipset name.",
+    "The 2026-10-18T19:24:07Z probe snapshot is retained at evidence/phase0/probe-vivo-1920.json.",
+    "Power-supply attributes were unreadable from the ADB shell; several thermal zones report sentinel or implausible values and are not interpreted."
+  ],
+  "refresh_evidence": "evidence/phase0/probe-vivo-1920.json",
+  "refreshed_mem_available_kib": 5454608
 }
