@@ -9,7 +9,7 @@ Read these files before editing:
 1. `AGENTS.md` and `README.md`.
 2. `docs/ARCHITECTURE.md` and `docs/DESIGN_DECISION.md`.
 3. `docs/IMPLEMENTATION_PLAN.md` and `docs/VALIDATION.md`.
-4. `docs/RESEARCH.md`, `docs/MODELS.md`, and the three JSON files in `configs/`.
+4. `docs/RESEARCH.md`, `docs/UPSTREAM_DESIGNS.md`, `docs/MODELS.md`, and the three JSON files in `configs/`.
 
 The repository is currently a design scaffold. It has no inference implementation or benchmark results. Commands and C++ interfaces in the architecture are proposed project APIs, not existing backend APIs. Inspect source before writing integrations.
 
@@ -37,6 +37,20 @@ In inspected MNN source, `express/module/MoEModule.cpp` obtains selected expert 
 
 In inspected llama.cpp source, `ggml/src/ggml-cpu/ggml-cpu.c` contains the CPU expert matmul path, and `src/llama-mmap.cpp` has conditional eager population and lazy ranges. Do not code against stale file locations or assume all mmap loading eagerly faults every weight.
 
+## Apply the upstream design research
+
+`docs/UPSTREAM_DESIGNS.md` pins inspected LiteRT-LM and AirLLM revisions and links their concrete source. Use them as architecture references, not extra production adapters. Keep the public inspect/open/generate surface and one active generation.
+
+Borrow LiteRT-LM's explicit resource/request distinction. Backing model resources outlive backend consumers. Request-local KV/recurrent state, token positions, sampler, phase, and metrics have a separate lifetime. Some concrete executors retain state internally even when another interface is stateless. Account for those bytes and do not infer safe sharing or concurrent use.
+
+Build a capability-specific request plan from actual CPU operators, artifact version, signatures, legal prefill shapes, state layout, and expert-materialization support. Preserve backend pending-token and position conventions. Arbitrary prefill chunks are not universally supported, and token chunking alone does not bound a layer's expert working set. Unsupported plans refuse before materialization.
+
+Current AirLLM has conditional per-expert hooks and subset reads, not just whole-layer loading. Its expert-prefix, module-call, safetensor, and naming requirements do not establish generic MoE support. Translate the useful idea into checked native tensor/storage groups with complete projections, scales, fused-layout rules, aliases, and explicit owners. Do not recursively unload persistent children or tied embeddings. A post-hook is not sufficient exception cleanup; use RAII and completion-aware leases.
+
+Distinguish mapped files, chunked model delivery, whole-section allocations, backend packing, and project expert leases. LiteRT-LM's inspected stream reader allocates a whole external weight section before reading chunks. A compressed artifact may expand during load. Reserve packed/expanded copies, staging, state banks and growth peaks, metadata, and workspace while their lifetimes overlap. No pinned/pageable or whole-layer fallback bypasses admission.
+
+Keep demand-only loading for the MVP. Treat whole-layer streaming as a later dense-model characterization. Any later prefetch must reserve current and next materializations together and prove drain/cleanup. Reuse native shards only with verified identity; a `.done` marker is not a hash or atomic integrity check. An optional LiteRT-LM comparison has its own build and artifact identity and cannot stand in for a same-artifact residency comparison.
+
 ## Execute the phases
 
 Create a concise task checklist. Implement phases 0 through 4 in order, completing each phase's checks before moving on. Proceed autonomously on routine reversible work. Do not stop after writing a plan or ask whether to continue each phase. If a prerequisite is genuinely unavailable, complete unaffected work, record the exact blocker, and report the smallest missing input.
@@ -50,6 +64,8 @@ Create a host-testable C++20 core, CMake build, dependency lock, and native ARM6
 Run a real supported small model at context 512 with recorded prompt, token IDs, artifact hashes, and build provenance. Then build a tiny MoE fixture whose complete reference fits available memory.
 
 Populate the feasibility matrix from `docs/IMPLEMENTATION_PLAN.md`. Demonstrate router visibility, expert tensor layout, bounded backing lifetime, kernel completion, decode/prefill working sets, and backend allocation coverage. Redirect a valid expert's storage and compare numerical results to the unchanged resident reference. Record source locations and actual peak allocations.
+
+Include persistent children and tied/aliased storage, legal prefill/decode plans, materialized representations, and state-growth peaks. Cancellation or a compute error must stop admission and drain consumers before releasing leases and request state. Prove a safe fresh request or require backend reopen; never reuse partially evaluated state by default.
 
 If MNN fails, evaluate the same gate in llama.cpp before implementing residency. Select one production backend and update the decision record. If both fail, retain the verified small CPU engine and report expert streaming blocked with evidence. Never implement a mock hook or silently omit experts.
 
@@ -83,9 +99,11 @@ Only after these phases, choose one measured limiter to optimize. Keep unsupport
 
 - No expert skipping, routing changes, random/zero substitution, layer truncation, or unannounced model changes.
 - Project cache, staging, metadata, alignment, backend packing, and transient load copies must be accounted for. A cache cap alone is not an overall engine cap.
+- Stored bit width, materialized bit width, and overlapping packing/decompression buffers are distinct. Never infer residency from file size or read-chunk size.
 - Claim a hard covered allocation limit only after proving its accounting scope. Treat RSS, PSS, OS page cache, and system availability separately.
 - Bound metadata counts and arithmetic before allocating parser structures. Validate large file offsets, quant blocks, split shards, overlapping/aliased layout rules, and immutable file identity.
 - Reset request-local KV, recurrent state, RNG, and sampler state for independent requests. Permit only one active generation in the MVP.
+- Release canonical backing storage only after every alias and consuming task is finished. Preserve persistent/shared children when transient parent weights are released.
 - Use deterministic exact comparisons where possible. Declare floating-point tolerances before observing candidate results, and never loosen them to hide a failure.
 - Keep source commits, model revisions, converter and artifact hashes, binary hashes, toolchain identity, commands, raw evidence, and unavailable-counter reasons.
 - Do not manufacture speed, quality, support, successful builds, completed tests, or device runs.

@@ -2,6 +2,8 @@
 
 Read `README.md`, `docs/ARCHITECTURE.md`, `docs/IMPLEMENTATION_PLAN.md`, and `docs/VALIDATION.md` before implementation. `prompts/DEEPSEEK_BUILD.md` is the complete handoff. `configs/model-candidates.json` owns candidate identities and support status.
 
+`docs/UPSTREAM_DESIGNS.md` records the source-backed LiteRT-LM and AirLLM lessons. Use its lifetime, supported-phase, and materialization contracts without adding production backends or assuming generic offloading support.
+
 ## Preserve the research question
 
 Build a real CPU inference path and prove whether bounded expert streaming is feasible. A launcher that enables mmap is a baseline. Do not label it a completed expert-streaming engine.
@@ -17,6 +19,8 @@ Build a real CPU inference path and prove whether bounded expert streaming is fe
 - Use the actual artifact and model architecture. Active parameter counts are not resident-memory estimates.
 - Validate tensor extents, strides, quantization blocks, packing, hashes, and file bounds before execution.
 - Count alignment, staging, cache metadata, backend packing, and retained module weights. A hard cap applies only to allocations covered by accounting.
+- Count stored-to-materialized expansion and old/new state buffers while both are live. Chunked transfer is not bounded residency.
+- Preserve aliased/shared backing and persistent children during transient release. Cancellation must drain consumers before teardown; request reuse requires proven reset or reopen.
 - Report project-owned bytes, RSS, PSS, system memory, application-read bytes, and physical I/O as different quantities.
 - Keep token IDs and correctness evidence. A plausible response is not a parity check.
 - Record failed runs and unsupported counters with a reason. Use null for unavailable measurements.

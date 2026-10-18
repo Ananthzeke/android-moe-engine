@@ -15,6 +15,8 @@ Start by evaluating these inspected revisions. A newer revision requires a recor
 
 The first implemented build pins its NDK, compiler, converter, build flags, and backend SHA. Host sanitizers and warnings cover project code. Upstream warnings are recorded separately. Target Android API 31 initially and use 64-bit file offsets for large weights. Exercise files larger than 4 GiB without allocating their full contents.
 
+[LiteRT-LM and AirLLM](UPSTREAM_DESIGNS.md) are pinned research references, not extra production dependencies. An optional LiteRT-LM small-model characterization uses its own documented build and exact converted artifact. Do not assume its Android build follows this project's CMake path or treat another conversion as the same residency experiment.
+
 Exit checks:
 
 - A host test executable runs, and the produced Android ELF has the expected architecture and linkage.
@@ -40,6 +42,12 @@ Deliver `docs/backend-feasibility.md`, a small prototype patch, fixture provenan
 | What is the smallest live compute unit? | Measure simultaneous extents and workspace for decode and bounded prefill. |
 | Are all backend allocations accounted for? | Show allocator coverage, transient peaks, and any exclusions. |
 | Does the unchanged small model still work? | Run deterministic reference comparison after the patch. |
+| What prefill/decode schedules are supported? | Establish actual signatures, legal chunks, pending-token/position semantics, and phase live sets. |
+| Which tensors share storage or outlive a parent? | Exercise tied embeddings, shared experts, persistent children, and alias-safe release. |
+| Does stored quantization survive materialization? | Record dtype/size, complete companion tensors, decompression, packing, and simultaneous copies. |
+| What survives cancellation or a compute error? | Drain consumers, unwind leases, discard damaged request state, and prove safe reset or reopen. |
+
+Deliver a capability-specific request plan and allocation-coverage report. Distinguish metadata inspection, mapped native sections, whole-section loading, backend materialization, and leased expert access. A name-prefix hook or chunked delivery path does not pass the gate. For prefill, prove both the allowed token shapes and a bounded expert compute unit within each shape.
 
 MNN is provisional. If it cannot pass with a small maintainable change, repeat the gate in llama.cpp and record the backend decision before building residency. If both fail, finish the small engine and record the MoE blocker. Do not implement a fake callback or duplicate backend stack to make the gate appear green.
 
@@ -55,6 +63,10 @@ Exit checks:
 - A working set one byte over budget returns `ResourceLimit` without over-allocation or self-deadlock.
 - Prefill uses a proven bounded scheduling unit. It cannot request the union of an unbounded prompt's experts.
 - Dense execution remains functional. A streaming-disabled run follows the reference behavior.
+- Metadata inspection does not materialize full tensor payloads. Stale sidecars, missing quantization companions, and unsupported fused layouts fail before execution.
+- Shared backing is charged once, real copies separately. Releasing transient parent weights preserves persistent children and aliases until their last consumer finishes.
+- State growth and materialization refuse before an overlapping old/new or packed/expanded peak exceeds covered admission.
+- Cancellation and injected compute errors leave a subsequent fresh request equivalent to a fresh-engine reference, or require reopening the engine explicitly.
 
 A hard overall owned-memory cap remains conditional on complete backend allocation coverage. Keep the arena guarantee and coverage report separate until that proof passes.
 
@@ -71,6 +83,7 @@ Exit checks:
 - Best-effort cold-process runs disclose uncontrolled OS storage cache state.
 - Cancellation, repeated open/close, and process interruption leave interpretable records and no persistent corrupted model artifact.
 - A negative result remains a completed experiment. Keep the simpler reference as default unless a stated memory benefit justifies a measured latency cost.
+- Records include load strategy, capability/phase-plan identity, persistent/transient ownership, and read/materialize/compute timing boundaries. Counter scope and unsupported observations remain explicit.
 
 ## Phase 4: Attempt one large MoE artifact
 
@@ -90,6 +103,8 @@ Exit checks:
 Choose one intervention from phase 4 evidence. Possibilities include expert layout, cache allocation, prefill microbatch size, kernel packing reuse, or thread count. Test one change at a time with correctness and resource gates.
 
 Only after CPU evidence earns the cost, consider an Android host app, GPU execution, prefetch, or KV offload. Revisit architecture when the same workaround recurs across modules. Do not accumulate two production engines or introduce a generic plugin framework in the MVP.
+
+A whole-layer streaming comparison may help a later dense-model study. First prove that one layer and its shared/state/workspace requirements fit, and record its repeated per-token I/O cost. It is not a substitute for selective expert lifetime. Any next-unit overlap needs admission of current and future weight materializations together, plus cancellation and failure cleanup.
 
 ## Delivery units
 

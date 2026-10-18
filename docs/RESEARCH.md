@@ -2,6 +2,8 @@
 
 Reviewed on 18 October 2026. Source inspection establishes code structure, not working streaming or performance. Model-card identities are recorded in [the catalog](../configs/model-candidates.json).
 
+The [19 October LiteRT-LM and AirLLM review](UPSTREAM_DESIGNS.md) adds pinned primary-source evidence and the resulting architecture changes. It distinguishes delivery streaming from runtime residency and current conditional expert hooks from generic model support.
+
 ## MNN integration evidence
 
 Inspected commit: `dbf9ba61b08106a3b43426e295d1a29cb41cc8fe`.

@@ -20,6 +20,10 @@ A tiny fixture checks forced hits, misses, alternating experts, duplicate expert
 
 For a real model too large for the phone's resident reference, generate reference logits or teacher-forced token results on an identified larger host with the same quantized artifact. Differences in ISA or arithmetic require explicit treatment. A forced token sequence compares execution costs but is not a free-generation quality test; keep both results distinct.
 
+Validate prefill/decode phase boundaries against the backend's token-position and pending-input conventions. Test supported chunks or shape buckets at their boundaries, including prompt lengths that cross a boundary. Unsupported schedules must refuse before materialization. Token chunking does not prove a bounded MoE expert union; verify both.
+
+Add lifetime fixtures for tied embeddings, shared experts, persistent children, aliased views, and packed copies. Inject cancellation or compute failure before and after a lease reaches the consumer. Prove that all tasks drain before release and that request-local KV/recurrent state is discarded. A next independent request must match a fresh-engine reference, or the API must require reopen. Do not infer cleanup from a successful post-hook alone.
+
 ## Record provenance
 
 Each run records the engine SHA and dirty patch identity, backend SHA, converter version, NDK and compiler, flags, binary SHA-256 and byte size, every model shard hash, tokenizer and template hashes, prompt hashes or permitted text, seed, and all runtime options.
@@ -27,6 +31,8 @@ Each run records the engine SHA and dirty patch identity, backend SHA, converter
 Tag execution as `physical_target`, `host`, or `emulator`. Host results never establish phone throughput. Synthetic memory limits or replay traces do not establish end-to-end phone feasibility.
 
 Pin an exact Hugging Face artifact revision when selecting a model. Resolve instruction-tuned variants deliberately. Inspect the produced ELF, linkage, alignment, and instruction requirements before deployment. Hashing and model validation occur outside timed phases unless the metric explicitly includes them.
+
+Also record load strategy, native artifact version, capability/phase-plan identity, stored and materialized representations, and state-allocation policy. A LiteRT-LM external characterization uses its own artifact/build identity; different containers or conversions are not the same-artifact reference/candidate experiment.
 
 ## Measure time with clear boundaries
 
@@ -44,11 +50,17 @@ Use a monotonic high-resolution clock. Define these fields in seconds:
 
 Do not divide prompt tokens plus output tokens by decode time. Record EOS and actual output count. Future asynchronous kernels need synchronization at timing boundaries.
 
+Use diagnostic events to distinguish storage read, materialization/decompression, backend packing, execution, and release wait. Do not sum overlapping event durations and label that total wall time. A next-unit prefetch must record which intervals overlap and keep its own byte reservations within coverage.
+
 ## Name memory and I/O scopes
 
 Record a covered allocation high-water mark and its categories. Track expert cache payload, packed bytes, staging, index metadata, fixed backend state, KV/recurrent state, workspaces, stacks, alignment, and load-time peaks. List accounting exclusions.
 
 Collect process RSS and PSS independently when permitted. State sampling interval and that sampled PSS is a lower bound on the true peak. Capture process high-water RSS with platform units where available. A new process per trial avoids mistaking a cumulative lifetime peak for one request.
+
+Record per-phase high-water marks for load, prefill, and decode. Include the overlap of old/new state banks, compressed and expanded weights, packing copies, and read staging. Reused aliases share one backing charge; physically distinct copies do not. A small read chunk does not bound a whole-section allocation made before the read loop.
+
+If an accelerator characterization is added later, label DMA-BUF or other partial monitors as subsets. Unsupported data is null with a reason. A sampled allocation subset is neither a total accelerator peak nor proof of an enforced cap.
 
 Record these I/O quantities separately:
 
@@ -82,6 +94,8 @@ io: logical bytes, application-read bytes, physical counter or missing reason
 outputs: token IDs, logits/reference paths, file hashes
 validation: parity criterion/result, allocation checks, unavailable evidence
 ```
+
+The provenance and memory objects also retain the phase plan, load strategy, accounting exclusions, and materialization identities described above. Artifact-preparation resume tests must reject a stale source/converter/options identity even if a completion marker exists.
 
 A supervisor reconciles a start record without a final record as interrupted or unknown. Use `low_memory_kill` only when OS evidence establishes that cause. A killed process cannot reliably write its own final status. Save timeout and unsupported cases, not fabricated zero-throughput successes.
 

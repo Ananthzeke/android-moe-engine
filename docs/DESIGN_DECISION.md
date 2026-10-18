@@ -51,3 +51,22 @@ The phase 1 implementer resolves expert backing lifetime, exact hook placement, 
 No engine changes have been implemented. Future accepted deviations must update the affected architecture, API, phase gates, and this section together. Record the source experiment or reviewer decision that supports each deviation. Do not alter a contract merely to relabel a failing test as success.
 
 The next implementation step is phase 0 followed by one real small-model baseline and the source-level MoE fixture.
+
+## LiteRT-LM and AirLLM revision, 19 October 2026
+
+The owner requested source research and useful architecture updates. [The research report](UPSTREAM_DESIGNS.md) records the pinned implementations. Two source explorers examined the runtime and weight-lifetime paths. Three independent design candidates compared retaining the current backend gate with switching to LiteRT-LM or adopting an AirLLM-style runtime. A separate cross-judge reviewed all three completed candidates.
+
+Keep MNN provisional and retain the existing llama.cpp fallback. All candidates agreed that neither upstream's inspected streaming path closes our native expert-lifetime gate. The synthesized revision uses the gpt-6-luna candidate's source distinctions and resource/request boundary, the gpt-6.1-sol candidate's private capability/request-plan records, and the gpt-6-sol candidate's concrete lifetime and phase proof gates. The public API and one-production-backend scope remain intact.
+
+The accepted changes are:
+
+- Separate model-resource and request-state lifetimes internally without implying safe concurrent executor or cache sharing.
+- Derive supported prefill/decode schedules from the exact artifact and retain backend token/state semantics.
+- Index canonical backing storage, aliases, companions, and materialization requirements. Release only owned transient weights.
+- Admit load, prefill, decode, state-growth, and packed/expanded transition peaks. Distinguish chunked delivery from bounded residency.
+- Drain execution after cancellation or failure, then destroy damaged request state. Reuse requires proven reset or backend recreation.
+- Reuse verified native extents and publish derived manifests atomically. Completion markers alone do not establish identity or integrity.
+
+We rejected an immediate LiteRT-LM backend switch, a Python/CUDA AirLLM port, a new universal container, and default prefetch. Whole-layer streaming and next-unit overlap remain later measured experiments. LiteRT-LM may be an external small-model characterization, with conversion and build differences explicit.
+
+The decision follows source inspection and design review only. No native hook, allocation ceiling, model compatibility, Android build, inference result, or speed has been verified by this revision. The phase 1 implementation still owns those proofs. This update reconciles the existing architecture, plan, validation contract, and DeepSeek prompt before handoff.

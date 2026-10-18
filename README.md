@@ -14,6 +14,8 @@ Give DeepSeek access to this repository and paste [the build prompt](prompts/DEE
 
 The proposed engine reuses a pinned backend's graph execution, tokenizer, and numerical kernels. This project owns expert storage, memory reservations, residency, cancellation, and evidence. MNN is the first integration candidate. A failed source-level feasibility gate can select llama.cpp before residency implementation. The MVP has one production backend.
 
+The design also draws from source inspection of LiteRT-LM and current AirLLM. It adopts explicit resource/request lifetimes, supported prefill plans, selective weight ownership, and accounting for materialization peaks. These references do not establish phone compatibility or change the production backend.
+
 ## Design documents
 
 - [Architecture and API sketch](docs/ARCHITECTURE.md) defines ownership, execution, and memory contracts.
@@ -21,6 +23,7 @@ The proposed engine reuses a pinned backend's graph execution, tokenizer, and nu
 - [Validation contract](docs/VALIDATION.md) defines correctness and performance evidence.
 - [Model selection](docs/MODELS.md) explains the current candidates and support policy.
 - [Sources and inspected backend code](docs/RESEARCH.md) distinguishes observations from hypotheses.
+- [LiteRT-LM and AirLLM research](docs/UPSTREAM_DESIGNS.md) records useful mechanisms, limits, and adopted changes.
 - [Design decision](docs/DESIGN_DECISION.md) records alternatives and independent review.
 - [DeepSeek build prompt](prompts/DEEPSEEK_BUILD.md) is the implementation handoff.
 - [Repository preparation checklist](docs/WORKPLAN.md) tracks this initial handoff.
