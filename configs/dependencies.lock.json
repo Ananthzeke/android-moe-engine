@@ -28,16 +28,33 @@
       "id": "llama.cpp",
       "repository": "https://github.com/ggml-org/llama.cpp",
       "commit": "ff5a23376725e5a889fa0bfb987b7541dc304da0",
-      "role": "production_candidate",
-      "status": "source_pinned_not_built"
+      "role": "production",
+      "status": "built_host_and_android; baseline_executed_on_phone; runtime_expert_streaming_not_integrated"
     },
     {
       "id": "mnn",
       "repository": "https://github.com/alibaba/MNN",
       "commit": "dbf9ba61b08106a3b43426e295d1a29cb41cc8fe",
-      "role": "first_integration_candidate",
-      "status": "source_pinned_not_built"
+      "role": "inspected_alternative",
+      "status": "source_inspected; eager_expert_construction; not_built"
     }
   ],
-  "models": []
+  "models": [
+    {
+      "id": "unsloth/Qwen3.5-2B-GGUF",
+      "artifact_file": "Qwen3.5-2B-Q4_K_M.gguf",
+      "artifact_sha256": "aaf42c8b7c3cab2bf3d69c355048d4a0ee9973d48f16c731c0520ee914699223",
+      "file_bytes": 1280835840,
+      "source": "https://huggingface.co/unsloth/Qwen3.5-2B-GGUF",
+      "base_model": "Qwen/Qwen3.5-2B",
+      "quantization": "Q4_K_M",
+      "evidence": [
+        "evidence/phase1/baseline-host.json",
+        "evidence/phase1/baseline-phone.json",
+        "evidence/phase1/baseline-phone-02.json",
+        "evidence/phase1/baseline-phone-03.json",
+        "evidence/phase1/baseline-phone-04.json"
+      ]
+    }
+  ]
 }

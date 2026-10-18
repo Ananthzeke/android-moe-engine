@@ -33,3 +33,8 @@ Keep these statuses distinct:
 5. Exact artifact runs on the physical phone under recorded settings.
 
 A family-support announcement establishes none of the later artifact-specific statuses by itself. Review model and converter licenses before redistribution.
+## Verified baseline artifact (2026-10-19)
+
+`unsloth/Qwen3.5-2B-GGUF`, file `Qwen3.5-2B-Q4_K_M.gguf`, 1,280,835,840 bytes, SHA-256 `aaf42c8b7c3cab2bf3d69c355048d4a0ee9973d48f16c731c0520ee914699223`, is a derived GGUF of `Qwen/Qwen3.5-2B`. It reached status 5 for the text-only baseline: it ran on the physical phone at context 512 with recorded settings and token IDs. The base safetensors artifact was not converted by this project, so the base-model entry remains a candidate.
+
+This verification is narrow. It establishes a working CPU text baseline and provenance, not MoE streaming, long context, quantized expert extents, or cross-architecture numerical parity. Host and phone tokenization matched; generated token IDs diverged after the first token. Four phone trials agreed with each other. The artifact is not promoted for large-model or multimodal use.

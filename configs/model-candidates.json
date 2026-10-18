@@ -54,6 +54,25 @@
       "verified_on_target": false,
       "artifact_sha256": null,
       "note": "Newer dense model, not the initial expert-streaming target."
+    },
+    {
+      "id": "unsloth/Qwen3.5-2B-GGUF",
+      "role": "small_baseline_gguf",
+      "architecture": "dense_hybrid_attention",
+      "source": "https://huggingface.co/unsloth/Qwen3.5-2B-GGUF",
+      "verified_on_target": true,
+      "artifact_sha256": "aaf42c8b7c3cab2bf3d69c355048d4a0ee9973d48f16c731c0520ee914699223",
+      "artifact_file": "Qwen3.5-2B-Q4_K_M.gguf",
+      "artifact_bytes": 1280835840,
+      "quantization": "Q4_K_M",
+      "base_model": "Qwen/Qwen3.5-2B",
+      "evidence": [
+        "evidence/phase1/baseline-phone.json",
+        "evidence/phase1/baseline-phone-02.json",
+        "evidence/phase1/baseline-phone-03.json",
+        "evidence/phase1/baseline-phone-04.json"
+      ],
+      "note": "Text-only derived GGUF; the exact artifact runs on the physical phone at context 512. Greedy token IDs diverge from the x86 host after the first token, so no cross-architecture numerical parity is claimed."
     }
   ]
 }

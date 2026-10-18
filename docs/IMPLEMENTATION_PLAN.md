@@ -84,6 +84,61 @@ Deliver a capability-specific request plan and allocation-coverage report. Disti
 
 MNN is provisional. If it cannot pass with a small maintainable change, repeat the gate in llama.cpp and record the backend decision before building residency. If both fail, finish the small engine and record the MoE blocker. Do not implement a fake callback or duplicate backend stack to make the gate appear green.
 
+### Phase 1 evidence (2026-10-19)
+
+Status: **partially passed**. A real small model runs on the phone, the backend
+decision is recorded, and the kernel-boundary gate passes bitwise on host and phone.
+The runtime patch that would stream experts inside llama.cpp is not implemented, so
+phase 1 is not complete and no streaming claim follows.
+
+Artifact and settings are in [the dependency lock](../configs/dependencies.lock.json)
+and [the feasibility report](backend-feasibility.md). The model is
+`unsloth/Qwen3.5-2B-GGUF` Q4_K_M, SHA-256
+`aaf42c8b7c3cab2bf3d69c355048d4a0ee9973d48f16c731c0520ee914699223`, run at context
+512, batch 512, 4 threads, greedy sampling, seed 1234, and 16 generated tokens.
+
+```sh
+# Host and Android builds against llama.cpp ff5a233...
+AME_TOOLS=<pinned tools> bench/build_harness.sh
+
+# Baseline, host and phone
+llama_baseline --model Qwen3.5-2B-Q4_K_M.gguf --chat --prompt "What is the capital of France?" \
+  --max-new-tokens 16 --context 512 --threads 4 --batch-size 512 --seed 1234 \
+  --artifact-sha <sha> --binary-sha <sha> --backend-commit ff5a233... --output run.json
+
+# Expert-ID remap gate against GGML_OP_MUL_MAT_ID
+moe_kernel_gate --workdir /data/local/tmp/ame-engine/gate --threads 4 \
+  --backend-commit ff5a233... --output gate.json
+```
+
+Results:
+
+- Host baseline: TTFT 0.422 s, prefills 0.382 s, 9.69 decode tokens/s, peak VmHWM
+  1,818,592 KiB. Phone baseline: TTFT 2.004-2.037 s over four runs, 4.36-4.50 decode
+  tokens/s, peak VmHWM 1,369,928-1,370,132 KiB. llama.cpp reported a 505.53 MiB CPU
+  compute buffer at this context and batch; it is not project-owned or covered.
+- Prompt tokenization matched exactly across host and phone (15 IDs). Generated token
+  IDs matched across all phone trials. Host and phone diverged after the first
+  generated token; the feasibility report records this as a cross-architecture
+  floating-point difference and makes no parity claim.
+- The fixture gate compared a fully resident 1,048,576-byte expert table with a
+  557,056-byte, 17-slot arena backing a compact ggml tensor, using llama.cpp's actual
+  CPU `GGML_OP_MUL_MAT_ID`. Decode (4-expert union) and prefill (17-expert union)
+  were bitwise identical with zero mismatched floats on host and phone. A 17-expert
+  unit against 16 slots returned `ResourceLimit`.
+- Source inspection selected llama.cpp provisionally. MNN exposes selected expert IDs
+  but constructs and retains every expert module in `MoEModule::create`, so it fails
+  the bounded-lifetime gate without a substantial patch. llama.cpp also contains a
+  device-buffer LRU for host-resident experts (`llama-moe-cache`), which is prior art
+  for slot maps but is not storage streaming.
+- The selected Android NDK's libc++ does not expose `std::stop_token`; the internal
+  boundary uses a project-owned atomic `Cancellation` instead. The design decision
+  records this portability deviation.
+
+Still open: the runtime patch, real-artifact quantized expert extents and companions,
+per-layer union measurement, prefill microbatch scheduling, backend allocation
+coverage, and any comparison against the unmodified loader.
+
 ## Phase 2: Implement bounded residency
 
 Implement the validated artifact index, checked file extents, one reservation owner, aligned arena, byte-based LRU, move-only leases, and synchronous demand reads. Start with one quantized layout established by phase 1. Use the same layout and fixture in the resident reference and candidate.

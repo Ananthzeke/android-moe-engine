@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "gate": "expert_id_remap_against_llama_cpp_cpu_mul_mat_id",
+  "backend": {
+    "name": "llama.cpp",
+    "commit": "ff5a23376725e5a889fa0bfb987b7541dc304da0",
+    "op": "GGML_OP_MUL_MAT_ID / ggml_compute_forward_mul_mat_id"
+  },
+  "dimensions": {
+    "n_embd": 64,
+    "n_ff": 128,
+    "n_expert": 32,
+    "n_expert_used": 4,
+    "prefill_tokens": 8,
+    "threads": 4
+  },
+  "memory": {
+    "resident_reference_bytes": 1048576,
+    "arena_bytes": 557056,
+    "slot_bytes": 32768,
+    "slots": 17,
+    "prefill_union": 17
+  },
+  "rounds": [
+    {
+      "name": "decode",
+      "tokens": 1,
+      "union": 4,
+      "identical": true,
+      "mismatched_floats": 0,
+      "max_absolute_difference": 0,
+      "reference_ms": 3.642585,
+      "candidate_ms": 0.226607,
+      "store": {
+        "hits": 0,
+        "misses": 4,
+        "evictions": 0,
+        "read_calls": 4,
+        "read_bytes": 131072,
+        "read_seconds": 0.00022096599999999998,
+        "pinned_slots": 4,
+        "resident_slots": 4
+      }
+    },
+    {
+      "name": "prefill",
+      "tokens": 8,
+      "union": 17,
+      "identical": true,
+      "mismatched_floats": 0,
+      "max_absolute_difference": 0,
+      "reference_ms": 0.218592,
+      "candidate_ms": 0.18088100000000001,
+      "store": {
+        "hits": 2,
+        "misses": 19,
+        "evictions": 2,
+        "read_calls": 19,
+        "read_bytes": 622592,
+        "read_seconds": 0.000882695,
+        "pinned_slots": 17,
+        "resident_slots": 17
+      }
+    }
+  ],
+  "refusal": {
+    "expected_resource_limit": true,
+    "error": "resource_limit"
+  },
+  "status": "pass",
+  "notes": [
+    "The reference keeps the complete expert table resident.",
+    "The candidate arena backs the staged ggml tensor directly.",
+    "Bitwise float equality is required; no tolerance is applied."
+  ]
+}

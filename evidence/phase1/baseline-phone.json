@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-10-18T19:41:37Z",
+  "run": {
+    "id": "phone-qwen35-2b-q4km-01",
+    "tag": "physical_target",
+    "backend": {
+      "name": "llama.cpp",
+      "version": "0.7.0-dev",
+      "commit": "ff5a23376725e5a889fa0bfb987b7541dc304da0",
+      "binary_sha256": "c28e365417cd58fc32dac77723011de9e59c8116978570688fc57a3fc838bbe8"
+    }
+  },
+  "model": {
+    "path": "/data/local/tmp/ame-engine/models/Qwen3.5-2B-Q4_K_M.gguf",
+    "artifact_sha256": "aaf42c8b7c3cab2bf3d69c355048d4a0ee9973d48f16c731c0520ee914699223",
+    "file_bytes": 1280835840
+  },
+  "model_info": {
+    "description": "qwen35 2B Q4_K - Medium",
+    "parameters": 1881825088,
+    "tensor_bytes": 1269873920,
+    "n_ctx_train": 262144,
+    "n_embd": 2048,
+    "n_layer": 24
+  },
+  "options": {
+    "context_tokens": 512,
+    "max_new_tokens": 16,
+    "threads": 4,
+    "batch_size": 512,
+    "seed": 1234,
+    "temperature": 0,
+    "top_k": 40,
+    "top_p": 0.95,
+    "mmap": true,
+    "chat_template": true,
+    "gpu_layers": 0
+  },
+  "prompt": {
+    "text": "<|im_start|>user\u000aWhat is the capital of France?<|im_end|>\u000a<|im_start|>assistant\u000a"
+  },
+  "prompt_token_count": 15,
+  "prompt_token_ids": [
+    248045,
+    846,
+    198,
+    3710,
+    369,
+    279,
+    6511,
+    314,
+    9338,
+    30,
+    248046,
+    198,
+    248045,
+    74455,
+    198
+  ],
+  "output": {
+    "token_ids": [
+      248068,
+      198,
+      90700,
+      8340,
+      25,
+      271,
+      16,
+      13,
+      220,
+      2972,
+      27382,
+      1386,
+      279,
+      6007,
+      3296,
+      64700
+    ],
+    "text": "<think>\u000aThinking Process:\u000a\u000a1.  **Identify the core question:**",
+    "tokens": 16,
+    "finish_reason": "limit"
+  },
+  "timing": {
+    "load_seconds": 1.630600937,
+    "model_load_seconds": 1.577612291,
+    "context_init_seconds": 0.052988646,
+    "tokenize_seconds": 0.000243541,
+    "prefill_seconds": 1.996104322,
+    "request_ttft_seconds": 1.999839582,
+    "decode_seconds": 3.331380676,
+    "decode_tokens_per_second": 4.502637632517743,
+    "generate_seconds": 5.331223175,
+    "wall_seconds": 6.96963656
+  },
+  "memory": {
+    "rss_kib_after_load": 1352732,
+    "rss_kib_after_prefill": 1367000,
+    "rss_kib_end": 1370040,
+    "vm_hwm_kib_end": 1370064,
+    "threads_end": 1,
+    "mem_available_kib_after_load": 5482980,
+    "mem_available_kib_after_prefill": 5474216,
+    "mem_available_kib_end": 5468292,
+    "project_owned_bytes": null,
+    "scope": "process RSS/VmHWM samples and system MemAvailable; backend allocation coverage not instrumented"
+  },
+  "status": "ok",
+  "finish_reason": "limit",
+  "unavailable": [
+    {
+      "field": "memory.project_owned_bytes",
+      "reason": "backend_allocation_coverage_not_instrumented"
+    }
+  ]
+}

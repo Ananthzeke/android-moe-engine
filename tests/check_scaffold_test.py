@@ -11,6 +11,7 @@ root = Path(__file__).resolve().parents[1]
 with tempfile.TemporaryDirectory() as directory:
     copy = Path(directory)
     shutil.copytree(root / "configs", copy / "configs")
+    shutil.copytree(root / "evidence", copy / "evidence")
     (copy / "tools").mkdir()
     shutil.copy(root / "tools/check_scaffold.py", copy / "tools/check_scaffold.py")
     (copy / "README.md").write_text("[Anchor](#local) [Web](https://example.com)\n")

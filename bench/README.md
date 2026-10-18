@@ -1,5 +1,48 @@
-# Bench ownership
+# Benchmarks and backend evidence
 
-Future reference comparisons, provenance, telemetry, parity, and aggregation. No benchmark results exist.
+These programs are not installed and are not part of `tools/verify.py`, because
+they require the pinned llama.cpp build and (for model runs) a downloaded artifact.
 
-Follow [validation](../docs/VALIDATION.md) and [architecture](../docs/ARCHITECTURE.md).
+## `llama_baseline.cpp`
+
+A small C API harness that keeps model loading, tokenization, graph execution, and
+sampling in the pinned llama.cpp. It records exact prompt and generated token IDs,
+load/prefill/TTFT/decode boundaries, process RSS and VmHWM, system MemAvailable, and
+the artifact and binary hashes supplied by the caller. It does not stream experts
+and does not claim allocation coverage.
+
+```sh
+./llama_baseline --model model.gguf --chat --prompt "Hello" \
+  --max-new-tokens 16 --context 512 --threads 4 \
+  --artifact-sha <64-hex> --binary-sha <64-hex> \
+  --backend-commit <40-hex> --tag host --output run.json
+```
+
+The harness applies the model's chat template when `--chat` is present, uses greedy
+sampling at temperature 0, and refuses a prompt plus output that exceeds the
+declared context instead of truncating it.
+
+## `moe_kernel_gate.cpp`
+
+A project-owned fixture that exercises llama.cpp's actual CPU
+`GGML_OP_MUL_MAT_ID` kernel. The reference keeps the complete expert table resident.
+The candidate stores the same bytes in a fixed arena, acquires only the selected
+union, backs a compact ggml expert tensor directly with that arena, and remaps expert
+IDs to arena slots. The check requires bitwise float equality and reports mismatch
+counts; it does not apply a tolerance.
+
+The gate also proves that a compute unit whose distinct expert union exceeds the slot
+count returns `ResourceLimit` rather than widening the arena. It is a kernel-boundary
+and lifetime proof, not an integrated llama.cpp runtime streaming path.
+
+```sh
+./moe_kernel_gate --workdir /tmp/gate --threads 4 \
+  --backend-commit <40-hex> --output gate.json
+```
+
+## Build
+
+Pin the tool and backend revisions in [the dependency lock](../configs/dependencies.lock.json).
+Build llama.cpp for host and Android first, then run `bench/build_harness.sh` with
+`AME_TOOLS` pointing at the pinned tools directory. The script uses the NDK compiler
+for the Android binaries and strips them.

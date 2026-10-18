@@ -1,0 +1,977 @@
+// A minimal llama.cpp baseline harness for project-owned evidence.
+//
+// It keeps model execution and tokenization in the pinned backend and records the
+// exact token IDs, timing boundaries, and process-observation memory samples that
+// the project validation contract requires. It does not stream or bound experts.
+
+#include <csignal>
+#include <unistd.h>
+
+#include <algorithm>
+#include <cerrno>
+#include <charconv>
+#include <chrono>
+#include <cmath>
+#include <cstdint>
+#include <cstdlib>
+#include <cstring>
+#include <ctime>
+#include <filesystem>
+#include <fstream>
+#include <iostream>
+#include <iterator>
+#include <optional>
+#include <string>
+#include <string_view>
+#include <system_error>
+#include <vector>
+
+#include "llama.h"
+
+namespace {
+
+volatile std::sig_atomic_t g_cancelled = 0;
+
+void handle_signal(int) { g_cancelled = 1; }
+
+using Clock = std::chrono::steady_clock;
+
+double elapsed_seconds(Clock::time_point begin, Clock::time_point end) {
+  return std::chrono::duration<double>(end - begin).count();
+}
+
+std::string utc_now() {
+  const std::time_t now = std::time(nullptr);
+  std::tm parts{};
+  if (::gmtime_r(&now, &parts) == nullptr) {
+    return "";
+  }
+  char buffer[32] = {};
+  const std::size_t written = std::strftime(buffer, sizeof(buffer), "%Y-%m-%dT%H:%M:%SZ", &parts);
+  return std::string(buffer, written);
+}
+
+struct StatusSample {
+  std::optional<std::uint64_t> rss_kib;
+  std::optional<std::uint64_t> hwm_kib;
+  std::optional<std::uint64_t> threads;
+};
+
+std::optional<std::uint64_t> status_field(const char* path, const char* key) {
+  std::ifstream stream(path);
+  if (!stream) {
+    return std::nullopt;
+  }
+  std::string line;
+  const std::string prefix = std::string(key) + ":";
+  while (std::getline(stream, line)) {
+    if (line.rfind(prefix, 0) != 0) {
+      continue;
+    }
+    std::string_view value(line);
+    value.remove_prefix(prefix.size());
+    while (!value.empty() && (value.front() == ' ' || value.front() == '\t')) {
+      value.remove_prefix(1);
+    }
+    std::uint64_t parsed = 0;
+    const auto result = std::from_chars(value.data(), value.data() + value.size(), parsed);
+    if (result.ec == std::errc{}) {
+      return parsed;
+    }
+    return std::nullopt;
+  }
+  return std::nullopt;
+}
+
+StatusSample sample_status() {
+  StatusSample sample;
+  sample.rss_kib = status_field("/proc/self/status", "VmRSS");
+  sample.hwm_kib = status_field("/proc/self/status", "VmHWM");
+  sample.threads = status_field("/proc/self/status", "Threads");
+  return sample;
+}
+
+std::optional<std::uint64_t> mem_available_kib() {
+  std::ifstream stream("/proc/meminfo");
+  if (!stream) {
+    return std::nullopt;
+  }
+  std::string line;
+  while (std::getline(stream, line)) {
+    if (line.rfind("MemAvailable:", 0) != 0) {
+      continue;
+    }
+    std::string_view value(line);
+    value.remove_prefix(std::string_view("MemAvailable:").size());
+    while (!value.empty() && (value.front() == ' ' || value.front() == '\t')) {
+      value.remove_prefix(1);
+    }
+    std::uint64_t parsed = 0;
+    const auto result = std::from_chars(value.data(), value.data() + value.size(), parsed);
+    if (result.ec == std::errc{}) {
+      return parsed;
+    }
+    return std::nullopt;
+  }
+  return std::nullopt;
+}
+
+class JsonWriter {
+ public:
+  void begin_object() { open('{'); }
+  void end_object() { close('}'); }
+  void begin_array() { open('['); }
+  void end_array() { close(']'); }
+  void key(std::string_view text) {
+    separator();
+    write_string(text);
+    out_ += ": ";
+    after_key_ = true;
+  }
+  void null_value() {
+    element();
+    out_ += "null";
+  }
+  void string_value(std::string_view text) {
+    element();
+    write_string(text);
+  }
+  void unsigned_value(std::uint64_t value) {
+    element();
+    char buffer[32] = {};
+    const auto result = std::to_chars(buffer, buffer + sizeof(buffer), value);
+    out_.append(buffer, result.ptr);
+  }
+  void signed_value(std::int64_t value) {
+    element();
+    char buffer[32] = {};
+    const auto result = std::to_chars(buffer, buffer + sizeof(buffer), value);
+    out_.append(buffer, result.ptr);
+  }
+  void double_value(double value) {
+    element();
+    if (!std::isfinite(value)) {
+      out_ += "null";
+      return;
+    }
+    char buffer[64] = {};
+    const auto result = std::to_chars(buffer, buffer + sizeof(buffer), value);
+    out_.append(buffer, result.ptr);
+  }
+  void bool_value(bool value) {
+    element();
+    out_ += value ? "true" : "false";
+  }
+  [[nodiscard]] const std::string& text() const { return out_; }
+
+ private:
+  void open(char bracket) {
+    element();
+    out_ += bracket;
+    ++depth_;
+    first_.push_back(true);
+    after_key_ = false;
+  }
+  void close(char bracket) {
+    --depth_;
+    const bool was_empty = first_.back();
+    first_.pop_back();
+    if (!was_empty) {
+      newline();
+    }
+    out_ += bracket;
+    after_key_ = false;
+  }
+  void element() {
+    if (!after_key_) {
+      separator();
+    }
+    after_key_ = false;
+  }
+  void separator() {
+    if (first_.empty()) {
+      return;
+    }
+    if (first_.back()) {
+      first_.back() = false;
+      newline();
+    } else {
+      out_ += ',';
+      newline();
+    }
+  }
+  void newline() {
+    out_ += '\n';
+    out_.append(depth_ * 2U, ' ');
+  }
+  void write_string(std::string_view text) {
+    static constexpr char kHex[] = "0123456789abcdef";
+    out_ += '"';
+    for (const char character : text) {
+      const auto byte = static_cast<unsigned char>(character);
+      if (character == '"' || character == '\\') {
+        out_ += '\\';
+        out_ += character;
+      } else if (byte < 0x20) {
+        out_ += "\\u00";
+        out_ += kHex[byte >> 4U];
+        out_ += kHex[byte & 0x0FU];
+      } else {
+        out_ += character;
+      }
+    }
+    out_ += '"';
+  }
+  std::string out_;
+  std::vector<bool> first_;
+  std::size_t depth_ = 0;
+  bool after_key_ = false;
+};
+
+void write_optional_unsigned(JsonWriter& json, const std::optional<std::uint64_t>& value) {
+  if (value.has_value()) {
+    json.unsigned_value(*value);
+  } else {
+    json.null_value();
+  }
+}
+
+void write_optional_string(JsonWriter& json, const std::optional<std::string>& value) {
+  if (value.has_value()) {
+    json.string_value(*value);
+  } else {
+    json.null_value();
+  }
+}
+
+struct Options {
+  std::string model;
+  std::string prompt;
+  std::string prompt_file;
+  std::string output;
+  std::string artifact_sha;
+  std::string binary_sha;
+  std::string backend_commit;
+  std::string run_id;
+  std::string tag = "host";
+  std::uint32_t max_new_tokens = 32;
+  std::uint32_t context = 512;
+  std::uint32_t threads = 4;
+  std::uint32_t batch_size = 0;
+  std::uint32_t seed = 1234;
+  double temperature = 0.0;
+  std::uint32_t top_k = 40;
+  double top_p = 0.95;
+  bool mmap = true;
+  bool chat = false;
+  bool include_prompt_text = true;
+};
+
+struct ParseResult {
+  bool ok = true;
+  std::string error;
+};
+
+bool parse_unsigned(std::string_view text, std::uint64_t& value) {
+  const auto result = std::from_chars(text.data(), text.data() + text.size(), value);
+  return result.ec == std::errc{} && result.ptr == text.data() + text.size();
+}
+
+bool parse_double(std::string_view text, double& value) {
+  std::string copy(text);
+  char* end = nullptr;
+  errno = 0;
+  const double parsed = std::strtod(copy.c_str(), &end);
+  if (errno != 0 || end == copy.c_str() || *end != '\0') {
+    return false;
+  }
+  value = parsed;
+  return true;
+}
+
+ParseResult parse_options(int argc, char* argv[], Options& options) {
+  for (int index = 1; index < argc; ++index) {
+    const std::string_view argument = argv[index];
+    if (argument == "--chat") {
+      options.chat = true;
+      continue;
+    }
+    if (argument == "--no-mmap") {
+      options.mmap = false;
+      continue;
+    }
+    if (argument == "--mmap") {
+      options.mmap = true;
+      continue;
+    }
+    if (argument == "--no-prompt-text") {
+      options.include_prompt_text = false;
+      continue;
+    }
+    if (argument == "--help") {
+      return {false, "help"};
+    }
+    const bool needs_value = argument == "--model" || argument == "--prompt" ||
+                             argument == "--prompt-file" || argument == "--output" ||
+                             argument == "--artifact-sha" || argument == "--binary-sha" ||
+                             argument == "--backend-commit" || argument == "--run-id" ||
+                             argument == "--tag" || argument == "--max-new-tokens" ||
+                             argument == "--context" || argument == "--threads" ||
+                             argument == "--batch-size" || argument == "--seed" ||
+                             argument == "--temperature" || argument == "--top-k" ||
+                             argument == "--top-p";
+    if (!needs_value || index + 1 >= argc) {
+      return {false, "Unsupported or incomplete argument: " + std::string(argument)};
+    }
+    const std::string value = argv[++index];
+    if (argument == "--model") {
+      options.model = value;
+    } else if (argument == "--prompt") {
+      options.prompt = value;
+    } else if (argument == "--prompt-file") {
+      options.prompt_file = value;
+    } else if (argument == "--output") {
+      options.output = value;
+    } else if (argument == "--artifact-sha") {
+      options.artifact_sha = value;
+    } else if (argument == "--binary-sha") {
+      options.binary_sha = value;
+    } else if (argument == "--backend-commit") {
+      options.backend_commit = value;
+    } else if (argument == "--run-id") {
+      options.run_id = value;
+    } else if (argument == "--tag") {
+      options.tag = value;
+    } else {
+      std::uint64_t number = 0;
+      if (argument == "--temperature" || argument == "--top-p") {
+        double parsed = 0.0;
+        if (!parse_double(value, parsed)) {
+          return {false, "Invalid numeric value for " + std::string(argument)};
+        }
+        if (argument == "--temperature") {
+          options.temperature = parsed;
+        } else {
+          options.top_p = parsed;
+        }
+      } else {
+        if (!parse_unsigned(value, number) || number > UINT32_MAX) {
+          return {false, "Invalid numeric value for " + std::string(argument)};
+        }
+        const auto narrowed = static_cast<std::uint32_t>(number);
+        if (argument == "--max-new-tokens") {
+          options.max_new_tokens = narrowed;
+        } else if (argument == "--context") {
+          options.context = narrowed;
+        } else if (argument == "--threads") {
+          options.threads = narrowed;
+        } else if (argument == "--batch-size") {
+          options.batch_size = narrowed;
+        } else if (argument == "--seed") {
+          options.seed = narrowed;
+        } else {
+          options.top_k = narrowed;
+        }
+      }
+    }
+  }
+  if (options.model.empty()) {
+    return {false, "--model is required"};
+  }
+  if (options.prompt.empty() == options.prompt_file.empty()) {
+    return {false, "Specify exactly one of --prompt or --prompt-file"};
+  }
+  if (options.max_new_tokens == 0 || options.context < 8) {
+    return {false, "Invalid token limits"};
+  }
+  if (options.threads == 0) {
+    return {false, "--threads must be positive"};
+  }
+  if (!options.prompt_file.empty()) {
+    std::ifstream stream(options.prompt_file, std::ios::binary);
+    if (!stream) {
+      return {false, "Cannot read prompt file"};
+    }
+    options.prompt.assign(std::istreambuf_iterator<char>(stream), std::istreambuf_iterator<char>());
+  }
+  return {};
+}
+
+struct Sample {
+  std::optional<std::uint64_t> rss_kib;
+  std::optional<std::uint64_t> hwm_kib;
+  std::optional<std::uint64_t> threads;
+  std::optional<std::uint64_t> mem_available_kib;
+};
+
+Sample take_sample() {
+  const StatusSample status = sample_status();
+  return Sample{status.rss_kib, status.hwm_kib, status.threads, mem_available_kib()};
+}
+
+bool write_text(const std::string& path, const std::string& contents, std::string& error) {
+  if (path.empty()) {
+    std::cout << contents;
+    return std::cout.good();
+  }
+  const std::string temporary = path + ".tmp." + std::to_string(static_cast<long long>(::getpid()));
+  {
+    std::ofstream stream(temporary, std::ios::binary | std::ios::trunc);
+    if (!stream) {
+      error = "cannot open temporary output";
+      return false;
+    }
+    stream.write(contents.data(), static_cast<std::streamsize>(contents.size()));
+    stream.flush();
+    if (!stream.good()) {
+      error = "cannot write temporary output";
+      std::filesystem::remove(temporary);
+      return false;
+    }
+  }
+  std::error_code code;
+  std::filesystem::rename(temporary, path, code);
+  if (code) {
+    error = code.message();
+    std::filesystem::remove(temporary);
+    return false;
+  }
+  return true;
+}
+
+bool emit_status(const Options& options, const char* status, const char* reason,
+                  const std::string& detail) {
+  JsonWriter writer;
+  writer.begin_object();
+  writer.key("schema_version");
+  writer.unsigned_value(1);
+  writer.key("status");
+  writer.string_value(status);
+  writer.key("observed_at");
+  writer.string_value(utc_now());
+  writer.key("run");
+  writer.begin_object();
+  writer.key("id");
+  writer.string_value(options.run_id);
+  writer.key("tag");
+  writer.string_value(options.tag);
+  writer.end_object();
+  writer.key("model");
+  writer.begin_object();
+  writer.key("path");
+  writer.string_value(options.model);
+  writer.key("artifact_sha256");
+  write_optional_string(writer, options.artifact_sha.empty()
+                                    ? std::nullopt
+                                    : std::optional<std::string>(options.artifact_sha));
+  writer.end_object();
+  writer.key("finish_reason");
+  writer.string_value(reason);
+  writer.key("error");
+  writer.string_value(detail);
+  writer.end_object();
+  std::string error;
+  return write_text(options.output, writer.text() + "\n", error);
+}
+
+std::optional<std::string> read_chat_prompt(const llama_model* model, const std::string& prompt,
+                                            std::string& error) {
+  const char* chat_template = llama_model_chat_template(model, nullptr);
+  if (chat_template == nullptr) {
+    error = "model has no chat template";
+    return std::nullopt;
+  }
+  const llama_chat_message message{"user", prompt.c_str()};
+  std::vector<char> buffer(prompt.size() * 2 + 256);
+  for (int attempt = 0; attempt < 2; ++attempt) {
+    const int32_t needed = llama_chat_apply_template(chat_template, &message, 1, true,
+                                                     buffer.data(),
+                                                     static_cast<int32_t>(buffer.size()));
+    if (needed < 0) {
+      error = "chat template application failed";
+      return std::nullopt;
+    }
+    if (static_cast<std::size_t>(needed) <= buffer.size()) {
+      return std::string(buffer.data(), static_cast<std::size_t>(needed));
+    }
+    buffer.resize(static_cast<std::size_t>(needed) + 1);
+  }
+  error = "chat template buffer growth failed";
+  return std::nullopt;
+}
+
+}  // namespace
+
+int main(int argc, char* argv[]) {
+  const Clock::time_point program_start = Clock::now();
+  std::signal(SIGINT, handle_signal);
+  std::signal(SIGTERM, handle_signal);
+
+  Options options;
+  const ParseResult parsed = parse_options(argc, argv, options);
+  if (!parsed.ok) {
+    if (parsed.error == "help") {
+      std::cout << "usage: llama_baseline --model PATH (--prompt TEXT | --prompt-file PATH)\n"
+                   "       [--chat] [--max-new-tokens N] [--context N] [--threads N]\n"
+                   "       [--batch-size N] [--seed N] [--temperature F] [--top-k N]\n"
+                   "       [--top-p F] [--no-mmap] [--artifact-sha HEX] [--output PATH]\n"
+                   "       [--backend-commit SHA] [--binary-sha HEX] [--run-id ID]\n"
+                   "       [--tag TAG] [--no-prompt-text]\n";
+      return 0;
+    }
+    std::cerr << parsed.error << '\n';
+    return 2;
+  }
+
+  JsonWriter json;
+  json.begin_object();
+  json.key("schema_version");
+  json.unsigned_value(1);
+  json.key("observed_at");
+  json.string_value(utc_now());
+  json.key("run");
+  json.begin_object();
+  json.key("id");
+  json.string_value(options.run_id);
+  json.key("tag");
+  json.string_value(options.tag);
+  json.key("backend");
+  json.begin_object();
+  json.key("name");
+  json.string_value("llama.cpp");
+  json.key("version");
+  json.string_value(llama_version());
+  json.key("commit");
+  json.string_value(options.backend_commit);
+  json.key("binary_sha256");
+  write_optional_string(json, options.binary_sha.empty()
+                                   ? std::nullopt
+                                   : std::optional<std::string>(options.binary_sha));
+  json.end_object();
+  json.end_object();
+
+  json.key("model");
+  json.begin_object();
+  json.key("path");
+  json.string_value(options.model);
+  json.key("artifact_sha256");
+  write_optional_string(json, options.artifact_sha.empty()
+                                   ? std::nullopt
+                                   : std::optional<std::string>(options.artifact_sha));
+  std::error_code size_error;
+  const auto file_size = std::filesystem::file_size(options.model, size_error);
+  json.key("file_bytes");
+  if (!size_error) {
+    json.unsigned_value(file_size);
+  } else {
+    json.null_value();
+  }
+  json.end_object();
+
+  llama_backend_init();
+
+  const Clock::time_point load_start = Clock::now();
+  llama_model_params model_params = llama_model_default_params();
+  model_params.n_gpu_layers = 0;
+  model_params.load_mode =
+      options.mmap ? LLAMA_LOAD_MODE_MMAP : LLAMA_LOAD_MODE_NONE;
+  model_params.lazy_mode =
+      options.mmap ? LLAMA_LAZY_MODE_AUTO : LLAMA_LAZY_MODE_OFF;
+  model_params.check_tensors = false;
+
+  llama_model* model = llama_model_load_from_file(options.model.c_str(), model_params);
+  if (model == nullptr) {
+    std::cerr << "model load failed\n";
+    (void)emit_status(options, "error", "error", "model load failed");
+    llama_backend_free();
+    return 1;
+  }
+  const Clock::time_point model_loaded = Clock::now();
+
+  llama_context_params context_params = llama_context_default_params();
+  context_params.n_ctx = options.context;
+  context_params.n_batch = options.batch_size == 0 ? options.context : options.batch_size;
+  context_params.n_ubatch = context_params.n_batch;
+  context_params.n_threads = static_cast<int32_t>(options.threads);
+  context_params.n_threads_batch = static_cast<int32_t>(options.threads);
+  context_params.no_perf = true;
+  context_params.moe_cache_size = 0;
+  context_params.abort_callback = [](void*) -> bool { return g_cancelled != 0; };
+  context_params.abort_callback_data = nullptr;
+
+  llama_context* context = llama_init_from_model(model, context_params);
+  if (context == nullptr) {
+    std::cerr << "context creation failed\n";
+    (void)emit_status(options, "error", "error", "context creation failed");
+    llama_model_free(model);
+    llama_backend_free();
+    return 1;
+  }
+  const Clock::time_point context_ready = Clock::now();
+  const Sample after_load = take_sample();
+
+  char description[256] = {};
+  llama_model_desc(model, description, sizeof(description));
+  const llama_vocab* vocab = llama_model_get_vocab(model);
+
+  std::string prompt = options.prompt;
+  bool chat_applied = false;
+  if (options.chat) {
+    std::string chat_error;
+    const auto formatted = read_chat_prompt(model, prompt, chat_error);
+    if (!formatted.has_value()) {
+      std::cerr << chat_error << '\n';
+      (void)emit_status(options, "error", "error", chat_error);
+      llama_free(context);
+      llama_model_free(model);
+      llama_backend_free();
+      return 1;
+    }
+    prompt = *formatted;
+    chat_applied = true;
+  }
+
+  json.key("model_info");
+  json.begin_object();
+  json.key("description");
+  json.string_value(description);
+  json.key("parameters");
+  json.unsigned_value(llama_model_n_params(model));
+  json.key("tensor_bytes");
+  json.unsigned_value(llama_model_size(model));
+  json.key("n_ctx_train");
+  json.unsigned_value(static_cast<std::uint64_t>(llama_model_n_ctx_train(model)));
+  json.key("n_embd");
+  json.unsigned_value(static_cast<std::uint64_t>(llama_model_n_embd(model)));
+  json.key("n_layer");
+  json.unsigned_value(static_cast<std::uint64_t>(llama_model_n_layer(model)));
+  json.end_object();
+
+  json.key("options");
+  json.begin_object();
+  json.key("context_tokens");
+  json.unsigned_value(options.context);
+  json.key("max_new_tokens");
+  json.unsigned_value(options.max_new_tokens);
+  json.key("threads");
+  json.unsigned_value(options.threads);
+  json.key("batch_size");
+  json.unsigned_value(context_params.n_batch);
+  json.key("seed");
+  json.unsigned_value(options.seed);
+  json.key("temperature");
+  json.double_value(options.temperature);
+  json.key("top_k");
+  json.unsigned_value(options.top_k);
+  json.key("top_p");
+  json.double_value(options.top_p);
+  json.key("mmap");
+  json.bool_value(options.mmap);
+  json.key("chat_template");
+  json.bool_value(chat_applied);
+  json.key("gpu_layers");
+  json.unsigned_value(0);
+  json.end_object();
+
+  json.key("prompt");
+  json.begin_object();
+  if (options.include_prompt_text) {
+    json.key("text");
+    json.string_value(prompt);
+  } else {
+    json.key("text");
+    json.null_value();
+  }
+  json.end_object();
+
+  const Clock::time_point generate_start = Clock::now();
+  const Clock::time_point tokenize_start = Clock::now();
+  const int32_t size_needed = llama_tokenize(vocab, prompt.c_str(),
+                                             static_cast<int32_t>(prompt.size()), nullptr, 0, true,
+                                             true);
+  if (size_needed == INT32_MIN) {
+    std::cerr << "tokenization overflow\n";
+    (void)emit_status(options, "error", "error", "tokenization overflow");
+    llama_free(context);
+    llama_model_free(model);
+    llama_backend_free();
+    return 1;
+  }
+  const std::size_t token_capacity =
+      size_needed < 0 ? static_cast<std::size_t>(-size_needed) : static_cast<std::size_t>(size_needed);
+  std::vector<llama_token> prompt_tokens(token_capacity + 1);
+  const int32_t prompt_count =
+      llama_tokenize(vocab, prompt.c_str(), static_cast<int32_t>(prompt.size()),
+                     prompt_tokens.data(), static_cast<int32_t>(prompt_tokens.size()), true, true);
+  const Clock::time_point tokenize_end = Clock::now();
+  if (prompt_count <= 0) {
+    std::cerr << "tokenization failed\n";
+    (void)emit_status(options, "error", "error", "tokenization failed");
+    llama_free(context);
+    llama_model_free(model);
+    llama_backend_free();
+    return 1;
+  }
+  prompt_tokens.resize(static_cast<std::size_t>(prompt_count));
+
+  json.key("prompt_token_count");
+  json.unsigned_value(static_cast<std::uint64_t>(prompt_tokens.size()));
+  json.key("prompt_token_ids");
+  json.begin_array();
+  for (const llama_token token : prompt_tokens) {
+    json.signed_value(token);
+  }
+  json.end_array();
+
+  const std::uint64_t prompt_and_output =
+      static_cast<std::uint64_t>(prompt_count) + options.max_new_tokens;
+  if (prompt_and_output > options.context) {
+    (void)emit_status(options, "refused", "context_limit",
+                      "prompt plus requested output exceeds context");
+    llama_free(context);
+    llama_model_free(model);
+    llama_backend_free();
+    return 0;
+  }
+
+  llama_batch batch = llama_batch_init(static_cast<int32_t>(context_params.n_batch), 0, 1);
+  auto decode_chunk = [&](const std::vector<llama_token>& tokens, int32_t position) -> bool {
+    if (tokens.empty()) {
+      return true;
+    }
+    batch.n_tokens = static_cast<int32_t>(tokens.size());
+    for (std::size_t index = 0; index < tokens.size(); ++index) {
+      batch.token[index] = tokens[index];
+      batch.pos[index] = position + static_cast<int32_t>(index);
+      batch.n_seq_id[index] = 1;
+      batch.seq_id[index][0] = 0;
+      batch.logits[index] = index + 1 == tokens.size() ? 1 : 0;
+    }
+    return llama_decode(context, batch) == 0;
+  };
+
+  const Clock::time_point prefill_start = Clock::now();
+  bool prefill_ok = true;
+  for (std::size_t offset = 0; offset < prompt_tokens.size();) {
+    const std::size_t remaining = prompt_tokens.size() - offset;
+    const std::size_t chunk =
+        std::min<std::size_t>(remaining, static_cast<std::size_t>(context_params.n_batch));
+    std::vector<llama_token> piece(prompt_tokens.begin() + static_cast<std::ptrdiff_t>(offset),
+                                   prompt_tokens.begin() +
+                                       static_cast<std::ptrdiff_t>(offset + chunk));
+    if (!decode_chunk(piece, static_cast<int32_t>(offset))) {
+      prefill_ok = false;
+      break;
+    }
+    offset += chunk;
+  }
+  const Clock::time_point prefill_end = Clock::now();
+  if (!prefill_ok) {
+    (void)emit_status(options, g_cancelled != 0 ? "cancelled" : "error",
+                      g_cancelled != 0 ? "cancelled" : "error", "prefill decode failed");
+    llama_batch_free(batch);
+    llama_free(context);
+    llama_model_free(model);
+    llama_backend_free();
+    return 1;
+  }
+  const Sample after_prefill = take_sample();
+
+  llama_sampler_chain_params sampler_params = llama_sampler_chain_default_params();
+  llama_sampler* sampler = llama_sampler_chain_init(sampler_params);
+  if (options.temperature <= 0.0) {
+    llama_sampler_chain_add(sampler, llama_sampler_init_greedy());
+  } else {
+    llama_sampler_chain_add(sampler, llama_sampler_init_top_k(static_cast<int32_t>(options.top_k)));
+    llama_sampler_chain_add(sampler, llama_sampler_init_top_p(static_cast<float>(options.top_p), 1));
+    llama_sampler_chain_add(sampler, llama_sampler_init_temp(static_cast<float>(options.temperature)));
+    llama_sampler_chain_add(sampler, llama_sampler_init_dist(options.seed));
+  }
+
+  std::vector<llama_token> generated;
+  std::string output_text;
+  std::string finish_reason = "limit";
+  bool first_token_seen = false;
+  Clock::time_point first_token_time{};
+  Clock::time_point last_token_time{};
+  double decode_seconds = 0.0;
+  bool decode_failed = false;
+
+  while (generated.size() < options.max_new_tokens) {
+    if (g_cancelled != 0) {
+      finish_reason = "cancelled";
+      break;
+    }
+    const llama_token token = llama_sampler_sample(sampler, context, -1);
+    llama_sampler_accept(sampler, token);
+    if (llama_vocab_is_eog(vocab, token)) {
+      finish_reason = "eos";
+      break;
+    }
+    generated.push_back(token);
+    char piece[256] = {};
+    int32_t piece_length = llama_token_to_piece(vocab, token, piece, sizeof(piece), 0, false);
+    if (piece_length < 0) {
+      std::vector<char> larger(static_cast<std::size_t>(-piece_length));
+      piece_length = llama_token_to_piece(vocab, token, larger.data(),
+                                          static_cast<int32_t>(larger.size()), 0, false);
+      if (piece_length >= 0) {
+        output_text.append(larger.data(), static_cast<std::size_t>(piece_length));
+      }
+    } else {
+      output_text.append(piece, static_cast<std::size_t>(piece_length));
+    }
+    const Clock::time_point now = Clock::now();
+    if (!first_token_seen) {
+      first_token_seen = true;
+      first_token_time = now;
+    }
+    last_token_time = now;
+    if (generated.size() == options.max_new_tokens) {
+      finish_reason = "limit";
+      break;
+    }
+    std::vector<llama_token> next{token};
+    if (!decode_chunk(next, static_cast<int32_t>(prompt_count + generated.size() - 1))) {
+      decode_failed = true;
+      finish_reason = g_cancelled != 0 ? "cancelled" : "error";
+      break;
+    }
+  }
+  if (first_token_seen) {
+    decode_seconds = elapsed_seconds(first_token_time, last_token_time);
+  }
+  const Clock::time_point generate_end = Clock::now();
+  const Sample end_sample = take_sample();
+
+  json.key("output");
+  json.begin_object();
+  json.key("token_ids");
+  json.begin_array();
+  for (const llama_token token : generated) {
+    json.signed_value(token);
+  }
+  json.end_array();
+  json.key("text");
+  json.string_value(output_text);
+  json.key("tokens");
+  json.unsigned_value(static_cast<std::uint64_t>(generated.size()));
+  json.key("finish_reason");
+  json.string_value(finish_reason);
+  json.end_object();
+
+  json.key("timing");
+  json.begin_object();
+  json.key("load_seconds");
+  json.double_value(elapsed_seconds(load_start, context_ready));
+  json.key("model_load_seconds");
+  json.double_value(elapsed_seconds(load_start, model_loaded));
+  json.key("context_init_seconds");
+  json.double_value(elapsed_seconds(model_loaded, context_ready));
+  json.key("tokenize_seconds");
+  json.double_value(elapsed_seconds(tokenize_start, tokenize_end));
+  json.key("prefill_seconds");
+  json.double_value(elapsed_seconds(prefill_start, prefill_end));
+  json.key("request_ttft_seconds");
+  if (first_token_seen) {
+    json.double_value(elapsed_seconds(generate_start, first_token_time));
+  } else {
+    json.null_value();
+  }
+  json.key("decode_seconds");
+  json.double_value(decode_seconds);
+  json.key("decode_tokens_per_second");
+  if (generated.size() >= 2 && decode_seconds > 0.0) {
+    json.double_value(static_cast<double>(generated.size() - 1) / decode_seconds);
+  } else {
+    json.null_value();
+  }
+  json.key("generate_seconds");
+  json.double_value(elapsed_seconds(generate_start, generate_end));
+  json.key("wall_seconds");
+  json.double_value(elapsed_seconds(program_start, generate_end));
+  json.end_object();
+
+  json.key("memory");
+  json.begin_object();
+  json.key("rss_kib_after_load");
+  write_optional_unsigned(json, after_load.rss_kib);
+  json.key("rss_kib_after_prefill");
+  write_optional_unsigned(json, after_prefill.rss_kib);
+  json.key("rss_kib_end");
+  write_optional_unsigned(json, end_sample.rss_kib);
+  json.key("vm_hwm_kib_end");
+  write_optional_unsigned(json, end_sample.hwm_kib);
+  json.key("threads_end");
+  write_optional_unsigned(json, end_sample.threads);
+  json.key("mem_available_kib_after_load");
+  write_optional_unsigned(json, after_load.mem_available_kib);
+  json.key("mem_available_kib_after_prefill");
+  write_optional_unsigned(json, after_prefill.mem_available_kib);
+  json.key("mem_available_kib_end");
+  write_optional_unsigned(json, end_sample.mem_available_kib);
+  json.key("project_owned_bytes");
+  json.null_value();
+  json.key("scope");
+  json.string_value(
+      "process RSS/VmHWM samples and system MemAvailable; backend allocation coverage not "
+      "instrumented");
+  json.end_object();
+
+  json.key("status");
+  if (g_cancelled != 0) {
+    json.string_value("cancelled");
+  } else if (decode_failed) {
+    json.string_value("error");
+  } else {
+    json.string_value("ok");
+  }
+  if (decode_failed) {
+    json.key("error");
+    json.string_value("decode failed");
+  }
+  json.key("finish_reason");
+  json.string_value(finish_reason);
+  json.key("unavailable");
+  json.begin_array();
+  const auto note_unavailable = [&json](std::string_view field, std::string_view reason) {
+    json.begin_object();
+    json.key("field");
+    json.string_value(field);
+    json.key("reason");
+    json.string_value(reason);
+    json.end_object();
+  };
+  if (options.artifact_sha.empty()) {
+    note_unavailable("model.artifact_sha256", "not_supplied");
+  }
+  if (options.binary_sha.empty()) {
+    note_unavailable("run.binary_sha256", "not_supplied");
+  }
+  if (options.backend_commit.empty()) {
+    note_unavailable("run.backend.commit", "not_supplied");
+  }
+  if (!options.include_prompt_text) {
+    note_unavailable("prompt.text", "withheld");
+    note_unavailable("prompt.sha256", "not_computed_by_harness");
+  }
+  note_unavailable("memory.project_owned_bytes", "backend_allocation_coverage_not_instrumented");
+  json.end_array();
+  json.end_object();
+
+  std::string write_error;
+  if (!write_text(options.output, json.text() + "\n", write_error)) {
+    std::cerr << "output write failed: " << write_error << '\n';
+  }
+
+  llama_sampler_free(sampler);
+  llama_batch_free(batch);
+  llama_free(context);
+  llama_model_free(model);
+  llama_backend_free();
+
+  if (decode_failed && g_cancelled == 0) {
+    return 1;
+  }
+  return 0;
+}

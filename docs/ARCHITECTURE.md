@@ -1,6 +1,6 @@
 # Architecture
 
-Status: accepted design direction, with source-level feasibility gates still open. A host coding foundation and a read-only device probe exist; no inference engine exists yet. The pinned NDK cross-build runs on the physical phone. See [phase 0 evidence](IMPLEMENTATION_PLAN.md#phase-0-evidence-2026-10-19).
+Status: accepted design direction. A host coding foundation, a read-only device probe, a bounded residency store, and a verified llama.cpp text baseline exist. The pinned NDK cross-build runs on the physical phone. See [phase 0](IMPLEMENTATION_PLAN.md#phase-0-evidence-2026-10-19) and [phase 1](IMPLEMENTATION_PLAN.md#phase-1-evidence-2026-10-19) evidence. Expert streaming is not integrated into the backend runtime.
 
 ## Problem and target
 
@@ -27,18 +27,18 @@ Proposed C++20 usage:
 ```cpp
 auto engine = Engine::open(package_path, options);
 if (!engine) return report(engine.error());
-auto outcome = engine.value()->generate(prompt, generation, sink, stop_token);
+auto outcome = engine.value()->generate(prompt, generation, sink, cancellation);
 ```
 
-The sketch uses a project-local `Result<T>` value-or-error type. It does not require C++23 `std::expected`. These are new project interfaces, not upstream API names.
+The sketch uses a project-local `Result<T>` value-or-error type and a project-owned `Cancellation` token. The pinned NDK's libc++ does not expose `std::stop_token`, so the internal boundary must not depend on it. The sketch does not require C++23 `std::expected`. These are new project interfaces, not upstream API names.
 
 ## Choose one backend
 
-Use a pinned MNN fork as the first integration candidate. Preserve backend ownership of graph execution, tokenization, model mathematics, and kernels. Keep our patch behind one internal expert-execution boundary. This project owns artifact indexing, memory admission, expert residency, I/O, and lifecycle.
+Use pinned llama.cpp as the provisional production backend after the phase 1 gate. Preserve backend ownership of graph execution, tokenization, model mathematics, and kernels. Keep our patch behind one internal expert-execution boundary. This project owns artifact indexing, memory admission, expert residency, I/O, and lifecycle.
 
-MNN's actual [MoEModule implementation](RESEARCH.md) exposes selected expert IDs before expert submodule calls. Its construction also retains every expert module. Therefore, the first integration experiment must establish lazy construction, releasable backing storage, or another realizable bounded lifetime. A callback that sees routing after all weights are packed is insufficient.
+MNN remains an inspected alternative, not a second production path. Its [MoEModule implementation](RESEARCH.md) exposes selected expert IDs before expert submodule calls, but its construction retains every expert module and offers no per-expert release path. It failed the bounded-lifetime gate and is not built here.
 
-If MNN fails the gate, apply the same gate to pinned llama.cpp before implementing a second production path. Keep only the chosen production backend. An unmodified other backend may remain an external reference. If neither passes, keep the verified small CPU engine and record streaming as blocked.
+The llama.cpp gate is kernel-boundary evidence, not an integrated stream. [`ggml_compute_forward_mul_mat_id`](https://github.com/ggml-org/llama.cpp/blob/ff5a23376725e5a889fa0bfb987b7541dc304da0/ggml/src/ggml-cpu/ggml-cpu.c#L1554) reads each selected expert plane, and the result shape does not depend on the number of experts in the weight tensor. [The gate](backend-feasibility.md) showed that remapping selected IDs to a compact arena is bitwise exact on host and phone. The runtime still materializes the complete model through its normal loader; a patch that intercepts the graph's expert tensors is the next unit. Do not describe the current engine as a completed streaming implementation.
 
 [LiteRT-LM and AirLLM research](UPSTREAM_DESIGNS.md) strengthens these contracts without adding production adapters. LiteRT-LM's resource and execution boundaries are useful; whole-section streaming does not prove expert eviction. Current AirLLM demonstrates conditional expert-module loading, but its layout and framework assumptions do not establish support for our native backend or selected models.
 
@@ -51,14 +51,14 @@ The table distinguishes implemented foundation code from planned modules. No pub
 | `include/ame/engine.hpp` (planned, absent) | Public engine, options, token sink, errors, and outcomes after source gates. |
 | `src/model/` (partial) | Internal checked extent arithmetic exists. Index, identity, and quantized layouts remain planned. |
 | `src/runtime/` | One engine session, memory admission, backend instance, KV and recurrent state, cancellation, and accounting coverage. |
-| `src/residency/` | Fixed aligned expert arena, slot index, leases, demand reads, and eviction. |
-| `src/backend/` | The selected backend integration and allocation instrumentation. No cache policy. |
+| `src/residency/` (store implemented) | Fixed aligned expert arena, slot index, move-only leases, demand reads, byte-based LRU, and cancellation. Tested with sparse files above 4 GiB. |
+| `src/backend/` (selection made) | llama.cpp is the provisional production backend. The kernel-boundary gate exists; the runtime expert-streaming patch and allocation instrumentation do not. |
 | `src/probe/` (implemented) | Read-only host/Android observation of memory, CPU, storage, OS, thermal, and power state. No device profile inference and no performance claim. |
 | `apps/cli/` (foundation) | Help/version, invalid-argument diagnostics, and `ame probe`. Engine calls remain planned. |
 | `bench/` | Reference runs, artifact provenance, telemetry, parity, and result aggregation. |
 | `patches/` | Small ordered upstream patches against a pinned commit. |
 
-Runtime, residency, backend, bench, and patches currently contain ownership READMEs only. `CheckedFileExtent::within` returns a checked value or a small error enum. It accepts empty extents including EOF and checks length against `file_size - offset` only after checking offset. It proves no tensor layout or file identity contract. See [coding rules](CODING.md).
+Runtime and backend integration remain planned; residency now contains checked file sources, a fixed arena, leases, and eviction, and bench contains the baseline harness and expert-remap gate. Upstream patches remain empty. `CheckedFileExtent::within` returns a checked value or a small error enum. It accepts empty extents including EOF and checks length against `file_size - offset` only after checking offset. It proves no tensor layout or file identity contract. See [coding rules](CODING.md).
 
 The probe records raw observations. It does not interpret thermal-zone sentinels or unavailable power-supply nodes, and it does not turn a snapshot into a reservation. Its host mode reports `execution_tag: host`; only an on-Android run reports `physical_target`, and an Android property that marks an emulator reports `emulator`.
 
@@ -110,7 +110,7 @@ public:
 	static Result<AdmissionPlan> inspect(Path, const EngineOptions&);
 	static Result<std::unique_ptr<Engine>> open(Path, const EngineOptions&);
 	Result<GenerationResult> generate(std::string_view prompt,
-		GenerationOptions, TokenSink&, std::stop_token);
+		GenerationOptions, TokenSink&, const Cancellation&);
 };
 
 class ExpertLease {
@@ -122,7 +122,7 @@ public:
 };
 class ResidencyStore {
 public:
-	Result<ExpertLease> acquire(std::span<const ExpertKey>, std::stop_token);
+	Result<ExpertLease> acquire(std::span<const ExpertKey>, const Cancellation&);
 };
 ```
 

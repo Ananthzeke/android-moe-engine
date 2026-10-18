@@ -8,12 +8,14 @@ The first physical target is a vivo S1 Pro with a Snapdragon 665, Android 12, an
 
 This repository contains a buildable C++20 host coding foundation and a read-only device probe:
 
-- a help/version/probe CLI, an internal checked-file-extent module, and boundary tests;
+- a help/version/probe CLI, checked file extents, a validated expert-table layout, and boundary tests;
 - fixture-tested observation of memory, CPU, storage, OS, thermal, and power data;
 - a pinned Android NDK r27c cross-build whose AArch64 ELF was executed on the connected phone;
+- a bounded expert residency store with move-only leases, byte-based LRU, checked demand reads, and cancellation;
+- a llama.cpp baseline on host and phone for Qwen3.5-2B Q4_K_M, plus an expert-ID remap gate against the real CPU `MUL_MAT_ID` kernel that is bitwise identical on both;
 - an offline local/CI verifier for Debug, Release, and host ASan/UBSan.
 
-The probe ran on the physical vivo 1920 and its snapshot is retained at [evidence/phase0/probe-vivo-1920.json](evidence/phase0/probe-vivo-1920.json). It reports a current device state, not guaranteed resources. There is still no inference runtime, downloaded model, backend build, or benchmark result. Commands in the architecture beyond `probe` describe future interfaces.
+The probe ran on the physical vivo 1920 and its snapshot is retained at [evidence/phase0/probe-vivo-1920.json](evidence/phase0/probe-vivo-1920.json). The Qwen3.5-2B baseline reached 4.36-4.50 decode tokens/s at context 512 with peak process RSS around 1.37 GiB; the host reference and the kernel-boundary gate are recorded in [evidence/phase1](evidence/phase1). Expert streaming is **not** integrated into the backend runtime, and the overall engine memory cap remains unproven. Commands beyond `probe` still describe planned interfaces.
 
 ## Start implementation
 
