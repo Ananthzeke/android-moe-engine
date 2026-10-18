@@ -1,0 +1,374 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-10-18T20:17:48Z",
+  "execution_tag": "physical_target",
+  "os": {
+    "sysname": "Linux",
+    "release": "4.14.180-perf+",
+    "version": "#1 SMP PREEMPT Wed Mar 12 21:54:26 CST 2025",
+    "machine": "aarch64",
+    "page_size_bytes": 4096,
+    "android_api_level": 31,
+    "properties": {
+      "ro.product.model": "vivo 1920",
+      "ro.product.device": "1920",
+      "ro.board.platform": "trinket",
+      "ro.build.version.release": "12",
+      "ro.build.version.sdk": "31",
+      "ro.product.cpu.abilist": "arm64-v8a,armeabi-v7a,armeabi",
+      "ro.product.cpu.abilist64": "arm64-v8a"
+    }
+  },
+  "cpu": {
+    "processors": 8,
+    "online": 8,
+    "implementer": 81,
+    "part": 2049,
+    "variant": 10,
+    "revision": 4,
+    "max_khz": 1804800,
+    "hardware": "Qualcomm Technologies, Inc TRINKET",
+    "model_name": null,
+    "features": "fp asimd evtstrm aes pmull sha1 sha2 crc32 cpuid"
+  },
+  "memory_kib": {
+    "total": 7834596,
+    "free": 331996,
+    "available": 6117016,
+    "buffers": 13044,
+    "cached": 5879344,
+    "swap_total": 4194300,
+    "swap_free": 2460768
+  },
+  "storage": {
+    "path": "/data",
+    "total_bytes": 117836820480,
+    "available_bytes": 95440179200,
+    "free_bytes": 95574396928,
+    "fragment_size_bytes": 4096
+  },
+  "process": {
+    "pid": 10043,
+    "uid": 2000,
+    "rss_kib": 3424,
+    "threads": 1
+  },
+  "thermal": [
+    {
+      "name": "thermal_zone0",
+      "type": "pmi632-tz",
+      "temp_millidegrees": 37000
+    },
+    {
+      "name": "thermal_zone1",
+      "type": "pmi632-ibat-lvl0",
+      "temp_millidegrees": -351
+    },
+    {
+      "name": "thermal_zone10",
+      "type": "pm6125-tz",
+      "temp_millidegrees": 37000
+    },
+    {
+      "name": "thermal_zone11",
+      "type": "pa-therm1",
+      "temp_millidegrees": 30942
+    },
+    {
+      "name": "thermal_zone12",
+      "type": "quiet_therm",
+      "temp_millidegrees": 34068
+    },
+    {
+      "name": "thermal_zone13",
+      "type": "gpio4_pu2_therm",
+      "temp_millidegrees": 28721
+    },
+    {
+      "name": "thermal_zone14",
+      "type": "xo-therm-adc",
+      "temp_millidegrees": 39754
+    },
+    {
+      "name": "thermal_zone15",
+      "type": "conn-therm-adc",
+      "temp_millidegrees": -40000
+    },
+    {
+      "name": "thermal_zone16",
+      "type": "skin-therm-adc",
+      "temp_millidegrees": 106648
+    },
+    {
+      "name": "thermal_zone17",
+      "type": "camera-ftherm-adc",
+      "temp_millidegrees": -40000
+    },
+    {
+      "name": "thermal_zone18",
+      "type": "emmc-ufs-therm-adc",
+      "temp_millidegrees": -40000
+    },
+    {
+      "name": "thermal_zone19",
+      "type": "aoss0-usr",
+      "temp_millidegrees": 49300
+    },
+    {
+      "name": "thermal_zone2",
+      "type": "pmi632-ibat-lvl1",
+      "temp_millidegrees": -351
+    },
+    {
+      "name": "thermal_zone20",
+      "type": "cdsp-usr",
+      "temp_millidegrees": 49300
+    },
+    {
+      "name": "thermal_zone21",
+      "type": "wlan-usr",
+      "temp_millidegrees": 46100
+    },
+    {
+      "name": "thermal_zone22",
+      "type": "camera-usr",
+      "temp_millidegrees": 50300
+    },
+    {
+      "name": "thermal_zone23",
+      "type": "video-usr",
+      "temp_millidegrees": 48700
+    },
+    {
+      "name": "thermal_zone24",
+      "type": "cpuss-0-usr",
+      "temp_millidegrees": 51900
+    },
+    {
+      "name": "thermal_zone25",
+      "type": "cpuss-1-usr",
+      "temp_millidegrees": 51600
+    },
+    {
+      "name": "thermal_zone26",
+      "type": "cpuss-2-usr",
+      "temp_millidegrees": 51600
+    },
+    {
+      "name": "thermal_zone27",
+      "type": "cpu-1-0-usr",
+      "temp_millidegrees": 51200
+    },
+    {
+      "name": "thermal_zone28",
+      "type": "cpu-1-1-usr",
+      "temp_millidegrees": 51900
+    },
+    {
+      "name": "thermal_zone29",
+      "type": "cpu-1-2-usr",
+      "temp_millidegrees": 51200
+    },
+    {
+      "name": "thermal_zone3",
+      "type": "pmi632-vbat-lvl0",
+      "temp_millidegrees": 4434
+    },
+    {
+      "name": "thermal_zone30",
+      "type": "cpu-1-3-usr",
+      "temp_millidegrees": 51200
+    },
+    {
+      "name": "thermal_zone31",
+      "type": "mdm-core-usr",
+      "temp_millidegrees": 47000
+    },
+    {
+      "name": "thermal_zone32",
+      "type": "display-usr",
+      "temp_millidegrees": 49000
+    },
+    {
+      "name": "thermal_zone33",
+      "type": "gpu-usr",
+      "temp_millidegrees": 47700
+    },
+    {
+      "name": "thermal_zone34",
+      "type": "lmh-dcvs-00",
+      "temp_millidegrees": 75000
+    },
+    {
+      "name": "thermal_zone35",
+      "type": "gpu-step",
+      "temp_millidegrees": 47700
+    },
+    {
+      "name": "thermal_zone36",
+      "type": "hepta-cpu-max-step",
+      "temp_millidegrees": 51900
+    },
+    {
+      "name": "thermal_zone37",
+      "type": "cpuss-1-step",
+      "temp_millidegrees": 51600
+    }
+  ],
+  "power_supply": [
+    {
+      "name": "battery",
+      "type": null,
+      "status": null,
+      "capacity_percent": null
+    },
+    {
+      "name": "bms",
+      "type": null,
+      "status": null,
+      "capacity_percent": null
+    },
+    {
+      "name": "cms",
+      "type": null,
+      "status": null,
+      "capacity_percent": null
+    },
+    {
+      "name": "display",
+      "type": null,
+      "status": null,
+      "capacity_percent": null
+    },
+    {
+      "name": "fuelsummary",
+      "type": null,
+      "status": null,
+      "capacity_percent": null
+    },
+    {
+      "name": "main",
+      "type": null,
+      "status": null,
+      "capacity_percent": null
+    },
+    {
+      "name": "parallel",
+      "type": null,
+      "status": null,
+      "capacity_percent": null
+    },
+    {
+      "name": "pc_port",
+      "type": null,
+      "status": null,
+      "capacity_percent": null
+    }
+  ],
+  "unavailable": [
+    {
+      "field": "thermal",
+      "reason": "zone_count_truncated"
+    },
+    {
+      "field": "power_supply.battery.type",
+      "reason": "unreadable"
+    },
+    {
+      "field": "power_supply.battery.status",
+      "reason": "unreadable"
+    },
+    {
+      "field": "power_supply.battery.capacity",
+      "reason": "unreadable"
+    },
+    {
+      "field": "power_supply.bms.type",
+      "reason": "unreadable"
+    },
+    {
+      "field": "power_supply.bms.status",
+      "reason": "unreadable"
+    },
+    {
+      "field": "power_supply.bms.capacity",
+      "reason": "unreadable"
+    },
+    {
+      "field": "power_supply.cms.type",
+      "reason": "unreadable"
+    },
+    {
+      "field": "power_supply.cms.status",
+      "reason": "unreadable"
+    },
+    {
+      "field": "power_supply.cms.capacity",
+      "reason": "unreadable"
+    },
+    {
+      "field": "power_supply.display.type",
+      "reason": "unreadable"
+    },
+    {
+      "field": "power_supply.display.status",
+      "reason": "not_present"
+    },
+    {
+      "field": "power_supply.display.capacity",
+      "reason": "not_present"
+    },
+    {
+      "field": "power_supply.fuelsummary.type",
+      "reason": "unreadable"
+    },
+    {
+      "field": "power_supply.fuelsummary.status",
+      "reason": "not_present"
+    },
+    {
+      "field": "power_supply.fuelsummary.capacity",
+      "reason": "not_present"
+    },
+    {
+      "field": "power_supply.main.type",
+      "reason": "unreadable"
+    },
+    {
+      "field": "power_supply.main.status",
+      "reason": "unreadable"
+    },
+    {
+      "field": "power_supply.main.capacity",
+      "reason": "unreadable"
+    },
+    {
+      "field": "power_supply.parallel.type",
+      "reason": "unreadable"
+    },
+    {
+      "field": "power_supply.parallel.status",
+      "reason": "unreadable"
+    },
+    {
+      "field": "power_supply.parallel.capacity",
+      "reason": "not_present"
+    },
+    {
+      "field": "power_supply.pc_port.type",
+      "reason": "unreadable"
+    },
+    {
+      "field": "power_supply.pc_port.status",
+      "reason": "unreadable"
+    },
+    {
+      "field": "power_supply.pc_port.capacity",
+      "reason": "unreadable"
+    },
+    {
+      "field": "power_supply",
+      "reason": "supply_count_truncated"
+    }
+  ]
+}

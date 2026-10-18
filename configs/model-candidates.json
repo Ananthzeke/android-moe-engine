@@ -77,6 +77,24 @@
         "evidence/phase1/baseline-phone-04.json"
       ],
       "note": "Text-only derived GGUF; the exact artifact runs on the physical phone at context 512. Greedy token IDs diverge from the x86 host after the first token, so no cross-architecture numerical parity is claimed."
+    },
+    {
+      "id": "gdax/Qwen1.5-MoE-A2.7B_gguf",
+      "role": "runtime_streaming_fixture",
+      "architecture": "mixture_of_experts",
+      "source": "https://huggingface.co/gdax/Qwen1.5-MoE-A2.7B_gguf",
+      "verified_on_target": true,
+      "artifact_sha256": "09555491f85f40208e3999f3ced97b064f7c7c0b88bb3fedcbd5df51aad7d1ed",
+      "artifact_file": "Qwen1.5-MoE-A2.7B_q4_k_m.gguf",
+      "artifact_bytes": 9490338464,
+      "quantization": "Q4_K_M",
+      "evidence": [
+        "evidence/runtime/qwen15-stream-04.json",
+        "evidence/runtime/qwen15-stream-05.json",
+        "evidence/runtime/qwen15-stream-06.json",
+        "evidence/runtime/qwen15-stream-07.json"
+      ],
+      "note": "Integration fixture, not a catalog target. The exact artifact completed storage-backed expert streaming on the phone with identical tokens across seven runs. No full-resident reference parity was obtained; the synthetic runtime gate is bitwise. Peak process RSS was about 1.2 GiB after mmap prefetch was disabled, but no overall hard cap is proven."
     }
   ]
 }

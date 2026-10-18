@@ -1,0 +1,282 @@
+{
+  "schema_version": 1,
+  "artifact": {
+    "id": "gdax/Qwen1.5-MoE-A2.7B_gguf",
+    "file": "Qwen1.5-MoE-A2.7B_q4_k_m.gguf",
+    "sha256": "09555491f85f40208e3999f3ced97b064f7c7c0b88bb3fedcbd5df51aad7d1ed",
+    "bytes": 9490338464,
+    "architecture": "qwen2moe",
+    "n_layer": 24,
+    "n_expert": 60,
+    "top_k": 4
+  },
+  "prompt": "The capital of France is",
+  "max_new_tokens": 8,
+  "context": 512,
+  "settings": "greedy, seed 1234, 4 threads, batch 512",
+  "runs": [
+    {
+      "run": 1,
+      "file": "evidence/runtime/qwen15-stream-01.json",
+      "prefetch_disabled": false,
+      "slots": 60,
+      "ttft_seconds": 8.390400621,
+      "decode_tokens_per_second": 0.8523868269984922,
+      "peak_rss_kib": 5245404,
+      "rss_kib_end": 1817836,
+      "arena_bytes": 400097280,
+      "reads": 3108,
+      "read_bytes": 5963972608,
+      "materialize_calls": 576,
+      "tensor_switches": 576,
+      "hits": 0,
+      "misses": 3108,
+      "max_union": 18,
+      "token_ids": [
+        32671,
+        624,
+        59604,
+        198,
+        39572,
+        198,
+        94409,
+        198
+      ],
+      "status": "ok"
+    },
+    {
+      "run": 2,
+      "file": "evidence/runtime/qwen15-stream-02.json",
+      "prefetch_disabled": false,
+      "slots": 24,
+      "ttft_seconds": 4.882589529,
+      "decode_tokens_per_second": 1.0980556150392324,
+      "peak_rss_kib": 6032660,
+      "rss_kib_end": 4308556,
+      "arena_bytes": 160038912,
+      "reads": 3108,
+      "read_bytes": 5963972608,
+      "materialize_calls": 576,
+      "tensor_switches": 576,
+      "hits": 0,
+      "misses": 3108,
+      "max_union": 18,
+      "token_ids": [
+        32671,
+        624,
+        59604,
+        198,
+        39572,
+        198,
+        94409,
+        198
+      ],
+      "status": "ok"
+    },
+    {
+      "run": 3,
+      "file": "evidence/runtime/qwen15-stream-03.json",
+      "prefetch_disabled": false,
+      "slots": 24,
+      "ttft_seconds": 6.349256091,
+      "decode_tokens_per_second": 0.9709290271521717,
+      "peak_rss_kib": 6085276,
+      "rss_kib_end": 3572892,
+      "arena_bytes": 160038912,
+      "reads": 3108,
+      "read_bytes": 5963972608,
+      "materialize_calls": 576,
+      "tensor_switches": 576,
+      "hits": 0,
+      "misses": 3108,
+      "max_union": 18,
+      "token_ids": [
+        32671,
+        624,
+        59604,
+        198,
+        39572,
+        198,
+        94409,
+        198
+      ],
+      "status": "ok"
+    },
+    {
+      "run": 4,
+      "file": "evidence/runtime/qwen15-stream-04.json",
+      "prefetch_disabled": true,
+      "slots": 24,
+      "ttft_seconds": 2.540975103,
+      "decode_tokens_per_second": 1.9568560135287008,
+      "peak_rss_kib": 1254524,
+      "rss_kib_end": 1254488,
+      "arena_bytes": 160038912,
+      "reads": 3108,
+      "read_bytes": 5963972608,
+      "materialize_calls": 576,
+      "tensor_switches": 576,
+      "hits": 0,
+      "misses": 3108,
+      "max_union": 18,
+      "token_ids": [
+        32671,
+        624,
+        59604,
+        198,
+        39572,
+        198,
+        94409,
+        198
+      ],
+      "status": "ok"
+    },
+    {
+      "run": 5,
+      "file": "evidence/runtime/qwen15-stream-05.json",
+      "prefetch_disabled": true,
+      "slots": 24,
+      "ttft_seconds": 2.097416978,
+      "decode_tokens_per_second": 2.0007723226974785,
+      "peak_rss_kib": 1254636,
+      "rss_kib_end": 1254612,
+      "arena_bytes": 160038912,
+      "reads": 3108,
+      "read_bytes": 5963972608,
+      "materialize_calls": 576,
+      "tensor_switches": 576,
+      "hits": 0,
+      "misses": 3108,
+      "max_union": 18,
+      "token_ids": [
+        32671,
+        624,
+        59604,
+        198,
+        39572,
+        198,
+        94409,
+        198
+      ],
+      "status": "ok"
+    },
+    {
+      "run": 6,
+      "file": "evidence/runtime/qwen15-stream-06.json",
+      "prefetch_disabled": true,
+      "slots": 24,
+      "ttft_seconds": 2.100928957,
+      "decode_tokens_per_second": 2.0054166245732103,
+      "peak_rss_kib": 1254452,
+      "rss_kib_end": 1254428,
+      "arena_bytes": 160038912,
+      "reads": 3108,
+      "read_bytes": 5963972608,
+      "materialize_calls": 576,
+      "tensor_switches": 576,
+      "hits": 0,
+      "misses": 3108,
+      "max_union": 18,
+      "token_ids": [
+        32671,
+        624,
+        59604,
+        198,
+        39572,
+        198,
+        94409,
+        198
+      ],
+      "status": "ok"
+    },
+    {
+      "run": 7,
+      "file": "evidence/runtime/qwen15-stream-07.json",
+      "prefetch_disabled": true,
+      "slots": 18,
+      "ttft_seconds": 2.098304739,
+      "decode_tokens_per_second": 2.004744921926698,
+      "peak_rss_kib": 1254740,
+      "rss_kib_end": 1254716,
+      "arena_bytes": 120029184,
+      "reads": 3108,
+      "read_bytes": 5963972608,
+      "materialize_calls": 576,
+      "tensor_switches": 576,
+      "hits": 0,
+      "misses": 3108,
+      "max_union": 18,
+      "token_ids": [
+        32671,
+        624,
+        59604,
+        198,
+        39572,
+        198,
+        94409,
+        198
+      ],
+      "status": "ok"
+    }
+  ],
+  "groups": {
+    "prefetch_disabled": {
+      "runs": 4,
+      "request_ttft_seconds": {
+        "count": 4,
+        "median": 2.099616848,
+        "min": 2.097416978,
+        "max": 2.540975103
+      },
+      "decode_tokens_per_second": {
+        "count": 4,
+        "median": 2.002758622312088,
+        "min": 1.9568560135287008,
+        "max": 2.0054166245732103
+      },
+      "peak_rss_kib": {
+        "count": 4,
+        "median": 1254580.0,
+        "min": 1254452,
+        "max": 1254740
+      },
+      "arena_bytes": [
+        120029184,
+        160038912
+      ]
+    },
+    "prefetch_enabled": {
+      "runs": 3,
+      "request_ttft_seconds": {
+        "count": 3,
+        "median": 6.349256091,
+        "min": 4.882589529,
+        "max": 8.390400621
+      },
+      "decode_tokens_per_second": {
+        "count": 3,
+        "median": 0.9709290271521717,
+        "min": 0.8523868269984922,
+        "max": 1.0980556150392324
+      },
+      "peak_rss_kib": {
+        "count": 3,
+        "median": 6032660,
+        "min": 5245404,
+        "max": 6085276
+      },
+      "arena_bytes": [
+        160038912,
+        400097280
+      ]
+    }
+  },
+  "token_ids_identical_across_all_runs": true,
+  "notes": [
+    "All runs used the patched llama.cpp runtime materializer and the project arena.",
+    "Runs 01-03 used the original eager-mmap-prefetch loader; runs 04-07 disabled it.",
+    "No full-resident reference ran on the phone; parity is established at the synthetic kernel/runtime gate, not for this model's logits.",
+    "Store hits are zero because each tensor switch recreates the store; the LRU is exercised by the synthetic gate, not this run.",
+    "Process RSS is not an engineering hard cap; project arena bytes and application reads are reported separately."
+  ]
+}

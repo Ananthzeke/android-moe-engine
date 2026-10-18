@@ -55,6 +55,24 @@
         "evidence/phase1/baseline-phone-03.json",
         "evidence/phase1/baseline-phone-04.json"
       ]
+    },
+    {
+      "id": "gdax/Qwen1.5-MoE-A2.7B_gguf",
+      "artifact_file": "Qwen1.5-MoE-A2.7B_q4_k_m.gguf",
+      "artifact_sha256": "09555491f85f40208e3999f3ced97b064f7c7c0b88bb3fedcbd5df51aad7d1ed",
+      "file_bytes": 9490338464,
+      "source": "https://huggingface.co/gdax/Qwen1.5-MoE-A2.7B_gguf",
+      "role": "runtime_streaming_fixture",
+      "evidence": [
+        "evidence/runtime/qwen15-stream-04.json",
+        "evidence/runtime/qwen15-stream-05.json",
+        "evidence/runtime/qwen15-stream-06.json",
+        "evidence/runtime/qwen15-stream-07.json"
+      ]
     }
+  ],
+  "patches": [
+    "patches/0001-ggml-moe-materializer.patch",
+    "patches/0002-llama-no-eager-mmap-prefetch.patch"
   ]
 }

@@ -137,7 +137,14 @@ Results:
 - A small runtime patch now calls the project materializer from the real
   `GGML_OP_MUL_MAT_ID` kernel. A synthetic 8-expert graph with a 4-expert union is
   bitwise identical on host and phone; the unpatched dense Qwen3.5-2B output is
-  unchanged. This validates the hook and arena view, not a real MoE run.
+  unchanged.
+- A real 14.3B MoE fixture (Qwen1.5-MoE-A2.7B Q4_K_M, 9.48 GB) completed
+  storage-backed decode on the phone. Seven runs, including two arena sizes and two
+  loader-prefetch profiles, produced identical token IDs. After disabling mmap
+  prefetch, peak RSS was about 1.20 GiB and decode was about 2.0 tok/s with a
+  120-160 MB arena. The evidence and limitations are in
+  [the feasibility report](backend-feasibility.md). The catalog's 35B target has not
+  run.
 
 Still open: the runtime patch, real-artifact quantized expert extents and companions,
 per-layer union measurement, prefill microbatch scheduling, backend allocation
@@ -161,6 +168,21 @@ Exit checks:
 - Cancellation and injected compute errors leave a subsequent fresh request equivalent to a fresh-engine reference, or require reopening the engine explicitly.
 
 A hard overall owned-memory cap remains conditional on complete backend allocation coverage. Keep the arena guarantee and coverage report separate until that proof passes.
+
+### Phase 2 evidence (2026-10-19)
+
+The residency store, validated expert tables, checked file source, external-arena
+borrowing, move-only leases, byte-based LRU, deduplication, refusal, and cancellation
+paths are implemented and covered by the host verifier, including a sparse file above
+4 GiB, a short-read failure, pinned-slot refusal, and a borrowed arena. A synthetic
+`MUL_MAT_ID` gate confirms bitwise equality with a 4-expert union.
+
+The real 14.3B MoE run used a 120-160 MB arena but stuck at zero cache hits: each
+tensor switch recreated its store. The next unit is one shared arena with per-tensor
+slot maps so that decode reuses experts across tokens. The run also shows why a store
+arena is not a process cap: with eager mmap prefetch the process peaked at 5.2-6.1
+GiB; disabling it lowered the peak to about 1.2 GiB, still without complete backend
+allocation coverage.
 
 ## Phase 3: Make physical-device comparison reproducible
 
@@ -233,9 +255,11 @@ The dense Qwen3.5-2B artifact was also indexed for comparison: 1,269,873,920 ten
 bytes, no expert tensors, `admit_weights_only`. That index covers weights only; the
 executed baseline used a 505.53 MiB compute buffer and reached 1.37 GiB peak VmHWM.
 
-The next Phase 4 unit is the runtime expert-materialization patch, followed by a real
-top-8 decode on the phone with recorded workspace and state. Until then the
-`2.30 GB streaming estimate` is a hypothesis, not a measured working set.
+A real 14.3B MoE fixture has since streamed on the phone (see
+[the feasibility report](backend-feasibility.md)). It demonstrates the mechanism but
+does not complete the 35B experiment: the target artifact has not run, and its
+`2.30 GB streaming estimate` is not a measured process bound. The next Phase 4 unit is
+a 35B run with the same patches and a measured workspace/state record.
 
 ## Phase 5: Improve only the measured limiter
 

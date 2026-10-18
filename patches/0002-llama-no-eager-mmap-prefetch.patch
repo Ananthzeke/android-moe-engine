@@ -1,0 +1,13 @@
+diff --git a/src/llama-model.cpp b/src/llama-model.cpp
+index 803a832..78f672f 100644
+--- a/src/llama-model.cpp
++++ b/src/llama-model.cpp
+@@ -1887,7 +1887,7 @@ bool llama_model_base::load_tensors(llama_model_loader & ml) {
+     // per-tensor activation precision policy
+     prec_policy.load(ml, *this);
+ 
+-    ml.init_mappings(true, use_mlock ? &pimpl->mlock_mmaps : nullptr);
++    ml.init_mappings(false, use_mlock ? &pimpl->mlock_mmaps : nullptr); // streaming profile: no MAP_POPULATE
+     pimpl->mappings.reserve(ml.mappings.size());
+ 
+     // create the backend buffers

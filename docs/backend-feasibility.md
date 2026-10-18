@@ -162,3 +162,62 @@ Limits: the materializer and staged descriptors are process-global and assume on
 active generation. Capacity or I/O failure aborts instead of falling back. A real MoE
 run, prefill microbatch proof, cancellation cleanup, and allocation coverage are still
 required before describing the engine as a bounded streaming implementation.
+## Real MoE storage-backed run (2026-10-19)
+
+This is the first exact storage-backed expert decode on the physical phone. It uses
+the [runtime materializer](../patches/0001-ggml-moe-materializer.patch) and the
+[`no MAP_POPULATE` profile](../patches/0002-llama-no-eager-mmap-prefetch.patch).
+The artifact is a smaller real MoE substituted for the catalog's 26B/35B targets, as
+the phase 1/4 plan permits:
+
+- `gdax/Qwen1.5-MoE-A2.7B_gguf`, `Qwen1.5-MoE-A2.7B_q4_k_m.gguf`, 9,490,338,464
+  bytes, SHA-256 `09555491f85f40208e3999f3ced97b064f7c7c0b88bb3fedcbd5df51aad7d1ed`.
+- qwen2moe, 24 layers, 60 experts, top-4 routing, 14.3B parameters, 9,484,384,256
+  tensor bytes. 8,304,721,920 of those are routed expert bytes.
+- Prompt `The capital of France is` (5 tokens), 8 greedy tokens, context 512, batch
+  512, 4 threads, seed 1234.
+
+Seven runs are recorded in [the aggregate](../evidence/runtime/qwen15-stream-aggregate.json).
+The first three used the original eager-mmap-prefetch loader; the last four used
+`init_mappings(false)`. All seven produced the **same** token IDs:
+`32671, 624, 59604, 198, 39572, 198, 94409, 198`.
+
+| Condition | Runs | TTFT s | Decode tok/s | Peak VmHWM KiB | Arena bytes |
+| --- | ---: | --- | --- | ---: | ---: |
+| mmap prefetch | 3 | 8.39 / 4.88 / 6.35 | 0.85 / 1.10 / 0.97 | 5,245,404 / 6,032,660 / 6,085,276 | 400,097,280 / 160,038,912 |
+| no prefetch | 4 | 2.54 / 2.10 / 2.10 / 2.10 | 1.96 / 2.00 / 2.01 / 2.01 | 1,254,524 / 1,254,636 / 1,254,452 / 1,254,740 | 160,038,912 / 120,029,184 |
+
+In every run: 576 materialize calls (24 layers x 3 projections x 8 decode steps plus
+prefill), 3,108 application reads, 5,963,972,608 application-read bytes, zero cache
+hits, and a maximum expert union of 18. The arena was 160 MB for 24 slots and 120 MB
+for 18 slots. Process peak RSS fell to about 1.20 GiB after prefetch was disabled;
+the compute buffer was 317.27 MiB. CPU thermal zones rose from about 35.8 C to 49.3 C
+during a measured run.
+
+What this establishes:
+
+- Selected expert planes can be replaced by arena-resident copies at the real CPU
+  `MUL_MAT_ID` boundary without changing routing, arithmetic, or accumulation order.
+  The synthetic runtime gate is bitwise identical on host and phone, and seven real
+  runs with different arena sizes are token-identical.
+- A 9.48 GB model can complete a short generation with a 120-160 MB project arena and
+  about 1.2 GiB peak process RSS on the phone.
+- Eager `MAP_POPULATE` of the 9.5 GB mapping was a dominant cost: disabling it cut
+  load from 17.9 s to 0.85 s, TTFT from 4.9-8.4 s to about 2.1 s, and peak RSS from
+  5.2-6.1 GiB to about 1.2 GiB. Decode improved from about 1.0 to 2.0 tok/s.
+
+What this does **not** establish:
+
+- No full-resident reference logits or tokens were obtained for this model; the
+  parity evidence is the bitwise kernel/runtime gate, not a same-artifact reference.
+- The process peak is not a hard cap. The arena is project-owned, but mmap pages, OS
+  page cache, the backend compute buffer, shared experts, and allocator behavior are
+  not fully covered.
+- The LRU cache did not help: each tensor switch recreated the store, so hits were
+  zero and 5.96 GB was read for 13 prompt/generated tokens. A shared per-tensor cache
+  over one arena is the next unit.
+- The target 26B/35B artifacts have not run. Their preflight estimates are not bounded
+  process memory.
+- One prompt, one seed, no cancellation or failure injection, and no long-context or
+  prefill-union stress test were run.
+
