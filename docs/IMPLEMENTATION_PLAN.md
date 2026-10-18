@@ -186,6 +186,53 @@ Exit checks:
 - The report names what limits execution and distinguishes storage wait, compute, memory pressure, and unavailable evidence.
 - Model support is promoted only for the exact tested artifact and runtime combination. A family name alone stays a candidate.
 
+### Phase 4 preflight (2026-10-19)
+
+Status: **preflight only; no large-model inference ran**. The streaming integration is
+not implemented, and a full-resident 35B model cannot fit the phone's available
+memory. The preflight indexed artifact metadata without loading tensor payloads and
+recorded an explicit refusal.
+
+```sh
+.venv/bin/python tools/gguf_index.py \
+  --input <64 MiB GGUF prefix> --file-size 20419565568 \
+  --url https://huggingface.co/ggml-org/Qwen3.6-35B-A3B-GGUF/resolve/main/Qwen3.6-35B-A3B-Q4_K_M.gguf \
+  --mem-available-kib 5468292 --storage-available-bytes 102177562624 \
+  --output evidence/phase4/qwen36-35b-a3b-q4km-index.json
+```
+
+Artifact: `Qwen3.6-35B-A3B-Q4_K_M.gguf`, 20,419,565,568 bytes, qwen35moe, 40 layers,
+256 experts, top-8 routing, 733 tensors. Only a 64 MiB prefix was transferred; tensor
+payloads were not downloaded or loaded.
+
+| Quantity | Bytes |
+| --- | ---: |
+| Routed expert tensors (all layers) | 18,119,393,280 |
+| Non-expert tensors (resident) | 2,289,183,232 |
+| All tensor bytes | 20,408,576,512 |
+| Routed experts per layer | 1,769,472 |
+| Decode union per layer (top-8) | 14,155,776 |
+| Shared experts per layer | 3,342,336 |
+| Routed plus shared live per layer | 17,498,112 |
+
+Admission preflight used 5,599,531,008 available bytes (the phone probe snapshot):
+
+- Full-resident weights: **refused**, 20,408,576,512 tensor bytes exceed available memory.
+- Streaming estimate: 2,303,339,008 bytes (non-expert tensors plus one layer's routed
+  union), which is below available memory but leaves workspace, KV/recurrent state,
+  shared-expert handling, page cache, and the 505.53 MiB-scale compute buffer
+  unproven. The result is `requires_backend_workspace_proof`, not an admission.
+- Storage: the artifact fits the 102,177,562,624 available bytes, but transfer,
+  temporary, and repack space were not reserved. No model was transferred.
+
+The dense Qwen3.5-2B artifact was also indexed for comparison: 1,269,873,920 tensor
+bytes, no expert tensors, `admit_weights_only`. That index covers weights only; the
+executed baseline used a 505.53 MiB compute buffer and reached 1.37 GiB peak VmHWM.
+
+The next Phase 4 unit is the runtime expert-materialization patch, followed by a real
+top-8 decode on the phone with recorded workspace and state. Until then the
+`2.30 GB streaming estimate` is a hypothesis, not a measured working set.
+
 ## Phase 5: Improve only the measured limiter
 
 Choose one intervention from phase 4 evidence. Possibilities include expert layout, cache allocation, prefill microbatch size, kernel packing reuse, or thread count. Test one change at a time with correctness and resource gates.

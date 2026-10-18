@@ -44,7 +44,11 @@
       "source": "https://huggingface.co/Qwen/Qwen3.6-35B-A3B",
       "verified_on_target": false,
       "artifact_sha256": null,
-      "note": "35B language parameters, about 3B active. Converter compatibility and GatedDeltaNet state handling require separate proof."
+      "note": "35B language parameters, about 3B active. Converter compatibility and GatedDeltaNet state handling require separate proof. A metadata-only Q4_K_M preflight found a 2.30 GB streaming estimate; no streaming runtime or large-model inference exists.",
+      "metadata_index_evidence": "evidence/phase4/qwen36-35b-a3b-q4km-index.json",
+      "observed_tensor_bytes": 20408576512,
+      "observed_decode_expert_live_bytes_per_layer": 17498112,
+      "full_resident_decision": "refuse_tensor_bytes_exceed_available_memory"
     },
     {
       "id": "Qwen/Qwen3.8-27B",

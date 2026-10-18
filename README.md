@@ -14,9 +14,10 @@ This repository contains a buildable C++20 host coding foundation and a read-onl
 - a bounded expert residency store with move-only leases, byte-based LRU, checked demand reads, and cancellation;
 - a llama.cpp baseline on host and phone for Qwen3.5-2B Q4_K_M, plus an expert-ID remap gate against the real CPU `MUL_MAT_ID` kernel that is bitwise identical on both;
 - a bounded run recorder and aggregator with atomic start/final records and hash checks;
+- a metadata-first GGUF index that computes expert extents and refuses an over-budget large artifact;
 - an offline local/CI verifier for Debug, Release, and host ASan/UBSan.
 
-The probe ran on the physical vivo 1920 and its snapshot is retained at [evidence/phase0/probe-vivo-1920.json](evidence/phase0/probe-vivo-1920.json). The Qwen3.5-2B baseline reached 4.36-4.50 decode tokens/s at context 512 with peak process RSS around 1.37 GiB; the host reference and the kernel-boundary gate are recorded in [evidence/phase1](evidence/phase1). A recorded three-trial phone campaign is in [evidence/phase3](evidence/phase3). Expert streaming is **not** integrated into the backend runtime, and the overall engine memory cap remains unproven. Commands beyond `probe` still describe planned interfaces.
+The probe ran on the physical vivo 1920 and its snapshot is retained at [evidence/phase0/probe-vivo-1920.json](evidence/phase0/probe-vivo-1920.json). The Qwen3.5-2B baseline reached 4.36-4.50 decode tokens/s at context 512 with peak process RSS around 1.37 GiB; the host reference and the kernel-boundary gate are recorded in [evidence/phase1](evidence/phase1). A recorded three-trial phone campaign is in [evidence/phase3](evidence/phase3). A metadata-only preflight of Qwen3.6-35B-A3B Q4_K_M in [evidence/phase4](evidence/phase4) computes a 2.30 GB streaming estimate but refuses full-resident execution; it is not a run. Expert streaming is **not** integrated into the backend runtime, and the overall engine memory cap remains unproven. Commands beyond `probe` still describe planned interfaces.
 
 ## Start implementation
 

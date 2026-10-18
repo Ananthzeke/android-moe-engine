@@ -1,0 +1,2072 @@
+{
+  "admission": {
+    "decision": "refuse",
+    "full_resident_tensor_bytes": 20408576512,
+    "mem_available_bytes": 5599531008,
+    "reason": "tensor_bytes_exceed_available_memory",
+    "streaming_decision": "requires_backend_workspace_proof",
+    "streaming_decode_live_bytes_estimate": 2303339008,
+    "streaming_integrated": false,
+    "streaming_reason": "workspace_state_and_page_cache_not_covered"
+  },
+  "dense_without_expert_tensors": false,
+  "experts": {
+    "decode_live_bytes_per_layer": 17498112,
+    "decode_union_bytes_per_layer": 14155776,
+    "expert_bytes_per_layer": 1769472,
+    "expert_bytes_total": 18119393280,
+    "expert_tensor_count": 120,
+    "layers": [
+      {
+        "expert_bytes": 1769472,
+        "layer": 0,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 740986368,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.0.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 729997312,
+            "role": "ffn_down_exps",
+            "type": "q4_K"
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 893095424,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.0.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 882106368,
+            "role": "ffn_gate_exps",
+            "type": "q4_K"
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 1047309824,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.0.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 1036320768,
+            "role": "ffn_up_exps",
+            "type": "q4_K"
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 1,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 1235357952,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.1.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 1224368896,
+            "role": "ffn_down_exps",
+            "type": "q4_K"
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 1387467008,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.1.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 1376477952,
+            "role": "ffn_gate_exps",
+            "type": "q4_K"
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 1541681408,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.1.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 1530692352,
+            "role": "ffn_up_exps",
+            "type": "q4_K"
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 2,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 1729729536,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.2.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 1718740480,
+            "role": "ffn_down_exps",
+            "type": "q4_K"
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 1881838592,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.2.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 1870849536,
+            "role": "ffn_gate_exps",
+            "type": "q4_K"
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 2036052992,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.2.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 2025063936,
+            "role": "ffn_up_exps",
+            "type": "q4_K"
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 3,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 2226331392,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.3.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 2215342336,
+            "role": "ffn_down_exps",
+            "type": "q4_K"
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 2378440448,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.3.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 2367451392,
+            "role": "ffn_gate_exps",
+            "type": "q4_K"
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 2532654848,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.3.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 2521665792,
+            "role": "ffn_up_exps",
+            "type": "q4_K"
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 4,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 2711518976,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.4.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 2700529920,
+            "role": "ffn_down_exps",
+            "type": "q4_K"
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 2863628032,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.4.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 2852638976,
+            "role": "ffn_gate_exps",
+            "type": "q4_K"
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 3017842432,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.4.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 3006853376,
+            "role": "ffn_up_exps",
+            "type": "q4_K"
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 5,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 3205890560,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.5.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 3194901504,
+            "role": "ffn_down_exps",
+            "type": "q4_K"
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 3357999616,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.5.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 3347010560,
+            "role": "ffn_gate_exps",
+            "type": "q4_K"
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 3512214016,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.5.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 3501224960,
+            "role": "ffn_up_exps",
+            "type": "q4_K"
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 6,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 3700262144,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.6.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 3689273088,
+            "role": "ffn_down_exps",
+            "type": "q4_K"
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 3852371200,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.6.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 3841382144,
+            "role": "ffn_gate_exps",
+            "type": "q4_K"
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 4006585600,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.6.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 3995596544,
+            "role": "ffn_up_exps",
+            "type": "q4_K"
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 7,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 4196864000,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.7.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 4185874944,
+            "role": "ffn_down_exps",
+            "type": "q4_K"
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 4348973056,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.7.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 4337984000,
+            "role": "ffn_gate_exps",
+            "type": "q4_K"
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 4503187456,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.7.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 4492198400,
+            "role": "ffn_up_exps",
+            "type": "q4_K"
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 8,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 4682051584,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.8.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 4671062528,
+            "role": "ffn_down_exps",
+            "type": "q4_K"
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 4834160640,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.8.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 4823171584,
+            "role": "ffn_gate_exps",
+            "type": "q4_K"
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 4988375040,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.8.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 4977385984,
+            "role": "ffn_up_exps",
+            "type": "q4_K"
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 9,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 5176423168,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.9.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 5165434112,
+            "role": "ffn_down_exps",
+            "type": "q4_K"
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 5328532224,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.9.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 5317543168,
+            "role": "ffn_gate_exps",
+            "type": "q4_K"
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 5482746624,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.9.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 5471757568,
+            "role": "ffn_up_exps",
+            "type": "q4_K"
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 10,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 5670794752,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.10.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 5659805696,
+            "role": "ffn_down_exps",
+            "type": "q4_K"
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 5822903808,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.10.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 5811914752,
+            "role": "ffn_gate_exps",
+            "type": "q4_K"
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 5977118208,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.10.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 5966129152,
+            "role": "ffn_up_exps",
+            "type": "q4_K"
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 11,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 6167396608,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.11.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 6156407552,
+            "role": "ffn_down_exps",
+            "type": "q4_K"
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 6319505664,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.11.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 6308516608,
+            "role": "ffn_gate_exps",
+            "type": "q4_K"
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 6473720064,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.11.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 6462731008,
+            "role": "ffn_up_exps",
+            "type": "q4_K"
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 12,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 6652584192,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.12.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 6641595136,
+            "role": "ffn_down_exps",
+            "type": "q4_K"
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 6804693248,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.12.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 6793704192,
+            "role": "ffn_gate_exps",
+            "type": "q4_K"
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 6958907648,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.12.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 6947918592,
+            "role": "ffn_up_exps",
+            "type": "q4_K"
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 13,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 7146955776,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.13.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 7135966720,
+            "role": "ffn_down_exps",
+            "type": "q4_K"
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 7299064832,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.13.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 7288075776,
+            "role": "ffn_gate_exps",
+            "type": "q4_K"
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 7453279232,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.13.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 7442290176,
+            "role": "ffn_up_exps",
+            "type": "q4_K"
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 14,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 7641327360,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.14.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 7630338304,
+            "role": "ffn_down_exps",
+            "type": "q4_K"
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 7793436416,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.14.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 7782447360,
+            "role": "ffn_gate_exps",
+            "type": "q4_K"
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 7947650816,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.14.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 7936661760,
+            "role": "ffn_up_exps",
+            "type": "q4_K"
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 15,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 8137929216,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.15.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 8126940160,
+            "role": "ffn_down_exps",
+            "type": "q4_K"
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 8290038272,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.15.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 8279049216,
+            "role": "ffn_gate_exps",
+            "type": "q4_K"
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 8444252672,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.15.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 8433263616,
+            "role": "ffn_up_exps",
+            "type": "q4_K"
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 16,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 8623116800,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.16.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 8612127744,
+            "role": "ffn_down_exps",
+            "type": "q4_K"
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 8775225856,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.16.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 8764236800,
+            "role": "ffn_gate_exps",
+            "type": "q4_K"
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 8929440256,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.16.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 8918451200,
+            "role": "ffn_up_exps",
+            "type": "q4_K"
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 17,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 9117488384,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.17.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 9106499328,
+            "role": "ffn_down_exps",
+            "type": "q4_K"
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 9269597440,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.17.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 9258608384,
+            "role": "ffn_gate_exps",
+            "type": "q4_K"
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 9423811840,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.17.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 9412822784,
+            "role": "ffn_up_exps",
+            "type": "q4_K"
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 18,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 9611859968,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.18.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 9600870912,
+            "role": "ffn_down_exps",
+            "type": "q4_K"
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 9763969024,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.18.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 9752979968,
+            "role": "ffn_gate_exps",
+            "type": "q4_K"
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 9918183424,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.18.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 9907194368,
+            "role": "ffn_up_exps",
+            "type": "q4_K"
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 19,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 10108461824,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.19.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 10097472768,
+            "role": "ffn_down_exps",
+            "type": "q4_K"
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 10260570880,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.19.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 10249581824,
+            "role": "ffn_gate_exps",
+            "type": "q4_K"
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 10414785280,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.19.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 10403796224,
+            "role": "ffn_up_exps",
+            "type": "q4_K"
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 20,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 10593649408,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.20.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 10582660352,
+            "role": "ffn_down_exps",
+            "type": "q4_K"
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 10745758464,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.20.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 10734769408,
+            "role": "ffn_gate_exps",
+            "type": "q4_K"
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 10899972864,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.20.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 10888983808,
+            "role": "ffn_up_exps",
+            "type": "q4_K"
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 21,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 11088020992,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.21.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 11077031936,
+            "role": "ffn_down_exps",
+            "type": "q4_K"
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 11240130048,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.21.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 11229140992,
+            "role": "ffn_gate_exps",
+            "type": "q4_K"
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 11394344448,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.21.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 11383355392,
+            "role": "ffn_up_exps",
+            "type": "q4_K"
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 22,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 11582392576,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.22.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 11571403520,
+            "role": "ffn_down_exps",
+            "type": "q4_K"
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 11734501632,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.22.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 11723512576,
+            "role": "ffn_gate_exps",
+            "type": "q4_K"
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 11888716032,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.22.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 11877726976,
+            "role": "ffn_up_exps",
+            "type": "q4_K"
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 23,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 12078994432,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.23.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 12068005376,
+            "role": "ffn_down_exps",
+            "type": "q4_K"
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 12231103488,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.23.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 12220114432,
+            "role": "ffn_gate_exps",
+            "type": "q4_K"
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 12385317888,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.23.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 12374328832,
+            "role": "ffn_up_exps",
+            "type": "q4_K"
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 24,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 12564182016,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.24.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 12553192960,
+            "role": "ffn_down_exps",
+            "type": "q4_K"
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 12716291072,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.24.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 12705302016,
+            "role": "ffn_gate_exps",
+            "type": "q4_K"
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 12870505472,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.24.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 12859516416,
+            "role": "ffn_up_exps",
+            "type": "q4_K"
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 25,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 13058553600,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.25.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 13047564544,
+            "role": "ffn_down_exps",
+            "type": "q4_K"
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 13210662656,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.25.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 13199673600,
+            "role": "ffn_gate_exps",
+            "type": "q4_K"
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 13364877056,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.25.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 13353888000,
+            "role": "ffn_up_exps",
+            "type": "q4_K"
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 26,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 13552925184,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.26.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 13541936128,
+            "role": "ffn_down_exps",
+            "type": "q4_K"
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 13705034240,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.26.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 13694045184,
+            "role": "ffn_gate_exps",
+            "type": "q4_K"
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 13859248640,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.26.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 13848259584,
+            "role": "ffn_up_exps",
+            "type": "q4_K"
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 27,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 14049527040,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.27.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 14038537984,
+            "role": "ffn_down_exps",
+            "type": "q4_K"
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 14201636096,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.27.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 14190647040,
+            "role": "ffn_gate_exps",
+            "type": "q4_K"
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 14355850496,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.27.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 14344861440,
+            "role": "ffn_up_exps",
+            "type": "q4_K"
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 28,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 14534714624,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.28.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 14523725568,
+            "role": "ffn_down_exps",
+            "type": "q4_K"
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 14686823680,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.28.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 14675834624,
+            "role": "ffn_gate_exps",
+            "type": "q4_K"
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 14841038080,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.28.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 14830049024,
+            "role": "ffn_up_exps",
+            "type": "q4_K"
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 29,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 15029086208,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.29.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 15018097152,
+            "role": "ffn_down_exps",
+            "type": "q4_K"
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 15181195264,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.29.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 15170206208,
+            "role": "ffn_gate_exps",
+            "type": "q4_K"
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 15335409664,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.29.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 15324420608,
+            "role": "ffn_up_exps",
+            "type": "q4_K"
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 30,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 15523457792,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.30.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 15512468736,
+            "role": "ffn_down_exps",
+            "type": "q4_K"
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 15675566848,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.30.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 15664577792,
+            "role": "ffn_gate_exps",
+            "type": "q4_K"
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 15829781248,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.30.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 15818792192,
+            "role": "ffn_up_exps",
+            "type": "q4_K"
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 31,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 16020059648,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.31.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 16009070592,
+            "role": "ffn_down_exps",
+            "type": "q4_K"
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 16172168704,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.31.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 16161179648,
+            "role": "ffn_gate_exps",
+            "type": "q4_K"
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 16326383104,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.31.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 16315394048,
+            "role": "ffn_up_exps",
+            "type": "q4_K"
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 32,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 16505247232,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.32.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 16494258176,
+            "role": "ffn_down_exps",
+            "type": "q4_K"
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 16657356288,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.32.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 16646367232,
+            "role": "ffn_gate_exps",
+            "type": "q4_K"
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 16811570688,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.32.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 16800581632,
+            "role": "ffn_up_exps",
+            "type": "q4_K"
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 33,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 16999618816,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.33.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 16988629760,
+            "role": "ffn_down_exps",
+            "type": "q4_K"
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 17151727872,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.33.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 17140738816,
+            "role": "ffn_gate_exps",
+            "type": "q4_K"
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 17305942272,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.33.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 17294953216,
+            "role": "ffn_up_exps",
+            "type": "q4_K"
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 34,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 17493990400,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.34.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 17483001344,
+            "role": "ffn_down_exps",
+            "type": "q4_K"
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 17646099456,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.34.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 17635110400,
+            "role": "ffn_gate_exps",
+            "type": "q4_K"
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 17800313856,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.34.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 17789324800,
+            "role": "ffn_up_exps",
+            "type": "q4_K"
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 35,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 17990592256,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.35.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 17979603200,
+            "role": "ffn_down_exps",
+            "type": "q4_K"
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 18142701312,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.35.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 18131712256,
+            "role": "ffn_gate_exps",
+            "type": "q4_K"
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 18296915712,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.35.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 18285926656,
+            "role": "ffn_up_exps",
+            "type": "q4_K"
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 36,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 18475779840,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.36.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 18464790784,
+            "role": "ffn_down_exps",
+            "type": "q4_K"
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 18627888896,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.36.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 18616899840,
+            "role": "ffn_gate_exps",
+            "type": "q4_K"
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 18782103296,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.36.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 18771114240,
+            "role": "ffn_up_exps",
+            "type": "q4_K"
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 37,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 18970151424,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.37.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 18959162368,
+            "role": "ffn_down_exps",
+            "type": "q4_K"
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 19122260480,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.37.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 19111271424,
+            "role": "ffn_gate_exps",
+            "type": "q4_K"
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 19276474880,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.37.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 19265485824,
+            "role": "ffn_up_exps",
+            "type": "q4_K"
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 38,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 19464523008,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.38.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 19453533952,
+            "role": "ffn_down_exps",
+            "type": "q4_K"
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 19616632064,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.38.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 19605643008,
+            "role": "ffn_gate_exps",
+            "type": "q4_K"
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 19770846464,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.38.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 19759857408,
+            "role": "ffn_up_exps",
+            "type": "q4_K"
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 39,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 19961124864,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.39.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 19950135808,
+            "role": "ffn_down_exps",
+            "type": "q4_K"
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 20113233920,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.39.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 20102244864,
+            "role": "ffn_gate_exps",
+            "type": "q4_K"
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 20267448320,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.39.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 20256459264,
+            "role": "ffn_up_exps",
+            "type": "q4_K"
+          }
+        }
+      }
+    ],
+    "n_expert": 256,
+    "n_layer": 40,
+    "prefill_union_max_bytes_per_layer": 452984832,
+    "prefill_union_min_bytes_per_layer": 14155776,
+    "shared_expert_bytes_per_layer": 3342336,
+    "shared_expert_bytes_total": 133693440,
+    "shared_expert_tensor_count": 120,
+    "top_k": 8
+  },
+  "gguf": {
+    "alignment": 32,
+    "architecture": "qwen35moe",
+    "array_keys": [
+      "general.tags",
+      "qwen35moe.rope.dimension_sections",
+      "tokenizer.ggml.merges",
+      "tokenizer.ggml.token_type",
+      "tokenizer.ggml.tokens"
+    ],
+    "data_start": 10989056,
+    "header_end": 10989043,
+    "kv_count": 43,
+    "metadata": {
+      "general.architecture": "qwen35moe",
+      "general.file_type": 15,
+      "general.license": "apache-2.0",
+      "general.license.link": "https://huggingface.co/Qwen/Qwen3.6-35B-A3B/blob/main/LICENSE",
+      "general.name": "Qwen3.6-35B-A3B",
+      "general.quantization_version": 2,
+      "general.sampling.temp": 1.0,
+      "general.sampling.top_k": 20,
+      "general.sampling.top_p": 0.949999988079071,
+      "general.size_label": "256x2.6B",
+      "general.type": "model",
+      "qwen35moe.attention.head_count": 16,
+      "qwen35moe.attention.head_count_kv": 2,
+      "qwen35moe.attention.key_length": 256,
+      "qwen35moe.attention.layer_norm_rms_epsilon": 9.999999974752427e-07,
+      "qwen35moe.attention.value_length": 256,
+      "qwen35moe.block_count": 40,
+      "qwen35moe.context_length": 262144,
+      "qwen35moe.embedding_length": 2048,
+      "qwen35moe.expert_count": 256,
+      "qwen35moe.expert_feed_forward_length": 512,
+      "qwen35moe.expert_shared_feed_forward_length": 512,
+      "qwen35moe.expert_used_count": 8,
+      "qwen35moe.full_attention_interval": 4,
+      "qwen35moe.rope.dimension_count": 64,
+      "qwen35moe.rope.freq_base": 10000000.0,
+      "qwen35moe.ssm.conv_kernel": 4,
+      "qwen35moe.ssm.group_count": 16,
+      "qwen35moe.ssm.inner_size": 4096,
+      "qwen35moe.ssm.state_size": 128,
+      "qwen35moe.ssm.time_step_rank": 32,
+      "tokenizer.chat_template": "{%- set image_count = namespace(value=0) %}\n{%- set video_count = namespace(value=0) %}\n{%- macro render_content(content, do_vision_count, is_system_content=false) %}\n    {%- if content is string %}\n        {{- content }}\n    {%- elif content is iterable and content is not mapping %}\n        {%- for item in content %}\n            {%- if 'image' in item or 'image_url' in item or item.type == 'image' %}\n                {%- if is_system_content %}\n                    {{- raise_exception('System message cannot contain images.') }}\n                {%- endif %}\n                {%- if do_vision_count %}\n                    {%- set image_count.value = image_count.value + 1 %}\n                {%- endif %}\n                {%- if add_vision_id %}\n                    {{- 'Picture ' ~ image_count.value ~ ': ' }}\n                {%- endif %}\n                {{- '<|vision_start|><|image_pad|><|vision_end|>' }}\n            {%- elif 'video' in item or item.type == 'video' %}\n                {%- if is_system_content %}\n                    {{- raise_exception('System message cannot contain videos.') }}\n                {%- endif %}\n                {%- if do_vision_count %}\n                    {%- set video_count.value = video_count.value + 1 %}\n                {%- endif %}\n                {%- if add_vision_id %}\n                    {{- 'Video ' ~ video_count.value ~ ': ' }}\n                {%- endif %}\n                {{- '<|vision_start|><|video_pad|><|vision_end|>' }}\n            {%- elif 'text' in item %}\n                {{- item.text }}\n            {%- else %}\n                {{- raise_exception('Unexpected item type in content.') }}\n            {%- endif %}\n        {%- endfor %}\n    {%- elif content is none or content is undefined %}\n        {{- '' }}\n    {%- else %}\n        {{- raise_exception('Unexpected content type.') }}\n    {%- endif %}\n{%- endmacro %}\n{%- if not messages %}\n    {{- raise_exception('No messages provided.') }}\n{%- endif %}\n{%- if tools and tools is iterable and tools is not mapping %}\n    {{- '<|im_start|>system\\n' }}\n    {{- \"# Tools\\n\\nYou have access to the following functions:\\n\\n<tools>\" }}\n    {%- for tool in tools %}\n        {{- \"\\n\" }}\n        {{- tool | tojson }}\n    {%- endfor %}\n    {{- \"\\n</tools>\" }}\n    {{- '\\n\\nIf you choose to call a function ONLY reply in the following format with NO suffix:\\n\\n<tool_call>\\n<function=example_function_name>\\n<parameter=example_parameter_1>\\nvalue_1\\n</parameter>\\n<parameter=example_parameter_2>\\nThis is the value for the second parameter\\nthat can span\\nmultiple lines\\n</parameter>\\n</function>\\n</tool_call>\\n\\n<IMPORTANT>\\nReminder:\\n- Function calls MUST follow the specified format: an inner <function=...></function> block must be nested within <tool_call></tool_call> XML tags\\n- Required parameters MUST be specified\\n- You may provide optional reasoning for your function call in natural language BEFORE the function call, but NOT after\\n- If there is no function call available, answer the question like normal with your current knowledge and do not tell the user about function calls\\n</IMPORTANT>' }}\n    {%- if messages[0].role == 'system' %}\n        {%- set content = render_content(messages[0].content, false, true)|trim %}\n        {%- if content %}\n            {{- '\\n\\n' + content }}\n        {%- endif %}\n    {%- endif %}\n    {{- '<|im_end|>\\n' }}\n{%- else %}\n    {%- if messages[0].role == 'system' %}\n        {%- set content = render_content(messages[0].content, false, true)|trim %}\n        {{- '<|im_start|>system\\n' + content + '<|im_end|>\\n' }}\n    {%- endif %}\n{%- endif %}\n{%- set ns = namespace(multi_step_tool=true, last_query_index=messages|length - 1) %}\n{%- for message in messages[::-1] %}\n    {%- set index = (messages|length - 1) - loop.index0 %}\n    {%- if ns.multi_step_tool and message.role == \"user\" %}\n        {%- set content = render_content(message.content, false)|trim %}\n        {%- if not(content.startswith('<tool_response>') and content.endswith('</tool_response>')) %}\n            {%- set ns.multi_step_tool = false %}\n            {%- set ns.last_query_index = index %}\n        {%- endif %}\n    {%- endif %}\n{%- endfor %}\n{%- if ns.multi_step_tool %}\n    {{- raise_exception('No user query found in messages.') }}\n{%- endif %}\n{%- for message in messages %}\n    {%- set content = render_content(message.content, true)|trim %}\n    {%- if message.role == \"system\" %}\n        {%- if not loop.first %}\n            {{- raise_exception('System message must be at the beginning.') }}\n        {%- endif %}\n    {%- elif message.role == \"user\" %}\n        {{- '<|im_start|>' + message.role + '\\n' + content + '<|im_end|>' + '\\n' }}\n    {%- elif message.role == \"assistant\" %}\n        {%- set reasoning_content = '' %}\n        {%- if message.reasoning_content is string %}\n            {%- set reasoning_content = message.reasoning_content %}\n        {%- else %}\n            {%- if '</think>' in content %}\n                {%- set reasoning_content = content.split('</think>')[0].rstrip('\\n').split('<think>')[-1].lstrip('\\n') %}\n                {%- set content = content.split('</think>')[-1].lstrip('\\n') %}\n            {%- endif %}\n        {%- endif %}\n        {%- set reasoning_content = reasoning_content|trim %}\n        {%- if (preserve_thinking is defined and preserve_thinking is true) or (loop.index0 > ns.last_query_index) %}\n            {{- '<|im_start|>' + message.role + '\\n<think>\\n' + reasoning_content + '\\n</think>\\n\\n' + content }}\n        {%- else %}\n            {{- '<|im_start|>' + message.role + '\\n' + content }}\n        {%- endif %}\n        {%- if message.tool_calls and message.tool_calls is iterable and message.tool_calls is not mapping %}\n            {%- for tool_call in message.tool_calls %}\n                {%- if tool_call.function is defined %}\n                    {%- set tool_call = tool_call.function %}\n                {%- endif %}\n                {%- if loop.first %}\n                    {%- if content|trim %}\n                        {{- '\\n\\n<tool_call>\\n<function=' + tool_call.name + '>\\n' }}\n                    {%- else %}\n                        {{- '<tool_call>\\n<function=' + tool_call.name + '>\\n' }}\n                    {%- endif %}\n                {%- else %}\n                    {{- '\\n<tool_call>\\n<function=' + tool_call.name + '>\\n' }}\n                {%- endif %}\n                {%- if tool_call.arguments is defined %}\n                    {%- for args_name, args_value in tool_call.arguments|items %}\n                        {{- '<parameter=' + args_name + '>\\n' }}\n                        {%- set args_value = args_value | string if args_value is string else args_value | tojson | safe %}\n                        {{- args_value }}\n                        {{- '\\n</parameter>\\n' }}\n                    {%- endfor %}\n                {%- endif %}\n                {{- '</function>\\n</tool_call>' }}\n            {%- endfor %}\n        {%- endif %}\n        {{- '<|im_end|>\\n' }}\n    {%- elif message.role == \"tool\" %}\n        {%- if loop.previtem and loop.previtem.role != \"tool\" %}\n            {{- '<|im_start|>user' }}\n        {%- endif %}\n        {{- '\\n<tool_response>\\n' }}\n        {{- content }}\n        {{- '\\n</tool_response>' }}\n        {%- if not loop.last and loop.nextitem.role != \"tool\" %}\n            {{- '<|im_end|>\\n' }}\n        {%- elif loop.last %}\n            {{- '<|im_end|>\\n' }}\n        {%- endif %}\n    {%- else %}\n        {{- raise_exception('Unexpected message role.') }}\n    {%- endif %}\n{%- endfor %}\n{%- if add_generation_prompt %}\n    {{- '<|im_start|>assistant\\n' }}\n    {%- if enable_thinking is defined and enable_thinking is false %}\n        {{- '<think>\\n\\n</think>\\n\\n' }}\n    {%- else %}\n        {{- '<think>\\n' }}\n    {%- endif %}\n{%- endif %}",
+      "tokenizer.ggml.add_bos_token": 0,
+      "tokenizer.ggml.bos_token_id": 248044,
+      "tokenizer.ggml.eos_token_id": 248046,
+      "tokenizer.ggml.model": "gpt2",
+      "tokenizer.ggml.padding_token_id": 248044,
+      "tokenizer.ggml.pre": "qwen35"
+    },
+    "tensor_count": 733,
+    "version": 3
+  },
+  "limitations": [
+    "Only metadata and tensor information were read; tensor payloads were not loaded.",
+    "Tensor bounds use the declared file size, not downloaded data.",
+    "Backend workspace, KV/recurrent state, packing, and page-cache behavior are not covered.",
+    "No inference or expert streaming was executed."
+  ],
+  "observed_at": "2026-10-18T19:51:29Z",
+  "schema_version": 1,
+  "source": {
+    "file_size": 20419565568,
+    "prefix_bytes": 67108864,
+    "prefix_sha256": "fa937b8ffd787b2395f85eca7a698145eea7165843115a3348068ca779d81746",
+    "url": "https://huggingface.co/ggml-org/Qwen3.6-35B-A3B-GGUF/resolve/main/Qwen3.6-35B-A3B-Q4_K_M.gguf"
+  },
+  "storage": {
+    "artifact_bytes": 20419565568,
+    "available_bytes": 102177562624,
+    "fits_available_storage": true,
+    "transfer_and_temporary_space_reserved": false
+  },
+  "tensor_bytes": {
+    "expert": 18119393280,
+    "nonexpert": 2289183232,
+    "total": 20408576512
+  },
+  "tool": "gguf_index"
+}
