@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "status": "exited",
+  "exit_code": 0,
+  "signal": 0,
+  "timed_out": false,
+  "duration_seconds": 27.105086,
+  "started_at": "2026-10-18T21:32:35.876Z",
+  "ended_at": "2026-10-18T21:33:02.982Z",
+  "stdout": "stdout.log",
+  "stderr": "stderr.log"
+}

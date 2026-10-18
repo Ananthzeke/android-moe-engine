@@ -2,6 +2,7 @@
 #include <unistd.h>
 
 #include <cerrno>
+#include <charconv>
 #include <cstdio>
 #include <cstring>
 #include <iostream>
@@ -10,6 +11,7 @@
 
 #include "compare.hpp"
 #include "probe.hpp"
+#include "run_supervisor.hpp"
 
 namespace {
 
@@ -19,6 +21,7 @@ void print_help() {
   std::cout << "Usage:\n"
                "  ame probe [--output PATH] [--data-dir DIR] [--root DIR]\n"
                "  ame compare --left PATH --right PATH [--output PATH]\n"
+               "  ame run --runner PATH --run-dir DIR [--timeout N] [--tag NAME] -- ARGS...\n"
                "  ame --help\n"
                "  ame --version\n"
                "\n"
@@ -30,7 +33,12 @@ void print_help() {
                "compare checks two harness measurement JSON files for status, artifact,\n"
                "prompt/output token, and finish-reason equality. It never runs a model.\n"
                "Exit 0 means all compared fields match; 1 means a difference; 3 means a\n"
-               "file or JSON failure.\n";
+               "file or JSON failure.\n"
+               "\n"
+               "run supervises one backend runner process, writes started/result records and\n"
+               "stdout/stderr logs, and enforces the timeout. It does not execute a model\n"
+               "itself. Exit 0 means the runner exited 0; 1 means a non-zero exit, signal, or\n"
+               "timeout; 2 means usage; 3 means a record or spawn failure.\n";
 }
 
 int usage_error(std::string_view message) {
@@ -103,6 +111,70 @@ int main(int argc, char* argv[]) {
   if (argc == 2 && std::string_view(argv[1]) == "--version") {
     std::cout << kVersion << '\n';
     return 0;
+  }
+  if (argc >= 2 && std::string_view(argv[1]) == "run") {
+    ame::runtime::RunOptions options;
+    std::string tag;
+    bool after_separator = false;
+    for (int index = 2; index < argc; ++index) {
+      const std::string_view argument = argv[index];
+      if (after_separator) {
+        options.arguments.emplace_back(argument);
+        continue;
+      }
+      if (argument == "--") {
+        after_separator = true;
+        continue;
+      }
+      if (argument != "--runner" && argument != "--run-dir" && argument != "--timeout" &&
+          argument != "--tag") {
+        return usage_error("Unsupported run argument: " + std::string(argument));
+      }
+      if (index + 1 >= argc) {
+        return usage_error("Missing value for " + std::string(argument));
+      }
+      const std::string value = argv[++index];
+      if (argument == "--runner") {
+        options.runner = value;
+      } else if (argument == "--run-dir") {
+        options.run_dir = value;
+      } else if (argument == "--tag") {
+        options.tag = value;
+      } else {
+        std::uint32_t timeout = 0;
+        const auto parsed = std::from_chars(value.data(), value.data() + value.size(), timeout);
+        if (parsed.ec != std::errc{} || parsed.ptr != value.data() + value.size()) {
+          return usage_error("Invalid --timeout value");
+        }
+        options.timeout_seconds = timeout;
+      }
+    }
+    if (options.runner.empty() || options.run_dir.empty()) {
+      return usage_error("run requires --runner and --run-dir");
+    }
+    const auto result = ame::runtime::supervise(options);
+    if (!result.ok()) {
+      switch (result.error()) {
+        case ame::runtime::RunError::RunnerMissing:
+          std::cerr << "run failed: runner is missing or not executable\n";
+          return 2;
+        case ame::runtime::RunError::RecordExists:
+          std::cerr << "run failed: started.json already exists in the run directory\n";
+          return 3;
+        case ame::runtime::RunError::SpawnFailed:
+          std::cerr << "run failed: cannot spawn runner\n";
+          return 3;
+        case ame::runtime::RunError::IoError:
+          std::cerr << "run failed: cannot create run records or logs\n";
+          return 3;
+      }
+    }
+    std::cout << ame::runtime::result_json(result.value());
+    if (!std::cout.good()) {
+      std::cerr << "Failed to write run result.\n";
+      return 3;
+    }
+    return result.value().status == "exited" && result.value().exit_code == 0 ? 0 : 1;
   }
   if (argc >= 2 && std::string_view(argv[1]) == "compare") {
     std::string left;

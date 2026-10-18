@@ -20,3 +20,9 @@ are not included in the phone group.
 
 The comparator parses the measurement JSON without executing a model. Exit 0 means
 all compared fields match, 1 means a difference, and 3 means a file/JSON failure.
+## Supervised run
+
+[`supervised-qwen35`](supervised-qwen35) is a Qwen3.5-2B host run launched through
+`ame run`. It has atomic `started.json`/`result.json`, captured logs, and the
+backend measurement. Host load average was 7.13, so its 0.36 tok/s is a
+lifecycle smoke observation, not a performance result.

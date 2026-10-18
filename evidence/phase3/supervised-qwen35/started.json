@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "tag": "qwen35-supervised",
+  "runner": "/media/ananth/17AB9D0651C6CC1F/ame-tools/build/harness/llama_baseline_host_stream",
+  "arguments": ["--model", "/media/ananth/17AB9D0651C6CC1F/ame-tools/models/qwen3.5-2b/Qwen3.5-2B-Q4_K_M.gguf", "--chat", "--prompt", "What is the capital of France?", "--max-new-tokens", "8", "--context", "512", "--threads", "4", "--batch-size", "512", "--seed", "1234", "--temperature", "0", "--artifact-sha", "aaf42c8b7c3cab2bf3d69c355048d4a0ee9973d48f16c731c0520ee914699223", "--backend-commit", "ff5a23376725e5a889fa0bfb987b7541dc304da0", "--run-id", "supervised-qwen35-01", "--tag", "host", "--output", "evidence/phase3/supervised-qwen35/measurement.json"],
+  "started_at": "2026-10-18T21:32:35.876Z",
+  "timeout_seconds": 120,
+  "stdout": "stdout.log",
+  "stderr": "stderr.log"
+}
