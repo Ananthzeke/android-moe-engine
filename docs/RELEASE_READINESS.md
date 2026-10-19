@@ -41,7 +41,10 @@ AME_TOOLS="$AME_TOOLS" sh bench/build_harness.sh
 ```
 
 Limitation: the GitHub workflow `.github/workflows/inference.yml` was added but was
-not executed in this environment. Logs prove the local matrix, not hosted CI.
+not executed in this environment. Logs prove the local matrix, not hosted CI. The
+sanitizer builds instrument project adapter/gate code; the pinned llama.cpp static
+libraries were built without ASan/UBSan because the upstream library was distributed
+as a Release build. Upstream kernel sanitizer coverage is therefore excluded.
 
 ## Gate 2 — expert storage bound to the artifact: FAILED
 
