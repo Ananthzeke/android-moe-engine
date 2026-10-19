@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-19",
+  "commit": "fa52b24",
+  "branch": "codex/hardening",
+  "backend": {
+    "name": "llama.cpp",
+    "commit": "ff5a23376725e5a889fa0bfb987b7541dc304da0",
+    "patch_set_sha256": "fd1be78f82d6d568653c0899cf21e7f994777f3163ae39487be1853acf55f780"
+  },
+  "server": {
+    "host_sha256": "3634ea494217fc29b37c268d5890e3eb3c2aa423d3cbb9837f93a22dd683aa59",
+    "android_sha256": "78f829c39a2ba6b228e2df61221c937bd9a9fcacc1e0b5c1a00af741673f515c",
+    "build": "AME_TOOLS=... sh bench/build_server.sh",
+    "listen": "127.0.0.1:8080",
+    "api": "OpenAI-compatible text Chat Completions"
+  },
+  "device": {
+    "serial": "192.168.0.7:5555",
+    "model": "vivo 1920",
+    "abi": "arm64-v8a",
+    "android_package": "/data/local/tmp/ame-api"
+  },
+  "models": {
+    "dense_default": {
+      "id": "Qwen3.5-2B",
+      "path": "/data/local/tmp/ame-engine/models/Qwen3.5-2B-Q4_K_M.gguf",
+      "sha256": "aaf42c8b7c3cab2bf3d69c355048d4a0ee9973d48f16c731c0520ee914699223",
+      "bytes": 1280835840,
+      "mode": "resident"
+    },
+    "moe_streamed": {
+      "id": "Qwen1.5-MoE",
+      "path": "/data/local/tmp/ame-engine/models/Qwen1.5-MoE-A2.7B_q4_k_m.gguf",
+      "sha256": "09555491f85f40208e3999f3ced97b064f7c7c0b88bb3fedcbd5df51aad7d1ed",
+      "bytes": 9490338464,
+      "manifest_sha256": "2938872b4e658f1c5f51bc6e6cfbae8d769187f3f838c9e40d39a84d685253b4",
+      "mode": "stream slots=64 arena_mib=1024"
+    }
+  },
+  "tests": {
+    "host_api": "evidence/api/host-api-verification.json",
+    "phone_dense_api": "evidence/api/phone-dense-api-verification.json",
+    "phone_dense_chat": "evidence/api/phone-dense-chat.json",
+    "phone_dense_sse": "evidence/api/phone-dense-sse.txt",
+    "phone_moe_chat": "evidence/api/phone-moe-chat.json",
+    "phone_moe_sse": "evidence/api/phone-moe-sse.txt",
+    "phone_moe_health": "evidence/api/phone-moe-health-after-sse.json",
+    "openai_client": "verified manually with openai 1.109.1 on host and phone",
+    "sustained_campaign": "evidence/api/phone-sustained.jsonl",
+    "sustained_summary": "evidence/api/phone-sustained-summary.txt"
+  },
+  "moe_health": {
+    "model": "Qwen1.5-MoE",
+    "status": "ready",
+    "streaming": {
+      "arena_bytes": 426770432,
+      "cancelled": false,
+      "contract_routed": 72,
+      "contract_shared": 96,
+      "evictions": 5705,
+      "failed": false,
+      "hits": 46,
+      "materialize_calls": 432,
+      "misses": 5897,
+      "read_bytes": 11274633216,
+      "reads": 5897,
+      "slots": 64
+    }
+  },
+  "limits": [
+    "no real-35B API qualification",
+    "runtime writable-file mutation integrity unchanged",
+    "client disconnect may remain busy until next token boundary",
+    "sustained campaign used one-token requests, not long-form generation"
+  ],
+  "campaign": {
+    "requests": 216,
+    "errors": 0,
+    "seconds": 1805,
+    "model": "Qwen3.5-2B",
+    "max_tokens": 1,
+    "thermal_zone_c_samples": [
+      37,
+      33,
+      37,
+      33,
+      34
+    ]
+  }
+}
