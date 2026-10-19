@@ -5,9 +5,13 @@
 
 #include "artifact.hpp"
 
+struct llama_model;
+
 namespace ame::backend {
 
 struct MoeStreamStats {
+  std::uint64_t contract_routed{0};
+  std::uint64_t contract_shared{0};
   std::uint64_t materialize_calls{0};
   std::uint64_t tensor_switches{0};
   std::uint64_t reads{0};
@@ -43,6 +47,10 @@ bool install_moe_stream(const Artifact& artifact, const std::string& manifest_pa
 bool install_moe_stream(const std::string& model_path, const std::string& manifest_path,
                         std::uint32_t slots, std::uint64_t arena_limit_bytes);
 void uninstall_moe_stream();
+
+// Bind the loaded backend's source-derived routed/shared expert consumers to the
+// verified manifest. Must be called after model load and before generation.
+bool bind_model_contract(const llama_model* model, std::string& error);
 // Request cancellation of the active materializer. Reads observe it between chunks
 // and expert slots; the inference owner still drains the current backend call.
 void request_moe_stream_cancel();

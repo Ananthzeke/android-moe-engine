@@ -29,7 +29,7 @@ Limitations of this prototype:
   reset.
 - It changes no routing, arithmetic, accumulation, or expert selection.
 [`0002-llama-no-eager-mmap-prefetch.patch`](0002-llama-no-eager-mmap-prefetch.patch)
-changes the model loader's `init_mappings` call to disable prefetch/`MAP_POPULATE`
+also exports `llama_internal_get_expert_consumers` from the loaded model's `llama_layer` expert fields. The model-loader portion changes `init_mappings` to disable prefetch/`MAP_POPULATE`
 **when the materializer is active**. Dense runs keep the prefetch behavior. On a
 9.48 GB MoE this cut peak process RSS from 5.2-6.1 GiB to about 1.2 GiB and reduced
-TTFT from 4.9-8.4 s to about 2.1 s. Apply it after 0001.
+TTFT from 4.9-8.4 s to about 2.1 s. Apply it after 0001. The consumer API is test/internal only; project code binds it to the verified manifest after model load.

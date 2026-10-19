@@ -22,7 +22,7 @@ CXX="$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android${API}-
 STRIP="$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip"
 CXXFLAGS="-std=c++20 -O2 -DNDEBUG"
 ENGINE="src/backend/moe_stream.cpp src/backend/artifact.cpp src/common/sha256.cpp src/model/file_extent.cpp src/model/expert_layout.cpp src/residency/file_source.cpp src/residency/store.cpp src/runtime/prefill_plan.cpp"
-ENGINE_INCLUDES="-Isrc/backend -Isrc/model -Isrc/residency -Isrc/common -Isrc/runtime"
+ENGINE_INCLUDES="-Isrc/backend -Isrc/model -Isrc/residency -Isrc/common -Isrc/runtime -I$LLAMA/src"
 LIBS_HOST="$HOST_BUILD/ggml/src/libggml.a $HOST_BUILD/ggml/src/libggml-base.a $HOST_BUILD/ggml/src/libggml-cpu.a"
 LIBS_ANDROID="$ANDROID_BUILD/ggml/src/libggml.a $ANDROID_BUILD/ggml/src/libggml-base.a $ANDROID_BUILD/ggml/src/libggml-cpu.a"
 
@@ -31,7 +31,7 @@ cd "$AME_REPO"
 
 g++ $CXXFLAGS bench/llama_baseline.cpp $ENGINE $ENGINE_INCLUDES \
   -I"$LLAMA/include" -I"$LLAMA/ggml/include" \
-  -Wl,--start-group "$HOST_BUILD/src/libllama.a" $LIBS_HOST -Wl,--end-group \
+  -Wl,--whole-archive "$HOST_BUILD/src/libllama.a" -Wl,--no-whole-archive -Wl,--start-group $LIBS_HOST -Wl,--end-group \
   -lpthread -ldl -lm -o "$OUT/llama_baseline_host"
 
 g++ $CXXFLAGS bench/moe_kernel_gate.cpp \
@@ -43,13 +43,14 @@ g++ $CXXFLAGS bench/moe_kernel_gate.cpp \
   -lpthread -ldl -lm -o "$OUT/moe_kernel_gate_host"
 
 g++ $CXXFLAGS bench/moe_stream_gate.cpp $ENGINE $ENGINE_INCLUDES \
-  -I"$LLAMA/include" -I"$LLAMA/ggml/include" \
+  -I"$LLAMA/include" -I"$LLAMA/src" -I"$LLAMA/ggml/include" \
+  -Wl,--whole-archive "$HOST_BUILD/src/libllama.a" -Wl,--no-whole-archive \
   -Wl,--start-group $LIBS_HOST -Wl,--end-group \
   -lpthread -ldl -lm -o "$OUT/moe_stream_gate_host"
 
 "$CXX" $CXXFLAGS -static-libstdc++ bench/llama_baseline.cpp $ENGINE $ENGINE_INCLUDES \
   -I"$LLAMA/include" -I"$LLAMA/ggml/include" \
-  -Wl,--start-group "$ANDROID_BUILD/src/libllama.a" $LIBS_ANDROID -Wl,--end-group \
+  -Wl,--whole-archive "$ANDROID_BUILD/src/libllama.a" -Wl,--no-whole-archive -Wl,--start-group $LIBS_ANDROID -Wl,--end-group \
   -llog -lm -o "$OUT/llama_baseline_android"
 
 "$CXX" $CXXFLAGS -static-libstdc++ bench/moe_kernel_gate.cpp \
@@ -61,7 +62,8 @@ g++ $CXXFLAGS bench/moe_stream_gate.cpp $ENGINE $ENGINE_INCLUDES \
   -o "$OUT/moe_kernel_gate_android"
 
 "$CXX" $CXXFLAGS -static-libstdc++ bench/moe_stream_gate.cpp $ENGINE $ENGINE_INCLUDES \
-  -I"$LLAMA/include" -I"$LLAMA/ggml/include" \
+  -I"$LLAMA/include" -I"$LLAMA/src" -I"$LLAMA/ggml/include" \
+  -Wl,--whole-archive "$ANDROID_BUILD/src/libllama.a" -Wl,--no-whole-archive \
   -Wl,--start-group $LIBS_ANDROID -Wl,--end-group -llog -lm \
   -o "$OUT/moe_stream_gate_android"
 

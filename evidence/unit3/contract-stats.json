@@ -1,0 +1,1 @@
+{"prompt_tokens": 1, "logit_rows": 1, "generated": [91], "streaming": {"slots": 4, "hits": 0, "misses": 8, "evictions": 0, "reads": 8, "read_bytes": 4718592, "materialize_calls": 4, "max_union": 2, "arena_bytes": 4718592, "contract_routed": 4, "contract_shared": 8, "failed": false}}

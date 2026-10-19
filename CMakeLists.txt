@@ -77,20 +77,25 @@ if(AME_INFERENCE_INTEGRATION)
   add_library(ame_backend STATIC src/backend/moe_stream.cpp src/backend/artifact.cpp)
   target_include_directories(ame_backend PUBLIC src/backend src/model src/residency src/common
                                              "${AME_LLAMA_SOURCE_DIR}/include"
+                                             "${AME_LLAMA_SOURCE_DIR}/src"
                                              "${AME_LLAMA_SOURCE_DIR}/ggml/include")
   target_link_libraries(ame_backend PUBLIC ame_model ame_residency ame_crypto)
+  target_compile_options(ame_backend PRIVATE -Wno-error=conversion -Wno-error=shadow)
   ame_project_target(ame_backend)
 
   add_library(ame_backend_broken STATIC src/backend/moe_stream.cpp src/backend/artifact.cpp)
   target_include_directories(ame_backend_broken PUBLIC src/backend src/model src/residency src/common
                                                    "${AME_LLAMA_SOURCE_DIR}/include"
+                                                   "${AME_LLAMA_SOURCE_DIR}/src"
                                                    "${AME_LLAMA_SOURCE_DIR}/ggml/include")
   target_link_libraries(ame_backend_broken PUBLIC ame_model ame_residency ame_crypto)
   target_compile_definitions(ame_backend_broken PRIVATE AME_TEST_BREAK_MATERIALIZER=1)
+  target_compile_options(ame_backend_broken PRIVATE -Wno-error=conversion -Wno-error=shadow)
   ame_project_target(ame_backend_broken)
 
   function(ame_inference_target target)
     target_include_directories(${target} PRIVATE "${AME_LLAMA_SOURCE_DIR}/include"
+                                                "${AME_LLAMA_SOURCE_DIR}/src"
                                                 "${AME_LLAMA_SOURCE_DIR}/ggml/include")
     target_link_libraries(${target} PRIVATE -Wl,--start-group ${AME_LLAMA_LIBRARIES} -Wl,--end-group pthread dl m)
     set_target_properties(${target} PROPERTIES CXX_STANDARD 20 CXX_STANDARD_REQUIRED YES

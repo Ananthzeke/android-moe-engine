@@ -1,0 +1,347 @@
+{
+  "schema_version": 1,
+  "rows": [
+    {
+      "name": "qwen35-sparse-float",
+      "sha256": "29527436f00bb4b3d4990427d26e4b9151c99d5a1768a5ebf7c22da37fa1b0a8",
+      "mismatched_floats": 0,
+      "capacity_refused": true,
+      "corruption_detected": true,
+      "tokens_equal": true,
+      "tokens": [
+        91,
+        20,
+        117,
+        88,
+        53,
+        98,
+        59,
+        82
+      ],
+      "streamed": {
+        "prompt_tokens": 1,
+        "logit_rows": 8,
+        "generated": [
+          91,
+          20,
+          117,
+          88,
+          53,
+          98,
+          59,
+          82
+        ],
+        "streaming": {
+          "slots": 4,
+          "hits": 8,
+          "misses": 56,
+          "evictions": 48,
+          "reads": 56,
+          "read_bytes": 33030144,
+          "materialize_calls": 32,
+          "max_union": 2,
+          "arena_bytes": 4718592,
+          "contract_routed": 4,
+          "contract_shared": 8,
+          "failed": false
+        }
+      }
+    },
+    {
+      "name": "qwen35-sparse-q4",
+      "sha256": "34d331c290127adbbec9a407a2ce977eda8ea6aba9bd0a9208042599a02b87ec",
+      "mismatched_floats": 0,
+      "capacity_refused": null,
+      "corruption_detected": null,
+      "tokens_equal": true,
+      "tokens": [
+        91,
+        20,
+        117,
+        88,
+        53,
+        98,
+        59,
+        82
+      ],
+      "streamed": {
+        "prompt_tokens": 1,
+        "logit_rows": 8,
+        "generated": [
+          91,
+          20,
+          117,
+          88,
+          53,
+          98,
+          59,
+          82
+        ],
+        "streaming": {
+          "slots": 4,
+          "hits": 7,
+          "misses": 25,
+          "evictions": 17,
+          "reads": 25,
+          "read_bytes": 2168832,
+          "materialize_calls": 16,
+          "max_union": 2,
+          "arena_bytes": 688128,
+          "contract_routed": 4,
+          "contract_shared": 8,
+          "failed": false
+        }
+      }
+    },
+    {
+      "name": "qwen35-sparse-q6",
+      "sha256": "87ddd8ce92449f1bda8ea8efa676dcfceb65cfe24fb1cb41b3ace6e3acaaf536",
+      "mismatched_floats": 0,
+      "capacity_refused": null,
+      "corruption_detected": null,
+      "tokens_equal": true,
+      "tokens": [
+        91,
+        20,
+        117,
+        88,
+        53,
+        98,
+        59,
+        82
+      ],
+      "streamed": {
+        "prompt_tokens": 1,
+        "logit_rows": 8,
+        "generated": [
+          91,
+          20,
+          117,
+          88,
+          53,
+          98,
+          59,
+          82
+        ],
+        "streaming": {
+          "slots": 4,
+          "hits": 8,
+          "misses": 56,
+          "evictions": 48,
+          "reads": 56,
+          "read_bytes": 7440384,
+          "materialize_calls": 32,
+          "max_union": 2,
+          "arena_bytes": 1062912,
+          "contract_routed": 4,
+          "contract_shared": 8,
+          "failed": false
+        }
+      }
+    },
+    {
+      "name": "qwen2moe-float",
+      "sha256": "70254161a0595555ffb77bcf467df2d6bc1f2157679da8201c183aea4f7bd0a2",
+      "mismatched_floats": 0,
+      "capacity_refused": null,
+      "corruption_detected": null,
+      "tokens_equal": true,
+      "tokens": [
+        58,
+        22
+      ],
+      "streamed": {
+        "prompt_tokens": 3,
+        "logit_rows": 4,
+        "generated": [
+          58,
+          22
+        ],
+        "streaming": {
+          "slots": 4,
+          "hits": 0,
+          "misses": 24,
+          "evictions": 20,
+          "reads": 24,
+          "read_bytes": 9437184,
+          "materialize_calls": 12,
+          "max_union": 2,
+          "arena_bytes": 1572864,
+          "contract_routed": 6,
+          "contract_shared": 8,
+          "failed": false
+        }
+      }
+    },
+    {
+      "name": "qwen2moe-q4",
+      "sha256": "2c1947df66e60fb0f8f4a310e7889272bf0126a0e3768fc82780ff9bcafc4de1",
+      "mismatched_floats": 0,
+      "capacity_refused": null,
+      "corruption_detected": null,
+      "tokens_equal": true,
+      "tokens": [
+        58,
+        22
+      ],
+      "streamed": {
+        "prompt_tokens": 3,
+        "logit_rows": 4,
+        "generated": [
+          58,
+          22
+        ],
+        "streaming": {
+          "slots": 4,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 0,
+          "reads": 4,
+          "read_bytes": 344064,
+          "materialize_calls": 4,
+          "max_union": 2,
+          "arena_bytes": 688128,
+          "contract_routed": 6,
+          "contract_shared": 8,
+          "failed": false
+        }
+      }
+    },
+    {
+      "name": "qwen2moe-q6",
+      "sha256": "90d5042869f2ba50272f6384c6aebc3f2b35882b6042f4d05b9bfaf191ac61ea",
+      "mismatched_floats": 0,
+      "capacity_refused": null,
+      "corruption_detected": null,
+      "tokens_equal": true,
+      "tokens": [
+        58,
+        22
+      ],
+      "streamed": {
+        "prompt_tokens": 3,
+        "logit_rows": 4,
+        "generated": [
+          58,
+          22
+        ],
+        "streaming": {
+          "slots": 4,
+          "hits": 4,
+          "misses": 20,
+          "evictions": 12,
+          "reads": 20,
+          "read_bytes": 1708032,
+          "materialize_calls": 12,
+          "max_union": 2,
+          "arena_bytes": 740352,
+          "contract_routed": 6,
+          "contract_shared": 8,
+          "failed": false
+        }
+      }
+    },
+    {
+      "name": "granite-float",
+      "sha256": "71ec3affc5279459b233f81a114ea044aa05d20be757dc5bfcee4d75acdc7876",
+      "mismatched_floats": 0,
+      "capacity_refused": null,
+      "corruption_detected": null,
+      "tokens_equal": true,
+      "tokens": [
+        123,
+        52
+      ],
+      "streamed": {
+        "prompt_tokens": 3,
+        "logit_rows": 4,
+        "generated": [
+          123,
+          52
+        ],
+        "streaming": {
+          "slots": 4,
+          "hits": 0,
+          "misses": 24,
+          "evictions": 20,
+          "reads": 24,
+          "read_bytes": 9437184,
+          "materialize_calls": 12,
+          "max_union": 2,
+          "arena_bytes": 1572864,
+          "contract_routed": 6,
+          "contract_shared": 6,
+          "failed": false
+        }
+      }
+    },
+    {
+      "name": "granite-q4",
+      "sha256": "e0447e13c62ac0364201dcf7796d3b971cbdde18897afa6b7b93e0f5c9dd0251",
+      "mismatched_floats": 0,
+      "capacity_refused": null,
+      "corruption_detected": null,
+      "tokens_equal": true,
+      "tokens": [
+        123,
+        52
+      ],
+      "streamed": {
+        "prompt_tokens": 3,
+        "logit_rows": 4,
+        "generated": [
+          123,
+          52
+        ],
+        "streaming": {
+          "slots": 4,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 0,
+          "reads": 4,
+          "read_bytes": 344064,
+          "materialize_calls": 4,
+          "max_union": 2,
+          "arena_bytes": 688128,
+          "contract_routed": 6,
+          "contract_shared": 6,
+          "failed": false
+        }
+      }
+    },
+    {
+      "name": "granite-q6",
+      "sha256": "0de2f955f26022372b0218d1964c6c46af9ecb22c34da998c64bb66378e57696",
+      "mismatched_floats": 0,
+      "capacity_refused": null,
+      "corruption_detected": null,
+      "tokens_equal": true,
+      "tokens": [
+        123,
+        52
+      ],
+      "streamed": {
+        "prompt_tokens": 3,
+        "logit_rows": 4,
+        "generated": [
+          123,
+          52
+        ],
+        "streaming": {
+          "slots": 4,
+          "hits": 4,
+          "misses": 20,
+          "evictions": 12,
+          "reads": 20,
+          "read_bytes": 1708032,
+          "materialize_calls": 12,
+          "max_union": 2,
+          "arena_bytes": 740352,
+          "contract_routed": 6,
+          "contract_shared": 6,
+          "failed": false
+        }
+      }
+    }
+  ]
+}

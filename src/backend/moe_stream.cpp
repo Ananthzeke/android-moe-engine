@@ -1,5 +1,11 @@
 #include "moe_stream.hpp"
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshadow"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#include "llama-model.h"
+#pragma GCC diagnostic pop
+
 #include <algorithm>
 #include <array>
 #include <cstdio>
@@ -9,6 +15,7 @@
 #include <fstream>
 #include <map>
 #include <memory>
+#include <set>
 #include <span>
 #include <sstream>
 #include <string>
@@ -62,6 +69,8 @@ struct Cache {
 std::string g_model_path;
 const Artifact* g_artifact = nullptr;
 std::map<std::string, TensorSpec> g_specs;
+std::set<std::string> g_contract_tensors;
+bool g_contract_bound = false;
 std::map<std::uint64_t, std::vector<ExpertEntry>> g_entries_by_size;
 std::map<std::uint64_t, AlignedArena> g_arenas;
 std::map<std::uint64_t, Cache> g_caches;
@@ -440,6 +449,80 @@ int materialize(const ggml_tensor* weights, const ggml_tensor* ids) {
   return GGML_MOE_STAGED;
 }
 
+bool bind_model_contract_impl(const llama_model* model, std::string& error) {
+  if (model == nullptr || g_artifact == nullptr) {
+    error = "contract requires a loaded model and verified artifact";
+    return false;
+  }
+  if (g_specs.empty()) {
+    error = "contract requires a populated manifest";
+    return false;
+  }
+  const auto consumers = llama_internal_get_expert_consumers(model);
+  std::set<std::string> seen;
+  std::set<std::string> routed_manifest;
+  std::uint64_t routed = 0;
+  std::uint64_t shared = 0;
+  const auto& tensors = g_artifact->tensors();
+  for (const auto& consumer : consumers) {
+    if (consumer.tensor == nullptr) {
+      error = "null expert consumer";
+      return false;
+    }
+    const std::string name = consumer.tensor->name;
+    if (!seen.insert(name).second) {
+      error = "duplicate expert consumer: " + name;
+      return false;
+    }
+    std::uint64_t companion_count = 0;
+    for (const auto& [tensor_name, info] : tensors) {
+      (void)info;
+      if (tensor_name.rfind(name + ".", 0) == 0) {
+        const std::string suffix = tensor_name.substr(name.size() + 1);
+        if (suffix != "scale" && suffix != "input_scale") {
+          error = "unowned companion tensor: " + tensor_name;
+          return false;
+        }
+        ++companion_count;
+      }
+    }
+    if (consumer.shared) {
+      ++shared;
+      continue;
+    }
+    ++routed;
+    routed_manifest.insert(name);
+    const auto spec = g_specs.find(name);
+    if (spec == g_specs.end()) {
+      error = "source consumer missing from manifest: " + name;
+      return false;
+    }
+    const auto& s = spec->second;
+    if (consumer.tensor->type != s.type_id ||
+        consumer.tensor->ne[2] != static_cast<int64_t>(s.n_expert) ||
+        consumer.tensor->nb[2] != s.expert_bytes || ggml_nbytes(consumer.tensor) != s.nbytes) {
+      error = "consumer layout mismatch: " + name;
+      return false;
+    }
+  }
+  for (const auto& [name, spec] : g_specs) {
+    (void)spec;
+    if (routed_manifest.find(name) == routed_manifest.end()) {
+      error = "manifest routed tensor has no source consumer: " + name;
+      return false;
+    }
+  }
+  if (routed == 0) {
+    error = "no routed expert consumers";
+    return false;
+  }
+  g_contract_tensors = std::move(routed_manifest);
+  g_contract_bound = true;
+  g_stats.contract_routed = routed;
+  g_stats.contract_shared = shared;
+  return true;
+}
+
 bool validate_artifact_layout() {
   if (g_artifact == nullptr) {
     return manifest_error("no verified artifact");
@@ -495,6 +578,10 @@ bool validate_artifact_layout() {
 }
 
 }  // namespace
+
+bool bind_model_contract(const llama_model* model, std::string& error) {
+  return bind_model_contract_impl(model, error);
+}
 }  // namespace ame::backend
 
 extern "C" {
@@ -620,6 +707,8 @@ void uninstall_moe_stream() {
   g_caches.clear();
   g_arenas.clear();
   g_specs.clear();
+  g_contract_tensors.clear();
+  g_contract_bound = false;
   g_entries_by_size.clear();
   g_remapped.clear();
   g_model_path.clear();

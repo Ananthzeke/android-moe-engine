@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "rows": [
+    {
+      "case": "missing",
+      "exit_code": 1,
+      "logits_absent": true,
+      "error_tail": "install: manifest tensor_count does not match its rows\n"
+    },
+    {
+      "case": "offset",
+      "exit_code": 1,
+      "logits_absent": true,
+      "error_tail": "install: manifest layout hash does not match its rows\n"
+    },
+    {
+      "case": "type",
+      "exit_code": 1,
+      "logits_absent": true,
+      "error_tail": "install: manifest layout hash does not match its rows\n"
+    },
+    {
+      "case": "duplicate",
+      "exit_code": 1,
+      "logits_absent": true,
+      "error_tail": "install: duplicate expert tensor: blk.0.ffn_down_exps.weight\n"
+    }
+  ]
+}

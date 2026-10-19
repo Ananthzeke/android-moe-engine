@@ -1,5 +1,5 @@
 diff --git a/src/llama-model.cpp b/src/llama-model.cpp
-index 803a832..ffd1726 100644
+index 803a832..dc35dfa 100644
 --- a/src/llama-model.cpp
 +++ b/src/llama-model.cpp
 @@ -4,6 +4,7 @@
@@ -20,3 +20,69 @@ index 803a832..ffd1726 100644
      pimpl->mappings.reserve(ml.mappings.size());
  
      // create the backend buffers
+@@ -3790,6 +3792,36 @@ const std::vector<std::pair<std::string, ggml_tensor *>> & llama_internal_get_te
+     return model->tensors_by_name;
+ }
+ 
++std::vector<llama_expert_consumer> llama_internal_get_expert_consumers(const llama_model * model) {
++    std::vector<llama_expert_consumer> result;
++    for (size_t il = 0; il < model->layers.size(); ++il) {
++        const auto & layer = model->layers[il];
++        const std::pair<const ggml_tensor *, llama_expert_role> routed[] = {
++            {layer.ffn_gate_exps,    LLAMA_EXPERT_GATE},
++            {layer.ffn_up_exps,      LLAMA_EXPERT_UP},
++            {layer.ffn_down_exps,    LLAMA_EXPERT_DOWN},
++            {layer.ffn_gate_up_exps, LLAMA_EXPERT_GATE_UP},
++        };
++        for (const auto & [tensor, role] : routed) {
++            if (tensor != nullptr) {
++                result.push_back({(int32_t) il, role, tensor, false});
++            }
++        }
++        const std::pair<const ggml_tensor *, llama_expert_role> shared[] = {
++            {layer.ffn_gate_shexp,     LLAMA_EXPERT_SHARED_GATE},
++            {layer.ffn_up_shexp,       LLAMA_EXPERT_SHARED_UP},
++            {layer.ffn_down_shexp,     LLAMA_EXPERT_SHARED_DOWN},
++            {layer.ffn_gate_inp_shexp, LLAMA_EXPERT_SHARED_GATE_INP},
++        };
++        for (const auto & [tensor, role] : shared) {
++            if (tensor != nullptr) {
++                result.push_back({(int32_t) il, role, tensor, true});
++            }
++        }
++    }
++    return result;
++}
++
+ int32_t llama_model_n_expert(const struct llama_model * model) {
+     return model->hparams.n_expert;
+ }
+diff --git a/src/llama-model.h b/src/llama-model.h
+index a187c27..1cd2465 100644
+--- a/src/llama-model.h
++++ b/src/llama-model.h
+@@ -1006,3 +1006,24 @@ const char * llm_type_name(llm_type type);
+ // For internal test use
+ // TODO: remove
+ const std::vector<std::pair<std::string, ggml_tensor *>> & llama_internal_get_tensor_map(const llama_model * model);
++
++enum llama_expert_role {
++    LLAMA_EXPERT_GATE,
++    LLAMA_EXPERT_UP,
++    LLAMA_EXPERT_DOWN,
++    LLAMA_EXPERT_GATE_UP,
++    LLAMA_EXPERT_SHARED_GATE,
++    LLAMA_EXPERT_SHARED_UP,
++    LLAMA_EXPERT_SHARED_DOWN,
++    LLAMA_EXPERT_SHARED_GATE_INP,
++};
++
++struct llama_expert_consumer {
++    int32_t layer;
++    enum llama_expert_role role;
++    const struct ggml_tensor * tensor;
++    bool shared;
++};
++
++// Internal source-derived routed/shared expert consumers.
++std::vector<llama_expert_consumer> llama_internal_get_expert_consumers(const llama_model * model);

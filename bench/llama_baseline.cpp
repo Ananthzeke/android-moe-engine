@@ -708,6 +708,17 @@ int main(int argc, char* argv[]) {
     llama_backend_free();
     return 1;
   }
+  if (options.stream) {
+    std::string contract_error;
+    if (!ame::backend::bind_model_contract(model, contract_error)) {
+      std::cerr << "contract: " << contract_error << '\n';
+      (void)emit_status(options, "failed", "contract", contract_error);
+      llama_model_free(model);
+      ame::backend::uninstall_moe_stream();
+      llama_backend_free();
+      return 1;
+    }
+  }
   const Clock::time_point model_loaded = Clock::now();
 
   std::uint32_t expert_count = 0;

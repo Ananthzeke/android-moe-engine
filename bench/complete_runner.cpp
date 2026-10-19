@@ -177,6 +177,18 @@ int main(int argc, char* argv[]) {
     llama_backend_free();
     return 1;
   }
+#ifdef AME_STREAMING
+  {
+    std::string contract_error;
+    if (!ame::backend::bind_model_contract(model, contract_error)) {
+      std::cerr << "contract: " << contract_error << '\n';
+      llama_model_free(model);
+      ame::backend::uninstall_moe_stream();
+      llama_backend_free();
+      return 1;
+    }
+  }
+#endif
   const llama_vocab* vocab = llama_model_get_vocab(model);
   const std::int32_t n_vocab = llama_vocab_n_tokens(vocab);
   for (const auto id : options.prompt_ids) {
@@ -304,6 +316,8 @@ int main(int argc, char* argv[]) {
             << ", \"materialize_calls\": " << stats.materialize_calls
             << ", \"max_union\": " << stats.max_union
             << ", \"arena_bytes\": " << stats.arena_bytes
+            << ", \"contract_routed\": " << stats.contract_routed
+            << ", \"contract_shared\": " << stats.contract_shared
             << ", \"failed\": " << (stats.failed ? "true" : "false") << "}";
 #endif
   std::cout << "}\n";
