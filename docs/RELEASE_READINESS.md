@@ -202,8 +202,9 @@ Blocked or limited:
   are not.
 - Real 35B reference logits/tokens remain blocked by the 20.4 GB memory requirement.
 - Tiny-fixture success does not promote the 35B artifact to reference-verified support.
-- Prefill planning migration, a versioned shared contract schema, and broader
-  companion ownership remain open.
+- Broader companion ownership and sparse non-Qwen fixtures remain open.
+- `complete_runner` remains an explicit-schedule numerical tool, not the
+  contract-admitted production path.
 
 Evidence: [Unit 3 report](UNIT3_REPORT.md),
 [float comparison](../evidence/unit3/complete-fixture-comparison.json),
@@ -250,3 +251,17 @@ AME_LLAMA_HOST_LIB_DIR="$AME_TOOLS/build/llama-host" \
 
 The standard verifier passes nine tests in Debug, Release, and ASan/UBSan. The
 inference matrix passes locally in all three configurations.
+
+## Execution paths
+
+| Path | Status |
+| --- | --- |
+| Explicit-schedule numerical reference (`complete_runner`) | 12 automated artifact comparisons, capacity/corruption/lifecycle evidence |
+| Contract-admitted production harness | passed on qwen35moe sparse, qwen2moe sparse, granite; requested 64 → admitted/effective 2 |
+| Physical-phone harness | passed for sparse qwen35moe and qwen2moe; refusal, cancellation, fresh replay |
+
+The manifest remains the versioned proposal boundary: Python emits it from GGUF,
+C++ validates it against the verified artifact and source-derived consumers. No
+second serialized contract is required.
+
+See [production path](PRODUCTION_PATH.md).

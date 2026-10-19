@@ -42,6 +42,7 @@ The design also draws from source inspection of LiteRT-LM and current AirLLM. It
 - [Unit 1 report](docs/UNIT1_REPORT.md) records safe-failure and prefill evidence.
 - [Unit 2 report](docs/UNIT2_REPORT.md) records artifact identity and layout evidence.
 - [Architecture coverage](docs/ARCHITECTURE_COVERAGE.md) records the sparse and cross-architecture matrix.
+- [Production path](docs/PRODUCTION_PATH.md) records the contract-admitted harness command.
 - [Unit 3 report](docs/UNIT3_REPORT.md) records complete tiny qwen35moe and quantized parity, changed-schedule limits, and reference gaps.
 - [Final build report](docs/FINAL_REPORT.md) summarizes artifacts, results, limits, and next units.
 - [DeepSeek build prompt](prompts/DEEPSEEK_BUILD.md) is the implementation handoff.

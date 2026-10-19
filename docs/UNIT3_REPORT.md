@@ -314,3 +314,20 @@ Sparse ordinary-transformer qwen2moe (8 experts, top-2, slots 4) was generated a
 passes float/Q4_K_M/Q6_K comparisons. Automated complete verification now covers 12
 artifact comparisons, capacity refusal, corruption, and cancellation/fresh replay for
 qwen35moe sparse, qwen2moe sparse, and granite.
+
+## Production harness path
+
+`tools/verify_production.py` exercises the actual `llama_baseline_stream` path:
+artifact verification, consumer binding, contract admission, context creation,
+generation, structured result. Requested batch 64 is admitted at **2** tokens and
+effective `n_ubatch` is 2 for sparse qwen35moe, sparse qwen2moe, and granite.
+
+It compares harness token IDs/logits to a pristine `complete_runner` with the same
+prompt IDs and effective ubatch, and checks capacity refusal, bad artifact identity,
+missing manifest consumer, cancellation, injected read failure, fresh replay, and
+supervisor timeout.
+
+Evidence: [production-verification.json](../evidence/unit3/production-verification.json),
+[production path](PRODUCTION_PATH.md). Phone post-migration evidence:
+[qwen35](../evidence/unit3/qwen35-sparse-phone-production.json),
+[qwen2](../evidence/unit3/qwen2-sparse-phone-production.json).
