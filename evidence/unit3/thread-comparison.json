@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "rows": [
+    {
+      "threads": 2,
+      "mismatched_floats": 0,
+      "tokens_equal": true,
+      "tokens": [
+        53,
+        98
+      ]
+    },
+    {
+      "threads": 4,
+      "mismatched_floats": 0,
+      "tokens_equal": true,
+      "tokens": [
+        53,
+        98
+      ]
+    }
+  ]
+}

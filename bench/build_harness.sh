@@ -67,5 +67,10 @@ g++ $CXXFLAGS bench/moe_stream_gate.cpp $ENGINE $ENGINE_INCLUDES \
 
 "$CXX" $CXXFLAGS -static-libstdc++ bench/moe_quantized_gate.cpp   src/model/file_extent.cpp src/model/expert_layout.cpp   src/residency/file_source.cpp src/residency/store.cpp   -Isrc/model -Isrc/residency -Isrc/common   -I"$LLAMA/include" -I"$LLAMA/ggml/include"   -Wl,--start-group $LIBS_ANDROID -Wl,--end-group -llog -lm   -o "$OUT/moe_quantized_gate_android"
 
-"$STRIP" "$OUT/llama_baseline_android" "$OUT/moe_kernel_gate_android" "$OUT/moe_stream_gate_android" "$OUT/moe_quantized_gate_android"
+"$CXX" $CXXFLAGS -static-libstdc++ -DAME_STREAMING=1 bench/complete_runner.cpp $ENGINE $ENGINE_INCLUDES \
+  -I"$LLAMA/include" -I"$LLAMA/ggml/include" \
+  -Wl,--start-group "$ANDROID_BUILD/src/libllama.a" $LIBS_ANDROID -Wl,--end-group \
+  -llog -lm -o "$OUT/complete_runner_android"
+
+"$STRIP" "$OUT/llama_baseline_android" "$OUT/moe_kernel_gate_android" "$OUT/moe_stream_gate_android" "$OUT/moe_quantized_gate_android" "$OUT/complete_runner_android"
 echo "built harnesses in $OUT"

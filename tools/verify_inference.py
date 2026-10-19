@@ -215,7 +215,7 @@ def build(config: str, source: Path, libs: Path, build_dir: Path) -> dict[str, o
     built = run(["cmake", "--build", str(build_dir), "--target",
                  "moe_stream_gate", "moe_stream_gate_broken", "moe_kernel_gate",
                  "moe_quantized_gate", "manifest_gate", "artifact_gate",
-                 "llama_baseline_stream"], timeout=1800)
+                 "complete_runner", "llama_baseline_stream"], timeout=1800)
     return {
         "configure_returncode": configured.returncode,
         "build_returncode": built.returncode,

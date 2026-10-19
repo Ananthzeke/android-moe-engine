@@ -182,6 +182,8 @@ def expert_index(parsed, file_size, top_k, arch):
             if "inp" in parts[2]:
                 continue
             if len(dims) != 2:
+                if name.endswith(".scale") or name.endswith(".input_scale"):
+                    continue
                 raise ValueError(f"shared_expert_not_2d:{name}")
             shared_by_layer[layer] = shared_by_layer.get(layer, 0) + nbytes
             shared_tensor_count += 1
@@ -189,7 +191,11 @@ def expert_index(parsed, file_size, top_k, arch):
         if "exps" not in parts[2]:
             continue
         if len(dims) != 3:
+            if name.endswith(".scale") or name.endswith(".input_scale"):
+                continue
             raise ValueError(f"expert_tensor_not_3d:{name}")
+        if not name.endswith(".weight"):
+            continue
         n_expert = dims[2]
         expert_bytes = tensor_nbytes([dims[0], dims[1]], tensor["type_id"])
         if expert_bytes * n_expert != nbytes:

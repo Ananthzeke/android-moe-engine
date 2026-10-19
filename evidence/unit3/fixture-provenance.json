@@ -1,0 +1,57 @@
+{
+  "source_commit": "ff5a23376725e5a889fa0bfb987b7541dc304da0",
+  "generator": "llama.cpp/tests/test-llama-archs.cpp",
+  "command": "test-llama-archs -a qwen35moe -o OUT -s 1234 -d 0.1",
+  "seed": 1234,
+  "stdev": 0.1,
+  "float": {
+    "path": "qwen35moe-moe.gguf",
+    "bytes": 8841120,
+    "sha256": "66db7b7b2bb206ae1b1f479c3f9e048eebc5c26617fe7370d7a8374906f3c006",
+    "tensors": 73,
+    "layers": 2,
+    "n_embd": 256,
+    "n_ff": 384,
+    "n_ff_exp": 384,
+    "n_ff_shexp": 192,
+    "n_expert": 2,
+    "top_k": 2,
+    "ssm_conv_kernel": 4,
+    "ssm_inner": 256,
+    "ssm_state": 128,
+    "ssm_dt_rank": 2,
+    "ssm_groups": 2,
+    "vocab": 128,
+    "layer_roles": "layer 0 recurrent Gated DeltaNet; layer 1 full attention (default interval 4)"
+  },
+  "q4_k_m": {
+    "path": "qwen35moe-q4.gguf",
+    "bytes": 1469760,
+    "sha256": "a70984d805e29317c6f4c12ae7f4c9a079ac4e286eb8f96407906ea3a512f510",
+    "expert_types": {
+      "0:ffn_down_exps": "q5_0",
+      "0:ffn_gate_up_exps": "q4_K",
+      "1:ffn_down_exps": "q8_0",
+      "1:ffn_gate_up_exps": "q4_K"
+    },
+    "fallback_tensors": 4
+  },
+  "q6_k": {
+    "path": "qwen35moe-q6.gguf",
+    "bytes": 1976192,
+    "sha256": "fc8b63117e5a232503f813e1623a894ad80d18d26a2b3efa84bbe7b1469d66a1",
+    "expert_types": {
+      "0:ffn_down_exps": "q8_0",
+      "0:ffn_gate_up_exps": "q6_K",
+      "1:ffn_down_exps": "q8_0",
+      "1:ffn_gate_up_exps": "q6_K"
+    },
+    "fallback_tensors": 4
+  },
+  "manifests": {
+    "float": "5c62672c70aea57d2992d2838d900db4e146e122c442898879c3507f02e60b1b",
+    "q4": "b550228ac26781881e40ecca676cf942153b6cdc80ebb7efd6dbcdfc6f6eba20",
+    "q6": "4a228aeccc3fd83906c0efea02e3043e1ef549a1183f2e7e3a0b402ac7a98d09"
+  },
+  "note": "Synthetic fixture tests graph/operator correctness, not language quality; generated binaries are untracked."
+}

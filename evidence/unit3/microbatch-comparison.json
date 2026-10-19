@@ -1,0 +1,306 @@
+{
+  "schema_version": 1,
+  "fixture_sha256": "66db7b7b2bb206ae1b1f479c3f9e048eebc5c26617fe7370d7a8374906f3c006",
+  "results": [
+    {
+      "length": 5,
+      "ubatch": 1,
+      "pristine_vs_streamed": {
+        "rows": 6,
+        "mismatched_floats": 0,
+        "max_abs_diff": 0.0,
+        "exact": true
+      },
+      "tokens_equal": true,
+      "tokens": [
+        53,
+        98
+      ]
+    },
+    {
+      "length": 5,
+      "ubatch": 4,
+      "pristine_vs_streamed": {
+        "rows": 6,
+        "mismatched_floats": 0,
+        "max_abs_diff": 0.0,
+        "exact": true
+      },
+      "tokens_equal": true,
+      "tokens": [
+        53,
+        98
+      ]
+    },
+    {
+      "length": 5,
+      "ubatch": 8,
+      "pristine_vs_streamed": {
+        "rows": 6,
+        "mismatched_floats": 0,
+        "max_abs_diff": 0.0,
+        "exact": true
+      },
+      "tokens_equal": true,
+      "tokens": [
+        53,
+        98
+      ]
+    },
+    {
+      "length": 63,
+      "ubatch": 1,
+      "pristine_vs_streamed": {
+        "rows": 64,
+        "mismatched_floats": 0,
+        "max_abs_diff": 0.0,
+        "exact": true
+      },
+      "tokens_equal": true,
+      "tokens": [
+        107,
+        4
+      ]
+    },
+    {
+      "length": 63,
+      "ubatch": 4,
+      "pristine_vs_streamed": {
+        "rows": 64,
+        "mismatched_floats": 0,
+        "max_abs_diff": 0.0,
+        "exact": true
+      },
+      "tokens_equal": true,
+      "tokens": [
+        107,
+        4
+      ]
+    },
+    {
+      "length": 63,
+      "ubatch": 8,
+      "pristine_vs_streamed": {
+        "rows": 64,
+        "mismatched_floats": 0,
+        "max_abs_diff": 0.0,
+        "exact": true
+      },
+      "tokens_equal": true,
+      "tokens": [
+        107,
+        4
+      ]
+    },
+    {
+      "length": 64,
+      "ubatch": 1,
+      "pristine_vs_streamed": {
+        "rows": 65,
+        "mismatched_floats": 0,
+        "max_abs_diff": 0.0,
+        "exact": true
+      },
+      "tokens_equal": true,
+      "tokens": [
+        91,
+        20
+      ]
+    },
+    {
+      "length": 64,
+      "ubatch": 4,
+      "pristine_vs_streamed": {
+        "rows": 65,
+        "mismatched_floats": 0,
+        "max_abs_diff": 0.0,
+        "exact": true
+      },
+      "tokens_equal": true,
+      "tokens": [
+        91,
+        20
+      ]
+    },
+    {
+      "length": 64,
+      "ubatch": 8,
+      "pristine_vs_streamed": {
+        "rows": 65,
+        "mismatched_floats": 0,
+        "max_abs_diff": 0.0,
+        "exact": true
+      },
+      "tokens_equal": true,
+      "tokens": [
+        91,
+        20
+      ]
+    },
+    {
+      "length": 65,
+      "ubatch": 1,
+      "pristine_vs_streamed": {
+        "rows": 66,
+        "mismatched_floats": 0,
+        "max_abs_diff": 0.0,
+        "exact": true
+      },
+      "tokens_equal": true,
+      "tokens": [
+        100,
+        27
+      ]
+    },
+    {
+      "length": 65,
+      "ubatch": 4,
+      "pristine_vs_streamed": {
+        "rows": 66,
+        "mismatched_floats": 0,
+        "max_abs_diff": 0.0,
+        "exact": true
+      },
+      "tokens_equal": true,
+      "tokens": [
+        100,
+        27
+      ]
+    },
+    {
+      "length": 65,
+      "ubatch": 8,
+      "pristine_vs_streamed": {
+        "rows": 66,
+        "mismatched_floats": 0,
+        "max_abs_diff": 0.0,
+        "exact": true
+      },
+      "tokens_equal": true,
+      "tokens": [
+        100,
+        27
+      ]
+    },
+    {
+      "length": 5,
+      "schedule_pair": "pristine8_vs_pristine1",
+      "comparison": {
+        "rows": 6,
+        "mismatched_floats": 489,
+        "max_abs_diff": 8.940696716308594e-08,
+        "exact": false
+      }
+    },
+    {
+      "length": 5,
+      "schedule_pair": "pristine8_vs_pristine4",
+      "comparison": {
+        "rows": 6,
+        "mismatched_floats": 98,
+        "max_abs_diff": 8.940696716308594e-08,
+        "exact": false
+      }
+    },
+    {
+      "length": 5,
+      "schedule_pair": "pristine8_vs_streamed1",
+      "comparison": {
+        "rows": 6,
+        "mismatched_floats": 489,
+        "max_abs_diff": 8.940696716308594e-08,
+        "exact": false
+      }
+    },
+    {
+      "length": 63,
+      "schedule_pair": "pristine8_vs_pristine1",
+      "comparison": {
+        "rows": 64,
+        "mismatched_floats": 6197,
+        "max_abs_diff": 1.1920928955078125e-07,
+        "exact": false
+      }
+    },
+    {
+      "length": 63,
+      "schedule_pair": "pristine8_vs_pristine4",
+      "comparison": {
+        "rows": 64,
+        "mismatched_floats": 0,
+        "max_abs_diff": 0.0,
+        "exact": true
+      }
+    },
+    {
+      "length": 63,
+      "schedule_pair": "pristine8_vs_streamed1",
+      "comparison": {
+        "rows": 64,
+        "mismatched_floats": 6197,
+        "max_abs_diff": 1.1920928955078125e-07,
+        "exact": false
+      }
+    },
+    {
+      "length": 64,
+      "schedule_pair": "pristine8_vs_pristine1",
+      "comparison": {
+        "rows": 65,
+        "mismatched_floats": 6295,
+        "max_abs_diff": 1.1920928955078125e-07,
+        "exact": false
+      }
+    },
+    {
+      "length": 64,
+      "schedule_pair": "pristine8_vs_pristine4",
+      "comparison": {
+        "rows": 65,
+        "mismatched_floats": 0,
+        "max_abs_diff": 0.0,
+        "exact": true
+      }
+    },
+    {
+      "length": 64,
+      "schedule_pair": "pristine8_vs_streamed1",
+      "comparison": {
+        "rows": 65,
+        "mismatched_floats": 6295,
+        "max_abs_diff": 1.1920928955078125e-07,
+        "exact": false
+      }
+    },
+    {
+      "length": 65,
+      "schedule_pair": "pristine8_vs_pristine1",
+      "comparison": {
+        "rows": 66,
+        "mismatched_floats": 6295,
+        "max_abs_diff": 1.1920928955078125e-07,
+        "exact": false
+      }
+    },
+    {
+      "length": 65,
+      "schedule_pair": "pristine8_vs_pristine4",
+      "comparison": {
+        "rows": 66,
+        "mismatched_floats": 0,
+        "max_abs_diff": 0.0,
+        "exact": true
+      }
+    },
+    {
+      "length": 65,
+      "schedule_pair": "pristine8_vs_streamed1",
+      "comparison": {
+        "rows": 66,
+        "mismatched_floats": 6295,
+        "max_abs_diff": 1.1920928955078125e-07,
+        "exact": false
+      }
+    }
+  ]
+}

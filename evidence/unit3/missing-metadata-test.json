@@ -1,0 +1,10 @@
+{
+  "returncode": 1,
+  "status": {
+    "status": "refused",
+    "stage": "model_load",
+    "reason": "missing_or_invalid_metadata"
+  },
+  "logits_absent": true,
+  "passed": true
+}

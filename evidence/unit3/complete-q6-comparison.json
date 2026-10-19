@@ -1,0 +1,14 @@
+{
+  "logit_rows": 6,
+  "width": 128,
+  "mismatched_floats": 0,
+  "max_abs_diff": 0.0,
+  "pristine_tokens": [
+    53,
+    98
+  ],
+  "streamed_tokens": [
+    53,
+    98
+  ]
+}

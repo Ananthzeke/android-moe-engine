@@ -372,6 +372,10 @@ int materialize(const ggml_tensor* weights, const ggml_tensor* ids) {
     g_trace.flush();
   }
   ++g_trace_call;
+  if (std::getenv("AME_MOE_TRACE_ONLY") != nullptr) {
+    ++g_stats.materialize_calls;
+    return GGML_MOE_PASS_THROUGH;
+  }
 
   Cache* cache = cache_for(spec.expert_bytes);
   if (cache == nullptr) {
@@ -478,7 +482,9 @@ bool validate_artifact_layout() {
   }
   for (const auto& [name, info] : g_artifact->tensors()) {
     (void)info;
-    if (name.find("_exps") != std::string::npos && g_specs.find(name) == g_specs.end()) {
+    const bool is_routed = name.find("_exps") != std::string::npos && name.size() >= 7 &&
+                           name.compare(name.size() - 7, 7, ".weight") == 0;
+    if (is_routed && g_specs.find(name) == g_specs.end()) {
       return manifest_error("routed GGUF tensor is missing from manifest: " + name);
     }
   }

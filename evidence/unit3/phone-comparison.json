@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "rows": [
+    {
+      "model": "float",
+      "bytes_equal": true,
+      "trace_equal": true
+    },
+    {
+      "model": "q4",
+      "bytes_equal": true,
+      "trace_equal": true
+    },
+    {
+      "model": "q6",
+      "bytes_equal": true,
+      "trace_equal": true
+    }
+  ]
+}
