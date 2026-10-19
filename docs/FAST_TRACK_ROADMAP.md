@@ -42,6 +42,14 @@ Primary files: `tools/gguf_index.py`, `src/backend/moe_stream.cpp`, `src/residen
 
 Done means wrong-content, wrong-offset, stale-index, missing-tensor, truncation, replacement-between-opens, and mutation tests have explicit outcomes before affected bytes are consumed. A retained valid inode may continue after pathname replacement under a documented policy. It must never mix old and new artifacts. Do not require an invalid universal link-count rule.
 
+### Unit 2 delivered partially (2026-10-19)
+
+The verified artifact path retains one FD, recomputes full SHA-256 against an
+enrolled digest, validates the manifest against the GGUF tensor table, binds the
+backend loader and all expert stores to that FD, and passes the identity/lifetime
+negative tests. Startup hashing costs 393.93–412.67 s on the phone; runtime
+per-extent mutation integrity remains blocked. See [the Unit 2 report](UNIT2_REPORT.md).
+
 ## Unit 3. Establish quantized correctness cheaply, then completely
 
 First extend the existing kernel and runtime fixtures to block-aligned Q4_K and Q6_K experts. Cover gate, up, and down projection layouts, duplicate selections, ID remapping, and forced cache behavior. Compare identical bytes and settings on the same machine. Run 1, 2, and 4 workers.

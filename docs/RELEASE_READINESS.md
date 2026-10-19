@@ -6,18 +6,17 @@ different gate passed.
 
 ## Decision
 
-**Not release-ready.** Unit 1 closed the safe-failure blocker and added a conservative
+**Not release-ready.** Unit 2 verifies startup artifact identity and layout, but full-hash startup cost and runtime mutation coverage remain blockers. Unit 1 closed the safe-failure blocker and added a conservative
 prefill plan: gate 3 passes for the tested release scope. Gate 4's bounded-prefill
 part is implemented, but its memory-admission and changed-microbatch parity portions
-remain open. Gate 2 (artifact
-identity) and gate 6 (practical campaign) remain failed, and gate 5 (reference
-parity) remains blocked. Do not describe the engine as battle-tested or as having a
+remain open. Gate 2 is passed for startup identity/layout and blocked for runtime mutation; gate 6
+(practical campaign) remains failed, and gate 5 (reference parity) remains blocked. Do not describe the engine as battle-tested or as having a
 hard process memory cap.
 
 ## Gate 1 — reproducible inference integration: PASSED (local), CI pending
 
 - Added CMake targets behind `AME_INFERENCE_INTEGRATION=ON`: `ame_backend`,
-  `moe_stream_gate`, `moe_kernel_gate`, `manifest_gate`, and
+  `moe_stream_gate`, `moe_kernel_gate`, `manifest_gate`, `artifact_gate`, and
   `llama_baseline_stream`.
 - `tools/verify_inference.py` verifies the pinned llama.cpp HEAD and that the applied
   git diff hash equals `patches/0001` + `patches/0002`, then builds clean Debug,
@@ -49,39 +48,49 @@ sanitizer builds instrument project adapter/gate code; the pinned llama.cpp stat
 libraries were built without ASan/UBSan because the upstream library was distributed
 as a Release build. Upstream kernel sanitizer coverage is therefore excluded.
 
-## Gate 2 — expert storage bound to the artifact: FAILED
+## Gate 2 — artifact-bound storage: PASSED (startup identity/layout), runtime mutation BLOCKED
 
-Implemented and tested:
+- Added `src/backend/artifact`: one read-only FD, full SHA-256 enrollment check,
+  GGUF tensor-table parse, and fstat recheck. The backend model loader uses
+  `/proc/self/fd/<fd>`; every expert size-class source is `FileSource::open_fd`.
+  No verified path reopens the artifact by pathname.
+- The manifest is compared to the actual GGUF table: name, type, complete dimensions,
+  absolute offset, byte extent, stride, quantization row arithmetic, and complete
+  `_exps` coverage. Missing, duplicate, swapped, stale, or non-routed entries fail
+  before materialization.
+- A full artifact SHA-256 must match an independently enrolled digest. The manifest's
+  declared SHA must agree. A matching sidecar for a wrong file does not override the
+  enrolled digest.
+- Tests cover same-size bit flip, wrong file with matching sidecar, swapped in-bounds
+  offsets, missing/duplicate rows, pathname replacement, rename, hard link,
+  truncation, and in-place mutation before install. Replacement/rename/hard-link
+  tests continue from the retained FD.
+- The backend loader binding was exercised by replacing the model pathname with a
+  17-byte file after identity verification; the 14.3B run still produced token
+  `32671` from the retained FD.
+- Every materialization rechecks the retained-inode metadata before acquiring slots.
+  This catches truncation/in-place metadata changes before a later slot publication.
 
-- Version 2 manifests carry artifact bytes, declared SHA-256, tensor count, and a
-  layout hash; the materializer rejects version 2 manifests whose file size, row
-  count, or layout hash disagree.
-- Duplicate tensor names, byte-count overflow, size mismatch, unaligned extents,
-  truncated extents, unsupported versions, and offsets above 4 GiB are rejected before
-  any tensor reaches the kernel.
-- An unindexed tensor whose name contains `_exps` or `expert` now aborts instead of
-  silently falling back to resident weights.
+Still blocked or limited:
 
-Still failed:
+- Full SHA-256 costs **393.93–412.67 s** for the 20.4 GB phone artifact (Release), and
+  **120.55 s** for the 35B host artifact; the phone startup is not practically fast.
+- The guarantee is **startup identity + metadata recheck**, not per-extent runtime
+  integrity. A byte write after a recheck and before the bounded read can still be
+  consumed; no authenticated digest table or per-slot byte verification exists.
+- The enrolled expected digest is the trust root. A caller who supplies a wrong
+  expected digest can enroll a wrong file; release commands must take it from the
+  pinned catalog, not from the manifest.
+- Version 1 manifests are accepted when the artifact itself is verified; they lack a
+  layout checksum but the authoritative GGUF table still validates every row.
+- The 14.3B replacement test used a hardlink on the same filesystem. The 35B phone
+  test used the v2 manifest.
 
-- The `artifact_sha256` header is **declared**, not recomputed. A same-size wrong
-  artifact and a wrong but in-bounds offset are not detected. There is no SHA-256
-  implementation in the engine.
-- The manifest does not carry `ne0`, `ne1`, or the quantization row size, so block
-  arithmetic and packed strides are not independently re-derived.
-- The unindexed-expert abort is not covered by an integration test.
-- Existing phone manifests are version 1 and therefore have no layout identity. The
-  hardened Android binary reproduced the 35B prefix `11751, 11` with the existing
-  version 1 manifest and reported `manifest_version: 1`,
-  `identity_checked: false`; this is direct evidence of the gap, not a pass.
-
-Evidence: [35B version 1 regression](../evidence/hardening/qwen36-hardened-regression.json),
-[manifest test output](../evidence/hardening/gate1-integration.json),
-[tests/manifest_gate_test.py](../tests/manifest_gate_test.py),
-[src/backend/moe_stream.cpp](../src/backend/moe_stream.cpp).
-
-Smallest next action: add a streaming SHA-256 implementation and require a verified
-full-artifact digest before installation, then add a same-size-wrong-artifact test.
+Evidence: [35B phone verified run](../evidence/unit2/qwen36-unit2-verified.json),
+[35B host verified run](../evidence/unit2/host-qwen36-v2.json),
+[backend replacement test](../evidence/unit2/host-replacement-after-artifact.json),
+[artifact tests](../tests/artifact_gate_test.py),
+[integration matrix](../evidence/hardening/gate1-integration.json).
 
 ## Gate 3 — resource limits, cancellation, failures: PASSED (Unit 1 scope)
 
@@ -176,7 +185,7 @@ measured 2B trials per workload with 128 output tokens and recorded thermal stat
 
 ## Remaining release blockers
 
-1. Full artifact identity and same-size wrong-artifact refusal.
+1. Runtime mutation/per-extent content verification and practical full-hash startup cost.
 2. Quantized small-model parity and, if a host exists, 35B reference logits.
 3. Changed-microbatch numerical parity for the conservative prefill plan.
 4. A practical phone workload/sustained campaign.

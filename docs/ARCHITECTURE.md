@@ -249,3 +249,20 @@ sets `n_ubatch` before context construction. Its union bound is
 lease limit, and checked arithmetic. For 256 experts, top-8, and 64 slots, one compute
 unit is eight tokens. Configurations below top-k refuse before decode. See
 [the Unit 1 report](UNIT1_REPORT.md).
+## Verified artifact identity (Unit 2, 2026-10-19)
+
+Verified streaming opens one read-only artifact FD, checks its byte count, computes
+a full SHA-256 over that FD, and compares it to an independently enrolled digest.
+The same FD's `/proc/self/fd` path is used by the backend loader, and every expert
+size-class source duplicates that FD. The manifest is validated against the parsed
+GGUF tensor table: name, type, complete dimensions, absolute offset, extent, stride,
+quantization row arithmetic, and complete routed-tensor coverage. A manifest cannot
+legitimize a wrong in-bounds offset because the GGUF table is authoritative.
+
+The engine rechecks the retained inode's size/device/inode/mtime before installation
+and before every materialization. This catches truncation and ordinary in-place writes
+that change metadata; it is not runtime content authentication. A byte write between
+a recheck and a bounded read, or one that preserves metadata, can still be consumed.
+The expected digest is the trust root and must come from the pinned artifact record,
+not from the manifest. Full-hash startup cost is measured separately and is currently
+a release blocker on the phone. See [the Unit 2 report](UNIT2_REPORT.md).
