@@ -10,8 +10,9 @@ different gate passed.
 prefill plan: gate 3 passes for the tested release scope. Gate 4's bounded-prefill
 part is implemented, but its memory-admission and changed-microbatch parity portions
 remain open. Gate 2 is passed for startup identity/layout and blocked for runtime mutation; gate 5
-passes quantized operator parity and is blocked on complete-fixture and real-35B
-reference parity; gate 6 (practical campaign) remains failed. Do not describe the engine as battle-tested or as having a
+passes complete float and quantized tiny-fixture parity at matched schedules, while
+changed-schedule bitwise parity and real-35B reference parity remain blocked; gate 6
+(practical campaign) remains failed. Do not describe the engine as battle-tested or as having a
 hard process memory cap.
 
 ## Gate 1 — reproducible inference integration: PASSED (local), CI pending
@@ -155,33 +156,51 @@ Evidence: [prefill tests](../tests/prefill_plan_test.cpp),
 [65 tokens](../evidence/unit1/prefill-65.json),
 [35B unit-8 regression](../evidence/unit1/qwen36-unit1-regression.json).
 
-## Gate 5 — quantized operator parity PASSED; complete fixture/reference BLOCKED
+## Gate 5 — complete tiny fixture PASSED; changed schedules measured; 35B BLOCKED
 
-Implemented and tested:
+Passed:
 
-- Q4_K and Q6_K expert tensors generated with `ggml_quantize_chunk`.
-- Gate, up, and down layouts; 1/2/4 workers; decode and prefill shapes.
-- Duplicate and noncontiguous IDs; resident vs arena-backed bitwise equality.
-- Cache hits, misses, and evictions; deliberate corruption detection.
-- A pristine unpatched pinned build produces identical operator fingerprints to the
-  patched build for the same inputs.
-- Phone Q4_K/Q6_K runs pass for gate/up/down at 4 workers.
+- Complete float qwen35moe fixture: 2 layers, one recurrent Gated DeltaNet layer and
+  one full-attention layer, routed/shared experts, SSM, normalization, embeddings,
+  output projection, and a 128-token tokenizer.
+- Pristine pinned backend versus streamed execution at matched settings: 6×128 logits,
+  zero mismatched floats, tokens `[53, 98]`, and identical router traces at
+  1/2/4 workers.
+- Complete Q4_K_M and Q6_K artifacts: zero mismatched logits and identical tokens.
+  Actual expert types were inspected; the presets used mixed q5_0/q8_0/q4_K or
+  q8_0/q6_K tensors.
+- Phone float/Q4_K_M/Q6_K fixture runs: streamed and trace-only resident logits and
+  router traces byte-identical within each model.
+- Same-schedule microbatch comparisons at ubatch 1/4/8 and prompt lengths 5/63/64/65:
+  exact.
+- Missing expert metadata refusal before graph execution, with no logits produced.
 
-Blocked:
+Measured but not bitwise:
 
-- No valid complete tiny qwen35moe GGUF was generated. The loader requires
-  attention/SSM/recurrent/tokenizer metadata and tensors listed in
-  [the Unit 3 report](UNIT3_REPORT.md). Complete reference-vs-streamed,
-  router/logit, teacher-forced, and changed-microbatch parity are therefore blocked.
-- The 35B real-artifact reference remains blocked by the 20.4 GB memory requirement.
-- Operator parity is not a real-model correctness claim.
+- Pristine ubatch 8 versus ubatch 1: rounding-scale logit differences (maximum
+  `1.1921e-7`), tokens equal. Pristine ubatch 8 versus 4 was exact at 63/64/65 and
+  differed by 98 floats at length 5.
+- Streamed ubatch 1 matches pristine ubatch 1, not pristine ubatch 8.
+
+Blocked or limited:
+
+- Gating values are not exposed; router IDs are captured, but pre-top-k router logits
+  are not.
+- Real 35B reference logits/tokens remain blocked by the 20.4 GB memory requirement.
+- Tiny-fixture success does not promote the 35B artifact to reference-verified support.
+
+Evidence: [Unit 3 report](UNIT3_REPORT.md),
+[float comparison](../evidence/unit3/complete-fixture-comparison.json),
+[Q4 comparison](../evidence/unit3/complete-q4-comparison.json),
+[Q6 comparison](../evidence/unit3/complete-q6-comparison.json),
+[microbatch comparison](../evidence/unit3/microbatch-comparison.json),
+[fixture provenance](../evidence/unit3/fixture-provenance.json),
+[phone comparison](../evidence/unit3/phone-comparison.json).
 
 Hash startup diagnostic: host Release read 498 MiB/s, resident scalar SHA-256
-236 MiB/s, combined 195 MiB/s; the phone 20.4 GB hash is 393.93–412.67 s. The CPU
-advertises SHA acceleration but the implementation is scalar; a dispatched
-SHA-NI/ARMv8-SHA2 path is the next measured optimization. See
-[the hash diagnostic](../evidence/unit3-hash-host.json) and
-[pristine comparison](../evidence/unit3/quantized-pristine-vs-patched.json).
+236 MiB/s, combined 195 MiB/s; phone 20.4 GB is 393.93–412.67 s. The implementation
+is scalar despite `sha_ni`; a dispatched SHA-NI/ARMv8-SHA2 path is the measured next
+optimization.
 
 ## Gate 6 — practical phone workloads: FAILED
 
@@ -197,7 +216,7 @@ measured 2B trials per workload with 128 output tokens and recorded thermal stat
 ## Remaining release blockers
 
 1. Runtime mutation/per-extent content verification and practical full-hash startup cost.
-2. Complete qwen35moe fixture/reference parity and changed-microbatch parity.
+2. Changed-microbatch bitwise parity and gating-value capture.
 3. Real 35B reference logits/tokens; identity is not numerical correctness.
 4. A practical phone workload/sustained campaign.
 5. Complete backend allocation accounting; the arena is still not a process cap.

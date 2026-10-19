@@ -64,12 +64,16 @@ In parallel, preflight an unmodified pinned mmap reference on available hardware
 
 Done means quantized operator parity and full-model fixture parity pass, or each missing capability is precisely blocked. Fixture success does not prove the real 35B artifact correct. Preserve the 35B reference limitation until that artifact is compared.
 
-### Unit 3 partially delivered (2026-10-19)
+### Unit 3 delivered with one remaining reference limit (2026-10-19)
 
-Q4_K/Q6_K operator parity passes across gate/up/down, 1/2/4 workers, prefill/decode,
-cache reuse, and corruption, including a pristine-vs-patched fingerprint match. A
-complete tiny qwen35moe fixture was not generated, so full-model reference parity and
-changed-microbatch parity remain blocked. See [the Unit 3 report](UNIT3_REPORT.md).
+A complete tiny qwen35moe fixture was generated with the upstream
+`test-llama-archs` generator: recurrent Gated DeltaNet layer, full-attention layer,
+shared/routed experts, SSM, tokenizer, and output head. Pristine versus streamed
+execution is bitwise equal for float, Q4_K_M, and Q6_K at matched microbatches, and
+the phone reproduces the same streamed/resident results. Changed microbatches were
+measured separately and are not bitwise equal. Router IDs are captured; gating values
+and real-35B reference parity remain blocked. See
+[the Unit 3 report](UNIT3_REPORT.md).
 
 ## Unit 4. Exercise useful requests on the phone
 
