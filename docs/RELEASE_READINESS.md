@@ -274,7 +274,7 @@ See [production path](PRODUCTION_PATH.md).
   artifact binding and expert materialization; `/health` recorded 5,897 misses,
   5,705 evictions, 11,274,633,216 read bytes, and 426,770,432 arena bytes.
 - OpenAI client (1.109.1) worked against the phone server through `adb forward`.
-- No 30-minute sustained campaign was run.
+- A 30-minute phone campaign ran 216 one-token requests with 0 errors over 1,805 s; this is not a long-form stress campaign.
 - Real 35B API and output parity are not qualified.
 
 See [RUN_PHONE.md](RUN_PHONE.md).
