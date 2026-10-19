@@ -1,6 +1,6 @@
 # Architecture
 
-Status: accepted design direction. A host coding foundation, a read-only device probe, a bounded residency store, and a verified llama.cpp text baseline exist. A small runtime patch materializes selected experts into the project arena, and a real 14.3B MoE fixture completed storage-backed decode on the phone. The pinned NDK cross-build runs on the physical phone. See [phase 0](IMPLEMENTATION_PLAN.md#phase-0-evidence-2026-10-19), [phase 1](IMPLEMENTATION_PLAN.md#phase-1-evidence-2026-10-19), and [the feasibility report](backend-feasibility.md). A real 35B target ran at contexts 512, 1024, and 2048 with about 2.06-2.09 GiB peak RSS and a 28-38 MB arena. There is no hard engine memory cap, no full-resident reference parity, and no cancellation/failure proof.
+Status: accepted design direction. A host coding foundation, a read-only device probe, a bounded residency store, and a verified llama.cpp text baseline exist. A small runtime patch materializes selected experts into the project arena, and a real 14.3B MoE fixture completed storage-backed decode on the phone. The pinned NDK cross-build runs on the physical phone. See [phase 0](IMPLEMENTATION_PLAN.md#phase-0-evidence-2026-10-19), [phase 1](IMPLEMENTATION_PLAN.md#phase-1-evidence-2026-10-19), and [the feasibility report](backend-feasibility.md). A real 35B target ran at contexts 512, 1024, and 2048 with about 2.06-2.09 GiB peak RSS and a 28-38 MB arena. Unit 1 now has structured multi-worker failure and conservative-prefill evidence; there is still no hard engine memory cap, no full-resident reference parity, and no changed-microbatch parity.
 
 ## Problem and target
 
@@ -38,7 +38,7 @@ Use pinned llama.cpp as the provisional production backend after the phase 1 gat
 
 MNN remains an inspected alternative, not a second production path. Its [MoEModule implementation](RESEARCH.md) exposes selected expert IDs before expert submodule calls, but its construction retains every expert module and offers no per-expert release path. It failed the bounded-lifetime gate and is not built here.
 
-The llama.cpp gate is kernel-boundary evidence, not an integrated stream. [`ggml_compute_forward_mul_mat_id`](https://github.com/ggml-org/llama.cpp/blob/ff5a23376725e5a889fa0bfb987b7541dc304da0/ggml/src/ggml-cpu/ggml-cpu.c#L1554) reads each selected expert plane, and the result shape does not depend on the number of experts in the weight tensor. [The gate](backend-feasibility.md) showed that remapping selected IDs to a compact arena is bitwise exact on host and phone. The runtime materializer patch now intercepts the expert tensor at the real CPU `MUL_MAT_ID` boundary and supplies a compact arena-backed view. A real 14.3B MoE fixture completed with identical tokens across seven runs and about 1.2 GiB peak RSS after mmap prefetch was disabled. This is a proven mechanism, not a hard memory cap. The 35B target later ran with identical tokens across three context-512 runs and about 2.06 GiB peak RSS, but the LRU cache still did not reuse across tensor switches. Do not describe the engine as a completed 35B streaming implementation.
+The llama.cpp gate is kernel-boundary evidence, not an integrated stream. [`ggml_compute_forward_mul_mat_id`](https://github.com/ggml-org/llama.cpp/blob/ff5a23376725e5a889fa0bfb987b7541dc304da0/ggml/src/ggml-cpu/ggml-cpu.c#L1554) reads each selected expert plane, and the result shape does not depend on the number of experts in the weight tensor. [The gate](backend-feasibility.md) showed that remapping selected IDs to a compact arena is bitwise exact on host and phone. The runtime materializer patch now intercepts the expert tensor at the real CPU `MUL_MAT_ID` boundary and supplies a compact arena-backed view. A real 14.3B MoE fixture completed with identical tokens across seven runs and about 1.2 GiB peak RSS after mmap prefetch was disabled. This is a proven mechanism, not a hard memory cap. The 35B target later ran with identical tokens across three context-512 runs and about 2.06 GiB peak RSS, but the LRU cache still did not reuse across tensor switches. The Unit 1 materializer returns explicit pass-through, staged, cancelled, or failed outcomes; failures latch and abort the graph instead of returning resident data. Do not describe the engine as a completed 35B streaming implementation.
 
 [LiteRT-LM and AirLLM research](UPSTREAM_DESIGNS.md) strengthens these contracts without adding production adapters. LiteRT-LM's resource and execution boundaries are useful; whole-section streaming does not prove expert eviction. Current AirLLM demonstrates conditional expert-module loading, but its layout and framework assumptions do not establish support for our native backend or selected models.
 
@@ -52,7 +52,7 @@ The table distinguishes implemented foundation code from planned modules. No pub
 | `src/model/` (partial) | Internal checked extent arithmetic exists. Index, identity, and quantized layouts remain planned. |
 | `src/runtime/` | One engine session, memory admission, backend instance, KV and recurrent state, cancellation, and accounting coverage. |
 | `src/residency/` (store implemented) | Fixed aligned expert arena, slot index, move-only leases, demand reads, byte-based LRU, and cancellation. Tested with sparse files above 4 GiB. |
-| `src/backend/` (prototype) | llama.cpp is the provisional production backend. A runtime materializer, a manifest-driven arena, and two small upstream patches exist. Allocation instrumentation, a shared per-tensor cache, and cancellation/failure proof do not. |
+| `src/backend/` (prototype) | llama.cpp is the provisional production backend. A runtime materializer, a manifest-driven arena, two small upstream patches, structured multi-worker failure outcomes, and a conservative prefill plan exist. Allocation instrumentation, a shared per-tensor cache, and changed-microbatch parity do not. |
 | `src/probe/` (implemented) | Read-only host/Android observation of memory, CPU, storage, OS, thermal, and power state. No device profile inference and no performance claim. |
 | `apps/cli/` (foundation) | Help/version, invalid-argument diagnostics, and `ame probe`. Engine calls remain planned. |
 | `bench/` | Reference runs, artifact provenance, telemetry, parity, and result aggregation. |
@@ -233,3 +233,19 @@ GPU, NNAPI, QNN, multimodal input, predictive prefetch, KV offload, and multi-se
 Whole-layer streaming is a deferred dense-model comparison, not the expert-streaming MVP or a way to bypass its live-set gate. Any later next-unit prefetch must reserve current leases, next-unit bytes, packing/expansion, state, and workspace simultaneously, and prove cancellation/join cleanup. Neither a single worker nor a pinned-copy threshold is a total-memory bound.
 
 The [implementation plan](IMPLEMENTATION_PLAN.md) defines the proof required before each expansion.
+## Structured materializer outcomes (Unit 1, 2026-10-19)
+
+The materializer contract distinguishes resident pass-through, staged success,
+cancellation, and failure. Thread 0 publishes the outcome before the existing worker
+barrier, so all workers select the same branch. A latched failure causes the CPU graph
+loop to stop before later nodes consume incomplete output; the harness abort callback
+observes the same state and `llama_decode` returns 2. Expected storage, arena,
+capacity, metadata, and unindexed-expert failures are structured; they no longer call
+`std::abort()`. A failed request requires reopen.
+
+The conservative prefill plan derives expert count and top-k from model metadata and
+sets `n_ubatch` before context construction. Its union bound is
+`min(expert_count, tokens_per_unit * top_k)`, also capped by slots, the 128-expert
+lease limit, and checked arithmetic. For 256 experts, top-8, and 64 slots, one compute
+unit is eight tokens. Configurations below top-k refuse before decode. See
+[the Unit 1 report](UNIT1_REPORT.md).

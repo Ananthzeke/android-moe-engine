@@ -6,10 +6,13 @@ different gate passed.
 
 ## Decision
 
-**Not release-ready.** The validated small-model path and the 35B streaming
-experiment remain usable for research, but gates 2, 3, 4, and 6 are failed and gate 5
-is blocked. Do not describe the engine as battle-tested or as having a hard process
-memory cap.
+**Not release-ready.** Unit 1 closed the safe-failure blocker and added a conservative
+prefill plan: gate 3 passes for the tested release scope. Gate 4's bounded-prefill
+part is implemented, but its memory-admission and changed-microbatch parity portions
+remain open. Gate 2 (artifact
+identity) and gate 6 (practical campaign) remain failed, and gate 5 (reference
+parity) remains blocked. Do not describe the engine as battle-tested or as having a
+hard process memory cap.
 
 ## Gate 1 — reproducible inference integration: PASSED (local), CI pending
 
@@ -80,51 +83,67 @@ Evidence: [35B version 1 regression](../evidence/hardening/qwen36-hardened-regre
 Smallest next action: add a streaming SHA-256 implementation and require a verified
 full-artifact digest before installation, then add a same-size-wrong-artifact test.
 
-## Gate 3 — resource limits, cancellation, failures: FAILED
+## Gate 3 — resource limits, cancellation, failures: PASSED (Unit 1 scope)
 
-Working parts:
+- The materializer returns explicit resident/staged/cancelled/failed outcomes.
+  Thread 0 publishes the outcome before the existing worker barrier; every worker
+  takes the same branch. A latched error causes the CPU graph loop to stop before a
+  later node consumes incomplete output, and `llama_decode` observes the aborted
+  graph (returns 2).
+- Expected manifest, arena, store, capacity, metadata, and unindexed-expert failures
+  no longer call `std::abort()`. The lease is released before the failed operator
+  returns; arenas and stores are retained until teardown.
+- The real patched graph was tested with 1, 2, and 4 workers for: permanent read
+  failure, unexpected EOF, cancellation before materialization, and capacity
+  overflow. Every case returned an aborted graph with `failed` or `cancelled`
+  telemetry, never `identical: true` from resident fallback. A fresh process
+  repeated each successful case after the fault.
+- The store also has a deterministic EINTR-retry test; the retry is not reported as
+  inference failure.
+- A 14.3B streaming read failure produced status `failed`,
+  `finish_reason: materialization_failure`, the specific tensor name, no output, and
+  exit 1 without SIGABRT. A fresh request returned `32671`.
+- Streaming cancellation before prefill and during decode produced `cancelled`
+  records; the decode case retained two partial tokens but did not label the run
+  successful.
 
-- `install_moe_stream` returns a structured failure for invalid manifests.
-- The harness cancellation flag is now wired into `request_moe_stream_cancel`; the
-  store observes it between expert slots and read chunks.
-- `ame run` classifies exited/signaled/timeout; a SIGABRT test records `signaled` and
-  exit 1.
-- Phone cancellation and injected 100 MB read failure each left the model SHA
-  unchanged and a fresh request reproduced the baseline prefix.
+Remaining limitations: no compute-failure injection through the backend, no
+deterministic cancellation exactly between two read chunks, and no same-process
+reset. Reopen is required after failure or cancellation; that is the release
+contract for this unit.
 
-Still failed:
+Evidence: [worker/fault matrix](../evidence/hardening/gate1-integration.json),
+[read failure](../evidence/unit1/unit1-read-failure.json),
+[fresh request](../evidence/unit1/unit1-fresh-after-failure.json),
+[decode cancellation](../evidence/unit1/unit1-cancel-decode-late.json),
+[EINTR test](../tests/residency_test.cpp).
 
-- Expected materializer, arena, store, and unindexed-tensor failures still call
-  `std::abort()`; the backend cannot return a structured inference error through the
-  CPU kernel. The abort path writes no result record.
-- No test injects cancellation before reads, during materialization, during prefill,
-  and during decode separately.
-- Same-process reset is not offered; reopen is required and documented.
-- After wiring request cancellation into the store, a host 2B decode cancellation
-  still produced a `cancelled` record with four partial tokens and no error; the
-  backend error text remains in stderr.
+## Gate 4 — bounded prefill passed; memory admission and parity still open
 
-Evidence: [qwen36-cancel-01.json](../evidence/phase4/qwen36-cancel-01.json),
-[qwen36-iofail-01.err](../evidence/phase4/qwen36-iofail-01.err),
-[tests/run_supervisor_test.cpp](../tests/run_supervisor_test.cpp).
+- Added `src/runtime/prefill_plan` and tests. It derives expert count/top-k from
+  model metadata, computes
+  `min(expert_count, tokens_per_unit * expert_used)`, caps the unit by batch,
+  slot capacity, the 128-expert lease limit, and checked arithmetic.
+- The harness sets `llama_context_params.n_ubatch` before context construction,
+  refuses slots below top-k or a zero-token plan, and checks the backend's reported
+  effective `n_ubatch` after construction. Runtime union validation remains.
+- For 256 experts/top-8/64 slots the plan is **8 tokens per compute unit**.
+- A 14.3B streaming run executed exact 63-, 64-, and 65-token inputs with a 15-token
+  unit and did not abort. The 35B regression executed with an 8-token unit.
+- The fault gate exercised slot counts 7/8/9 with top-8 and unions C−1/C/C+1.
+  Below-top-k configurations refused; at/above capacity staged correctly.
+- Changed-microbatch numerical parity is not established. The 63/64/65 evidence
+  uses one model and does not prove every architecture's recurrent-state parity.
 
-Smallest next action: change the materializer hook to carry an error state and make
-`MUL_MAT_ID` return a backend error, or move generation behind a fully supervised
-process boundary and record the abort as a structured refusal.
+Memory admission is still not implemented: there is no fresh pre-open observation of
+project-owned bytes, backend workspace, KV/recurrent state, page cache, or load
+peaks, and the arena is not a process cap.
 
-## Gate 4 — prefill plans and memory admission: FAILED
-
-- Routing, top-k, layers, and tokens are unchanged; the engine does not drop experts.
-- There is no supported prefill plan. A prefill routed-expert union above
-  `--moe-slots` still reaches `fail("expert union ... exceeds ... slots")` and aborts.
-- No 63/64/65-token boundary test, no slot capacity minus-one/at/plus-one test, and no
-  fresh memory/storage admission observation exists.
-- The arena is not a process cap; backend workspace, KV/recurrent state, page cache,
-  and load peaks remain uncovered.
-
-Smallest next action: add a conservative prefill refusal
-(`min(n_expert, tokens * top_k) > slots`) before decode, then a bounded microbatch
-plan with parity evidence.
+Evidence: [prefill tests](../tests/prefill_plan_test.cpp),
+[63 tokens](../evidence/unit1/prefill-63.json),
+[64 tokens](../evidence/unit1/prefill-64.json),
+[65 tokens](../evidence/unit1/prefill-65.json),
+[35B unit-8 regression](../evidence/unit1/qwen36-unit1-regression.json).
 
 ## Gate 5 — numerical correctness and comparisons: BLOCKED
 
@@ -158,10 +177,10 @@ measured 2B trials per workload with 128 output tokens and recorded thermal stat
 ## Remaining release blockers
 
 1. Full artifact identity and same-size wrong-artifact refusal.
-2. Structured backend failure instead of `std::abort()`.
-3. Safe prefill refusal or microbatch plan with boundary tests.
-4. Quantized small-model parity and, if a host exists, 35B reference logits.
-5. A practical phone workload/sustained campaign.
+2. Quantized small-model parity and, if a host exists, 35B reference logits.
+3. Changed-microbatch numerical parity for the conservative prefill plan.
+4. A practical phone workload/sustained campaign.
+5. Complete backend allocation accounting; the arena is still not a process cap.
 
 ## Reproduce the current state
 
