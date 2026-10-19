@@ -1,5 +1,7 @@
 #include "moe_stream.hpp"
 
+#include "prefill_plan.hpp"
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wshadow"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
@@ -70,6 +72,7 @@ std::string g_model_path;
 const Artifact* g_artifact = nullptr;
 std::map<std::string, TensorSpec> g_specs;
 std::set<std::string> g_contract_tensors;
+std::vector<ame::prefill::ConsumerBound> g_contract_bounds;
 bool g_contract_bound = false;
 std::map<std::uint64_t, std::vector<ExpertEntry>> g_entries_by_size;
 std::map<std::uint64_t, AlignedArena> g_arenas;
@@ -459,6 +462,7 @@ bool bind_model_contract_impl(const llama_model* model, std::string& error) {
     return false;
   }
   const auto consumers = llama_internal_get_expert_consumers(model);
+  g_contract_bounds.clear();
   std::set<std::string> seen;
   std::set<std::string> routed_manifest;
   std::uint64_t routed = 0;
@@ -490,6 +494,11 @@ bool bind_model_contract_impl(const llama_model* model, std::string& error) {
       ++shared;
       continue;
     }
+    if (consumer.max_selected == 0 ||
+        consumer.max_selected > static_cast<uint32_t>(consumer.tensor->ne[2])) {
+      error = "unsupported source selection bound: " + name;
+      return false;
+    }
     ++routed;
     routed_manifest.insert(name);
     const auto spec = g_specs.find(name);
@@ -498,6 +507,8 @@ bool bind_model_contract_impl(const llama_model* model, std::string& error) {
       return false;
     }
     const auto& s = spec->second;
+    g_contract_bounds.push_back({static_cast<std::uint32_t>(consumer.tensor->ne[2]),
+                                 consumer.max_selected, g_slots, ame::residency::kMaxLeaseExperts});
     if (consumer.tensor->type != s.type_id ||
         consumer.tensor->ne[2] != static_cast<int64_t>(s.n_expert) ||
         consumer.tensor->nb[2] != s.expert_bytes || ggml_nbytes(consumer.tensor) != s.nbytes) {
@@ -581,6 +592,45 @@ bool validate_artifact_layout() {
 
 bool bind_model_contract(const llama_model* model, std::string& error) {
   return bind_model_contract_impl(model, error);
+}
+
+bool plan_model_prefill(std::uint32_t batch_size, std::uint32_t lease_limit,
+                        std::uint32_t& unit_tokens, std::uint32_t& expert_count,
+                        std::uint32_t& max_selected, std::string& error) {
+  if (!g_contract_bound || g_contract_bounds.empty()) {
+    error = "no bound consumer contract";
+    return false;
+  }
+  std::vector<ame::prefill::ConsumerBound> bounds = g_contract_bounds;
+  for (auto& bound : bounds) {
+    bound.lease_limit = lease_limit;
+  }
+  const auto plan = ame::prefill::make_contract_plan(bounds, batch_size);
+  if (!plan.ok()) {
+    switch (plan.error()) {
+      case ame::prefill::PlanError::InvalidExpertCount:
+        error = "consumer expert cardinality is invalid";
+        break;
+      case ame::prefill::PlanError::InvalidExpertUsed:
+        error = "consumer selection bound is missing or invalid";
+        break;
+      case ame::prefill::PlanError::InvalidSlots:
+      case ame::prefill::PlanError::InvalidBatch:
+        error = "invalid prefill admission shape";
+        break;
+      case ame::prefill::PlanError::Capacity:
+        error = "consumer pool capacity is below its selection bound";
+        break;
+      case ame::prefill::PlanError::LeaseCapacity:
+        error = "consumer lease limit is below its selection bound";
+        break;
+    }
+    return false;
+  }
+  unit_tokens = plan.value().unit_tokens;
+  expert_count = plan.value().expert_count;
+  max_selected = plan.value().expert_used;
+  return true;
 }
 }  // namespace ame::backend
 
@@ -708,6 +758,7 @@ void uninstall_moe_stream() {
   g_arenas.clear();
   g_specs.clear();
   g_contract_tensors.clear();
+  g_contract_bounds.clear();
   g_contract_bound = false;
   g_entries_by_size.clear();
   g_remapped.clear();

@@ -2,6 +2,46 @@
   "schema_version": 1,
   "cases": [
     {
+      "name": "qwen2-sparse-float",
+      "model": "/tmp/qwen2-sparse/qwen2moe-moe.gguf",
+      "manifest": "evidence/unit3/qwen2-sparse.manifest",
+      "sha256": "56b62accf9c606fd65c5a6e9f4367e7beda7b27abc92fe16728475c7543c067e",
+      "prompt_ids": "1",
+      "context": 128,
+      "threads": 1,
+      "batch": 8,
+      "ubatch": 8,
+      "predict": 8,
+      "slots": 4,
+      "lifecycle": true
+    },
+    {
+      "name": "qwen2-sparse-q4",
+      "model": "/tmp/qwen2-sparse/qwen2-q4.gguf",
+      "manifest": "evidence/unit3/qwen2-sparse-q4.manifest",
+      "sha256": "fdab0d56c196dbe00c333d6ecb7e77fb9b7b89a5800f2d6292dcfa261a617df3",
+      "prompt_ids": "1",
+      "context": 128,
+      "threads": 1,
+      "batch": 8,
+      "ubatch": 8,
+      "predict": 8,
+      "slots": 4
+    },
+    {
+      "name": "qwen2-sparse-q6",
+      "model": "/tmp/qwen2-sparse/qwen2-q6.gguf",
+      "manifest": "evidence/unit3/qwen2-sparse-q6.manifest",
+      "sha256": "2b9e1c5dad82532fd3ea6f97887d1b2d103a4a1b6daea50d1d24f6c424b0f7a4",
+      "prompt_ids": "1",
+      "context": 128,
+      "threads": 1,
+      "batch": 8,
+      "ubatch": 8,
+      "predict": 8,
+      "slots": 4
+    },
+    {
       "name": "qwen35-sparse-float",
       "model": "/tmp/qwen35-sparse/qwen35moe-moe.gguf",
       "manifest": "evidence/unit3/qwen35-sparse.manifest",
@@ -14,7 +54,8 @@
       "predict": 8,
       "slots": 4,
       "capacity_slots": 1,
-      "corruption": true
+      "corruption": true,
+      "lifecycle": true
     },
     {
       "name": "qwen35-sparse-q4",
@@ -92,7 +133,8 @@
       "batch": 8,
       "ubatch": 8,
       "predict": 2,
-      "slots": 4
+      "slots": 4,
+      "lifecycle": true
     },
     {
       "name": "granite-q4",

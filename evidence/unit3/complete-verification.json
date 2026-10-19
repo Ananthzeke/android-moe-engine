@@ -2,11 +2,157 @@
   "schema_version": 1,
   "rows": [
     {
+      "name": "qwen2-sparse-float",
+      "sha256": "56b62accf9c606fd65c5a6e9f4367e7beda7b27abc92fe16728475c7543c067e",
+      "mismatched_floats": 0,
+      "capacity_refused": null,
+      "corruption_detected": null,
+      "cancelled": true,
+      "fresh_replay": true,
+      "tokens_equal": true,
+      "tokens": [
+        91,
+        20,
+        117,
+        20,
+        117,
+        20,
+        117,
+        20
+      ],
+      "streamed": {
+        "prompt_tokens": 1,
+        "logit_rows": 8,
+        "generated": [
+          91,
+          20,
+          117,
+          20,
+          117,
+          20,
+          117,
+          20
+        ],
+        "streaming": {
+          "slots": 4,
+          "hits": 0,
+          "misses": 96,
+          "evictions": 92,
+          "reads": 96,
+          "read_bytes": 37748736,
+          "materialize_calls": 48,
+          "max_union": 2,
+          "arena_bytes": 1572864,
+          "contract_routed": 6,
+          "contract_shared": 8,
+          "failed": false
+        }
+      }
+    },
+    {
+      "name": "qwen2-sparse-q4",
+      "sha256": "fdab0d56c196dbe00c333d6ecb7e77fb9b7b89a5800f2d6292dcfa261a617df3",
+      "mismatched_floats": 0,
+      "capacity_refused": null,
+      "corruption_detected": null,
+      "cancelled": null,
+      "fresh_replay": null,
+      "tokens_equal": true,
+      "tokens": [
+        91,
+        20,
+        117,
+        20,
+        117,
+        20,
+        117,
+        20
+      ],
+      "streamed": {
+        "prompt_tokens": 1,
+        "logit_rows": 8,
+        "generated": [
+          91,
+          20,
+          117,
+          20,
+          117,
+          20,
+          117,
+          20
+        ],
+        "streaming": {
+          "slots": 4,
+          "hits": 22,
+          "misses": 10,
+          "evictions": 2,
+          "reads": 10,
+          "read_bytes": 897024,
+          "materialize_calls": 16,
+          "max_union": 2,
+          "arena_bytes": 688128,
+          "contract_routed": 6,
+          "contract_shared": 8,
+          "failed": false
+        }
+      }
+    },
+    {
+      "name": "qwen2-sparse-q6",
+      "sha256": "2b9e1c5dad82532fd3ea6f97887d1b2d103a4a1b6daea50d1d24f6c424b0f7a4",
+      "mismatched_floats": 0,
+      "capacity_refused": null,
+      "corruption_detected": null,
+      "cancelled": null,
+      "fresh_replay": null,
+      "tokens_equal": true,
+      "tokens": [
+        91,
+        20,
+        117,
+        20,
+        117,
+        20,
+        117,
+        20
+      ],
+      "streamed": {
+        "prompt_tokens": 1,
+        "logit_rows": 8,
+        "generated": [
+          91,
+          20,
+          117,
+          20,
+          117,
+          20,
+          117,
+          20
+        ],
+        "streaming": {
+          "slots": 4,
+          "hits": 7,
+          "misses": 89,
+          "evictions": 81,
+          "reads": 89,
+          "read_bytes": 7772160,
+          "materialize_calls": 48,
+          "max_union": 2,
+          "arena_bytes": 740352,
+          "contract_routed": 6,
+          "contract_shared": 8,
+          "failed": false
+        }
+      }
+    },
+    {
       "name": "qwen35-sparse-float",
       "sha256": "29527436f00bb4b3d4990427d26e4b9151c99d5a1768a5ebf7c22da37fa1b0a8",
       "mismatched_floats": 0,
       "capacity_refused": true,
       "corruption_detected": true,
+      "cancelled": true,
+      "fresh_replay": true,
       "tokens_equal": true,
       "tokens": [
         91,
@@ -53,6 +199,8 @@
       "mismatched_floats": 0,
       "capacity_refused": null,
       "corruption_detected": null,
+      "cancelled": null,
+      "fresh_replay": null,
       "tokens_equal": true,
       "tokens": [
         91,
@@ -99,6 +247,8 @@
       "mismatched_floats": 0,
       "capacity_refused": null,
       "corruption_detected": null,
+      "cancelled": null,
+      "fresh_replay": null,
       "tokens_equal": true,
       "tokens": [
         91,
@@ -145,6 +295,8 @@
       "mismatched_floats": 0,
       "capacity_refused": null,
       "corruption_detected": null,
+      "cancelled": null,
+      "fresh_replay": null,
       "tokens_equal": true,
       "tokens": [
         58,
@@ -179,6 +331,8 @@
       "mismatched_floats": 0,
       "capacity_refused": null,
       "corruption_detected": null,
+      "cancelled": null,
+      "fresh_replay": null,
       "tokens_equal": true,
       "tokens": [
         58,
@@ -213,6 +367,8 @@
       "mismatched_floats": 0,
       "capacity_refused": null,
       "corruption_detected": null,
+      "cancelled": null,
+      "fresh_replay": null,
       "tokens_equal": true,
       "tokens": [
         58,
@@ -247,6 +403,8 @@
       "mismatched_floats": 0,
       "capacity_refused": null,
       "corruption_detected": null,
+      "cancelled": true,
+      "fresh_replay": true,
       "tokens_equal": true,
       "tokens": [
         123,
@@ -281,6 +439,8 @@
       "mismatched_floats": 0,
       "capacity_refused": null,
       "corruption_detected": null,
+      "cancelled": null,
+      "fresh_replay": null,
       "tokens_equal": true,
       "tokens": [
         123,
@@ -315,6 +475,8 @@
       "mismatched_floats": 0,
       "capacity_refused": null,
       "corruption_detected": null,
+      "cancelled": null,
+      "fresh_replay": null,
       "tokens_equal": true,
       "tokens": [
         123,

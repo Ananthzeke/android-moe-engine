@@ -505,33 +505,6 @@ bool emit_status(const Options& options, const char* status, const char* reason,
   return write_text(options.output, writer.text() + "\n", error);
 }
 
-std::optional<std::uint32_t> model_u32_meta(const llama_model* model,
-                                                   std::string_view suffix) {
-  const int32_t count = llama_model_meta_count(model);
-  for (int32_t index = 0; index < count; ++index) {
-    char key[256] = {};
-    if (llama_model_meta_key_by_index(model, index, key, sizeof(key)) < 0) {
-      continue;
-    }
-    const std::string_view name(key);
-    if (name.size() < suffix.size() || name.substr(name.size() - suffix.size()) != suffix) {
-      continue;
-    }
-    char value[64] = {};
-    if (llama_model_meta_val_str_by_index(model, index, value, sizeof(value)) < 0) {
-      return std::nullopt;
-    }
-    std::uint64_t parsed = 0;
-    const std::string_view text(value);
-    const auto result = std::from_chars(text.data(), text.data() + text.size(), parsed);
-    if (result.ec != std::errc{} || result.ptr != text.data() + text.size() ||
-        parsed == 0 || parsed > UINT32_MAX) {
-      return std::nullopt;
-    }
-    return static_cast<std::uint32_t>(parsed);
-  }
-  return std::nullopt;
-}
 
 std::optional<std::string> read_chat_prompt(const llama_model* model, const std::string& prompt,
                                             std::string& error) {
@@ -725,47 +698,18 @@ int main(int argc, char* argv[]) {
   std::uint32_t expert_used = 0;
   std::uint32_t prefill_unit = options.batch_size == 0 ? options.context : options.batch_size;
   if (options.stream) {
-    const auto experts = model_u32_meta(model, ".expert_count");
-    const auto used = model_u32_meta(model, ".expert_used_count");
-    if (!experts.has_value() || !used.has_value()) {
-      std::cerr << "streaming requires scalar expert_count and expert_used_count metadata\n";
-      (void)emit_status(options, "refused", "expert_metadata_missing",
-                        "model does not expose scalar expert_count/expert_used_count");
+    std::string plan_error;
+    if (!ame::backend::plan_model_prefill(
+            options.batch_size == 0 ? options.context : options.batch_size,
+            ame::residency::kMaxLeaseExperts, prefill_unit, expert_count, expert_used,
+            plan_error)) {
+      std::cerr << "prefill plan: " << plan_error << '\n';
+      (void)emit_status(options, "refused", "contract_prefill_refused", plan_error);
       llama_model_free(model);
+      ame::backend::uninstall_moe_stream();
       llama_backend_free();
       return 0;
     }
-    expert_count = *experts;
-    expert_used = *used;
-    const auto plan = ame::prefill::make_plan(
-        expert_count, expert_used, options.moe_slots,
-        options.batch_size == 0 ? options.context : options.batch_size,
-        ame::residency::kMaxLeaseExperts);
-    if (!plan.ok()) {
-      const char* reason = "prefill_capacity";
-      switch (plan.error()) {
-        case ame::prefill::PlanError::InvalidExpertCount:
-        case ame::prefill::PlanError::InvalidExpertUsed:
-          reason = "expert_metadata_invalid";
-          break;
-        case ame::prefill::PlanError::InvalidSlots:
-        case ame::prefill::PlanError::InvalidBatch:
-          reason = "invalid_prefill_options";
-          break;
-        case ame::prefill::PlanError::Capacity:
-          reason = "slots_below_top_k";
-          break;
-        case ame::prefill::PlanError::LeaseCapacity:
-          reason = "lease_capacity";
-          break;
-      }
-      (void)emit_status(options, "refused", reason,
-                        "no supported prefill plan for this expert/slot configuration");
-      llama_model_free(model);
-      llama_backend_free();
-      return 0;
-    }
-    prefill_unit = plan.value().unit_tokens;
   }
 
   llama_context_params context_params = llama_context_default_params();

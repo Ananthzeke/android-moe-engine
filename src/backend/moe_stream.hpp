@@ -51,6 +51,12 @@ void uninstall_moe_stream();
 // Bind the loaded backend's source-derived routed/shared expert consumers to the
 // verified manifest. Must be called after model load and before generation.
 bool bind_model_contract(const llama_model* model, std::string& error);
+
+// Admit a prefill token unit from the bound source-derived consumers. Returns false
+// with a precise reason when any pool or lease bound cannot be satisfied.
+bool plan_model_prefill(std::uint32_t batch_size, std::uint32_t lease_limit,
+                        std::uint32_t& unit_tokens, std::uint32_t& expert_count,
+                        std::uint32_t& max_selected, std::string& error);
 // Request cancellation of the active materializer. Reads observe it between chunks
 // and expert slots; the inference owner still drains the current backend call.
 void request_moe_stream_cancel();

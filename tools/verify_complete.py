@@ -59,6 +59,29 @@ def main() -> int:
                                   "--output", str(args.workdir / f"{case['name']}-capacity.logits")],
                                  text=True, capture_output=True)
             capacity_ok = cap.returncode != 0 and not (args.workdir / f"{case['name']}-capacity.logits").exists()
+        cancelled_ok = None
+        fresh_ok = None
+        if case.get("lifecycle"):
+            cancel_out = args.workdir / f"{case['name']}-cancel.logits"
+            cancel = subprocess.run([str(args.streamed_runner), *common, "--manifest", str(manifest),
+                                     "--sha", digest, "--slots", str(case["slots"]),
+                                     "--cancel-before-decode",
+                                     "--output", str(cancel_out)], text=True, capture_output=True)
+            cancelled_ok = cancel.returncode != 0 and not cancel_out.exists() and "cancelled" in cancel.stdout
+            fresh = args.workdir / f"{case['name']}-fresh.logits"
+            fresh_tokens = args.workdir / f"{case['name']}-fresh.tokens"
+            fresh_run = subprocess.run([str(args.streamed_runner), *common, "--manifest", str(manifest),
+                                        "--sha", digest, "--slots", str(case["slots"]),
+                                        "--output", str(fresh), "--tokens-output", str(fresh_tokens)],
+                                       text=True, capture_output=True)
+            if fresh_run.returncode != 0:
+                fresh_ok = False
+            else:
+                fresh_rows = read_logits(str(fresh))
+                fresh_ok = right == fresh_rows
+                # token file is written alongside fresh logits by the runner
+                if fresh_tokens.exists():
+                    fresh_ok = fresh_ok and read_tokens(str(fresh_tokens)) == read_tokens(str(streamed) + ".tokens")
         corruption_ok = None
         if case.get("corruption") and args.broken_runner is not None:
             broken = args.workdir / f"{case['name']}-broken.logits"
@@ -74,12 +97,14 @@ def main() -> int:
             corruption_ok = differing > 0
         rows.append({"name": case["name"], "sha256": digest, "mismatched_floats": mismatched,
                      "capacity_refused": capacity_ok, "corruption_detected": corruption_ok,
+                     "cancelled": cancelled_ok, "fresh_replay": fresh_ok,
                      "tokens_equal": read_tokens(str(pristine) + ".tokens") == read_tokens(str(streamed) + ".tokens"),
                      "tokens": read_tokens(str(streamed) + ".tokens"),
                      "streamed": json.loads(s.stdout.splitlines()[-1]) if s.stdout.strip() else {}})
     args.output.write_text(json.dumps({"schema_version": 1, "rows": rows}, indent=2) + "\n")
     failed = [r for r in rows if r["mismatched_floats"] != 0 or not r["tokens_equal"]
-              or r["capacity_refused"] is False or r["corruption_detected"] is False]
+              or r["capacity_refused"] is False or r["corruption_detected"] is False
+              or r["cancelled"] is False or r["fresh_replay"] is False]
     for row in rows:
         print(row["name"], "mismatched", row["mismatched_floats"], "tokens", row["tokens"])
     return 1 if failed else 0

@@ -1,0 +1,11 @@
+--- /media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/tests/test-llama-archs.cpp	2026-10-19 14:42:52.216544300 +0530
++++ /tmp/llama-pristine/tests/test-llama-archs.cpp	2026-10-19 16:37:41.371821772 +0530
+@@ -495,7 +495,7 @@
+         ms.add_kv(LLM_KV_EXPERT_LATENT_LENGTH,       n_ff);
+         ms.add_kv(LLM_KV_INTERLEAVE_MOE_LAYER_STEP,  uint32_t(2));
+         // with more experts than a ubatch uses, the copy of the used experts in host memory skips some of them
+-        ms.add_kv(LLM_KV_EXPERT_COUNT,               uint32_t(host_experts_test(arch) ? 64 : 2));
++        ms.add_kv(LLM_KV_EXPERT_COUNT,               uint32_t(arch == LLM_ARCH_QWEN35MOE || arch == LLM_ARCH_QWEN2MOE ? 8 : (host_experts_test(arch) ? 64 : 2)));
+         ms.add_kv(LLM_KV_EXPERT_USED_COUNT,          uint32_t(2));
+         ms.add_kv(LLM_KV_EXPERT_SHARED_COUNT,        uint32_t(1));
+ 

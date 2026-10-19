@@ -1,5 +1,5 @@
 diff --git a/src/llama-model.cpp b/src/llama-model.cpp
-index 803a832..dc35dfa 100644
+index 803a832..dd1e4b2 100644
 --- a/src/llama-model.cpp
 +++ b/src/llama-model.cpp
 @@ -4,6 +4,7 @@
@@ -36,7 +36,7 @@ index 803a832..dc35dfa 100644
 +        };
 +        for (const auto & [tensor, role] : routed) {
 +            if (tensor != nullptr) {
-+                result.push_back({(int32_t) il, role, tensor, false});
++                result.push_back({(int32_t) il, role, tensor, false, (uint32_t) model->hparams.n_expert_used()});
 +            }
 +        }
 +        const std::pair<const ggml_tensor *, llama_expert_role> shared[] = {
@@ -47,7 +47,7 @@ index 803a832..dc35dfa 100644
 +        };
 +        for (const auto & [tensor, role] : shared) {
 +            if (tensor != nullptr) {
-+                result.push_back({(int32_t) il, role, tensor, true});
++                result.push_back({(int32_t) il, role, tensor, true, 0});
 +            }
 +        }
 +    }
@@ -58,10 +58,10 @@ index 803a832..dc35dfa 100644
      return model->hparams.n_expert;
  }
 diff --git a/src/llama-model.h b/src/llama-model.h
-index a187c27..1cd2465 100644
+index a187c27..f0c8a41 100644
 --- a/src/llama-model.h
 +++ b/src/llama-model.h
-@@ -1006,3 +1006,24 @@ const char * llm_type_name(llm_type type);
+@@ -1006,3 +1006,25 @@ const char * llm_type_name(llm_type type);
  // For internal test use
  // TODO: remove
  const std::vector<std::pair<std::string, ggml_tensor *>> & llama_internal_get_tensor_map(const llama_model * model);
@@ -82,6 +82,7 @@ index a187c27..1cd2465 100644
 +    enum llama_expert_role role;
 +    const struct ggml_tensor * tensor;
 +    bool shared;
++    uint32_t max_selected;
 +};
 +
 +// Internal source-derived routed/shared expert consumers.

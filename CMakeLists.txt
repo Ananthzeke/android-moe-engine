@@ -75,20 +75,20 @@ if(AME_INFERENCE_INTEGRATION)
   endif()
 
   add_library(ame_backend STATIC src/backend/moe_stream.cpp src/backend/artifact.cpp)
-  target_include_directories(ame_backend PUBLIC src/backend src/model src/residency src/common
+  target_include_directories(ame_backend PUBLIC src/backend src/model src/residency src/common src/runtime
                                              "${AME_LLAMA_SOURCE_DIR}/include"
                                              "${AME_LLAMA_SOURCE_DIR}/src"
                                              "${AME_LLAMA_SOURCE_DIR}/ggml/include")
-  target_link_libraries(ame_backend PUBLIC ame_model ame_residency ame_crypto)
+  target_link_libraries(ame_backend PUBLIC ame_model ame_residency ame_crypto ame_prefill)
   target_compile_options(ame_backend PRIVATE -Wno-error=conversion -Wno-error=shadow)
   ame_project_target(ame_backend)
 
   add_library(ame_backend_broken STATIC src/backend/moe_stream.cpp src/backend/artifact.cpp)
-  target_include_directories(ame_backend_broken PUBLIC src/backend src/model src/residency src/common
+  target_include_directories(ame_backend_broken PUBLIC src/backend src/model src/residency src/common src/runtime
                                                    "${AME_LLAMA_SOURCE_DIR}/include"
                                                    "${AME_LLAMA_SOURCE_DIR}/src"
                                                    "${AME_LLAMA_SOURCE_DIR}/ggml/include")
-  target_link_libraries(ame_backend_broken PUBLIC ame_model ame_residency ame_crypto)
+  target_link_libraries(ame_backend_broken PUBLIC ame_model ame_residency ame_crypto ame_prefill)
   target_compile_definitions(ame_backend_broken PRIVATE AME_TEST_BREAK_MATERIALIZER=1)
   target_compile_options(ame_backend_broken PRIVATE -Wno-error=conversion -Wno-error=shadow)
   ame_project_target(ame_backend_broken)
@@ -180,6 +180,11 @@ if(BUILD_TESTING)
   target_link_libraries(prefill_plan_test PRIVATE ame_prefill)
   ame_project_target(prefill_plan_test)
   add_test(NAME prefill_plan COMMAND prefill_plan_test)
+
+  add_executable(contract_plan_test tests/contract_plan_test.cpp)
+  target_link_libraries(contract_plan_test PRIVATE ame_prefill)
+  ame_project_target(contract_plan_test)
+  add_test(NAME contract_plan COMMAND contract_plan_test)
 
   add_executable(run_supervisor_test tests/run_supervisor_test.cpp)
   target_link_libraries(run_supervisor_test PRIVATE ame_run)

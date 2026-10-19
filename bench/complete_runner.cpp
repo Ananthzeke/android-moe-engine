@@ -31,6 +31,7 @@ struct Options {
   std::uint32_t ubatch = 8;
   std::uint32_t predict = 2;
   std::uint32_t slots = 8;
+  bool cancel_before_decode = false;
   std::vector<std::int32_t> prompt_ids;
 };
 
@@ -106,6 +107,8 @@ int main(int argc, char* argv[]) {
       if (!next(options.tokens_output)) return 2;
     } else if (arg == "--refusal-output") {
       if (!next(options.refusal_output)) return 2;
+    } else if (arg == "--cancel-before-decode") {
+      options.cancel_before_decode = true;
     } else if (arg == "--prompt-ids") {
       if (!next(text) || !parse_ids(text, options.prompt_ids)) return 2;
     } else if (arg == "--context" || arg == "--threads" || arg == "--batch" ||
@@ -266,6 +269,11 @@ int main(int argc, char* argv[]) {
     return 1;
   }
   std::int32_t position = static_cast<std::int32_t>(options.prompt_ids.size());
+  if (options.cancel_before_decode) {
+#ifdef AME_STREAMING
+    ame::backend::request_moe_stream_cancel();
+#endif
+  }
   for (std::uint32_t step = 0; step < options.predict; ++step) {
     const auto& row = logits.back();
     std::int32_t best = 0;
@@ -280,6 +288,9 @@ int main(int argc, char* argv[]) {
     }
     if (!decode_batch({best}, position++, false)) {
       std::cerr << "decode failed\n";
+      if (options.cancel_before_decode) {
+        std::cout << "{\"status\": \"cancelled\"}\n";
+      }
       llama_batch_free(batch);
       llama_free(context);
       llama_model_free(model);
