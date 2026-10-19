@@ -6,7 +6,7 @@ Base: `d5961db`; backend `ff5a23376725e5a889fa0bfb987b7541dc304da0`
 
 ## Result
 
-**Unit 1 passed for its tested scope.** It is not a release declaration.
+**Unit 1 partially passed.** It is not a release declaration. The core safe-failure and conservative-prefill behavior is implemented and tested; the gaps below prevent a complete Unit 1 claim.
 
 - Expected materializer, storage, arena, capacity, metadata, and unindexed-expert
   failures now return structured outcomes. The engine no longer calls
@@ -85,17 +85,24 @@ Evidence paths:
 
 ## Remaining blockers
 
-1. **Artifact identity** is still declared, not verified. Gate 2 remains failed.
-2. **Changed-microbatch numerical parity** is not established. The conservative
+1. **Missing-model-metadata refusal** is implemented in the planner but not exercised by
+   an integration test with a model that lacks the scalar keys.
+2. **Cancellation exactly between two read chunks** is not deterministically tested;
+   cancellation before a read, before materialization, during prefill, and during
+   decode is tested.
+3. **Compute-failure injection** through the backend is not covered.
+4. **35B 63/64/65-token execution** was not run on-device. The exact 63/64/65 tests
+   used the 14.3B model with a 15-token unit; the 35B deterministic plan is 8 tokens.
+5. **Artifact identity** is still declared, not verified. Gate 2 remains failed.
+6. **Changed-microbatch numerical parity** is not established. The conservative
    plan executes, but the 35B 63/64/65-token case was not run on-device.
-3. **Quantized MoE fixture and 35B reference logits** remain absent/blocked.
-4. **Cancellation exactly between two read chunks** is not deterministically tested.
-   The store observes cancellation before/after chunks; a blocked synchronous read is
-   not forcibly interrupted.
-5. **Compute-failure injection** through the backend is not covered; read, EOF,
-   cancellation, and capacity failures are.
-6. **Same-process reset** is not offered. Reopen after failure is the contract.
-7. **Practical phone workload campaign** remains failed (gate 6).
+7. **Quantized MoE fixture and 35B reference logits** remain absent/blocked.
+8. **A blocked synchronous read** is not forcibly interrupted; the watchdog and
+   reopen contract remain the boundary.
+9. Read, EOF, cancellation, and capacity failures are covered; compute failure is
+   not.
+10. **Same-process reset** is not offered. Reopen after failure is the contract.
+11. **Practical phone workload campaign** remains failed (gate 6).
 
 No statement here implies the engine is battle-tested or has a hard process memory
 cap.
