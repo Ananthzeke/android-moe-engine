@@ -230,3 +230,44 @@ g++ -std=c++20 -O2 -DNDEBUG bench/remove_metadata.cpp \
 /tmp/complete_runner_pristine --model /tmp/missing.gguf --prompt-ids 1,2 \
   --output /tmp/missing.logits --refusal-output <refusal.json>
 ```
+
+## Sparse fixture and architecture matrix
+
+The existing two-expert/top-2 fixture selects every expert, so it is only a regression
+test. A second qwen35moe fixture was generated with **8 experts and top-2** by applying
+[the generator patch](../evidence/unit3/qwen35-sparse-generator.patch). It uses a
+**4-slot** arena, smaller than the 8-expert table, and was run with one prompt token
+and eight generated tokens.
+
+- 32 materializer calls, 12 distinct two-expert sets, max union 2.
+- 8 hits, 56 misses, 48 evictions, 56 reads, 33,030,144 read bytes.
+- 4,718,592 arena bytes; no resident fallback path.
+- Pristine vs streamed: zero mismatched floats, tokens
+  `[91, 20, 117, 88, 53, 98, 59, 82]`.
+- Q4_K_M and Q6_K sparse fixtures also match exactly.
+- Capacity 1 refuses at union 2 > 1 slot, producing no logits.
+- A deliberately corrupted staged expert changes 1,024 logits and all tokens.
+
+Evidence: [sparse-comparison.json](../evidence/unit3/sparse-comparison.json),
+[sparse-selection.json](../evidence/unit3/sparse-selection.json),
+[sparse-corruption-detection.json](../evidence/unit3/sparse-corruption-detection.json),
+[sparse-capacity-refusal.json](../evidence/unit3/sparse-capacity-refusal.json).
+
+Three architectures were exercised through the same `complete_runner` and
+`moe_stream` core:
+
+| Architecture | Float | Q4_K_M | Q6_K | Sparse |
+| --- | --- | --- | --- | --- |
+| qwen35moe hybrid | exact | exact | exact | 8/top-2, slots 4 |
+| qwen2moe transformer | exact | exact | exact | 2/top-2 only |
+| granite-moe non-Qwen | exact | exact | exact | 2/top-2 only |
+
+All matched comparisons have zero mismatched logits and equal tokens. Capacity
+refusal and corrupted-staging detection were exercised. Matrix:
+[architecture-matrix.json](../evidence/unit3/architecture-matrix.json),
+[coverage document](ARCHITECTURE_COVERAGE.md).
+
+The discovery/validation/materialization/prefill **contract is not yet unified**:
+the indexer and materializer still use tested GGUF name patterns rather than a
+source-derived consumer extractor. This unit demonstrates storage reuse for the
+exact tested layouts; it does not claim architecture-general discovery or support.

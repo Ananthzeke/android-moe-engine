@@ -156,7 +156,7 @@ Evidence: [prefill tests](../tests/prefill_plan_test.cpp),
 [65 tokens](../evidence/unit1/prefill-65.json),
 [35B unit-8 regression](../evidence/unit1/qwen36-unit1-regression.json).
 
-## Gate 5 — complete tiny fixture PASSED; changed schedules measured; 35B BLOCKED
+## Gate 5 — tiny complete fixtures + storage reuse PASSED; contract extraction/35B BLOCKED
 
 Passed:
 
@@ -174,6 +174,14 @@ Passed:
 - Same-schedule microbatch comparisons at ubatch 1/4/8 and prompt lengths 5/63/64/65:
   exact.
 - Missing expert metadata refusal before graph execution, with no logits produced.
+- Sparse qwen35moe (8 experts/top-2, 4 slots): exact float/Q4_K_M/Q6_K,
+  12 distinct selected sets, 56 misses/48 evictions, capacity refusal, corruption
+  detection.
+- qwen2moe and granite-moe float/Q4_K_M/Q6_K: exact through the same storage core;
+  capacity refusal. Sparse selection is only demonstrated on qwen35moe.
+- **The discovery/validation/materialization/prefill contract is not unified.** The
+  matrix proves the existing core accepts these tested manifests, not
+  architecture-general discovery.
 
 Measured but not bitwise:
 
@@ -188,6 +196,8 @@ Blocked or limited:
   are not.
 - Real 35B reference logits/tokens remain blocked by the 20.4 GB memory requirement.
 - Tiny-fixture success does not promote the 35B artifact to reference-verified support.
+- Source-derived consumer extraction, companion ownership, and a single contract
+  consumed by indexing, validation, materialization, and prefill remain open.
 
 Evidence: [Unit 3 report](UNIT3_REPORT.md),
 [float comparison](../evidence/unit3/complete-fixture-comparison.json),
@@ -195,7 +205,9 @@ Evidence: [Unit 3 report](UNIT3_REPORT.md),
 [Q6 comparison](../evidence/unit3/complete-q6-comparison.json),
 [microbatch comparison](../evidence/unit3/microbatch-comparison.json),
 [fixture provenance](../evidence/unit3/fixture-provenance.json),
-[phone comparison](../evidence/unit3/phone-comparison.json).
+[phone comparison](../evidence/unit3/phone-comparison.json),
+[architecture matrix](../evidence/unit3/architecture-matrix.json),
+[coverage matrix](ARCHITECTURE_COVERAGE.md).
 
 Hash startup diagnostic: host Release read 498 MiB/s, resident scalar SHA-256
 236 MiB/s, combined 195 MiB/s; phone 20.4 GB is 393.93–412.67 s. The implementation
