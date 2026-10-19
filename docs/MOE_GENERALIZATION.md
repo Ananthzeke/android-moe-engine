@@ -109,3 +109,16 @@ The Model the Domain principle shaped the choice of one validated contract rathe
 ## Implementation handoff
 
 > Generalize the existing MoE streaming integration using `docs/MOE_GENERALIZATION.md`. Start after the active Unit 3 implementation reaches a checkpoint. Reuse pinned llama.cpp model semantics, expert-role discovery, and synthetic model fixtures. First implement a validated internal consumer/storage contract for the currently supported contiguous expert planes, preserving behavior and existing failure cases. Make indexing, materialization, and phase planning consume that contract. Demonstrate the same core on ordinary transformer-MoE and hybrid recurrent-attention fixtures, then add one source-supported non-Qwen fixture. Do not implement routing, add another backend, introduce a plugin framework, or claim unsupported layouts work. Keep candidate support exact and evidence-based. Deliver reviewable commits, complete-model parity, failure/lifetime checks, and precise unsupported reasons. Leave active work by other agents untouched and use isolated worktrees when necessary.
+
+## Implementation checkpoint (2026-10-19)
+
+The pinned backend now exports a source-derived consumer list from `llama_layer`
+fields (separate/fused routed and shared experts). `bind_model_contract` validates
+that list against the verified manifest, rejects missing/duplicate/extra consumers and
+layout mismatches, and the materializer refuses tensors outside the bound set. This is
+exercised on qwen35moe, qwen2moe, and granite-moe by `tools/verify_complete.py`.
+
+Not yet migrated: prefill planning still uses scalar manifest metadata; the Python
+indexer still emits the manifest from GGUF names; the contract is not serialized
+across the language boundary. Variable expert layouts, arbitrary companion semantics,
+and shards remain unsupported.

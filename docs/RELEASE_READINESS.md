@@ -179,9 +179,13 @@ Passed:
   detection.
 - qwen2moe and granite-moe float/Q4_K_M/Q6_K: exact through the same storage core;
   capacity refusal. Sparse selection is only demonstrated on qwen35moe.
-- **The discovery/validation/materialization/prefill contract is not unified.** The
-  matrix proves the existing core accepts these tested manifests, not
-  architecture-general discovery.
+- **Source-derived consumer binding now exists** for routed and shared expert fields;
+  manifest validation and materialization refuse missing/duplicate/extra consumers
+  and layout mismatches. Nine complete comparisons are automated by
+  `tools/verify_complete.py`.
+- **Prefill planning is not yet contract-driven**, the contract is not serialized
+  across the Python/C++ boundary, and companion ownership only accepts the observed
+  `.scale`/`.input_scale` names. Variable layouts remain unsupported.
 
 Measured but not bitwise:
 
@@ -196,8 +200,8 @@ Blocked or limited:
   are not.
 - Real 35B reference logits/tokens remain blocked by the 20.4 GB memory requirement.
 - Tiny-fixture success does not promote the 35B artifact to reference-verified support.
-- Source-derived consumer extraction, companion ownership, and a single contract
-  consumed by indexing, validation, materialization, and prefill remain open.
+- Prefill planning migration, a versioned shared contract schema, and broader
+  companion ownership remain open.
 
 Evidence: [Unit 3 report](UNIT3_REPORT.md),
 [float comparison](../evidence/unit3/complete-fixture-comparison.json),

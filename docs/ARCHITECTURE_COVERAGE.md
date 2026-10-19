@@ -16,15 +16,30 @@ at union 2 > 1 slot.
 
 A deliberately corrupted staged expert changed 1,024 logits and all generated tokens.
 
-## What is not generalized
+## Consumer contract
 
-Discovery is still the existing manifest/GGUF name-based path (`_exps`, `.weight`,
-`blk.*`). There is no source-derived `llama_layer` consumer extractor, no single
-contract object consumed by indexing, validation, materialization, and prefill
-planning, and no companion-tensor ownership model beyond ignoring scale companions in
-the indexer. The matrix demonstrates that the existing materializer already accepts
-these three tested layouts; it does not establish architecture-general discovery.
+A small pinned-backend extraction function now reports the loaded model's per-layer
+expert tensor fields: separate gate/up/down, fused gate-up, and shared-expert tensors.
+The project binds every routed consumer to the verified manifest after model load:
 
-Unsupported: arbitrary expert-axis layouts, variable-size planes within a table,
-fused packing variants not present in these fixtures, grouped/attention MoE consumers
-not exercised, and any 35B claim.
+- duplicate source consumers, missing source consumers, and manifest routed tensors
+  without a source consumer fail closed;
+- source tensor type, expert cardinality, stride, and byte extent must match the
+  manifest;
+- companion tensors are enumerated by exact prefix; only `.scale` and
+  `.input_scale` are currently accepted and owned as companion metadata;
+- the materializer refuses a tensor not present in the bound routed set;
+- contract counts are exposed in complete-runner telemetry.
+
+This contract is exercised on qwen35moe, qwen2moe, and granite-moe. The automated
+comparison command is `tools/verify_complete.py`.
+
+Still not unified:
+
+- Prefill planning still consumes the manifest/model scalar metadata, not the
+  contract's per-consumer bounds.
+- The contract is not serialized or shared with the Python indexer; indexing still
+  produces the manifest from GGUF names, and the C++ side validates against it.
+- No variable-size experts, shards, arbitrary expert-axis layouts, or unsupported
+  companion semantics are accepted.
+- Only the tested contiguous-plane CPU consumer is supported.

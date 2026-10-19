@@ -271,3 +271,29 @@ The discovery/validation/materialization/prefill **contract is not yet unified**
 the indexer and materializer still use tested GGUF name patterns rather than a
 source-derived consumer extractor. This unit demonstrates storage reuse for the
 exact tested layouts; it does not claim architecture-general discovery or support.
+
+## Consumer contract and automation
+
+A source-derived extraction function was added to the pinned backend. It enumerates
+the loaded model's separate/fused routed expert tensors and shared-expert tensors from
+`llama_layer` fields. `bind_model_contract` rejects:
+
+- duplicate source consumers;
+- a source consumer missing from the manifest;
+- a manifest routed tensor with no source consumer;
+- type/cardinality/stride/extent mismatch;
+- companion tensors other than the accepted `.scale` and `.input_scale` names.
+
+The materializer refuses tensors outside the bound routed set. Contract counts are in
+the runner telemetry (sparse qwen35moe: 4 routed, 8 shared consumer tensors).
+Prefill planning still uses the scalar manifest metadata and is not yet contract-driven;
+that remains an explicit gap.
+
+`tools/verify_complete.py` now executes nine pristine-vs-streamed comparisons
+(sparse qwen35moe, qwen2moe, granite; float/Q4_K_M/Q6_K). It verifies fixture SHA,
+fails on missing prerequisites, and compares logits/tokens. All nine are exact:
+[complete-verification.json](../evidence/unit3/complete-verification.json).
+
+Contract negatives: [contract-negatives.json](../evidence/unit3/contract-negatives.json).
+Capacity refusal after binding: [sparse-capacity-refusal-contract.json](../evidence/unit3/sparse-capacity-refusal-contract.json).
+Post-contract corruption detection: [sparse-corruption-contract.json](../evidence/unit3/sparse-corruption-contract.json).
