@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "date": "2026-10-19",
-  "commit": "fa52b24",
+  "commit": "d0e41eb6927448ece75dbd51169c1e03e3e93e00",
   "branch": "codex/hardening",
   "backend": {
     "name": "llama.cpp",
@@ -48,7 +48,9 @@
     "phone_moe_health": "evidence/api/phone-moe-health-after-sse.json",
     "openai_client": "verified manually with openai 1.109.1 on host and phone",
     "sustained_campaign": "evidence/api/phone-sustained.jsonl",
-    "sustained_summary": "evidence/api/phone-sustained-summary.txt"
+    "sustained_summary": "evidence/api/phone-sustained-summary.txt",
+    "phone_openai_client": "evidence/api/phone-openai-client.txt",
+    "phone_dense_api_final": "evidence/api/phone-dense-api-verification-final.json"
   },
   "moe_health": {
     "model": "Qwen1.5-MoE",
