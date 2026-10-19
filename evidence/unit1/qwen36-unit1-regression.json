@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-10-19T05:08:47Z",
+  "run": {
+    "id": "phone-qwen36-unit1-regression",
+    "tag": "physical_target",
+    "backend": {
+      "name": "llama.cpp",
+      "version": "0.7.0-dev",
+      "commit": "ff5a23376725e5a889fa0bfb987b7541dc304da0",
+      "binary_sha256": "2aa3c2ea56218636b34226b07674eaa6d032da08f30ed01641a5fc00870b620d"
+    }
+  },
+  "model": {
+    "path": "/data/local/tmp/ame-engine/models/Qwen3.6-35B-A3B-Q4_K_M.gguf",
+    "artifact_sha256": "671e47e0ec53c665d048b98c3ecbfd5236b5ca9c3e02ed19fc8f81f7b85140c7",
+    "file_bytes": 20419565568
+  },
+  "model_info": {
+    "description": "qwen35moe 35B.A3B Q4_K - Medium",
+    "parameters": 34660610688,
+    "tensor_bytes": 20408576512,
+    "n_ctx_train": 262144,
+    "n_embd": 2048,
+    "n_layer": 40
+  },
+  "options": {
+    "context_tokens": 512,
+    "max_new_tokens": 2,
+    "threads": 4,
+    "batch_size": 64,
+    "seed": 1234,
+    "temperature": 0,
+    "top_k": 40,
+    "top_p": 0.95,
+    "mmap": true,
+    "chat_template": false,
+    "gpu_layers": 0,
+    "expert_count": 256,
+    "expert_used_count": 8,
+    "prefill_unit_tokens": 8
+  },
+  "prompt": {
+    "text": "The capital of France is"
+  },
+  "prompt_token_count": 5,
+  "prompt_token_ids": [
+    760,
+    6511,
+    314,
+    9338,
+    369
+  ],
+  "output": {
+    "token_ids": [
+      11751,
+      11
+    ],
+    "text": " Paris,",
+    "tokens": 2,
+    "finish_reason": "limit"
+  },
+  "timing": {
+    "load_seconds": 1.587843645,
+    "model_load_seconds": 1.48836927,
+    "context_init_seconds": 0.099474375,
+    "tokenize_seconds": 0.00014349,
+    "prefill_seconds": 19.07378593,
+    "request_ttft_seconds": 19.082577701,
+    "decode_seconds": 4.246191352,
+    "decode_tokens_per_second": 0.2355051661835705,
+    "generate_seconds": 23.328770564,
+    "wall_seconds": 25.003945459
+  },
+  "memory": {
+    "rss_kib_after_load": 164600,
+    "rss_kib_after_prefill": 2175848,
+    "rss_kib_end": 2176820,
+    "vm_hwm_kib_end": 2179008,
+    "threads_end": 1,
+    "mem_available_kib_after_load": 4953620,
+    "mem_available_kib_after_prefill": 5290948,
+    "mem_available_kib_end": 5318652,
+    "project_owned_bytes": null,
+    "scope": "process RSS/VmHWM samples and system MemAvailable; backend allocation coverage not instrumented"
+  },
+  "cancellation": {
+    "requested": false,
+    "after_ms": 0
+  },
+  "status": "ok",
+  "finish_reason": "limit",
+  "streaming": {
+    "installed": true,
+    "manifest": "/data/local/tmp/ame-engine/qwen36-35b.manifest",
+    "slots": 64,
+    "arena_bytes": 37748736,
+    "materialize_calls": 240,
+    "tensor_switches": 240,
+    "reads": 4239,
+    "read_bytes": 2500263936,
+    "read_seconds": 16.488853238000033,
+    "hits": 0,
+    "misses": 4239,
+    "evictions": 4175,
+    "max_union": 37,
+    "manifest_version": 1,
+    "manifest_identity_checked": false,
+    "manifest_layout_hash": "1d76e153afd01a6d",
+    "declared_artifact_sha256": "",
+    "failed": false,
+    "cancelled": false
+  },
+  "unavailable": [
+    {
+      "field": "memory.project_owned_bytes",
+      "reason": "backend_allocation_coverage_not_instrumented"
+    }
+  ]
+}

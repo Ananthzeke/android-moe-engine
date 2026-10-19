@@ -1,9 +1,9 @@
 diff --git a/ggml/include/ggml-moe.h b/ggml/include/ggml-moe.h
 new file mode 100644
-index 0000000..cea141e
+index 0000000..7738aac
 --- /dev/null
 +++ b/ggml/include/ggml-moe.h
-@@ -0,0 +1,26 @@
+@@ -0,0 +1,34 @@
 +#pragma once
 +
 +#include <stdbool.h>
@@ -15,11 +15,19 @@ index 0000000..cea141e
 +struct ggml_tensor;
 +
 +// Optional expert materialization hook. It is called once per MUL_MAT_ID op by
-+// thread 0. Returning true directs the kernel to read ggml_moe_staged_weights()
-+// and ggml_moe_staged_ids(); returning false keeps the original tensors. The
-+// staged descriptors must stay valid until the next hook call.
-+typedef bool (*ggml_moe_materialize_fn)(const struct ggml_tensor * weights,
-+                                        const struct ggml_tensor * ids);
++// thread 0. The outcome is published at the existing worker barrier. STAGED
++// directs the kernel to read the staged descriptors; PASS_THROUGH keeps the
++// original tensors. CANCELLED and FAILED stop the operator without computing
++// partial output. The staged descriptors must stay valid until the next call.
++enum ggml_moe_outcome {
++    GGML_MOE_PASS_THROUGH = 0,
++    GGML_MOE_STAGED       = 1,
++    GGML_MOE_CANCELLED    = 2,
++    GGML_MOE_FAILED       = 3,
++};
++
++typedef int (*ggml_moe_materialize_fn)(const struct ggml_tensor * weights,
++                                       const struct ggml_tensor * ids);
 +
 +void ggml_moe_set_materializer(ggml_moe_materialize_fn materializer);
 +bool ggml_moe_materializer_active(void);
@@ -31,7 +39,7 @@ index 0000000..cea141e
 +}
 +#endif
 diff --git a/ggml/src/ggml-cpu/ggml-cpu.c b/ggml/src/ggml-cpu/ggml-cpu.c
-index ab82e3d..007bf03 100644
+index ab82e3d..b00926e 100644
 --- a/ggml/src/ggml-cpu/ggml-cpu.c
 +++ b/ggml/src/ggml-cpu/ggml-cpu.c
 @@ -13,6 +13,7 @@
@@ -42,14 +50,15 @@ index ab82e3d..007bf03 100644
  #include "common.h"
  #include "tiled/tiled.h"
  
-@@ -1471,6 +1472,40 @@ UseGgmlGemm2:;
+@@ -1471,6 +1472,41 @@ UseGgmlGemm2:;
      }
  }
  
 +// Project-provided expert materialization hook. One active generation is the MVP
 +// contract; g_moe_staged is shared by the graph's worker threads after the barrier.
 +static ggml_moe_materialize_fn g_moe_materializer = NULL;
-+static int g_moe_staged = 0;
++static int g_moe_outcome = GGML_MOE_PASS_THROUGH;
++static int g_moe_error_latched = 0;
 +
 +void ggml_moe_set_materializer(ggml_moe_materialize_fn materializer) {
 +    g_moe_materializer = materializer;
@@ -83,7 +92,7 @@ index ab82e3d..007bf03 100644
  // ggml_compute_forward_mul_mat_id
  
  #define MMID_MATRIX_ROW(row_id, i1) matrix_rows[(row_id)*ids->ne[0]*ids->ne[1] + (i1)]
-@@ -1564,7 +1599,22 @@ static void ggml_compute_forward_mul_mat_id(
+@@ -1564,7 +1600,32 @@ static void ggml_compute_forward_mul_mat_id(
      const int ith = params->ith;
      const int nth = params->nth;
  
@@ -92,14 +101,24 @@ index ab82e3d..007bf03 100644
 +    const struct ggml_tensor * ids_eff  = ids;
 +
 +    if (ith == 0) {
-+        g_moe_staged = (g_moe_materializer != NULL && g_moe_materializer(src0, ids)) ? 1 : 0;
++        g_moe_outcome = g_moe_materializer != NULL
++            ? g_moe_materializer(src0, ids)
++            : GGML_MOE_PASS_THROUGH;
++        g_moe_error_latched =
++            (g_moe_outcome == GGML_MOE_CANCELLED || g_moe_outcome == GGML_MOE_FAILED) ? 1 : 0;
 +    }
 +    ggml_barrier(params->threadpool);
-+    if (g_moe_staged) {
++    if (g_moe_error_latched) {
++        return;
++    }
++    if (g_moe_outcome == GGML_MOE_STAGED) {
 +        src0_eff = ggml_moe_staged_weights();
 +        ids_eff  = ggml_moe_staged_ids();
 +        if (src0_eff == NULL || ids_eff == NULL) {
-+            GGML_ABORT("MoE materializer returned incomplete staging");
++            if (ith == 0) {
++                g_moe_error_latched = 1;
++            }
++            return;
 +        }
 +    }
 +
@@ -107,7 +126,7 @@ index ab82e3d..007bf03 100644
  
      const bool src1_cont = ggml_is_contiguous(src1);
  
-@@ -1582,8 +1632,8 @@ static void ggml_compute_forward_mul_mat_id(
+@@ -1582,8 +1643,8 @@ static void ggml_compute_forward_mul_mat_id(
      GGML_ASSERT(nb2 <= nb3);
  
      // row groups
@@ -118,7 +137,7 @@ index ab82e3d..007bf03 100644
  
      void * wdata_cur = params->wdata;
  
-@@ -1594,8 +1644,8 @@ static void ggml_compute_forward_mul_mat_id(
+@@ -1594,8 +1655,8 @@ static void ggml_compute_forward_mul_mat_id(
      int64_t * matrix_row_counts = // [n_as]
          incr_ptr_aligned(&wdata_cur, n_as*sizeof(int64_t), sizeof(int64_t));
  
@@ -129,7 +148,7 @@ index ab82e3d..007bf03 100644
  
      char (*atomic_current_chunk)[CACHE_LINE_SIZE] = // [n_as]
          incr_ptr_aligned(&wdata_cur, CACHE_LINE_SIZE * n_as, CACHE_LINE_SIZE);
-@@ -1648,9 +1698,9 @@ static void ggml_compute_forward_mul_mat_id(
+@@ -1648,9 +1709,9 @@ static void ggml_compute_forward_mul_mat_id(
          memset(matrix_row_counts, 0, n_as*sizeof(int64_t));
  
          // group rows by src0 matrix
@@ -141,14 +160,14 @@ index ab82e3d..007bf03 100644
  
                  assert(i02 >= 0 && i02 < n_as);
  
-@@ -1676,11 +1726,13 @@ static void ggml_compute_forward_mul_mat_id(
+@@ -1676,11 +1737,13 @@ static void ggml_compute_forward_mul_mat_id(
          }
  
          // tiled takes over if profitable for this expert (see tiled.h)
 -        if (ggml_compute_forward_mul_mat_id_tiled(params, dst, cur_a, cne1, (const int32_t *) &MMID_MATRIX_ROW(cur_a, 0), tiled_scratch)) {
 +        // The tiled path reads dst->src[0] directly. When the materializer staged a
 +        // compact expert tensor, use the vec_dot path with src0_eff instead.
-+        if (!g_moe_staged && ggml_compute_forward_mul_mat_id_tiled(params, dst, cur_a, cne1, (const int32_t *) &MMID_MATRIX_ROW(cur_a, 0), tiled_scratch)) {
++        if (g_moe_outcome != GGML_MOE_STAGED && ggml_compute_forward_mul_mat_id_tiled(params, dst, cur_a, cne1, (const int32_t *) &MMID_MATRIX_ROW(cur_a, 0), tiled_scratch)) {
              continue;
          }
  
@@ -157,7 +176,7 @@ index ab82e3d..007bf03 100644
          const void * wdata = (src1->type == vec_dot_type) ? src1->data : params->wdata;
          const size_t row_size = ggml_row_size(vec_dot_type, ne10);
  
-@@ -2897,7 +2949,10 @@ struct ggml_cplan ggml_graph_plan(
+@@ -2897,7 +2960,10 @@ struct ggml_cplan ggml_graph_plan(
                          const struct ggml_tensor * src1 = node->src[1];
                          const struct ggml_tensor * ids = node->src[2];
                          const enum ggml_type vec_dot_type = type_traits_cpu[src0->type].vec_dot_type;
@@ -169,3 +188,14 @@ index ab82e3d..007bf03 100644
                          // src1
                          if (src1->type != vec_dot_type) {
                              cur += ggml_row_size(vec_dot_type, ggml_nelements(src1)) + sizeof(int64_t);
+@@ -3147,8 +3213,8 @@ static thread_ret_t ggml_graph_compute_thread(void * data) {
+             ggml_compute_forward(&params, node);
+         }
+ 
+-        if (state->ith == 0 && cplan->abort_callback &&
+-                cplan->abort_callback(cplan->abort_callback_data)) {
++        if (state->ith == 0 && (g_moe_error_latched ||
++                (cplan->abort_callback && cplan->abort_callback(cplan->abort_callback_data)))) {
+             atomic_store_explicit(&tp->abort, node_n + 1, memory_order_relaxed);
+             tp->ec    = GGML_STATUS_ABORTED;
+         }

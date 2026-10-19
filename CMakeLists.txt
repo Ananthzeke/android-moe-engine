@@ -40,6 +40,10 @@ add_library(ame_compare STATIC src/compare/compare.cpp)
 target_include_directories(ame_compare PUBLIC src/compare src/common)
 ame_project_target(ame_compare)
 
+add_library(ame_prefill STATIC src/runtime/prefill_plan.cpp)
+target_include_directories(ame_prefill PUBLIC src/runtime src/common)
+ame_project_target(ame_prefill)
+
 add_library(ame_run STATIC src/runtime/run_supervisor.cpp)
 target_include_directories(ame_run PUBLIC src/runtime src/common)
 ame_project_target(ame_run)
@@ -89,7 +93,7 @@ if(AME_INFERENCE_INTEGRATION)
   endfunction()
 
   add_executable(moe_stream_gate bench/moe_stream_gate.cpp)
-  target_link_libraries(moe_stream_gate PRIVATE ame_backend)
+  target_link_libraries(moe_stream_gate PRIVATE ame_backend ame_prefill)
   ame_inference_target(moe_stream_gate)
 
   add_executable(moe_stream_gate_broken bench/moe_stream_gate.cpp)
@@ -101,7 +105,7 @@ if(AME_INFERENCE_INTEGRATION)
   ame_inference_target(moe_kernel_gate)
 
   add_executable(llama_baseline_stream bench/llama_baseline.cpp)
-  target_link_libraries(llama_baseline_stream PRIVATE ame_backend)
+  target_link_libraries(llama_baseline_stream PRIVATE ame_backend ame_prefill)
   ame_inference_target(llama_baseline_stream)
 
   add_executable(manifest_gate bench/manifest_gate.cpp)
@@ -134,6 +138,11 @@ if(BUILD_TESTING)
   target_link_libraries(compare_test PRIVATE ame_compare)
   ame_project_target(compare_test)
   add_test(NAME compare COMMAND compare_test)
+
+  add_executable(prefill_plan_test tests/prefill_plan_test.cpp)
+  target_link_libraries(prefill_plan_test PRIVATE ame_prefill)
+  ame_project_target(prefill_plan_test)
+  add_test(NAME prefill_plan COMMAND prefill_plan_test)
 
   add_executable(run_supervisor_test tests/run_supervisor_test.cpp)
   target_link_libraries(run_supervisor_test PRIVATE ame_run)

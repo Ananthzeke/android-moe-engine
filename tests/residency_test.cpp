@@ -276,6 +276,23 @@ void check_external_arena() {
   std::filesystem::remove_all(directory);
 }
 
+void check_eintr_retry() {
+  const auto directory = temporary_directory();
+  const auto path = directory / "eintr.bin";
+  write_pattern(path, 1, 64, 64);
+  auto source = FileSource::open(path.string());
+  expect(source.ok(), "eintr source opens");
+  if (source.ok()) {
+    expect(::setenv("AME_IO_INJECT_EINTR_ONCE", "1", 1) == 0, "set eintr injection");
+    std::array<std::byte, 64> buffer{};
+    ame::Cancellation stop;
+    const auto result = source.value().read_exact(0, buffer, stop);
+    expect(result.ok(), "EINTR is retried");
+    expect(::unsetenv("AME_IO_INJECT_EINTR_ONCE") == 0, "clear eintr injection");
+  }
+  std::filesystem::remove_all(directory);
+}
+
 void check_injected_read_failure() {
   const auto directory = temporary_directory();
   const auto path = directory / "read_failure.bin";
@@ -356,6 +373,7 @@ int main() {
   check_layout();
   check_store();
   check_external_arena();
+  check_eintr_retry();
   check_injected_read_failure();
   check_sparse_large_file();
   return failures == 0 ? 0 : 1;

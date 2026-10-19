@@ -21,6 +21,8 @@ struct MoeStreamStats {
   bool manifest_identity_checked{false};
   std::string manifest_layout_hash;
   std::string declared_artifact_sha256;
+  bool failed{false};
+  bool cancelled{false};
   std::string error;
 };
 
@@ -33,6 +35,9 @@ void uninstall_moe_stream();
 // Request cancellation of the active materializer. Reads observe it between chunks
 // and expert slots; the inference owner still drains the current backend call.
 void request_moe_stream_cancel();
+[[nodiscard]] bool moe_stream_failed();
+[[nodiscard]] bool moe_stream_cancelled();
+[[nodiscard]] std::string moe_stream_error();
 [[nodiscard]] MoeStreamStats moe_stream_stats();
 
 }  // namespace ame::backend

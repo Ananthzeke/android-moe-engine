@@ -30,6 +30,8 @@
 
 #include "llama.h"
 #include "moe_stream.hpp"
+#include "prefill_plan.hpp"
+#include "store.hpp"
 
 namespace {
 
@@ -502,6 +504,34 @@ bool emit_status(const Options& options, const char* status, const char* reason,
   return write_text(options.output, writer.text() + "\n", error);
 }
 
+std::optional<std::uint32_t> model_u32_meta(const llama_model* model,
+                                                   std::string_view suffix) {
+  const int32_t count = llama_model_meta_count(model);
+  for (int32_t index = 0; index < count; ++index) {
+    char key[256] = {};
+    if (llama_model_meta_key_by_index(model, index, key, sizeof(key)) < 0) {
+      continue;
+    }
+    const std::string_view name(key);
+    if (name.size() < suffix.size() || name.substr(name.size() - suffix.size()) != suffix) {
+      continue;
+    }
+    char value[64] = {};
+    if (llama_model_meta_val_str_by_index(model, index, value, sizeof(value)) < 0) {
+      return std::nullopt;
+    }
+    std::uint64_t parsed = 0;
+    const std::string_view text(value);
+    const auto result = std::from_chars(text.data(), text.data() + text.size(), parsed);
+    if (result.ec != std::errc{} || result.ptr != text.data() + text.size() ||
+        parsed == 0 || parsed > UINT32_MAX) {
+      return std::nullopt;
+    }
+    return static_cast<std::uint32_t>(parsed);
+  }
+  return std::nullopt;
+}
+
 std::optional<std::string> read_chat_prompt(const llama_model* model, const std::string& prompt,
                                             std::string& error) {
   const char* chat_template = llama_model_chat_template(model, nullptr);
@@ -640,15 +670,65 @@ int main(int argc, char* argv[]) {
   }
   const Clock::time_point model_loaded = Clock::now();
 
+  std::uint32_t expert_count = 0;
+  std::uint32_t expert_used = 0;
+  std::uint32_t prefill_unit = options.batch_size == 0 ? options.context : options.batch_size;
+  if (options.stream) {
+    const auto experts = model_u32_meta(model, ".expert_count");
+    const auto used = model_u32_meta(model, ".expert_used_count");
+    if (!experts.has_value() || !used.has_value()) {
+      std::cerr << "streaming requires scalar expert_count and expert_used_count metadata\n";
+      (void)emit_status(options, "refused", "expert_metadata_missing",
+                        "model does not expose scalar expert_count/expert_used_count");
+      llama_model_free(model);
+      llama_backend_free();
+      return 0;
+    }
+    expert_count = *experts;
+    expert_used = *used;
+    const auto plan = ame::prefill::make_plan(
+        expert_count, expert_used, options.moe_slots,
+        options.batch_size == 0 ? options.context : options.batch_size,
+        ame::residency::kMaxLeaseExperts);
+    if (!plan.ok()) {
+      const char* reason = "prefill_capacity";
+      switch (plan.error()) {
+        case ame::prefill::PlanError::InvalidExpertCount:
+        case ame::prefill::PlanError::InvalidExpertUsed:
+          reason = "expert_metadata_invalid";
+          break;
+        case ame::prefill::PlanError::InvalidSlots:
+        case ame::prefill::PlanError::InvalidBatch:
+          reason = "invalid_prefill_options";
+          break;
+        case ame::prefill::PlanError::Capacity:
+          reason = "slots_below_top_k";
+          break;
+        case ame::prefill::PlanError::LeaseCapacity:
+          reason = "lease_capacity";
+          break;
+      }
+      (void)emit_status(options, "refused", reason,
+                        "no supported prefill plan for this expert/slot configuration");
+      llama_model_free(model);
+      llama_backend_free();
+      return 0;
+    }
+    prefill_unit = plan.value().unit_tokens;
+  }
+
   llama_context_params context_params = llama_context_default_params();
   context_params.n_ctx = options.context;
   context_params.n_batch = options.batch_size == 0 ? options.context : options.batch_size;
-  context_params.n_ubatch = context_params.n_batch;
+  context_params.n_ubatch = prefill_unit;
   context_params.n_threads = static_cast<int32_t>(options.threads);
   context_params.n_threads_batch = static_cast<int32_t>(options.threads);
   context_params.no_perf = true;
   context_params.moe_cache_size = 0;
-  context_params.abort_callback = [](void*) -> bool { return g_cancelled.load(); };
+  context_params.abort_callback = [](void*) -> bool {
+    return g_cancelled.load() || ame::backend::moe_stream_failed() ||
+           ame::backend::moe_stream_cancelled();
+  };
   context_params.abort_callback_data = nullptr;
 
   llama_context* context = llama_init_from_model(model, context_params);
@@ -660,6 +740,15 @@ int main(int argc, char* argv[]) {
     return 1;
   }
   const Clock::time_point context_ready = Clock::now();
+  if (options.stream && llama_n_ubatch(context) > prefill_unit) {
+    std::cerr << "backend rounded n_ubatch above the prefill bound\n";
+    (void)emit_status(options, "refused", "prefill_rounding",
+                      "backend effective microbatch exceeds the conservative union bound");
+    llama_free(context);
+    llama_model_free(model);
+    llama_backend_free();
+    return 0;
+  }
   const Sample after_load = take_sample();
 
   char description[256] = {};
@@ -723,6 +812,20 @@ int main(int argc, char* argv[]) {
   json.bool_value(chat_applied);
   json.key("gpu_layers");
   json.unsigned_value(0);
+  json.key("expert_count");
+  if (options.stream) {
+    json.unsigned_value(expert_count);
+  } else {
+    json.null_value();
+  }
+  json.key("expert_used_count");
+  if (options.stream) {
+    json.unsigned_value(expert_used);
+  } else {
+    json.null_value();
+  }
+  json.key("prefill_unit_tokens");
+  json.unsigned_value(prefill_unit);
   json.end_object();
 
   json.key("prompt");
@@ -807,7 +910,7 @@ int main(int argc, char* argv[]) {
   for (std::size_t offset = 0; offset < prompt_tokens.size();) {
     const std::size_t remaining = prompt_tokens.size() - offset;
     const std::size_t chunk =
-        std::min<std::size_t>(remaining, static_cast<std::size_t>(context_params.n_batch));
+        std::min<std::size_t>(remaining, static_cast<std::size_t>(prefill_unit));
     std::vector<llama_token> piece(prompt_tokens.begin() + static_cast<std::ptrdiff_t>(offset),
                                    prompt_tokens.begin() +
                                        static_cast<std::ptrdiff_t>(offset + chunk));
@@ -819,13 +922,21 @@ int main(int argc, char* argv[]) {
   }
   const Clock::time_point prefill_end = Clock::now();
   if (!prefill_ok) {
-    (void)emit_status(options, g_cancelled.load() ? "cancelled" : "error",
-                      g_cancelled.load() ? "cancelled" : "error", "prefill decode failed");
+    const bool stream_failed = options.stream && ame::backend::moe_stream_failed();
+    const bool stream_cancelled = options.stream && ame::backend::moe_stream_cancelled();
+    const bool cancelled = g_cancelled.load() || stream_cancelled;
+    const std::string error = stream_failed ? ame::backend::moe_stream_error()
+                                            : (cancelled ? "cancelled" : "prefill decode failed");
+    (void)emit_status(options, stream_failed ? "failed" : (cancelled ? "cancelled" : "error"),
+                      stream_failed ? "materialization_failure"
+                                    : (cancelled ? "cancelled" : "error"),
+                      error);
+    std::cerr << error << '\n';
     llama_batch_free(batch);
     llama_free(context);
     llama_model_free(model);
     llama_backend_free();
-    return g_cancelled.load() ? 0 : 1;
+    return stream_failed ? 1 : (cancelled ? 0 : 1);
   }
   const Sample after_prefill = take_sample();
 
@@ -850,7 +961,12 @@ int main(int argc, char* argv[]) {
   bool decode_failed = false;
 
   while (generated.size() < options.max_new_tokens) {
-    if (g_cancelled.load()) {
+    if (options.stream && ame::backend::moe_stream_failed()) {
+      decode_failed = true;
+      finish_reason = "materialization_failure";
+      break;
+    }
+    if (g_cancelled.load() || (options.stream && ame::backend::moe_stream_cancelled())) {
       finish_reason = "cancelled";
       break;
     }
@@ -886,7 +1002,9 @@ int main(int argc, char* argv[]) {
     std::vector<llama_token> next{token};
     if (!decode_chunk(next, static_cast<int32_t>(prompt_count + generated.size() - 1))) {
       decode_failed = true;
-      finish_reason = g_cancelled.load() ? "cancelled" : "error";
+      finish_reason = (options.stream && ame::backend::moe_stream_failed())
+                          ? "materialization_failure"
+                          : (g_cancelled.load() ? "cancelled" : "error");
       break;
     }
   }
@@ -982,17 +1100,22 @@ int main(int argc, char* argv[]) {
   json.unsigned_value(options.cancel_after_ms);
   json.end_object();
 
+  const bool stream_failed = options.stream && ame::backend::moe_stream_failed();
+  const bool stream_cancelled = options.stream && ame::backend::moe_stream_cancelled();
+  const bool cancelled = g_cancelled.load() || stream_cancelled;
   json.key("status");
-  if (g_cancelled.load()) {
+  if (stream_failed) {
+    json.string_value("failed");
+  } else if (cancelled) {
     json.string_value("cancelled");
   } else if (decode_failed) {
     json.string_value("error");
   } else {
     json.string_value("ok");
   }
-  if (decode_failed && !g_cancelled.load()) {
+  if (stream_failed || (decode_failed && !cancelled)) {
     json.key("error");
-    json.string_value("decode failed");
+    json.string_value(stream_failed ? ame::backend::moe_stream_error() : "decode failed");
   }
   json.key("finish_reason");
   json.string_value(finish_reason);
@@ -1036,6 +1159,10 @@ int main(int argc, char* argv[]) {
   json.string_value(stream_stats.manifest_layout_hash);
   json.key("declared_artifact_sha256");
   json.string_value(stream_stats.declared_artifact_sha256);
+  json.key("failed");
+  json.bool_value(stream_stats.failed);
+  json.key("cancelled");
+  json.bool_value(stream_stats.cancelled);
   json.end_object();
 
   json.key("unavailable");
@@ -1079,7 +1206,7 @@ int main(int argc, char* argv[]) {
   llama_model_free(model);
   llama_backend_free();
 
-  if (decode_failed && !g_cancelled.load()) {
+  if (stream_failed || (decode_failed && !cancelled)) {
     return 1;
   }
   return 0;

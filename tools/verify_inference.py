@@ -87,6 +87,59 @@ def gate_stream(binary: Path, workdir: Path) -> dict[str, object]:
     return payload
 
 
+def gate_faults(binary: Path, workdir: Path) -> list[dict[str, object]]:
+    checks: list[dict[str, object]] = []
+    cases = []
+    for threads in (1, 2, 4):
+        for fault in ("none", "read", "cancel", "capacity", "eof"):
+            cases.append(("fault", fault, threads, 4, 4))
+    cases.extend([
+        ("capacity-minus-one", "none", 4, 4, 3),
+        ("capacity-at", "none", 4, 4, 4),
+        ("slots-below-top-k", "capacity", 4, 7, 8),
+        ("slots-at-top-k", "none", 4, 8, 8),
+        ("slots-above-top-k", "none", 4, 9, 8),
+    ])
+    for name, fault, threads, slots, selected in cases:
+        case_dir = workdir / f"{name}_{fault}_{threads}_{slots}_{selected}"
+        case_dir.mkdir(parents=True, exist_ok=True)
+        command = [str(binary), "--workdir", str(case_dir), "--fault", fault,
+                   "--threads", str(threads), "--slots", str(slots),
+                   "--selected", str(selected)]
+        result = run(command, timeout=300, check=False)
+        try:
+            payload = json.loads(result.stdout)
+        except json.JSONDecodeError as error:
+            raise RuntimeError(f"fault case {name} returned non-JSON: {result.stdout}\n"
+                               f"stderr: {result.stderr}") from error
+        if result.returncode != 0 or payload.get("passed") is not True:
+            raise RuntimeError(f"fault case {name} threads={threads} slots={slots} "
+                               f"selected={selected} failed: {payload} stderr={result.stderr}")
+        checks.append({"name": name, "fault": fault, "threads": threads,
+                       "slots": payload.get("slots"), "selected": selected,
+                       "candidate_status": payload.get("candidate_status"),
+                       "failed": payload.get("failed"), "cancelled": payload.get("cancelled"),
+                       "identical": payload.get("identical")})
+        if fault != "none":
+            fresh_selected = min(selected, slots)
+            fresh_dir = workdir / f"fresh_after_{name}_{threads}_{slots}"
+            fresh_dir.mkdir(parents=True, exist_ok=True)
+            fresh = run([str(binary), "--workdir", str(fresh_dir), "--fault", "none",
+                         "--threads", str(threads), "--slots", str(slots),
+                         "--selected", str(fresh_selected)], timeout=300, check=False)
+            fresh_payload = json.loads(fresh.stdout)
+            if fresh.returncode != 0 or fresh_payload.get("passed") is not True:
+                raise RuntimeError(f"fresh request after {name} failed: {fresh_payload}")
+            checks.append({"name": f"fresh_after_{name}", "fault": "none",
+                           "threads": threads, "slots": fresh_payload.get("slots"),
+                           "selected": fresh_selected,
+                           "candidate_status": fresh_payload.get("candidate_status"),
+                           "failed": fresh_payload.get("failed"),
+                           "cancelled": fresh_payload.get("cancelled"),
+                           "identical": fresh_payload.get("identical")})
+    return checks
+
+
 def gate_broken(binary: Path, workdir: Path) -> dict[str, object]:
     workdir.mkdir(parents=True, exist_ok=True)
     result = run([str(binary), "--workdir", str(workdir)], timeout=300, check=False)
@@ -172,6 +225,8 @@ def main() -> int:
                                                         args.llama_libs, build_dir)}
             record["stream"] = gate_stream(build_dir / "moe_stream_gate",
                                            build_dir / "gate-stream")
+            record["faults"] = gate_faults(build_dir / "moe_stream_gate",
+                                           build_dir / "gate-faults")
             record["broken"] = gate_broken(build_dir / "moe_stream_gate_broken",
                                            build_dir / "gate-broken")
             record["kernel"] = gate_kernel(build_dir / "moe_kernel_gate",

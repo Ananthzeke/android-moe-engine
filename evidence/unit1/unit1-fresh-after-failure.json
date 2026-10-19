@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-10-19T05:06:39Z",
+  "run": {
+    "id": "",
+    "tag": "host",
+    "backend": {
+      "name": "llama.cpp",
+      "version": "0.7.0-dev",
+      "commit": "",
+      "binary_sha256": null
+    }
+  },
+  "model": {
+    "path": "/media/ananth/17AB9D0651C6CC1F/ame-tools/models/qwen15moe/Qwen1.5-MoE-A2.7B_q4_k_m.gguf",
+    "artifact_sha256": null,
+    "file_bytes": 9490338464
+  },
+  "model_info": {
+    "description": "qwen2moe A2.7B Q4_K - Medium",
+    "parameters": 14315784192,
+    "tensor_bytes": 9484384256,
+    "n_ctx_train": 8192,
+    "n_embd": 2048,
+    "n_layer": 24
+  },
+  "options": {
+    "context_tokens": 512,
+    "max_new_tokens": 1,
+    "threads": 4,
+    "batch_size": 64,
+    "seed": 1234,
+    "temperature": 0,
+    "top_k": 40,
+    "top_p": 0.95,
+    "mmap": true,
+    "chat_template": false,
+    "gpu_layers": 0,
+    "expert_count": 60,
+    "expert_used_count": 4,
+    "prefill_unit_tokens": 15
+  },
+  "prompt": {
+    "text": "The capital of France is"
+  },
+  "prompt_token_count": 5,
+  "prompt_token_ids": [
+    785,
+    6722,
+    315,
+    9625,
+    374
+  ],
+  "output": {
+    "token_ids": [
+      32671
+    ],
+    "text": " ______",
+    "tokens": 1,
+    "finish_reason": "limit"
+  },
+  "timing": {
+    "load_seconds": 0.916552472,
+    "model_load_seconds": 0.706277068,
+    "context_init_seconds": 0.210275404,
+    "tokenize_seconds": 0.000444467,
+    "prefill_seconds": 8.853782521,
+    "request_ttft_seconds": 8.866033768,
+    "decode_seconds": 0,
+    "decode_tokens_per_second": null,
+    "generate_seconds": 8.866037034,
+    "wall_seconds": 9.786991129
+  },
+  "memory": {
+    "rss_kib_after_load": 155324,
+    "rss_kib_after_prefill": 1363404,
+    "rss_kib_end": 1365472,
+    "vm_hwm_kib_end": 1365472,
+    "threads_end": 1,
+    "mem_available_kib_after_load": 771072,
+    "mem_available_kib_after_prefill": 1612876,
+    "mem_available_kib_end": 1548256,
+    "project_owned_bytes": null,
+    "scope": "process RSS/VmHWM samples and system MemAvailable; backend allocation coverage not instrumented"
+  },
+  "cancellation": {
+    "requested": false,
+    "after_ms": 0
+  },
+  "status": "ok",
+  "finish_reason": "limit",
+  "streaming": {
+    "installed": true,
+    "manifest": "evidence/runtime/qwen15-moe-a27b-q4km.manifest",
+    "slots": 64,
+    "arena_bytes": 426770432,
+    "materialize_calls": 72,
+    "tensor_switches": 72,
+    "reads": 1083,
+    "read_bytes": 2071674880,
+    "read_seconds": 5.0618135709999965,
+    "hits": 0,
+    "misses": 1083,
+    "evictions": 891,
+    "max_union": 18,
+    "manifest_version": 1,
+    "manifest_identity_checked": false,
+    "manifest_layout_hash": "2dbdda21fe4ab6ec",
+    "declared_artifact_sha256": "",
+    "failed": false,
+    "cancelled": false
+  },
+  "unavailable": [
+    {
+      "field": "model.artifact_sha256",
+      "reason": "not_supplied"
+    },
+    {
+      "field": "run.binary_sha256",
+      "reason": "not_supplied"
+    },
+    {
+      "field": "run.backend.commit",
+      "reason": "not_supplied"
+    },
+    {
+      "field": "memory.project_owned_bytes",
+      "reason": "backend_allocation_coverage_not_instrumented"
+    }
+  ]
+}

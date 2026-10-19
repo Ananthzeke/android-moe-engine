@@ -76,11 +76,18 @@ std::ofstream g_trace;
 std::uint64_t g_trace_call = 0;
 ame::Cancellation g_cancellation;
 
-[[noreturn]] void fail(const std::string& message) {
-  g_stats.error = message;
-  std::fprintf(stderr, "ame-moe: %s\n", message.c_str());
+int fail_outcome(std::string message) {
+  g_stats.error = std::move(message);
+  g_stats.failed = true;
+  std::fprintf(stderr, "ame-moe: %s\n", g_stats.error.c_str());
   std::fflush(stderr);
-  std::abort();
+  return GGML_MOE_FAILED;
+}
+
+int cancel_outcome(std::string message) {
+  g_stats.error = std::move(message);
+  g_stats.cancelled = true;
+  return GGML_MOE_CANCELLED;
 }
 
 bool manifest_error(std::string message) {
@@ -225,19 +232,21 @@ bool read_manifest(const std::string& path, std::uint64_t model_bytes) {
   return !g_specs.empty();
 }
 
-AlignedArena& ensure_arena(std::uint64_t expert_bytes) {
+AlignedArena* ensure_arena(std::uint64_t expert_bytes) {
   auto found = g_arenas.find(expert_bytes);
   if (found != g_arenas.end()) {
-    return found->second;
+    return &found->second;
   }
   const std::uint64_t bytes = expert_bytes * g_slots;
   if (bytes > g_arena_limit || g_stats.arena_bytes > g_arena_limit - bytes) {
-    fail("arena request " + std::to_string(bytes) + " exceeds limit " +
-         std::to_string(g_arena_limit));
+    (void)fail_outcome("arena request " + std::to_string(bytes) + " exceeds limit " +
+                       std::to_string(g_arena_limit));
+    return nullptr;
   }
   void* raw = nullptr;
   if (::posix_memalign(&raw, 64, static_cast<std::size_t>(bytes)) != 0 || raw == nullptr) {
-    fail("arena allocation failed");
+    (void)fail_outcome("arena allocation failed");
+    return nullptr;
   }
   AlignedArena arena;
   arena.memory = std::unique_ptr<std::byte, void (*)(void*)>(
@@ -246,62 +255,71 @@ AlignedArena& ensure_arena(std::uint64_t expert_bytes) {
   g_stats.arena_bytes += bytes;
   auto [inserted, ok] = g_arenas.emplace(expert_bytes, std::move(arena));
   (void)ok;
-  return inserted->second;
+  return &inserted->second;
 }
 
-Cache& cache_for(std::uint64_t expert_bytes) {
+Cache* cache_for(std::uint64_t expert_bytes) {
   auto found = g_caches.find(expert_bytes);
   if (found != g_caches.end()) {
-    return found->second;
+    return &found->second;
   }
-  AlignedArena& arena = ensure_arena(expert_bytes);
+  AlignedArena* arena = ensure_arena(expert_bytes);
+  if (arena == nullptr) {
+    return nullptr;
+  }
   auto source = FileSource::open(g_model_path);
   if (!source.ok()) {
-    fail("cannot open model for cache");
+    (void)fail_outcome("cannot open model for cache");
+    return nullptr;
   }
   auto entries = g_entries_by_size.find(expert_bytes);
   if (entries == g_entries_by_size.end() || entries->second.empty()) {
-    fail("no entries for cache size class");
+    (void)fail_outcome("no entries for cache size class");
+    return nullptr;
   }
   StoreOptions options;
   options.slot_count = g_slots;
   options.alignment = 64;
-  options.external_arena = arena.view;
+  options.external_arena = arena->view;
   auto store = Store::create(std::move(source).value(), entries->second, options);
   if (!store.ok()) {
-    fail("store creation failed for cache size class");
+    (void)fail_outcome("store creation failed for cache size class");
+    return nullptr;
   }
   Cache cache;
   cache.store = std::move(store).value();
-  cache.arena = arena.view;
+  cache.arena = arena->view;
   auto [inserted, ok] = g_caches.emplace(expert_bytes, std::move(cache));
   (void)ok;
-  return inserted->second;
+  return &inserted->second;
 }
 
-bool materialize(const ggml_tensor* weights, const ggml_tensor* ids) {
+int materialize(const ggml_tensor* weights, const ggml_tensor* ids) {
   if (!g_installed || weights == nullptr || ids == nullptr || weights->name[0] == '\0' ||
       ids->data == nullptr) {
-    return false;
+    return GGML_MOE_PASS_THROUGH;
+  }
+  if (g_cancellation.requested()) {
+    return cancel_outcome("cancelled before materialization");
   }
   const auto found = g_specs.find(weights->name);
   if (found == g_specs.end()) {
     const std::string unindexed(weights->name);
     if (unindexed.find("_exps") != std::string::npos ||
         unindexed.find("expert") != std::string::npos) {
-      fail("unindexed expert tensor: " + unindexed);
+      return fail_outcome("unindexed expert tensor: " + unindexed);
     }
-    return false;
+    return GGML_MOE_PASS_THROUGH;
   }
   const TensorSpec& spec = found->second;
   if (ids->type != GGML_TYPE_I32 || weights->type != static_cast<ggml_type>(spec.type_id) ||
       weights->ne[2] != spec.n_expert || weights->nb[2] != spec.expert_bytes) {
-    fail("tensor metadata mismatch for " + spec.name);
+    return fail_outcome("tensor metadata mismatch for " + spec.name);
   }
   const int64_t n_ids = ids->ne[0];
   const int64_t tokens = ids->ne[1];
   if (n_ids <= 0 || tokens <= 0 || n_ids * tokens > 1048576) {
-    fail("invalid ids shape for " + spec.name);
+    return fail_outcome("invalid ids shape for " + spec.name);
   }
   const auto* ids_bytes = static_cast<const char*>(ids->data);
   std::array<ExpertKey, ame::residency::kMaxLeaseExperts> unique{};
@@ -313,7 +331,7 @@ bool materialize(const ggml_tensor* weights, const ggml_tensor* ids) {
                                     static_cast<std::size_t>(rank) * ids->nb[0];
       std::memcpy(&expert, ids_bytes + id_offset, sizeof(expert));
       if (expert < 0 || static_cast<std::uint32_t>(expert) >= spec.n_expert) {
-        fail("expert id outside tensor: " + std::to_string(expert));
+        return fail_outcome("expert id outside tensor: " + std::to_string(expert));
       }
       const ExpertKey key{spec.table_id, static_cast<std::uint32_t>(expert)};
       bool seen = false;
@@ -327,14 +345,14 @@ bool materialize(const ggml_tensor* weights, const ggml_tensor* ids) {
         continue;
       }
       if (unique_count >= ame::residency::kMaxLeaseExperts) {
-        fail("expert union exceeds lease capacity");
+        return fail_outcome("expert union exceeds lease capacity");
       }
       unique[unique_count++] = key;
     }
   }
   if (unique_count > g_slots) {
-    fail("expert union " + std::to_string(unique_count) + " exceeds " + std::to_string(g_slots) +
-         " slots for " + spec.name);
+    return fail_outcome("expert union " + std::to_string(unique_count) + " exceeds " +
+                        std::to_string(g_slots) + " slots for " + spec.name);
   }
   g_stats.max_union = std::max<std::uint64_t>(g_stats.max_union, unique_count);
   if (g_trace.is_open()) {
@@ -347,21 +365,32 @@ bool materialize(const ggml_tensor* weights, const ggml_tensor* ids) {
   }
   ++g_trace_call;
 
-  Cache& cache = cache_for(spec.expert_bytes);
-  cache.lease = Lease{};
-  auto lease =
-      cache.store->acquire(std::span<const ExpertKey>(unique.data(), unique_count), g_cancellation);
+  Cache* cache = cache_for(spec.expert_bytes);
+  if (cache == nullptr) {
+    return GGML_MOE_FAILED;
+  }
+  cache->lease = Lease{};
+  auto lease = cache->store->acquire(std::span<const ExpertKey>(unique.data(), unique_count),
+                                     g_cancellation);
   if (!lease.ok()) {
     if (lease.error() == ame::residency::StoreError::Cancelled || g_cancellation.requested()) {
-      fail("cancelled during materialization: " + spec.name);
+      return cancel_outcome("cancelled during materialization: " + spec.name);
     }
-    fail("store acquire failed for " + spec.name);
+    return fail_outcome("store acquire failed for " + spec.name);
   }
-  cache.lease = std::move(lease).value();
+  cache->lease = std::move(lease).value();
 #ifdef AME_TEST_BREAK_MATERIALIZER
-  // Deliberately corrupt one staged byte for the integration negative test.
-  if (!cache.arena.empty()) {
-    cache.arena[0] ^= std::byte{0xFF};
+  // Deliberately corrupt one staged byte of the first selected expert.
+  if (unique_count != 0) {
+    const auto broken_slot = cache->lease.slot_index(unique[0]);
+    if (broken_slot.has_value()) {
+      const std::size_t offset =
+          static_cast<std::size_t>(*broken_slot) * static_cast<std::size_t>(spec.expert_bytes);
+      if (offset < cache->arena.size()) {
+        std::memset(cache->arena.data() + offset, 0xFF,
+                    static_cast<std::size_t>(spec.expert_bytes));
+      }
+    }
   }
 #endif
 
@@ -373,16 +402,17 @@ bool materialize(const ggml_tensor* weights, const ggml_tensor* ids) {
                                     static_cast<std::size_t>(rank) * ids->nb[0];
       std::memcpy(&expert, ids_bytes + id_offset, sizeof(expert));
       const auto slot =
-          cache.lease.slot_index(ExpertKey{spec.table_id, static_cast<std::uint32_t>(expert)});
+          cache->lease.slot_index(ExpertKey{spec.table_id, static_cast<std::uint32_t>(expert)});
       if (!slot.has_value()) {
-        fail("remap failed for expert " + std::to_string(expert));
+        cache->lease = Lease{};
+        return fail_outcome("remap failed for expert " + std::to_string(expert));
       }
       g_remapped[static_cast<std::size_t>(token * n_ids + rank)] = static_cast<std::int32_t>(*slot);
     }
   }
 
   g_staged_weights = *weights;
-  g_staged_weights.data = cache.arena.data();
+  g_staged_weights.data = cache->arena.data();
   g_staged_weights.ne[2] = g_slots;
   g_staged_weights.nb[2] = spec.expert_bytes;
   g_staged_weights.nb[3] = spec.expert_bytes * g_slots;
@@ -395,7 +425,7 @@ bool materialize(const ggml_tensor* weights, const ggml_tensor* ids) {
     g_last_tensor = spec.name;
   }
   ++g_stats.materialize_calls;
-  return true;
+  return GGML_MOE_STAGED;
 }
 
 }  // namespace
@@ -451,6 +481,12 @@ bool install_moe_stream(const std::string& model_path, const std::string& manife
 }
 
 void request_moe_stream_cancel() { g_cancellation.request(); }
+
+bool moe_stream_failed() { return g_stats.failed; }
+
+bool moe_stream_cancelled() { return g_stats.cancelled; }
+
+std::string moe_stream_error() { return g_stats.error; }
 
 void uninstall_moe_stream() {
   ggml_moe_set_materializer(nullptr);

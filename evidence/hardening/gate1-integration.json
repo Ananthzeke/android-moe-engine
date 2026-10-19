@@ -3,8 +3,8 @@
   "gate": "gate1_inference_integration",
   "llama": {
     "head": "ff5a23376725e5a889fa0bfb987b7541dc304da0",
-    "diff_sha256": "8f1c29adbfcef088d3c8395c5c81ba875c569496f43d305fc7d96c4642a175b3",
-    "patch_sha256": "8f1c29adbfcef088d3c8395c5c81ba875c569496f43d305fc7d96c4642a175b3",
+    "diff_sha256": "8fa3d843eb2ca4ec7c1032ab8bfd80e59dcb4e901c152e2090ff09a201fd62df",
+    "patch_sha256": "8fa3d843eb2ca4ec7c1032ab8bfd80e59dcb4e901c152e2090ff09a201fd62df",
     "source": "/media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp"
   },
   "libs": "/media/ananth/17AB9D0651C6CC1F/ame-tools/build/llama-host",
@@ -14,36 +14,395 @@
         "configure_returncode": 0,
         "build_returncode": 0,
         "configure_tail": "-- The CXX compiler identification is GNU 11.4.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Configuring done (0.3s)\n-- Generating done (0.0s)\n-- Build files have been written to: /home/ananth/Documents/ChatGPT/Custom OS/build/inference-debug\n",
-        "build_tail": "[1/20] Building CXX object CMakeFiles/ame_model.dir/src/model/file_extent.cpp.o\n[2/20] Building CXX object CMakeFiles/ame_model.dir/src/model/expert_layout.cpp.o\n[3/20] Linking CXX static library libame_model.a\n[4/20] Building CXX object CMakeFiles/manifest_gate.dir/bench/manifest_gate.cpp.o\n[5/20] Building CXX object CMakeFiles/ame_residency.dir/src/residency/file_source.cpp.o\n[6/20] Building CXX object CMakeFiles/moe_stream_gate.dir/bench/moe_stream_gate.cpp.o\n[7/20] Building CXX object CMakeFiles/moe_stream_gate_broken.dir/bench/moe_stream_gate.cpp.o\n[8/20] Building CXX object CMakeFiles/ame_residency.dir/src/residency/store.cpp.o\n[9/20] Linking CXX static library libame_residency.a\n[10/20] Building CXX object CMakeFiles/moe_kernel_gate.dir/bench/moe_kernel_gate.cpp.o\n[11/20] Building CXX object CMakeFiles/llama_baseline_stream.dir/bench/llama_baseline.cpp.o\n[12/20] Linking CXX executable moe_kernel_gate\n[13/20] Building CXX object CMakeFiles/ame_backend_broken.dir/src/backend/moe_stream.cpp.o\n[14/20] Linking CXX static library libame_backend_broken.a\n[15/20] Building CXX object CMakeFiles/ame_backend.dir/src/backend/moe_stream.cpp.o\n[16/20] Linking CXX static library libame_backend.a\n[17/20] Linking CXX executable moe_stream_gate_broken\n[18/20] Linking CXX executable manifest_gate\n[19/20] Linking CXX executable moe_stream_gate\n[20/20] Linking CXX executable llama_baseline_stream\n"
+        "build_tail": "[1/22] Building CXX object CMakeFiles/ame_model.dir/src/model/file_extent.cpp.o\n[2/22] Building CXX object CMakeFiles/ame_model.dir/src/model/expert_layout.cpp.o\n[3/22] Linking CXX static library libame_model.a\n[4/22] Building CXX object CMakeFiles/manifest_gate.dir/bench/manifest_gate.cpp.o\n[5/22] Building CXX object CMakeFiles/ame_prefill.dir/src/runtime/prefill_plan.cpp.o\n[6/22] Linking CXX static library libame_prefill.a\n[7/22] Building CXX object CMakeFiles/ame_residency.dir/src/residency/file_source.cpp.o\n[8/22] Building CXX object CMakeFiles/moe_stream_gate.dir/bench/moe_stream_gate.cpp.o\n[9/22] Building CXX object CMakeFiles/ame_residency.dir/src/residency/store.cpp.o\n[10/22] Linking CXX static library libame_residency.a\n[11/22] Building CXX object CMakeFiles/moe_stream_gate_broken.dir/bench/moe_stream_gate.cpp.o\n[12/22] Building CXX object CMakeFiles/moe_kernel_gate.dir/bench/moe_kernel_gate.cpp.o\n[13/22] Building CXX object CMakeFiles/ame_backend_broken.dir/src/backend/moe_stream.cpp.o\n[14/22] Building CXX object CMakeFiles/ame_backend.dir/src/backend/moe_stream.cpp.o\n[15/22] Linking CXX static library libame_backend_broken.a\n[16/22] Linking CXX static library libame_backend.a\n[17/22] Building CXX object CMakeFiles/llama_baseline_stream.dir/bench/llama_baseline.cpp.o\n[18/22] Linking CXX executable moe_kernel_gate\n[19/22] Linking CXX executable moe_stream_gate_broken\n[20/22] Linking CXX executable moe_stream_gate\n[21/22] Linking CXX executable manifest_gate\n[22/22] Linking CXX executable llama_baseline_stream\n"
       },
       "stream": {
+        "fault": "none",
+        "threads": 4,
+        "slots": 4,
+        "selected": 4,
+        "candidate_status": 0,
         "identical": true,
-        "reference_values": 128,
+        "failed": false,
+        "cancelled": false,
+        "error": "",
         "materialize_calls": 1,
-        "tensor_switches": 1,
         "reads": 4,
         "read_bytes": 8192,
         "arena_bytes": 8192,
-        "slots": 4,
         "mismatched": 0,
         "max_difference": 0,
-        "reference_first": [
-          1.78826,
-          4.12679,
-          6.46532,
-          3.6433
-        ],
-        "candidate_first": [
-          1.78826,
-          4.12679,
-          6.46532,
-          3.6433
-        ]
+        "passed": true
       },
+      "faults": [
+        {
+          "name": "fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "read",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "cancel",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": false,
+          "cancelled": true,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "capacity",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "eof",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "read",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "cancel",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": false,
+          "cancelled": true,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "capacity",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "eof",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "read",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "cancel",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": false,
+          "cancelled": true,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "capacity",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "eof",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "capacity-minus-one",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 3,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "capacity-at",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "slots-below-top-k",
+          "fault": "capacity",
+          "threads": 4,
+          "slots": 7,
+          "selected": 8,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_slots-below-top-k",
+          "fault": "none",
+          "threads": 4,
+          "slots": 7,
+          "selected": 7,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "slots-at-top-k",
+          "fault": "none",
+          "threads": 4,
+          "slots": 8,
+          "selected": 8,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "slots-above-top-k",
+          "fault": "none",
+          "threads": 4,
+          "slots": 9,
+          "selected": 8,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        }
+      ],
       "broken": {
         "exit_code": 1,
         "identical": false,
-        "mismatched": 1
+        "mismatched": 32
       },
       "kernel": {
         "dimensions": {
@@ -74,37 +433,396 @@
       "build": {
         "configure_returncode": 0,
         "build_returncode": 0,
-        "configure_tail": "-- The CXX compiler identification is GNU 11.4.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Configuring done (0.3s)\n-- Generating done (0.0s)\n-- Build files have been written to: /home/ananth/Documents/ChatGPT/Custom OS/build/inference-release\n",
-        "build_tail": "[1/20] Building CXX object CMakeFiles/ame_model.dir/src/model/expert_layout.cpp.o\n[2/20] Building CXX object CMakeFiles/ame_model.dir/src/model/file_extent.cpp.o\n[3/20] Linking CXX static library libame_model.a\n[4/20] Building CXX object CMakeFiles/manifest_gate.dir/bench/manifest_gate.cpp.o\n[5/20] Building CXX object CMakeFiles/ame_residency.dir/src/residency/file_source.cpp.o\n[6/20] Building CXX object CMakeFiles/moe_stream_gate_broken.dir/bench/moe_stream_gate.cpp.o\n[7/20] Building CXX object CMakeFiles/moe_stream_gate.dir/bench/moe_stream_gate.cpp.o\n[8/20] Building CXX object CMakeFiles/ame_residency.dir/src/residency/store.cpp.o\n[9/20] Linking CXX static library libame_residency.a\n[10/20] Building CXX object CMakeFiles/moe_kernel_gate.dir/bench/moe_kernel_gate.cpp.o\n[11/20] Linking CXX executable moe_kernel_gate\n[12/20] Building CXX object CMakeFiles/llama_baseline_stream.dir/bench/llama_baseline.cpp.o\n[13/20] Building CXX object CMakeFiles/ame_backend.dir/src/backend/moe_stream.cpp.o\n[14/20] Linking CXX static library libame_backend.a\n[15/20] Building CXX object CMakeFiles/ame_backend_broken.dir/src/backend/moe_stream.cpp.o\n[16/20] Linking CXX static library libame_backend_broken.a\n[17/20] Linking CXX executable manifest_gate\n[18/20] Linking CXX executable moe_stream_gate\n[19/20] Linking CXX executable moe_stream_gate_broken\n[20/20] Linking CXX executable llama_baseline_stream\n"
+        "configure_tail": "-- The CXX compiler identification is GNU 11.4.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Configuring done (0.2s)\n-- Generating done (0.0s)\n-- Build files have been written to: /home/ananth/Documents/ChatGPT/Custom OS/build/inference-release\n",
+        "build_tail": "[1/22] Building CXX object CMakeFiles/ame_model.dir/src/model/expert_layout.cpp.o\n[2/22] Building CXX object CMakeFiles/ame_model.dir/src/model/file_extent.cpp.o\n[3/22] Linking CXX static library libame_model.a\n[4/22] Building CXX object CMakeFiles/manifest_gate.dir/bench/manifest_gate.cpp.o\n[5/22] Building CXX object CMakeFiles/ame_prefill.dir/src/runtime/prefill_plan.cpp.o\n[6/22] Linking CXX static library libame_prefill.a\n[7/22] Building CXX object CMakeFiles/ame_residency.dir/src/residency/file_source.cpp.o\n[8/22] Building CXX object CMakeFiles/moe_stream_gate_broken.dir/bench/moe_stream_gate.cpp.o\n[9/22] Building CXX object CMakeFiles/moe_stream_gate.dir/bench/moe_stream_gate.cpp.o\n[10/22] Building CXX object CMakeFiles/ame_residency.dir/src/residency/store.cpp.o\n[11/22] Linking CXX static library libame_residency.a\n[12/22] Building CXX object CMakeFiles/moe_kernel_gate.dir/bench/moe_kernel_gate.cpp.o\n[13/22] Linking CXX executable moe_kernel_gate\n[14/22] Building CXX object CMakeFiles/ame_backend_broken.dir/src/backend/moe_stream.cpp.o\n[15/22] Linking CXX static library libame_backend_broken.a\n[16/22] Linking CXX executable moe_stream_gate_broken\n[17/22] Building CXX object CMakeFiles/llama_baseline_stream.dir/bench/llama_baseline.cpp.o\n[18/22] Building CXX object CMakeFiles/ame_backend.dir/src/backend/moe_stream.cpp.o\n[19/22] Linking CXX static library libame_backend.a\n[20/22] Linking CXX executable manifest_gate\n[21/22] Linking CXX executable moe_stream_gate\n[22/22] Linking CXX executable llama_baseline_stream\n"
       },
       "stream": {
+        "fault": "none",
+        "threads": 4,
+        "slots": 4,
+        "selected": 4,
+        "candidate_status": 0,
         "identical": true,
-        "reference_values": 128,
+        "failed": false,
+        "cancelled": false,
+        "error": "",
         "materialize_calls": 1,
-        "tensor_switches": 1,
         "reads": 4,
         "read_bytes": 8192,
         "arena_bytes": 8192,
-        "slots": 4,
         "mismatched": 0,
         "max_difference": 0,
-        "reference_first": [
-          1.78826,
-          4.12679,
-          6.46532,
-          3.6433
-        ],
-        "candidate_first": [
-          1.78826,
-          4.12679,
-          6.46532,
-          3.6433
-        ]
+        "passed": true
       },
+      "faults": [
+        {
+          "name": "fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "read",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "cancel",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": false,
+          "cancelled": true,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "capacity",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "eof",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "read",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "cancel",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": false,
+          "cancelled": true,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "capacity",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "eof",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "read",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "cancel",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": false,
+          "cancelled": true,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "capacity",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "eof",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "capacity-minus-one",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 3,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "capacity-at",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "slots-below-top-k",
+          "fault": "capacity",
+          "threads": 4,
+          "slots": 7,
+          "selected": 8,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_slots-below-top-k",
+          "fault": "none",
+          "threads": 4,
+          "slots": 7,
+          "selected": 7,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "slots-at-top-k",
+          "fault": "none",
+          "threads": 4,
+          "slots": 8,
+          "selected": 8,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "slots-above-top-k",
+          "fault": "none",
+          "threads": 4,
+          "slots": 9,
+          "selected": 8,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        }
+      ],
       "broken": {
         "exit_code": 1,
         "identical": false,
-        "mismatched": 1
+        "mismatched": 32
       },
       "kernel": {
         "dimensions": {
@@ -136,36 +854,395 @@
         "configure_returncode": 0,
         "build_returncode": 0,
         "configure_tail": "-- The CXX compiler identification is GNU 11.4.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Configuring done (0.2s)\n-- Generating done (0.0s)\n-- Build files have been written to: /home/ananth/Documents/ChatGPT/Custom OS/build/inference-sanitizers\n",
-        "build_tail": "[1/20] Building CXX object CMakeFiles/ame_model.dir/src/model/file_extent.cpp.o\n[2/20] Building CXX object CMakeFiles/ame_model.dir/src/model/expert_layout.cpp.o\n[3/20] Linking CXX static library libame_model.a\n[4/20] Building CXX object CMakeFiles/manifest_gate.dir/bench/manifest_gate.cpp.o\n[5/20] Building CXX object CMakeFiles/ame_residency.dir/src/residency/file_source.cpp.o\n[6/20] Building CXX object CMakeFiles/moe_stream_gate.dir/bench/moe_stream_gate.cpp.o\n[7/20] Building CXX object CMakeFiles/moe_stream_gate_broken.dir/bench/moe_stream_gate.cpp.o\n[8/20] Building CXX object CMakeFiles/ame_residency.dir/src/residency/store.cpp.o\n[9/20] Linking CXX static library libame_residency.a\n[10/20] Building CXX object CMakeFiles/moe_kernel_gate.dir/bench/moe_kernel_gate.cpp.o\n[11/20] Building CXX object CMakeFiles/llama_baseline_stream.dir/bench/llama_baseline.cpp.o\n[12/20] Building CXX object CMakeFiles/ame_backend.dir/src/backend/moe_stream.cpp.o\n[13/20] Linking CXX static library libame_backend.a\n[14/20] Linking CXX executable moe_kernel_gate\n[15/20] Building CXX object CMakeFiles/ame_backend_broken.dir/src/backend/moe_stream.cpp.o\n[16/20] Linking CXX static library libame_backend_broken.a\n[17/20] Linking CXX executable manifest_gate\n[18/20] Linking CXX executable moe_stream_gate\n[19/20] Linking CXX executable moe_stream_gate_broken\n[20/20] Linking CXX executable llama_baseline_stream\n"
+        "build_tail": "[1/22] Building CXX object CMakeFiles/ame_model.dir/src/model/file_extent.cpp.o\n[2/22] Building CXX object CMakeFiles/ame_model.dir/src/model/expert_layout.cpp.o\n[3/22] Linking CXX static library libame_model.a\n[4/22] Building CXX object CMakeFiles/manifest_gate.dir/bench/manifest_gate.cpp.o\n[5/22] Building CXX object CMakeFiles/ame_prefill.dir/src/runtime/prefill_plan.cpp.o\n[6/22] Building CXX object CMakeFiles/ame_residency.dir/src/residency/file_source.cpp.o\n[7/22] Linking CXX static library libame_prefill.a\n[8/22] Building CXX object CMakeFiles/moe_stream_gate.dir/bench/moe_stream_gate.cpp.o\n[9/22] Building CXX object CMakeFiles/moe_stream_gate_broken.dir/bench/moe_stream_gate.cpp.o\n[10/22] Building CXX object CMakeFiles/ame_residency.dir/src/residency/store.cpp.o\n[11/22] Linking CXX static library libame_residency.a\n[12/22] Building CXX object CMakeFiles/moe_kernel_gate.dir/bench/moe_kernel_gate.cpp.o\n[13/22] Linking CXX executable moe_kernel_gate\n[14/22] Building CXX object CMakeFiles/ame_backend.dir/src/backend/moe_stream.cpp.o\n[15/22] Building CXX object CMakeFiles/ame_backend_broken.dir/src/backend/moe_stream.cpp.o\n[16/22] Building CXX object CMakeFiles/llama_baseline_stream.dir/bench/llama_baseline.cpp.o\n[17/22] Linking CXX static library libame_backend.a\n[18/22] Linking CXX static library libame_backend_broken.a\n[19/22] Linking CXX executable manifest_gate\n[20/22] Linking CXX executable moe_stream_gate\n[21/22] Linking CXX executable moe_stream_gate_broken\n[22/22] Linking CXX executable llama_baseline_stream\n"
       },
       "stream": {
+        "fault": "none",
+        "threads": 4,
+        "slots": 4,
+        "selected": 4,
+        "candidate_status": 0,
         "identical": true,
-        "reference_values": 128,
+        "failed": false,
+        "cancelled": false,
+        "error": "",
         "materialize_calls": 1,
-        "tensor_switches": 1,
         "reads": 4,
         "read_bytes": 8192,
         "arena_bytes": 8192,
-        "slots": 4,
         "mismatched": 0,
         "max_difference": 0,
-        "reference_first": [
-          1.78826,
-          4.12679,
-          6.46532,
-          3.6433
-        ],
-        "candidate_first": [
-          1.78826,
-          4.12679,
-          6.46532,
-          3.6433
-        ]
+        "passed": true
       },
+      "faults": [
+        {
+          "name": "fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "read",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "cancel",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": false,
+          "cancelled": true,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "capacity",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "eof",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "read",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "cancel",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": false,
+          "cancelled": true,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "capacity",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "eof",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "read",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "cancel",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": false,
+          "cancelled": true,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "capacity",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "eof",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "capacity-minus-one",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 3,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "capacity-at",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "slots-below-top-k",
+          "fault": "capacity",
+          "threads": 4,
+          "slots": 7,
+          "selected": 8,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_slots-below-top-k",
+          "fault": "none",
+          "threads": 4,
+          "slots": 7,
+          "selected": 7,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "slots-at-top-k",
+          "fault": "none",
+          "threads": 4,
+          "slots": 8,
+          "selected": 8,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "slots-above-top-k",
+          "fault": "none",
+          "threads": 4,
+          "slots": 9,
+          "selected": 8,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        }
+      ],
       "broken": {
         "exit_code": 1,
         "identical": false,
-        "mismatched": 1
+        "mismatched": 32
       },
       "kernel": {
         "dimensions": {
@@ -193,6 +1270,6 @@
       }
     }
   },
-  "elapsed_seconds": 17.759346003993414,
+  "elapsed_seconds": 17.142235455976333,
   "passed": true
 }

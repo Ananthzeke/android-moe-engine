@@ -95,6 +95,10 @@ Result<void, FileError> FileSource::read_exact(std::uint64_t offset,
     }
     const std::size_t remaining = destination.size() - completed;
     const std::size_t chunk = std::min(remaining, kReadChunk);
+    if (!eintr_consumed_ && std::getenv("AME_IO_INJECT_EINTR_ONCE") != nullptr) {
+      eintr_consumed_ = true;
+      continue;
+    }
     const std::uint64_t limit = failure_limit();
     if (bytes_read_ > limit || chunk > limit - bytes_read_) {
       return FileError::ReadFailed;

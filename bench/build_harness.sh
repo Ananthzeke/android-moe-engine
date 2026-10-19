@@ -21,8 +21,8 @@ API=${AME_NDK_API:-31}
 CXX="$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android${API}-clang++"
 STRIP="$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip"
 CXXFLAGS="-std=c++20 -O2 -DNDEBUG"
-ENGINE="src/backend/moe_stream.cpp src/model/file_extent.cpp src/model/expert_layout.cpp src/residency/file_source.cpp src/residency/store.cpp"
-ENGINE_INCLUDES="-Isrc/backend -Isrc/model -Isrc/residency -Isrc/common"
+ENGINE="src/backend/moe_stream.cpp src/model/file_extent.cpp src/model/expert_layout.cpp src/residency/file_source.cpp src/residency/store.cpp src/runtime/prefill_plan.cpp"
+ENGINE_INCLUDES="-Isrc/backend -Isrc/model -Isrc/residency -Isrc/common -Isrc/runtime"
 LIBS_HOST="$HOST_BUILD/ggml/src/libggml.a $HOST_BUILD/ggml/src/libggml-base.a $HOST_BUILD/ggml/src/libggml-cpu.a"
 LIBS_ANDROID="$ANDROID_BUILD/ggml/src/libggml.a $ANDROID_BUILD/ggml/src/libggml-base.a $ANDROID_BUILD/ggml/src/libggml-cpu.a"
 
