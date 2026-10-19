@@ -118,7 +118,9 @@ that list against the verified manifest, rejects missing/duplicate/extra consume
 layout mismatches, and the materializer refuses tensors outside the bound set. This is
 exercised on qwen35moe, qwen2moe, and granite-moe by `tools/verify_complete.py`.
 
-Not yet migrated: prefill planning still uses scalar manifest metadata; the Python
-indexer still emits the manifest from GGUF names; the contract is not serialized
-across the language boundary. Variable expert layouts, arbitrary companion semantics,
+Harness prefill admission now consumes the bound per-consumer cardinality and
+source `n_expert_used`; a pure contract planner has boundary tests. Not yet migrated:
+the Python indexer still emits the manifest from GGUF names, the contract is not
+serialized across the language boundary, and `complete_runner` uses explicit
+matched schedules. Variable expert layouts, arbitrary companion semantics,
 and shards remain unsupported.

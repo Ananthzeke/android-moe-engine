@@ -174,18 +174,20 @@ Passed:
 - Same-schedule microbatch comparisons at ubatch 1/4/8 and prompt lengths 5/63/64/65:
   exact.
 - Missing expert metadata refusal before graph execution, with no logits produced.
-- Sparse qwen35moe (8 experts/top-2, 4 slots): exact float/Q4_K_M/Q6_K,
-  12 distinct selected sets, 56 misses/48 evictions, capacity refusal, corruption
-  detection.
+- Sparse qwen35moe and sparse qwen2moe (8 experts/top-2, 4 slots): exact
+  float/Q4_K_M/Q6_K, capacity refusal, corruption, cancellation/fresh replay.
+  qwen35moe selects 12 distinct sets with 56 misses/48 evictions.
 - qwen2moe and granite-moe float/Q4_K_M/Q6_K: exact through the same storage core;
   capacity refusal. Sparse selection is only demonstrated on qwen35moe.
 - **Source-derived consumer binding now exists** for routed and shared expert fields;
   manifest validation and materialization refuse missing/duplicate/extra consumers
   and layout mismatches. Nine complete comparisons are automated by
   `tools/verify_complete.py`.
-- **Prefill planning is not yet contract-driven**, the contract is not serialized
-  across the Python/C++ boundary, and companion ownership only accepts the observed
-  `.scale`/`.input_scale` names. Variable layouts remain unsupported.
+- **Harness prefill admission is contract-driven** from source-derived consumer
+  cardinality and `n_expert_used`; planner boundary tests pass. The manifest is
+  still the serialized proposal, validated by C++; no separate schema exists.
+  Companion ownership only accepts observed `.scale`/`.input_scale` names; variable
+  layouts remain unsupported. `complete_runner` keeps explicit matched schedules.
 
 Measured but not bitwise:
 

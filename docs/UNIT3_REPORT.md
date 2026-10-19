@@ -297,3 +297,20 @@ fails on missing prerequisites, and compares logits/tokens. All nine are exact:
 Contract negatives: [contract-negatives.json](../evidence/unit3/contract-negatives.json).
 Capacity refusal after binding: [sparse-capacity-refusal-contract.json](../evidence/unit3/sparse-capacity-refusal-contract.json).
 Post-contract corruption detection: [sparse-corruption-contract.json](../evidence/unit3/sparse-corruption-contract.json).
+
+## Contract-driven prefill admission
+
+The bound contract now carries source-derived per-consumer expert cardinality and
+`n_expert_used`; the harness's prefill planner consumes those facts, not model scalar
+metadata. With sparse qwen35moe (8 experts, top-2, 4 slots), the admitted unit is 2
+tokens; the same config with slots 1 refuses before context generation.
+
+Pure contract planner tests cover different pool capacities, different cardinalities,
+capacity below top-k, lease limits, invalid/missing selection bounds, and invalid
+batch. Harness construction validates the effective `llama_n_ubatch` against the
+admitted unit. Test count is now 12.
+
+Sparse ordinary-transformer qwen2moe (8 experts, top-2, slots 4) was generated and
+passes float/Q4_K_M/Q6_K comparisons. Automated complete verification now covers 12
+artifact comparisons, capacity refusal, corruption, and cancellation/fresh replay for
+qwen35moe sparse, qwen2moe sparse, and granite.

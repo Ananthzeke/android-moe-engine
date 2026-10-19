@@ -5,6 +5,7 @@ Date: 2026-10-19. Scope: tiny upstream-generated fixtures, exact tested layouts.
 | Fixture | Family/type | Experts / top-k | Float | Q4_K_M | Q6_K | Sparse selection | Same storage core |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | qwen35moe sparse | hybrid recurrent + full attention | 8 / 2, slots 4 | exact | exact | exact | yes | yes |
+| qwen2moe sparse | ordinary transformer MoE | 8 / 2, slots 4 | exact | exact | exact | yes | yes |
 | qwen2moe | ordinary transformer MoE | 2 / 2 | exact | exact | exact | no (all selected) | yes |
 | granite-moe | non-Qwen transformer MoE | 2 / 2 | exact | exact | exact | no (all selected) | yes |
 
@@ -36,8 +37,9 @@ comparison command is `tools/verify_complete.py`.
 
 Still not unified:
 
-- Prefill planning still consumes the manifest/model scalar metadata, not the
-  contract's per-consumer bounds.
+- Harness prefill admission now consumes the bound contract's per-consumer expert
+  cardinality and source `n_expert_used` bound. `complete_runner` still uses explicit
+  matched schedules rather than contract admission.
 - The contract is not serialized or shared with the Python indexer; indexing still
   produces the manifest from GGUF names, and the C++ side validates against it.
 - No variable-size experts, shards, arbitrary expert-axis layouts, or unsupported
