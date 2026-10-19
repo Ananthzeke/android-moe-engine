@@ -1,0 +1,1 @@
+{"choices":[{"finish_reason":"stop","index":0,"message":{"content":"<think>\n\n</think>\n\nHello! How can I assist you today?","role":"assistant"}}],"created":1792414027,"id":"chatcmpl-1806972-0","model":"Qwen3.5-2B","object":"chat.completion","usage":{"completion_tokens":13,"prompt_tokens":15,"total_tokens":28}}

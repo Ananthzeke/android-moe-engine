@@ -1,0 +1,1 @@
+{"model":"Qwen1.5-MoE","status":"ready","streaming":{"arena_bytes":426770432,"cancelled":false,"contract_routed":72,"contract_shared":96,"evictions":2304,"failed":false,"hits":39,"materialize_calls":288,"misses":2496,"read_bytes":4761878528,"reads":2496,"slots":64}}

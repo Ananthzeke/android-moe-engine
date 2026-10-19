@@ -1,0 +1,67 @@
+{
+  "health": {
+    "http": 200,
+    "body": {
+      "model": "Qwen3.5-2B",
+      "status": "ready"
+    }
+  },
+  "models": {
+    "http": 200,
+    "body": {
+      "data": [
+        {
+          "id": "Qwen3.5-2B",
+          "object": "model",
+          "owned_by": "local"
+        }
+      ],
+      "object": "list"
+    }
+  },
+  "chat": {
+    "http": 200,
+    "status": "stop",
+    "content": "<think>\n\n</think>\n\nBlue",
+    "usage": {
+      "completion_tokens": 5,
+      "prompt_tokens": 20,
+      "total_tokens": 25
+    }
+  },
+  "stream": {
+    "http": 200,
+    "done": true,
+    "chunks": 8,
+    "finish": "stop",
+    "usage": {
+      "completion_tokens": 5,
+      "prompt_tokens": 20,
+      "total_tokens": 25
+    }
+  },
+  "stop": {
+    "http": 200,
+    "finish": "stop"
+  },
+  "unsupported_tools": {
+    "http": 400,
+    "error": "invalid_request_error"
+  },
+  "unknown_model": {
+    "http": 404,
+    "error": "model_not_found"
+  },
+  "malformed_messages": {
+    "http": 200
+  },
+  "context_overflow": {
+    "http": 400,
+    "error": "context_length_exceeded"
+  },
+  "fresh_after_failures": {
+    "http": 200,
+    "finish": "stop"
+  },
+  "passed": true
+}

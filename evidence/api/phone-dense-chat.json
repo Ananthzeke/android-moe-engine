@@ -1,0 +1,1 @@
+{"choices":[{"finish_reason":"stop","index":0,"message":{"content":"<think>\n\n</think>\n\nHello!","role":"assistant"}}],"created":1792415583,"id":"chatcmpl-24595-0","model":"Qwen3.5-2B","object":"chat.completion","usage":{"completion_tokens":6,"prompt_tokens":15,"total_tokens":21}}
