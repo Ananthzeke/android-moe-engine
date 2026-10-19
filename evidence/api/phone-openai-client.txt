@@ -1,0 +1,5 @@
+nonstream <think>
+ 13
+usage CompletionUsage(completion_tokens=2, prompt_tokens=11, total_tokens=13, completion_tokens_details=None, prompt_tokens_details=None)
+stream <think>
+
