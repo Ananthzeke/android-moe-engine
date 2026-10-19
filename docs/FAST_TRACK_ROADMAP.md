@@ -64,6 +64,13 @@ In parallel, preflight an unmodified pinned mmap reference on available hardware
 
 Done means quantized operator parity and full-model fixture parity pass, or each missing capability is precisely blocked. Fixture success does not prove the real 35B artifact correct. Preserve the 35B reference limitation until that artifact is compared.
 
+### Unit 3 partially delivered (2026-10-19)
+
+Q4_K/Q6_K operator parity passes across gate/up/down, 1/2/4 workers, prefill/decode,
+cache reuse, and corruption, including a pristine-vs-patched fingerprint match. A
+complete tiny qwen35moe fixture was not generated, so full-model reference parity and
+changed-microbatch parity remain blocked. See [the Unit 3 report](UNIT3_REPORT.md).
+
 ## Unit 4. Exercise useful requests on the phone
 
 Start with a four-prompt smoke corpus: ordinary instructions, code, multilingual text, and a longer input. Store tokenized lengths and exact runtime settings. Run the small-model path first. After units 1–3 pass, use a verified MoE configuration for longer tests.

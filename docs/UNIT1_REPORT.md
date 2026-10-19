@@ -87,9 +87,9 @@ Evidence paths:
 
 1. **Missing-model-metadata refusal** is implemented in the planner but not exercised by
    an integration test with a model that lacks the scalar keys.
-2. **Cancellation exactly between two read chunks** is not deterministically tested;
-   cancellation before a read, before materialization, during prefill, and during
-   decode is tested.
+2. **Cancellation between read chunks** is now covered by a deterministic
+   FileSource test added in Unit 3. Cancellation before a read, before
+   materialization, during prefill, and during decode were already tested.
 3. **Compute-failure injection** through the backend is not covered.
 4. **35B 63/64/65-token execution** was not run on-device. The exact 63/64/65 tests
    used the 14.3B model with a 15-token unit; the 35B deterministic plan is 8 tokens.

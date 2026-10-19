@@ -41,6 +41,7 @@ The design also draws from source inspection of LiteRT-LM and current AirLLM. It
 - [Release readiness](docs/RELEASE_READINESS.md) marks each hardening gate passed, failed, or blocked.
 - [Unit 1 report](docs/UNIT1_REPORT.md) records safe-failure and prefill evidence.
 - [Unit 2 report](docs/UNIT2_REPORT.md) records artifact identity and layout evidence.
+- [Unit 3 report](docs/UNIT3_REPORT.md) records quantized operator parity and reference gaps.
 - [Final build report](docs/FINAL_REPORT.md) summarizes artifacts, results, limits, and next units.
 - [DeepSeek build prompt](prompts/DEEPSEEK_BUILD.md) is the implementation handoff.
 - [Repository preparation checklist](docs/WORKPLAN.md) tracks this initial handoff.

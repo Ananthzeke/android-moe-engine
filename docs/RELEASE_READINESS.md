@@ -9,8 +9,9 @@ different gate passed.
 **Not release-ready.** Unit 2 verifies startup artifact identity and layout, but full-hash startup cost and runtime mutation coverage remain blockers. Unit 1 closed the safe-failure blocker and added a conservative
 prefill plan: gate 3 passes for the tested release scope. Gate 4's bounded-prefill
 part is implemented, but its memory-admission and changed-microbatch parity portions
-remain open. Gate 2 is passed for startup identity/layout and blocked for runtime mutation; gate 6
-(practical campaign) remains failed, and gate 5 (reference parity) remains blocked. Do not describe the engine as battle-tested or as having a
+remain open. Gate 2 is passed for startup identity/layout and blocked for runtime mutation; gate 5
+passes quantized operator parity and is blocked on complete-fixture and real-35B
+reference parity; gate 6 (practical campaign) remains failed. Do not describe the engine as battle-tested or as having a
 hard process memory cap.
 
 ## Gate 1 — reproducible inference integration: PASSED (local), CI pending
@@ -154,23 +155,33 @@ Evidence: [prefill tests](../tests/prefill_plan_test.cpp),
 [65 tokens](../evidence/unit1/prefill-65.json),
 [35B unit-8 regression](../evidence/unit1/qwen36-unit1-regression.json).
 
-## Gate 5 — numerical correctness and comparisons: BLOCKED
+## Gate 5 — quantized operator parity PASSED; complete fixture/reference BLOCKED
 
-- `ame compare` no longer casts fractional JSON numbers to integers. It rejects
-  fractional and out-of-range token IDs, duplicate keys, unsupported schemas, and
-  missing required fields; it compares artifact bytes, settings, tokens, and finish
-  reason. Unit tests cover each rejection.
-- There is no small complete **quantized** MoE fixture (the existing runtime gate uses
-  F32 experts).
-- The 35B full-resident reference is blocked: no available phone or host has more than
-  20.4 GB usable memory with the same pinned backend. Repeatability and bitwise kernel
-  gates are not reference logits.
+Implemented and tested:
 
-Evidence: [compare tests](../src/compare/compare.cpp),
-[phase3 comparisons](../evidence/phase3/compare-same.json).
+- Q4_K and Q6_K expert tensors generated with `ggml_quantize_chunk`.
+- Gate, up, and down layouts; 1/2/4 workers; decode and prefill shapes.
+- Duplicate and noncontiguous IDs; resident vs arena-backed bitwise equality.
+- Cache hits, misses, and evictions; deliberate corruption detection.
+- A pristine unpatched pinned build produces identical operator fingerprints to the
+  patched build for the same inputs.
+- Phone Q4_K/Q6_K runs pass for gate/up/down at 4 workers.
 
-Smallest next action: produce a complete quantized MoE GGUF that fits this host, run
-unmodified vs streaming with matched inputs, and declare tolerances before inspection.
+Blocked:
+
+- No valid complete tiny qwen35moe GGUF was generated. The loader requires
+  attention/SSM/recurrent/tokenizer metadata and tensors listed in
+  [the Unit 3 report](UNIT3_REPORT.md). Complete reference-vs-streamed,
+  router/logit, teacher-forced, and changed-microbatch parity are therefore blocked.
+- The 35B real-artifact reference remains blocked by the 20.4 GB memory requirement.
+- Operator parity is not a real-model correctness claim.
+
+Hash startup diagnostic: host Release read 498 MiB/s, resident scalar SHA-256
+236 MiB/s, combined 195 MiB/s; the phone 20.4 GB hash is 393.93–412.67 s. The CPU
+advertises SHA acceleration but the implementation is scalar; a dispatched
+SHA-NI/ARMv8-SHA2 path is the next measured optimization. See
+[the hash diagnostic](../evidence/unit3-hash-host.json) and
+[pristine comparison](../evidence/unit3/quantized-pristine-vs-patched.json).
 
 ## Gate 6 — practical phone workloads: FAILED
 
@@ -186,8 +197,8 @@ measured 2B trials per workload with 128 output tokens and recorded thermal stat
 ## Remaining release blockers
 
 1. Runtime mutation/per-extent content verification and practical full-hash startup cost.
-2. Quantized small-model parity and, if a host exists, 35B reference logits.
-3. Changed-microbatch numerical parity for the conservative prefill plan.
+2. Complete qwen35moe fixture/reference parity and changed-microbatch parity.
+3. Real 35B reference logits/tokens; identity is not numerical correctness.
 4. A practical phone workload/sustained campaign.
 5. Complete backend allocation accounting; the arena is still not a process cap.
 
