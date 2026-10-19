@@ -1,6 +1,6 @@
 # Validation contract
 
-This document defines future experiments. No inference measurements have been run for this repository.
+Current status (2026-10-19): inference and physical-device measurements have been run. See [release readiness](RELEASE_READINESS.md) for gate status and [the final report](FINAL_REPORT.md) for measured results. This document remains the comparison and evidence contract; it is not a claim that every clause has passed.
 
 ## Define a comparison before running it
 
@@ -118,7 +118,7 @@ python3 tests/check_scaffold_test.py
 git diff --check
 ```
 
-The full verifier passes formatting, metadata/link validation, and all three CTest cases in each of Debug, Release, and ASan/UBSan. Extent cases cover N-1/N/N+1, empty extents at EOF, offsets above 4 GiB, and UINT64_MAX without allocating large files. Compile-time checks exclude unchecked/default construction. CLI tests check help/version success and invalid arguments' nonzero exit/diagnostic behavior. Temporary configuration tests run the validator under Python `-O`, reject invalid support metadata and duplicate IDs, and allow extra configurations, anchors, and complete evidence references. These tests establish reference validation only, not the truth of a claimed external experiment.
+The foundation verifier passes formatting, metadata/link validation, and the project CTest suite in each of Debug, Release, and ASan/UBSan; the suite has since grown to nine tests. Extent cases cover N-1/N/N+1, empty extents at EOF, offsets above 4 GiB, and UINT64_MAX without allocating large files. Compile-time checks exclude unchecked/default construction. CLI tests check help/version success and invalid arguments' nonzero exit/diagnostic behavior. Temporary configuration tests run the validator under Python `-O`, reject invalid support metadata and duplicate IDs, and allow extra configurations, anchors, and complete evidence references. These tests establish reference validation only, not the truth of a claimed external experiment.
 
 The first sandbox sanitizer attempt failed because LeakSanitizer reported it cannot run under ptrace. The full verifier subsequently passed outside that sandbox with leak detection retained. No sanitizer checks were disabled. Environments using ptrace need an execution context that permits LeakSanitizer thread inspection.
 
@@ -134,4 +134,4 @@ ctest --preset host-debug --test-dir /tmp/ame-no-tests
 
 The fresh directory configured with GCC 11.4.0, built successfully, and passed all three tests. The empty-directory CTest command returned exit code 8 with `No tests were found!!!`. All three host test presets set `execution.noTestsAction` to `error`, so missing test discovery fails verification. The normal full verifier also passed after this change, including all three sanitizer tests with leak detection retained.
 
-Preset discovery confirms the three host configure presets; the Android configure preset is hidden without `ANDROID_NDK_HOME`. No NDK is installed in this environment, so cross-build, ELF architecture/linkage, physical-device probe, inference, model support, and streaming remain unverified. No weights or backends were downloaded. Phase 0 remains incomplete.
+Historical note: this section records the early environment before the NDK, backend, and device were available. That environment no longer describes the repository. The NDK r27c build, AArch64 ELF inspection, physical probe, small-model inference, and 35B streaming have since run; see [release readiness](RELEASE_READINESS.md) and [phase 4 evidence](../evidence/phase4). The gate status, not this historical paragraph, is authoritative.

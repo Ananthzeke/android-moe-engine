@@ -14,4 +14,4 @@ The requested implementation work belongs to the later DeepSeek handoff.
 
 ## Host coding groundwork
 
-Implemented the host build, checked extent primitive, help/version CLI, coding rules, and offline local/CI verifier. See [recorded validation](VALIDATION.md#coding-foundation-evidence-2026-10-19). Android toolchain/device and inference gates remain incomplete; continue with the remaining Phase 0 checks.
+Historical: implemented the host build, checked extent primitive, help/version CLI, coding rules, and offline local/CI verifier. The Android toolchain/device, small-model baseline, 35B streaming experiment, and hardening integration checks have since run; current gate status is in [release readiness](RELEASE_READINESS.md).

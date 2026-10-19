@@ -29,7 +29,7 @@
       "repository": "https://github.com/ggml-org/llama.cpp",
       "commit": "ff5a23376725e5a889fa0bfb987b7541dc304da0",
       "role": "production",
-      "status": "built_host_and_android; baseline_executed_on_phone; runtime_expert_streaming_not_integrated"
+      "status": "built_host_and_android; baseline_and_35b_streaming_executed_on_phone; hardening_gates_partial"
     },
     {
       "id": "mnn",

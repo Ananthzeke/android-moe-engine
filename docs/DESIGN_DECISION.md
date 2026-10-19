@@ -48,9 +48,7 @@ The phase 1 implementer resolves expert backing lifetime, exact hook placement, 
 
 ## Implementation reconciliation
 
-No engine changes have been implemented. Future accepted deviations must update the affected architecture, API, phase gates, and this section together. Record the source experiment or reviewer decision that supports each deviation. Do not alter a contract merely to relabel a failing test as success.
-
-The next implementation step is phase 0 followed by one real small-model baseline and the source-level MoE fixture.
+The engine implementation has since been reconciled against this decision: the pinned llama.cpp backend, runtime materializer, residency store, harness, and physical-device runs are recorded in [the final report](FINAL_REPORT.md) and [release readiness](RELEASE_READINESS.md). The unresolved release gates are listed there; this section is not a claim that they passed. Future accepted deviations must update the architecture, API, phase gates, and this section together.
 
 ## LiteRT-LM and AirLLM revision, 19 October 2026
 
@@ -75,7 +73,7 @@ The decision follows source inspection and design review only. No native hook, a
 
 Choose CLI plus one internal checked-file-extent primitive over CLI-only scaffolding or a full engine skeleton. CLI-only offers little domain validation; empty runtime libraries and public engine declarations would freeze backend-dependent interfaces before the source gate. The private constructor and explicit extent errors prove containment without a generic result framework. Empty extents including EOF are valid positions; future required tensors add nonempty/layout checks.
 
-Use C++20, target-scoped strict warnings, pinned development tools, and one offline verifier for Debug, Release, and host ASan/UBSan. No backend or model is downloaded by verification. Planned modules retain ownership READMEs only. Android ARM64/API31 has a conditional preset, but NDK identity, cross-build, ELF inspection, and phone execution remain unverified; this does not complete Phase 0. See [contribution instructions](../CONTRIBUTING.md) for commands.
+Use C++20, target-scoped strict warnings, pinned development tools, and one offline foundation verifier for Debug, Release, and host ASan/UBSan. No backend or model is downloaded by verification. Android ARM64/API31 has a conditional preset; NDK r27c cross-build, ELF inspection, and phone execution have since passed. The 35B materializer and streaming path are covered by the separate integration matrix, whose current gate status is in [release readiness](RELEASE_READINESS.md).
 ## Device-local probe and pinned Android build (2026-10-19)
 
 Choose a device-local, read-only probe over a host-side ADB orchestrator. The executable reads `/proc`, `/sys`, and `statvfs` itself, which matches the eventual on-phone engine, works from Termux without a host, and keeps observation parsing out of shell pipelines. ADB is a deployment transport, not the observation source. A host invocation reports `execution_tag: host`; it does not fabricate a phone profile. This refines the earlier implicit assumption that `ame probe` would always query through ADB. The physical run is retained in [the phase 0 evidence](../evidence/phase0/probe-vivo-1920.json).
