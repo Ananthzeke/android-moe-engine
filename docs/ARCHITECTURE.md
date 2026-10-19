@@ -266,3 +266,16 @@ a recheck and a bounded read, or one that preserves metadata, can still be consu
 The expected digest is the trust root and must come from the pinned artifact record,
 not from the manifest. Full-hash startup cost is measured separately and is currently
 a release blocker on the phone. See [the Unit 2 report](UNIT2_REPORT.md).
+
+## Native HTTP API (2026-10-19)
+
+`apps/server/main.cpp` is a native ARM64 HTTP server over the pinned llama.cpp
+model, tokenizer, chat template, sampler, and the project's verified artifact and
+materializer path. It serves `/health`, `/v1/models`, and OpenAI-compatible
+`/v1/chat/completions` JSON/SSE. Each request creates and destroys its own llama
+context; the model and verified artifact FD remain resident. One generation is
+admitted at a time. The API does not implement tools, vision, audio, or complete
+OpenAI parity.
+
+Dense Qwen3.5-2B and streamed Qwen1.5-MoE were exercised on the phone. See
+[RUN_PHONE.md](RUN_PHONE.md) and [RELEASE_RECORD.json](RELEASE_RECORD.json).
