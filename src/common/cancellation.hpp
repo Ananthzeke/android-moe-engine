@@ -10,6 +10,7 @@ namespace ame {
 class Cancellation {
  public:
   void request() noexcept { requested_.store(true, std::memory_order_relaxed); }
+  void reset() noexcept { requested_.store(false, std::memory_order_relaxed); }
   [[nodiscard]] bool requested() const noexcept {
     return requested_.load(std::memory_order_relaxed);
   }

@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.22)
 project(android_moe_engine VERSION 0.1.0 LANGUAGES CXX)
 include(CTest)
 option(AME_SANITIZERS "Enable host address and undefined behavior sanitizers" OFF)
+option(AME_INFERENCE_INTEGRATION "Build pinned-llama.cpp inference gates and harness" OFF)
+set(AME_LLAMA_SOURCE_DIR "" CACHE PATH "Pinned llama.cpp source tree")
+set(AME_LLAMA_HOST_LIB_DIR "" CACHE PATH "Directory containing host libllama.a and ggml libs")
+set(AME_LLAMA_LIBRARIES "" CACHE STRING "Explicit host llama/ggml static libraries")
 
 function(ame_project_target target)
   set_target_properties(${target} PROPERTIES CXX_STANDARD 20 CXX_STANDARD_REQUIRED YES CXX_EXTENSIONS NO)
@@ -43,6 +47,67 @@ ame_project_target(ame_run)
 add_executable(ame apps/cli/main.cpp)
 target_link_libraries(ame PRIVATE ame_model ame_probe ame_compare ame_run)
 ame_project_target(ame)
+
+if(AME_INFERENCE_INTEGRATION)
+  if(NOT EXISTS "${AME_LLAMA_SOURCE_DIR}/include/llama.h" OR
+     NOT EXISTS "${AME_LLAMA_SOURCE_DIR}/ggml/include/ggml.h")
+    message(FATAL_ERROR "AME_LLAMA_SOURCE_DIR must point at the pinned llama.cpp tree")
+  endif()
+  if(AME_LLAMA_LIBRARIES STREQUAL "")
+    if(AME_LLAMA_HOST_LIB_DIR STREQUAL "")
+      message(FATAL_ERROR "Set AME_LLAMA_LIBRARIES or AME_LLAMA_HOST_LIB_DIR")
+    endif()
+    set(AME_LLAMA_LIBRARIES
+        "${AME_LLAMA_HOST_LIB_DIR}/src/libllama.a;${AME_LLAMA_HOST_LIB_DIR}/ggml/src/libggml.a;${AME_LLAMA_HOST_LIB_DIR}/ggml/src/libggml-base.a;${AME_LLAMA_HOST_LIB_DIR}/ggml/src/libggml-cpu.a")
+  endif()
+
+  add_library(ame_backend STATIC src/backend/moe_stream.cpp)
+  target_include_directories(ame_backend PUBLIC src/backend src/model src/residency src/common
+                                             "${AME_LLAMA_SOURCE_DIR}/include"
+                                             "${AME_LLAMA_SOURCE_DIR}/ggml/include")
+  target_link_libraries(ame_backend PUBLIC ame_model ame_residency)
+  ame_project_target(ame_backend)
+
+  add_library(ame_backend_broken STATIC src/backend/moe_stream.cpp)
+  target_include_directories(ame_backend_broken PUBLIC src/backend src/model src/residency src/common
+                                                   "${AME_LLAMA_SOURCE_DIR}/include"
+                                                   "${AME_LLAMA_SOURCE_DIR}/ggml/include")
+  target_link_libraries(ame_backend_broken PUBLIC ame_model ame_residency)
+  target_compile_definitions(ame_backend_broken PRIVATE AME_TEST_BREAK_MATERIALIZER=1)
+  ame_project_target(ame_backend_broken)
+
+  function(ame_inference_target target)
+    target_include_directories(${target} PRIVATE "${AME_LLAMA_SOURCE_DIR}/include"
+                                                "${AME_LLAMA_SOURCE_DIR}/ggml/include")
+    target_link_libraries(${target} PRIVATE -Wl,--start-group ${AME_LLAMA_LIBRARIES} -Wl,--end-group pthread dl m)
+    set_target_properties(${target} PROPERTIES CXX_STANDARD 20 CXX_STANDARD_REQUIRED YES
+                                               CXX_EXTENSIONS NO)
+    if(AME_SANITIZERS)
+      target_compile_options(${target} PRIVATE -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer)
+      target_link_options(${target} PRIVATE -fsanitize=address,undefined)
+    endif()
+  endfunction()
+
+  add_executable(moe_stream_gate bench/moe_stream_gate.cpp)
+  target_link_libraries(moe_stream_gate PRIVATE ame_backend)
+  ame_inference_target(moe_stream_gate)
+
+  add_executable(moe_stream_gate_broken bench/moe_stream_gate.cpp)
+  target_link_libraries(moe_stream_gate_broken PRIVATE ame_backend_broken)
+  ame_inference_target(moe_stream_gate_broken)
+
+  add_executable(moe_kernel_gate bench/moe_kernel_gate.cpp)
+  target_link_libraries(moe_kernel_gate PRIVATE ame_residency)
+  ame_inference_target(moe_kernel_gate)
+
+  add_executable(llama_baseline_stream bench/llama_baseline.cpp)
+  target_link_libraries(llama_baseline_stream PRIVATE ame_backend)
+  ame_inference_target(llama_baseline_stream)
+
+  add_executable(manifest_gate bench/manifest_gate.cpp)
+  target_link_libraries(manifest_gate PRIVATE ame_backend)
+  ame_inference_target(manifest_gate)
+endif()
 
 if(BUILD_TESTING)
   if(CMAKE_CROSSCOMPILING)

@@ -35,7 +35,10 @@ namespace {
 
 std::atomic<bool> g_cancelled{false};
 
-void handle_signal(int) { g_cancelled.store(true, std::memory_order_relaxed); }
+void handle_signal(int) {
+  g_cancelled.store(true, std::memory_order_relaxed);
+  ame::backend::request_moe_stream_cancel();
+}
 
 using Clock = std::chrono::steady_clock;
 
@@ -554,6 +557,7 @@ int main(int argc, char* argv[]) {
     std::thread([milliseconds = options.cancel_after_ms] {
       std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
       g_cancelled.store(true, std::memory_order_relaxed);
+      ame::backend::request_moe_stream_cancel();
     }).detach();
   }
 
@@ -1024,6 +1028,14 @@ int main(int argc, char* argv[]) {
   json.unsigned_value(stream_stats.evictions);
   json.key("max_union");
   json.unsigned_value(stream_stats.max_union);
+  json.key("manifest_version");
+  json.unsigned_value(stream_stats.manifest_version);
+  json.key("manifest_identity_checked");
+  json.bool_value(stream_stats.manifest_identity_checked);
+  json.key("manifest_layout_hash");
+  json.string_value(stream_stats.manifest_layout_hash);
+  json.key("declared_artifact_sha256");
+  json.string_value(stream_stats.declared_artifact_sha256);
   json.end_object();
 
   json.key("unavailable");

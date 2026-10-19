@@ -2,6 +2,7 @@
 
 #include <unistd.h>
 
+#include <csignal>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -52,6 +53,18 @@ int main() {
     expect(timeout_result.value().timed_out, "timeout flagged");
     expect(timeout_result.value().status == "timeout", "timeout status");
     expect(timeout_result.value().duration_seconds < 4.0, "timeout enforcement");
+  }
+
+  ame::runtime::RunOptions aborting;
+  aborting.runner = "/bin/sh";
+  aborting.run_dir = root / "abort";
+  aborting.timeout_seconds = 5;
+  aborting.arguments = {"-c", std::string("kill -ABRT $") + "$"};
+  const auto abort_result = ame::runtime::supervise(aborting);
+  expect(abort_result.ok(), "aborting runner returns a record");
+  if (abort_result.ok()) {
+    expect(abort_result.value().status == "signaled", "signal classified");
+    expect(abort_result.value().signal == SIGABRT, "SIGABRT recorded");
   }
 
   ame::runtime::RunOptions missing;

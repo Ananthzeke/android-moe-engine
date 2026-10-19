@@ -1,0 +1,198 @@
+{
+  "schema_version": 1,
+  "gate": "gate1_inference_integration",
+  "llama": {
+    "head": "ff5a23376725e5a889fa0bfb987b7541dc304da0",
+    "diff_sha256": "8f1c29adbfcef088d3c8395c5c81ba875c569496f43d305fc7d96c4642a175b3",
+    "patch_sha256": "8f1c29adbfcef088d3c8395c5c81ba875c569496f43d305fc7d96c4642a175b3",
+    "source": "/media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp"
+  },
+  "libs": "/media/ananth/17AB9D0651C6CC1F/ame-tools/build/llama-host",
+  "configs": {
+    "debug": {
+      "build": {
+        "configure_returncode": 0,
+        "build_returncode": 0,
+        "configure_tail": "-- The CXX compiler identification is GNU 11.4.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Configuring done (0.3s)\n-- Generating done (0.0s)\n-- Build files have been written to: /home/ananth/Documents/ChatGPT/Custom OS/build/inference-debug\n",
+        "build_tail": "[1/20] Building CXX object CMakeFiles/ame_model.dir/src/model/file_extent.cpp.o\n[2/20] Building CXX object CMakeFiles/ame_model.dir/src/model/expert_layout.cpp.o\n[3/20] Linking CXX static library libame_model.a\n[4/20] Building CXX object CMakeFiles/manifest_gate.dir/bench/manifest_gate.cpp.o\n[5/20] Building CXX object CMakeFiles/ame_residency.dir/src/residency/file_source.cpp.o\n[6/20] Building CXX object CMakeFiles/moe_stream_gate.dir/bench/moe_stream_gate.cpp.o\n[7/20] Building CXX object CMakeFiles/moe_stream_gate_broken.dir/bench/moe_stream_gate.cpp.o\n[8/20] Building CXX object CMakeFiles/ame_residency.dir/src/residency/store.cpp.o\n[9/20] Linking CXX static library libame_residency.a\n[10/20] Building CXX object CMakeFiles/moe_kernel_gate.dir/bench/moe_kernel_gate.cpp.o\n[11/20] Building CXX object CMakeFiles/llama_baseline_stream.dir/bench/llama_baseline.cpp.o\n[12/20] Linking CXX executable moe_kernel_gate\n[13/20] Building CXX object CMakeFiles/ame_backend_broken.dir/src/backend/moe_stream.cpp.o\n[14/20] Linking CXX static library libame_backend_broken.a\n[15/20] Building CXX object CMakeFiles/ame_backend.dir/src/backend/moe_stream.cpp.o\n[16/20] Linking CXX static library libame_backend.a\n[17/20] Linking CXX executable moe_stream_gate_broken\n[18/20] Linking CXX executable manifest_gate\n[19/20] Linking CXX executable moe_stream_gate\n[20/20] Linking CXX executable llama_baseline_stream\n"
+      },
+      "stream": {
+        "identical": true,
+        "reference_values": 128,
+        "materialize_calls": 1,
+        "tensor_switches": 1,
+        "reads": 4,
+        "read_bytes": 8192,
+        "arena_bytes": 8192,
+        "slots": 4,
+        "mismatched": 0,
+        "max_difference": 0,
+        "reference_first": [
+          1.78826,
+          4.12679,
+          6.46532,
+          3.6433
+        ],
+        "candidate_first": [
+          1.78826,
+          4.12679,
+          6.46532,
+          3.6433
+        ]
+      },
+      "broken": {
+        "exit_code": 1,
+        "identical": false,
+        "mismatched": 1
+      },
+      "kernel": {
+        "dimensions": {
+          "n_embd": 64,
+          "n_ff": 128,
+          "n_expert": 32,
+          "n_expert_used": 4,
+          "prefill_tokens": 8,
+          "threads": 4
+        },
+        "memory": {
+          "resident_reference_bytes": 1048576,
+          "arena_bytes": 557056,
+          "slot_bytes": 32768,
+          "slots": 17,
+          "prefill_union": 17
+        },
+        "rounds": 2,
+        "all_identical": true
+      },
+      "manifest": {
+        "returncode": 0,
+        "stdout": "PASS valid v2 manifest\nPASS wrong tensor_count\nPASS duplicate row\nPASS nbytes mismatch\nPASS overflow\nPASS truncated extent\nPASS unsupported version\nPASS missing layout\nPASS wrong layout\nPASS offset above 4 GiB\n",
+        "stderr": ""
+      }
+    },
+    "release": {
+      "build": {
+        "configure_returncode": 0,
+        "build_returncode": 0,
+        "configure_tail": "-- The CXX compiler identification is GNU 11.4.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Configuring done (0.3s)\n-- Generating done (0.0s)\n-- Build files have been written to: /home/ananth/Documents/ChatGPT/Custom OS/build/inference-release\n",
+        "build_tail": "[1/20] Building CXX object CMakeFiles/ame_model.dir/src/model/expert_layout.cpp.o\n[2/20] Building CXX object CMakeFiles/ame_model.dir/src/model/file_extent.cpp.o\n[3/20] Linking CXX static library libame_model.a\n[4/20] Building CXX object CMakeFiles/manifest_gate.dir/bench/manifest_gate.cpp.o\n[5/20] Building CXX object CMakeFiles/ame_residency.dir/src/residency/file_source.cpp.o\n[6/20] Building CXX object CMakeFiles/moe_stream_gate_broken.dir/bench/moe_stream_gate.cpp.o\n[7/20] Building CXX object CMakeFiles/moe_stream_gate.dir/bench/moe_stream_gate.cpp.o\n[8/20] Building CXX object CMakeFiles/ame_residency.dir/src/residency/store.cpp.o\n[9/20] Linking CXX static library libame_residency.a\n[10/20] Building CXX object CMakeFiles/moe_kernel_gate.dir/bench/moe_kernel_gate.cpp.o\n[11/20] Linking CXX executable moe_kernel_gate\n[12/20] Building CXX object CMakeFiles/llama_baseline_stream.dir/bench/llama_baseline.cpp.o\n[13/20] Building CXX object CMakeFiles/ame_backend.dir/src/backend/moe_stream.cpp.o\n[14/20] Linking CXX static library libame_backend.a\n[15/20] Building CXX object CMakeFiles/ame_backend_broken.dir/src/backend/moe_stream.cpp.o\n[16/20] Linking CXX static library libame_backend_broken.a\n[17/20] Linking CXX executable manifest_gate\n[18/20] Linking CXX executable moe_stream_gate\n[19/20] Linking CXX executable moe_stream_gate_broken\n[20/20] Linking CXX executable llama_baseline_stream\n"
+      },
+      "stream": {
+        "identical": true,
+        "reference_values": 128,
+        "materialize_calls": 1,
+        "tensor_switches": 1,
+        "reads": 4,
+        "read_bytes": 8192,
+        "arena_bytes": 8192,
+        "slots": 4,
+        "mismatched": 0,
+        "max_difference": 0,
+        "reference_first": [
+          1.78826,
+          4.12679,
+          6.46532,
+          3.6433
+        ],
+        "candidate_first": [
+          1.78826,
+          4.12679,
+          6.46532,
+          3.6433
+        ]
+      },
+      "broken": {
+        "exit_code": 1,
+        "identical": false,
+        "mismatched": 1
+      },
+      "kernel": {
+        "dimensions": {
+          "n_embd": 64,
+          "n_ff": 128,
+          "n_expert": 32,
+          "n_expert_used": 4,
+          "prefill_tokens": 8,
+          "threads": 4
+        },
+        "memory": {
+          "resident_reference_bytes": 1048576,
+          "arena_bytes": 557056,
+          "slot_bytes": 32768,
+          "slots": 17,
+          "prefill_union": 17
+        },
+        "rounds": 2,
+        "all_identical": true
+      },
+      "manifest": {
+        "returncode": 0,
+        "stdout": "PASS valid v2 manifest\nPASS wrong tensor_count\nPASS duplicate row\nPASS nbytes mismatch\nPASS overflow\nPASS truncated extent\nPASS unsupported version\nPASS missing layout\nPASS wrong layout\nPASS offset above 4 GiB\n",
+        "stderr": ""
+      }
+    },
+    "sanitizers": {
+      "build": {
+        "configure_returncode": 0,
+        "build_returncode": 0,
+        "configure_tail": "-- The CXX compiler identification is GNU 11.4.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Configuring done (0.2s)\n-- Generating done (0.0s)\n-- Build files have been written to: /home/ananth/Documents/ChatGPT/Custom OS/build/inference-sanitizers\n",
+        "build_tail": "[1/20] Building CXX object CMakeFiles/ame_model.dir/src/model/file_extent.cpp.o\n[2/20] Building CXX object CMakeFiles/ame_model.dir/src/model/expert_layout.cpp.o\n[3/20] Linking CXX static library libame_model.a\n[4/20] Building CXX object CMakeFiles/manifest_gate.dir/bench/manifest_gate.cpp.o\n[5/20] Building CXX object CMakeFiles/ame_residency.dir/src/residency/file_source.cpp.o\n[6/20] Building CXX object CMakeFiles/moe_stream_gate.dir/bench/moe_stream_gate.cpp.o\n[7/20] Building CXX object CMakeFiles/moe_stream_gate_broken.dir/bench/moe_stream_gate.cpp.o\n[8/20] Building CXX object CMakeFiles/ame_residency.dir/src/residency/store.cpp.o\n[9/20] Linking CXX static library libame_residency.a\n[10/20] Building CXX object CMakeFiles/moe_kernel_gate.dir/bench/moe_kernel_gate.cpp.o\n[11/20] Building CXX object CMakeFiles/llama_baseline_stream.dir/bench/llama_baseline.cpp.o\n[12/20] Building CXX object CMakeFiles/ame_backend.dir/src/backend/moe_stream.cpp.o\n[13/20] Linking CXX static library libame_backend.a\n[14/20] Linking CXX executable moe_kernel_gate\n[15/20] Building CXX object CMakeFiles/ame_backend_broken.dir/src/backend/moe_stream.cpp.o\n[16/20] Linking CXX static library libame_backend_broken.a\n[17/20] Linking CXX executable manifest_gate\n[18/20] Linking CXX executable moe_stream_gate\n[19/20] Linking CXX executable moe_stream_gate_broken\n[20/20] Linking CXX executable llama_baseline_stream\n"
+      },
+      "stream": {
+        "identical": true,
+        "reference_values": 128,
+        "materialize_calls": 1,
+        "tensor_switches": 1,
+        "reads": 4,
+        "read_bytes": 8192,
+        "arena_bytes": 8192,
+        "slots": 4,
+        "mismatched": 0,
+        "max_difference": 0,
+        "reference_first": [
+          1.78826,
+          4.12679,
+          6.46532,
+          3.6433
+        ],
+        "candidate_first": [
+          1.78826,
+          4.12679,
+          6.46532,
+          3.6433
+        ]
+      },
+      "broken": {
+        "exit_code": 1,
+        "identical": false,
+        "mismatched": 1
+      },
+      "kernel": {
+        "dimensions": {
+          "n_embd": 64,
+          "n_ff": 128,
+          "n_expert": 32,
+          "n_expert_used": 4,
+          "prefill_tokens": 8,
+          "threads": 4
+        },
+        "memory": {
+          "resident_reference_bytes": 1048576,
+          "arena_bytes": 557056,
+          "slot_bytes": 32768,
+          "slots": 17,
+          "prefill_union": 17
+        },
+        "rounds": 2,
+        "all_identical": true
+      },
+      "manifest": {
+        "returncode": 0,
+        "stdout": "PASS valid v2 manifest\nPASS wrong tensor_count\nPASS duplicate row\nPASS nbytes mismatch\nPASS overflow\nPASS truncated extent\nPASS unsupported version\nPASS missing layout\nPASS wrong layout\nPASS offset above 4 GiB\n",
+        "stderr": ""
+      }
+    }
+  },
+  "elapsed_seconds": 17.759346003993414,
+  "passed": true
+}

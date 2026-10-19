@@ -243,6 +243,14 @@ def expert_index(parsed, file_size, top_k, arch):
     }
 
 
+def fnv1a64(text):
+    value = 0xCBF29CE484222325
+    for byte in text.encode():
+        value ^= byte
+        value = (value * 0x100000001B3) & 0xFFFFFFFFFFFFFFFF
+    return f"{value:016x}"
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", required=True, help="GGUF file or header prefix")
@@ -254,6 +262,8 @@ def main():
     parser.add_argument("--storage-available-bytes", type=int, default=0)
     parser.add_argument("--max-prefix-bytes", type=int, default=128 * 1024 * 1024)
     parser.add_argument("--manifest-out", help="write the project expert manifest")
+    parser.add_argument("--artifact-sha256", default="-",
+                        help="declared full-artifact SHA-256; '-' means not verified")
     arguments = parser.parse_args()
 
     with open(arguments.input, "rb") as stream:
@@ -348,17 +358,27 @@ def main():
         ],
     }
     if arguments.manifest_out:
-        lines = ["# ame-expert-manifest 1",
-                 f"# source {arguments.url or 'local'} {arguments.file_size} {prefix_hash}"]
+        rows = []
         if experts:
             for layer in experts["layers"]:
                 for role in sorted(layer["roles"]):
                     entry = layer["roles"][role]
-                    lines.append(
-                        f"tensor {entry['name']} {layer['layer']} {role} {entry['type_id']} "
-                        f"{entry['type']} {experts['n_expert']} {entry['expert_bytes']} "
-                        f"{entry['expert_bytes']} "
-                        f"{entry['absolute_offset']} {entry['nbytes']}")
+                    rows.append((entry["name"], layer["layer"], role, entry["type_id"],
+                                 entry["type"], experts["n_expert"], entry["expert_bytes"],
+                                 entry["expert_bytes"], entry["absolute_offset"],
+                                 entry["nbytes"]))
+        canonical = "\n".join("|".join(str(value) for value in row) for row in rows)
+        layout_hash = fnv1a64(canonical)
+        lines = [
+            "# ame-expert-manifest 2",
+            f"# artifact_bytes {arguments.file_size}",
+            f"# artifact_sha256 {arguments.artifact_sha256}",
+            f"# tensor_count {len(rows)}",
+            f"# layout_fnv1a64 {layout_hash}",
+            f"# source {arguments.url or 'local'} {arguments.file_size} {prefix_hash}",
+        ]
+        for row in rows:
+            lines.append("tensor " + " ".join(str(value) for value in row))
         Path(arguments.manifest_out).write_text("\n".join(lines) + "\n")
     text = json.dumps(report, indent=2, sort_keys=True) + "\n"
     if arguments.output:

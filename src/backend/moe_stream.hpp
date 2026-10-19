@@ -17,6 +17,10 @@ struct MoeStreamStats {
   std::uint64_t max_union{0};
   std::uint64_t slots{0};
   std::uint64_t arena_bytes{0};
+  std::uint32_t manifest_version{0};
+  bool manifest_identity_checked{false};
+  std::string manifest_layout_hash;
+  std::string declared_artifact_sha256;
   std::string error;
 };
 
@@ -26,6 +30,9 @@ struct MoeStreamStats {
 bool install_moe_stream(const std::string& model_path, const std::string& manifest_path,
                         std::uint32_t slots, std::uint64_t arena_limit_bytes);
 void uninstall_moe_stream();
+// Request cancellation of the active materializer. Reads observe it between chunks
+// and expert slots; the inference owner still drains the current backend call.
+void request_moe_stream_cancel();
 [[nodiscard]] MoeStreamStats moe_stream_stats();
 
 }  // namespace ame::backend

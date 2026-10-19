@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "gate": "gate1_android_elf",
+  "binary": "/media/ananth/17AB9D0651C6CC1F/ame-tools/build/harness/llama_baseline_android",
+  "sha256": "e824cf5649be3d35abf641ad4ee670999a49f342040374151544bc772a3d84fb",
+  "size_bytes": 5803320,
+  "elf64": true,
+  "machine_aarch64": true,
+  "type": "DYN (Shared object file)",
+  "interpreter": "[Requesting program interpreter: /system/bin/linker64]",
+  "needed": [
+    "liblog.so",
+    "libm.so",
+    "libdl.so",
+    "libc.so"
+  ],
+  "attributes_present": false,
+  "forbidden_instructions": [],
+  "passed": true
+}
