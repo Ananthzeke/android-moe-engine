@@ -23,6 +23,10 @@ function(ame_project_target target)
   endif()
 endfunction()
 
+add_library(ame_crypto STATIC src/common/sha256.cpp)
+target_include_directories(ame_crypto PUBLIC src/common)
+ame_project_target(ame_crypto)
+
 add_library(ame_model STATIC src/model/file_extent.cpp src/model/expert_layout.cpp)
 target_include_directories(ame_model PUBLIC src/model src/common)
 ame_project_target(ame_model)
@@ -65,18 +69,18 @@ if(AME_INFERENCE_INTEGRATION)
         "${AME_LLAMA_HOST_LIB_DIR}/src/libllama.a;${AME_LLAMA_HOST_LIB_DIR}/ggml/src/libggml.a;${AME_LLAMA_HOST_LIB_DIR}/ggml/src/libggml-base.a;${AME_LLAMA_HOST_LIB_DIR}/ggml/src/libggml-cpu.a")
   endif()
 
-  add_library(ame_backend STATIC src/backend/moe_stream.cpp)
+  add_library(ame_backend STATIC src/backend/moe_stream.cpp src/backend/artifact.cpp)
   target_include_directories(ame_backend PUBLIC src/backend src/model src/residency src/common
                                              "${AME_LLAMA_SOURCE_DIR}/include"
                                              "${AME_LLAMA_SOURCE_DIR}/ggml/include")
-  target_link_libraries(ame_backend PUBLIC ame_model ame_residency)
+  target_link_libraries(ame_backend PUBLIC ame_model ame_residency ame_crypto)
   ame_project_target(ame_backend)
 
-  add_library(ame_backend_broken STATIC src/backend/moe_stream.cpp)
+  add_library(ame_backend_broken STATIC src/backend/moe_stream.cpp src/backend/artifact.cpp)
   target_include_directories(ame_backend_broken PUBLIC src/backend src/model src/residency src/common
                                                    "${AME_LLAMA_SOURCE_DIR}/include"
                                                    "${AME_LLAMA_SOURCE_DIR}/ggml/include")
-  target_link_libraries(ame_backend_broken PUBLIC ame_model ame_residency)
+  target_link_libraries(ame_backend_broken PUBLIC ame_model ame_residency ame_crypto)
   target_compile_definitions(ame_backend_broken PRIVATE AME_TEST_BREAK_MATERIALIZER=1)
   ame_project_target(ame_backend_broken)
 
@@ -93,7 +97,7 @@ if(AME_INFERENCE_INTEGRATION)
   endfunction()
 
   add_executable(moe_stream_gate bench/moe_stream_gate.cpp)
-  target_link_libraries(moe_stream_gate PRIVATE ame_backend ame_prefill)
+  target_link_libraries(moe_stream_gate PRIVATE ame_backend ame_prefill ame_crypto)
   ame_inference_target(moe_stream_gate)
 
   add_executable(moe_stream_gate_broken bench/moe_stream_gate.cpp)
@@ -105,8 +109,12 @@ if(AME_INFERENCE_INTEGRATION)
   ame_inference_target(moe_kernel_gate)
 
   add_executable(llama_baseline_stream bench/llama_baseline.cpp)
-  target_link_libraries(llama_baseline_stream PRIVATE ame_backend ame_prefill)
+  target_link_libraries(llama_baseline_stream PRIVATE ame_backend ame_prefill ame_crypto)
   ame_inference_target(llama_baseline_stream)
+
+  add_executable(artifact_gate bench/artifact_gate.cpp)
+  target_link_libraries(artifact_gate PRIVATE ame_backend)
+  ame_inference_target(artifact_gate)
 
   add_executable(manifest_gate bench/manifest_gate.cpp)
   target_link_libraries(manifest_gate PRIVATE ame_backend)
@@ -123,6 +131,11 @@ if(BUILD_TESTING)
   target_link_libraries(file_extent_test PRIVATE ame_model)
   ame_project_target(file_extent_test)
   add_test(NAME file_extent COMMAND file_extent_test)
+
+  add_executable(sha256_test tests/sha256_test.cpp)
+  target_link_libraries(sha256_test PRIVATE ame_crypto)
+  ame_project_target(sha256_test)
+  add_test(NAME sha256 COMMAND sha256_test)
 
   add_executable(probe_test tests/probe_test.cpp)
   target_link_libraries(probe_test PRIVATE ame_probe)

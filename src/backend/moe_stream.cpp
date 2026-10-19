@@ -60,6 +60,7 @@ struct Cache {
 };
 
 std::string g_model_path;
+const Artifact* g_artifact = nullptr;
 std::map<std::string, TensorSpec> g_specs;
 std::map<std::uint64_t, std::vector<ExpertEntry>> g_entries_by_size;
 std::map<std::uint64_t, AlignedArena> g_arenas;
@@ -267,7 +268,8 @@ Cache* cache_for(std::uint64_t expert_bytes) {
   if (arena == nullptr) {
     return nullptr;
   }
-  auto source = FileSource::open(g_model_path);
+  auto source = g_artifact != nullptr ? FileSource::open_fd(g_artifact->fd())
+                                      : FileSource::open(g_model_path);
   if (!source.ok()) {
     (void)fail_outcome("cannot open model for cache");
     return nullptr;
@@ -301,6 +303,12 @@ int materialize(const ggml_tensor* weights, const ggml_tensor* ids) {
   }
   if (g_cancellation.requested()) {
     return cancel_outcome("cancelled before materialization");
+  }
+  if (g_artifact != nullptr) {
+    std::string recheck_error;
+    if (!g_artifact->recheck(recheck_error)) {
+      return fail_outcome(recheck_error);
+    }
   }
   const auto found = g_specs.find(weights->name);
   if (found == g_specs.end()) {
@@ -428,6 +436,58 @@ int materialize(const ggml_tensor* weights, const ggml_tensor* ids) {
   return GGML_MOE_STAGED;
 }
 
+bool validate_artifact_layout() {
+  if (g_artifact == nullptr) {
+    return manifest_error("no verified artifact");
+  }
+  if (g_specs.empty()) {
+    return manifest_error("manifest has no expert tensors");
+  }
+  if (g_stats.manifest_version == 2 && !g_stats.declared_artifact_sha256.empty() &&
+      g_stats.declared_artifact_sha256 != "-" &&
+      g_stats.declared_artifact_sha256 != g_artifact->sha256()) {
+    return manifest_error("manifest SHA does not match the verified artifact");
+  }
+  for (const auto& [name, spec] : g_specs) {
+    if (name.find("_exps") == std::string::npos) {
+      return manifest_error("manifest contains a non-routed tensor: " + name);
+    }
+    const TensorInfo* info = g_artifact->find(name);
+    if (info == nullptr) {
+      return manifest_error("manifest tensor is absent from GGUF: " + name);
+    }
+    if (info->type != spec.type_id) {
+      return manifest_error("GGUF type mismatch for " + name);
+    }
+    if (info->ne[2] != static_cast<std::int64_t>(spec.n_expert) || info->ne[3] != 1 ||
+        info->ne[0] <= 0 || info->ne[1] <= 0) {
+      return manifest_error("GGUF shape mismatch for " + name);
+    }
+    if (info->absolute_offset != spec.offset || info->nbytes != spec.nbytes) {
+      return manifest_error("GGUF extent mismatch for " + name);
+    }
+    if (spec.stride != spec.expert_bytes) {
+      return manifest_error("non-contiguous expert stride is unsupported for " + name);
+    }
+    const std::uint64_t row_size = static_cast<std::uint64_t>(
+        ggml_row_size(static_cast<ggml_type>(spec.type_id), info->ne[0]));
+    if (row_size == 0 || static_cast<std::uint64_t>(info->ne[1]) > UINT64_MAX / row_size ||
+        spec.expert_bytes != row_size * static_cast<std::uint64_t>(info->ne[1])) {
+      return manifest_error("quantization row arithmetic mismatch for " + name);
+    }
+  }
+  for (const auto& [name, info] : g_artifact->tensors()) {
+    (void)info;
+    if (name.find("_exps") != std::string::npos && g_specs.find(name) == g_specs.end()) {
+      return manifest_error("routed GGUF tensor is missing from manifest: " + name);
+    }
+  }
+  g_stats.artifact_verified = true;
+  g_stats.verified_artifact_sha256 = g_artifact->sha256();
+  g_stats.artifact_hash_seconds = g_artifact->hash_seconds();
+  return true;
+}
+
 }  // namespace
 }  // namespace ame::backend
 
@@ -439,10 +499,61 @@ uint32_t ggml_moe_max_slots(void) { return ame::backend::g_slots; }
 
 namespace ame::backend {
 
-bool install_moe_stream(const std::string& model_path, const std::string& manifest_path,
+bool install_moe_stream(const Artifact& artifact, const std::string& manifest_path,
                         std::uint32_t slots, std::uint64_t arena_limit_bytes) {
   uninstall_moe_stream();
   g_stats = MoeStreamStats{};
+  if (slots == 0 || arena_limit_bytes == 0) {
+    g_stats.error = "invalid stream options";
+    return false;
+  }
+  g_artifact = &artifact;
+  std::string recheck_error;
+  if (!artifact.recheck(recheck_error)) {
+    g_stats.error = recheck_error;
+    return false;
+  }
+  g_model_path.clear();
+  g_arena_limit = arena_limit_bytes;
+  if (!read_manifest(manifest_path, artifact.size())) {
+    if (g_stats.error.empty()) {
+      g_stats.error = "manifest has no expert tensors";
+    }
+    return false;
+  }
+  if (!validate_artifact_layout()) {
+    return false;
+  }
+  g_slots = slots;
+  g_cancellation.reset();
+  g_stats.slots = g_slots;
+  g_trace_call = 0;
+  if (const char* trace_path = std::getenv("AME_MOE_TRACE");
+      trace_path != nullptr && trace_path[0] != '\0') {
+    g_trace.open(trace_path, std::ios::trunc);
+    if (!g_trace) {
+      g_stats.error = "cannot open routing trace";
+      return false;
+    }
+    g_trace << "# call tensor n_experts experts...\n";
+    g_trace.flush();
+  }
+  ggml_moe_set_materializer(materialize);
+  g_installed = true;
+  return true;
+}
+
+bool install_moe_stream(const std::string& model_path, const std::string& manifest_path,
+                        std::uint32_t slots, std::uint64_t arena_limit_bytes) {
+  if (std::getenv("AME_ALLOW_UNVERIFIED_ARTIFACT") == nullptr) {
+    g_stats.error =
+        "unverified artifact install refused; set AME_ALLOW_UNVERIFIED_ARTIFACT=1 only for "
+        "diagnostics";
+    return false;
+  }
+  uninstall_moe_stream();
+  g_stats = MoeStreamStats{};
+  g_artifact = nullptr;
   std::error_code size_error;
   const auto model_bytes = std::filesystem::file_size(model_path, size_error);
   if (size_error) {
@@ -507,6 +618,7 @@ void uninstall_moe_stream() {
   g_remapped.clear();
   g_model_path.clear();
   g_last_tensor.clear();
+  g_artifact = nullptr;
   g_cancellation.reset();
 }
 

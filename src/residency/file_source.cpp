@@ -58,6 +58,30 @@ FileSource::~FileSource() {
   }
 }
 
+Result<FileSource, FileError> FileSource::open_fd(int descriptor) {
+  if (descriptor < 0) {
+    return FileError::OpenFailed;
+  }
+  const int duplicated = ::fcntl(descriptor, F_DUPFD_CLOEXEC, 0);
+  if (duplicated < 0) {
+    return FileError::OpenFailed;
+  }
+  struct stat status {};
+  if (::fstat(duplicated, &status) != 0) {
+    ::close(duplicated);
+    return FileError::StatFailed;
+  }
+  if (!S_ISREG(status.st_mode)) {
+    ::close(duplicated);
+    return FileError::NotRegularFile;
+  }
+  if (status.st_size < 0) {
+    ::close(duplicated);
+    return FileError::StatFailed;
+  }
+  return FileSource(duplicated, static_cast<std::uint64_t>(status.st_size));
+}
+
 Result<FileSource, FileError> FileSource::open(const std::string& path) {
   const int descriptor = ::open(path.c_str(), O_RDONLY | O_CLOEXEC);
   if (descriptor < 0) {

@@ -74,6 +74,7 @@ std::string escape(std::string_view text) {
 }  // namespace
 
 int main(int argc, char* argv[]) {
+  (void)::setenv("AME_ALLOW_UNVERIFIED_ARTIFACT", "1", 0);
   std::string workdir = ".";
   std::string fault = "none";
   int threads = 4;

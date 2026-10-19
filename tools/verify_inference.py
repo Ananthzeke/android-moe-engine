@@ -179,7 +179,7 @@ def build(config: str, source: Path, libs: Path, build_dir: Path) -> dict[str, o
     configured = run(configure, timeout=900)
     built = run(["cmake", "--build", str(build_dir), "--target",
                  "moe_stream_gate", "moe_stream_gate_broken", "moe_kernel_gate",
-                 "manifest_gate", "llama_baseline_stream"], timeout=1800)
+                 "manifest_gate", "artifact_gate", "llama_baseline_stream"], timeout=1800)
     return {
         "configure_returncode": configured.returncode,
         "build_returncode": built.returncode,
@@ -234,6 +234,11 @@ def main() -> int:
                                             build_dir / "gate-kernel" / "result.json")
             manifest = run([sys.executable, str(ROOT / "tests" / "manifest_gate_test.py"),
                             "--binary", str(build_dir / "manifest_gate")], timeout=300)
+            artifact = run([sys.executable, str(ROOT / "tests" / "artifact_gate_test.py"),
+                            "--binary", str(build_dir / "artifact_gate")], timeout=300)
+            record["artifact"] = {"returncode": artifact.returncode,
+                                   "stdout": artifact.stdout[-6000:],
+                                   "stderr": artifact.stderr[-2000:]}
             record["manifest"] = {"returncode": manifest.returncode,
                                    "stdout": manifest.stdout[-4000:],
                                    "stderr": manifest.stderr[-2000:]}

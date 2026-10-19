@@ -28,6 +28,7 @@
 #include <system_error>
 #include <vector>
 
+#include "artifact.hpp"
 #include "llama.h"
 #include "moe_stream.hpp"
 #include "prefill_plan.hpp"
@@ -638,14 +639,53 @@ int main(int argc, char* argv[]) {
 
   llama_backend_init();
 
+  std::unique_ptr<ame::backend::Artifact> artifact;
+  std::string model_load_path = options.model;
   if (options.stream) {
+    bool digest_ok = options.artifact_sha.size() == 64;
+    for (const char character : options.artifact_sha) {
+      if (!((character >= '0' && character <= '9') || (character >= 'a' && character <= 'f'))) {
+        digest_ok = false;
+      }
+    }
+    std::error_code artifact_size_error;
+    const auto artifact_bytes = std::filesystem::file_size(options.model, artifact_size_error);
+    if (!digest_ok || artifact_size_error) {
+      std::cerr << "streaming requires --artifact-sha with a lowercase 64-hex digest\n";
+      (void)emit_status(options, "refused", "artifact_identity_missing",
+                        "streaming requires the enrolled artifact SHA-256");
+      llama_backend_free();
+      return 0;
+    }
+    std::string artifact_error;
+    const ame::backend::ExpectedIdentity expected{options.artifact_sha, artifact_bytes};
+    auto opened = ame::backend::Artifact::open(options.model, expected, artifact_error);
+    if (!opened.ok()) {
+      std::cerr << "artifact verification failed: " << artifact_error << '\n';
+      (void)emit_status(options, "failed", "artifact_identity", artifact_error);
+      llama_backend_free();
+      return 1;
+    }
+    artifact = std::move(opened).value();
+    model_load_path = artifact->proc_path();
+    if (const char* replacement = std::getenv("AME_TEST_REPLACE_MODEL_AFTER_ARTIFACT");
+        replacement != nullptr && replacement[0] != '\0') {
+      std::error_code replace_error;
+      std::filesystem::rename(replacement, options.model, replace_error);
+      if (replace_error) {
+        std::cerr << "test replacement failed\n";
+        (void)emit_status(options, "failed", "test_replacement", "cannot replace model path");
+        llama_backend_free();
+        return 1;
+      }
+    }
     const std::uint64_t arena_bytes =
         static_cast<std::uint64_t>(options.moe_arena_mib) * 1024ULL * 1024ULL;
-    if (!ame::backend::install_moe_stream(options.model, options.manifest, options.moe_slots,
+    if (!ame::backend::install_moe_stream(*artifact, options.manifest, options.moe_slots,
                                           arena_bytes)) {
       const auto stats = ame::backend::moe_stream_stats();
       std::cerr << "moe stream install failed: " << stats.error << '\n';
-      (void)emit_status(options, "error", "error", "moe stream install failed");
+      (void)emit_status(options, "failed", "manifest_layout", stats.error);
       llama_backend_free();
       return 1;
     }
@@ -661,7 +701,7 @@ int main(int argc, char* argv[]) {
   model_params.check_tensors = false;
   model_params.use_extra_bufts = !options.stream;
 
-  llama_model* model = llama_model_load_from_file(options.model.c_str(), model_params);
+  llama_model* model = llama_model_load_from_file(model_load_path.c_str(), model_params);
   if (model == nullptr) {
     std::cerr << "model load failed\n";
     (void)emit_status(options, "error", "error", "model load failed");
@@ -1159,6 +1199,12 @@ int main(int argc, char* argv[]) {
   json.string_value(stream_stats.manifest_layout_hash);
   json.key("declared_artifact_sha256");
   json.string_value(stream_stats.declared_artifact_sha256);
+  json.key("verified_artifact_sha256");
+  json.string_value(stream_stats.verified_artifact_sha256);
+  json.key("artifact_verified");
+  json.bool_value(stream_stats.artifact_verified);
+  json.key("artifact_hash_seconds");
+  json.double_value(stream_stats.artifact_hash_seconds);
   json.key("failed");
   json.bool_value(stream_stats.failed);
   json.key("cancelled");

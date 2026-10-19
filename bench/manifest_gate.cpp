@@ -7,6 +7,7 @@
 #include "moe_stream.hpp"
 
 int main(int argc, char* argv[]) {
+  (void)::setenv("AME_ALLOW_UNVERIFIED_ARTIFACT", "1", 0);
   std::string model;
   std::string manifest;
   std::uint32_t slots = 4;

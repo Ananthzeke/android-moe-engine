@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "status": "refused",
+  "observed_at": "2026-10-19T06:35:06Z",
+  "run": {
+    "id": "",
+    "tag": "host"
+  },
+  "model": {
+    "path": "/media/ananth/17AB9D0651C6CC1F/ame-tools/models/qwen15moe/Qwen1.5-MoE-A2.7B_q4_k_m.gguf",
+    "artifact_sha256": null
+  },
+  "finish_reason": "artifact_identity_missing",
+  "error": "streaming requires the enrolled artifact SHA-256"
+}

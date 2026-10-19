@@ -25,6 +25,9 @@ enum class FileError {
 class FileSource {
  public:
   static Result<FileSource, FileError> open(const std::string& path);
+  // Duplicate an already-open read-only FD. This is how every expert size-class
+  // source is bound to the single verified artifact handle.
+  static Result<FileSource, FileError> open_fd(int descriptor);
   FileSource(FileSource&& other) noexcept;
   FileSource& operator=(FileSource&& other) noexcept;
   FileSource(const FileSource&) = delete;
