@@ -278,3 +278,19 @@ See [production path](PRODUCTION_PATH.md).
 - Real 35B API and output parity are not qualified.
 
 See [RUN_PHONE.md](RUN_PHONE.md).
+
+## 35B phone text API smoke (2026-10-20)
+
+The enrolled Qwen3.6-35B-A3B Q4_K_M artifact passed JSON and SSE requests through
+the updated native server with default thinking disabled. Responses were `Hello!`
+and `4`, both with HTTP 200, usage, and normal stops; SSE also ended with `[DONE]`.
+The phone model list and input rejection checks passed. Peak process RSS was
+about 2.09 GiB, with a 36 MiB project expert arena. Startup readiness took about
+29 minutes and the two short requests took about 247 and 284 seconds including
+context construction, prefill, and decode. This is a single bounded smoke with
+uncontrolled prior cache state, not a throughput campaign or numerical reference
+comparison. No earlier release gate is promoted by this result.
+
+See [the 35B runbook](RUN_35B.md),
+[phone evidence](../evidence/api/phone-35b-direct/run.json), and
+[host build/verification evidence](../evidence/api/chat-template-fix/build-and-verification.json).

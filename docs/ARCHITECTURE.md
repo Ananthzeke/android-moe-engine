@@ -273,9 +273,21 @@ a release blocker on the phone. See [the Unit 2 report](UNIT2_REPORT.md).
 model, tokenizer, chat template, sampler, and the project's verified artifact and
 materializer path. It serves `/health`, `/v1/models`, and OpenAI-compatible
 `/v1/chat/completions` JSON/SSE. Each request creates and destroys its own llama
-context; the model and verified artifact FD remain resident. One generation is
+context; the model object and verified artifact FD remain alive. One generation is
 admitted at a time. The API does not implement tools, vision, audio, or complete
 OpenAI parity.
 
 Dense Qwen3.5-2B and streamed Qwen1.5-MoE were exercised on the phone. See
 [RUN_PHONE.md](RUN_PHONE.md) and [RELEASE_RECORD.json](RELEASE_RECORD.json).
+
+The 35B text path now uses the pinned upstream `common_chat_templates` Jinja
+renderer over the model's stored template, with `enable_thinking=false` by
+default. A private server helper preserves origin-marked prompt parts and the
+model's BOS/EOS policy during upstream tokenization. Each request owns its token
+vector before entering generation. Template and model owners outlive the HTTP
+server. Streaming cleanup then clears saved consumer bindings and stores without
+dereferencing the released model; the artifact FD remains open through that
+cleanup. The loading listener
+has scope-owned stop/join on C++ failure paths. These changes do not alter model
+mathematics, routing, or the expert materializer contract. The enrolled 35B phone
+JSON/SSE smoke and its timing limits are recorded in [RUN_35B.md](RUN_35B.md).

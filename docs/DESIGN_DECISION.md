@@ -102,3 +102,25 @@ Keep the claims narrow. The project arena was 120-160 MB, not a process cap. The
 ## Cache capacity decision (2026-10-19)
 
 The 35B default path reads 5.90 GB from storage over nine forwards and spends 16.6-21.4 s in application reads. The routing trace shows a 960-key decode working set and only 237-612 keys of consecutive overlap. A 1,024-slot multi-table cache (604 MB) was implemented and measured against the 64-slot path: it cut bytes by 23.5% but raised read time by 5.0 s, reduced decode from 0.561 to 0.461 tok/s, and raised peak RSS by 539 MiB. Keep demand reads and the small arena as the default. Do not adopt a global LRU without a policy that reduces actual read latency; the next cache unit must measure per-tensor reuse and I/O latency, not only byte counts.
+
+## Model-owned chat formatting (2026-10-20)
+
+Use the pinned upstream common Jinja helpers for the HTTP server's model template.
+The previous heuristic C template helper did not supply the actual template's
+thinking flag; a bounded 35B greeting consumed its 48-token budget on thinking
+text. Set `enable_thinking=false` by default through upstream generation inputs,
+with a strict boolean HTTP opt-in. Preserve marked input parts and upstream
+BOS/EOS policy when producing owned request tokens. Keep rendering in a private
+server helper shared with the actual-model template fixture. Do not handwrite a
+Qwen prompt format or change inference mathematics to produce shorter answers.
+
+Scope-own loading-listener, model, streaming-store, and artifact lifetimes so
+startup errors return cleanly. Host API checks, a Release-active template fixture,
+and a forced-thinking mutation test passed. The final Android binary completed
+`Hello!` through JSON and `4` through SSE on the enrolled 35B artifact, with normal
+stops and no emitted thinking text. [The phone record](../evidence/api/phone-35b-direct/run.json)
+retains the monitor-only PID guard failure and the successful continuation without
+a server restart. [The runbook](RUN_35B.md) gives reproduction commands and timing
+limits. This establishes a short 35B text API path; reference-logit parity,
+long-form qualification, runtime mutation integrity, stop buffering, UTF-8
+buffering, and bounded disconnect cancellation remain separate open work.

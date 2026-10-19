@@ -1,0 +1,37 @@
+619a57d000-7ffa084000 ---p 00000000 00:00 0                              [rollup]
+Rss:             2000816 kB
+Pss:             1999078 kB
+Shared_Clean:       1608 kB
+Shared_Dirty:        228 kB
+Private_Clean:   1958680 kB
+Private_Dirty:     40300 kB
+Referenced:      1951704 kB
+Anonymous:         40300 kB
+LazyFree:              0 kB
+AnonHugePages:         0 kB
+ShmemPmdMapped:        0 kB
+Shared_Hugetlb:        0 kB
+Private_Hugetlb:       0 kB
+Swap:              84588 kB
+SwapPss:           84580 kB
+Locked:                0 kB
+State:	S (sleeping)
+VmHWM:	 2191548 kB
+VmRSS:	 2000408 kB
+Threads:	9
+rchar: 36749590034
+wchar: 378420
+syscr: 38461
+syscw: 3852
+read_bytes: 52384239616
+write_bytes: 413696
+cancelled_write_bytes: 0
+MemTotal:        7834596 kB
+MemAvailable:    5981712 kB
+SwapFree:        4890156 kB
+  level: 78
+  temperature: 280
+37000
+68f3c3cbe29a278f3ef9e937261d471654ffa7db38db0c6026566698ff9e7093  /data/local/tmp/ame-api/ame-server
+1f7b5c95bc588d15a08fa682e98f1f78c2bbba53e7caa6e53bbddde44d5ef738  /data/local/tmp/ame-api/start-35b.sh
+30d52a919e46a493bb9185d5514bf37c3ee9d9d7898ab036a61a80828ce898cb  /data/local/tmp/ame-api/qwen36-35b-v2.manifest

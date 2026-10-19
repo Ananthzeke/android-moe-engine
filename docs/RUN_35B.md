@@ -5,6 +5,30 @@ streaming. The launcher uses 64 expert slots, a 256 MiB arena allowance, a
 512-token context, and four CPU threads. The arena allowance is not a process
 memory cap.
 
+## Physical-phone result (2026-10-20)
+
+The enrolled 35B artifact completed both requests through this server on the
+physical vivo 1920, with thinking disabled by default:
+
+| Request | Answer | Finish | Request wall time |
+| --- | --- | --- | ---: |
+| JSON greeting | `Hello!` | `stop` | 246.77 s |
+| SSE arithmetic | `4` | `stop`, then `[DONE]` | 284.02 s |
+
+Both returned HTTP 200 and usage counts. Readiness was first observed 1,732.28 s
+after monitoring started, including full artifact verification and model loading.
+These request times include context creation, prompt processing, and generation;
+they are not decode throughput measurements. This is a working bounded text API
+smoke, and its latency is several minutes per short request on this phone.
+
+Peak process RSS was 2,191,548 KiB (about 2.09 GiB). The project expert arena was
+37,748,736 bytes (36 MiB). Expert materialization recorded 27,648 reads and
+16,307,453,952 application-read bytes across the two requests, with no streaming
+failure. RSS, PSS, arena bytes, and kernel I/O counters have separate scopes in
+[the run record](../evidence/api/phone-35b-direct/run.json). Raw
+[JSON](../evidence/api/phone-35b-direct/chat.json) and
+[SSE](../evidence/api/phone-35b-direct/sse.sse) responses are retained.
+
 ## Build and deploy
 
 These commands assume the server package already exists at

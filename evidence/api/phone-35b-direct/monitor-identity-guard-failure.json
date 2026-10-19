@@ -1,0 +1,46 @@
+{
+  "environment": "physical_target",
+  "model": "Qwen3.6-35B-A3B",
+  "pid": 30794,
+  "port": 8081,
+  "repo_base_commit": "d4512c2dfcac35ce079658753f9c24c9319cef86",
+  "expected_model_bytes": 20419565568,
+  "expected_model_sha256": "671e47e0ec53c665d048b98c3ecbfd5236b5ca9c3e02ed19fc8f81f7b85140c7",
+  "android_binary_sha256": "68f3c3cbe29a278f3ef9e937261d471654ffa7db38db0c6026566698ff9e7093",
+  "context": 512,
+  "slots": 64,
+  "arena_mib": 256,
+  "threads": 4,
+  "thinking": "disabled by default using model metadata Jinja",
+  "tests": [],
+  "status": "failed",
+  "started_at": "2026-10-19T18:02:40.198157+00:00",
+  "limits": [
+    "Single startup and bounded smoke; no real-35B reference-logit parity",
+    "API does not expose exact output token IDs",
+    "Process RSS is not a hard memory cap",
+    "Request wall time includes context construction, prefill and decode"
+  ],
+  "ready_at": "2026-10-19T18:31:32.327656+00:00",
+  "health_before": {
+    "model": "Qwen3.6-35B-A3B",
+    "status": "ready",
+    "streaming": {
+      "arena_bytes": 0,
+      "cancelled": false,
+      "contract_routed": 120,
+      "contract_shared": 160,
+      "evictions": 0,
+      "failed": false,
+      "hits": 0,
+      "materialize_calls": 0,
+      "misses": 0,
+      "read_bytes": 0,
+      "reads": 0,
+      "slots": 64
+    }
+  },
+  "monitor_to_ready_seconds": 1732.2753192569944,
+  "error": "RuntimeError('baseline PID identity changed; refusing to stop unrelated process')",
+  "elapsed_seconds": 1732.3538042779546
+}

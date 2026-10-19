@@ -1,0 +1,126 @@
+{
+  "environment": "physical_target",
+  "model": "Qwen3.6-35B-A3B",
+  "pid": 30794,
+  "port": 8081,
+  "repo_base_commit": "d4512c2dfcac35ce079658753f9c24c9319cef86",
+  "expected_model_bytes": 20419565568,
+  "expected_model_sha256": "671e47e0ec53c665d048b98c3ecbfd5236b5ca9c3e02ed19fc8f81f7b85140c7",
+  "android_binary_sha256": "68f3c3cbe29a278f3ef9e937261d471654ffa7db38db0c6026566698ff9e7093",
+  "context": 512,
+  "slots": 64,
+  "arena_mib": 256,
+  "threads": 4,
+  "thinking": "disabled by default using model metadata Jinja",
+  "tests": [
+    {
+      "name": "chat",
+      "http": 200,
+      "request_wall_seconds": 246.76717407099204,
+      "text": "Hello!",
+      "finish_reason": "stop",
+      "usage": {
+        "completion_tokens": 2,
+        "prompt_tokens": 24,
+        "total_tokens": 26
+      },
+      "passed": true
+    },
+    {
+      "name": "sse",
+      "http": 200,
+      "request_wall_seconds": 284.02191558200866,
+      "text": "4",
+      "finish_reason": "stop",
+      "usage": {
+        "completion_tokens": 1,
+        "prompt_tokens": 26,
+        "total_tokens": 27
+      },
+      "passed": true
+    }
+  ],
+  "status": "smoke_passed",
+  "started_at": "2026-10-19T18:02:40.198157+00:00",
+  "limits": [
+    "Single startup and bounded smoke; no real-35B reference-logit parity",
+    "API does not expose exact output token IDs",
+    "Process RSS is not a hard memory cap",
+    "Request wall time includes context construction, prefill and decode"
+  ],
+  "ready_at": "2026-10-19T18:31:32.327656+00:00",
+  "health_before": {
+    "model": "Qwen3.6-35B-A3B",
+    "status": "ready",
+    "streaming": {
+      "arena_bytes": 0,
+      "cancelled": false,
+      "contract_routed": 120,
+      "contract_shared": 160,
+      "evictions": 0,
+      "failed": false,
+      "hits": 0,
+      "materialize_calls": 0,
+      "misses": 0,
+      "read_bytes": 0,
+      "reads": 0,
+      "slots": 64
+    }
+  },
+  "monitor_to_ready_seconds": 1732.2753192569944,
+  "elapsed_seconds": 2344.6547747440054,
+  "monitor_incidents": [
+    "RuntimeError('baseline PID identity changed; refusing to stop unrelated process')"
+  ],
+  "baseline_retired_pid": 28222,
+  "health_after": {
+    "model": "Qwen3.6-35B-A3B",
+    "status": "ready",
+    "streaming": {
+      "arena_bytes": 37748736,
+      "cancelled": false,
+      "contract_routed": 120,
+      "contract_shared": 160,
+      "evictions": 27584,
+      "failed": false,
+      "hits": 0,
+      "materialize_calls": 1200,
+      "misses": 27648,
+      "read_bytes": 16307453952,
+      "reads": 27648,
+      "slots": 64
+    }
+  },
+  "schema_version": 1,
+  "source_commit": "4af8c37c9d8fefdfdf4b025737f0dc7444134d6b",
+  "date_local": "2026-10-20",
+  "backend_commit": "ff5a23376725e5a889fa0bfb987b7541dc304da0",
+  "backend_patch_set_sha256": "fd1be78f82d6d568653c0899cf21e7f994777f3163ae39487be1853acf55f780",
+  "manifest_sha256": "30d52a919e46a493bb9185d5514bf37c3ee9d9d7898ab036a61a80828ce898cb",
+  "launcher_sha256": "1f7b5c95bc588d15a08fa682e98f1f78c2bbba53e7caa6e53bbddde44d5ef738",
+  "device": {
+    "model": "vivo 1920",
+    "abi": "arm64-v8a",
+    "android_api": 31
+  },
+  "memory": {
+    "peak_process_rss_kib": 2191548,
+    "final_process_rss_kib": 2000408,
+    "final_rollup_pss_kib": 1999078,
+    "final_system_mem_available_kib": 5981712,
+    "project_arena_bytes": 37748736,
+    "hard_process_memory_cap": false,
+    "scope": "VmHWM is the process lifetime kernel high-water mark; RSS and PSS are distinct final snapshots; arena covers only project staging"
+  },
+  "io": {
+    "expert_application_read_bytes": 16307453952,
+    "process_lifetime_rchar_bytes": 36749590034,
+    "process_lifetime_kernel_read_bytes": 52384239616,
+    "scope": "Expert counters cover materialization; lifetime /proc I/O also covers hashing, loader reads and file-backed faults. Kernel read_bytes attribution is not a direct device bandwidth measurement."
+  },
+  "timing_scope": "One characterization with prior-run cache state uncontrolled. monitor_to_ready_seconds includes full verification and model load but omits the short launch-to-monitor gap; request wall time includes context creation, prefill and decode. No decode-throughput or speedup claim.",
+  "output_token_ids": null,
+  "output_token_ids_unavailable_reason": "HTTP server exposes text and usage counts, not exact output token IDs; this is not a numerical reference parity test.",
+  "monitor_incident_scope": "The first monitor stopped at its own baseline PID guard before any request; Android cmdline lacked the assumed terminal NUL. The guard was corrected and monitoring resumed against the same already verified server. The failed monitor record is retained; the engine was not restarted.",
+  "recorded_at_utc": "2026-10-19T18:43:24.654662+00:00"
+}

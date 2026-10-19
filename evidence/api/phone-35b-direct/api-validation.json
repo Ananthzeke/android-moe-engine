@@ -1,0 +1,63 @@
+{
+  "models": {
+    "data": [
+      {
+        "id": "Qwen3.6-35B-A3B",
+        "object": "model",
+        "owned_by": "local"
+      }
+    ],
+    "object": "list"
+  },
+  "tests": [
+    {
+      "name": "empty_messages",
+      "http": 400,
+      "body": {
+        "error": {
+          "code": "invalid_request_error",
+          "message": "messages must be a nonempty array",
+          "type": "invalid_request_error"
+        }
+      },
+      "passed": true
+    },
+    {
+      "name": "invalid_thinking_type",
+      "http": 400,
+      "body": {
+        "error": {
+          "code": "invalid_request_error",
+          "message": "enable_thinking must be a boolean",
+          "type": "invalid_request_error"
+        }
+      },
+      "passed": true
+    },
+    {
+      "name": "unknown_model",
+      "http": 404,
+      "body": {
+        "error": {
+          "code": "model_not_found",
+          "message": "unknown model: unknown",
+          "type": "invalid_request_error"
+        }
+      },
+      "passed": true
+    },
+    {
+      "name": "arbitrary_template_kwargs",
+      "http": 400,
+      "body": {
+        "error": {
+          "code": "invalid_request_error",
+          "message": "arbitrary template kwargs are unsupported; use enable_thinking",
+          "type": "invalid_request_error"
+        }
+      },
+      "passed": true
+    }
+  ],
+  "passed": true
+}
