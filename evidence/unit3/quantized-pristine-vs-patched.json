@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "dims": {
+    "embd": 512,
+    "ff": 256
+  },
+  "rows": [
+    {
+      "type": "q4_k",
+      "role": "gate",
+      "patched_pass": true,
+      "pristine_pass": true,
+      "decode_ref_equal": true,
+      "decode_candidate_equal": true,
+      "prefill_ref_equal": true,
+      "prefill_candidate_equal": true,
+      "patched_ref": 13915688076618723651,
+      "pristine_ref": 13915688076618723651,
+      "expert_bytes": 73728
+    },
+    {
+      "type": "q4_k",
+      "role": "up",
+      "patched_pass": true,
+      "pristine_pass": true,
+      "decode_ref_equal": true,
+      "decode_candidate_equal": true,
+      "prefill_ref_equal": true,
+      "prefill_candidate_equal": true,
+      "patched_ref": 13915688076618723651,
+      "pristine_ref": 13915688076618723651,
+      "expert_bytes": 73728
+    },
+    {
+      "type": "q4_k",
+      "role": "down",
+      "patched_pass": true,
+      "pristine_pass": true,
+      "decode_ref_equal": true,
+      "decode_candidate_equal": true,
+      "prefill_ref_equal": true,
+      "prefill_candidate_equal": true,
+      "patched_ref": 1476095845365731090,
+      "pristine_ref": 1476095845365731090,
+      "expert_bytes": 73728
+    },
+    {
+      "type": "q6_k",
+      "role": "gate",
+      "patched_pass": true,
+      "pristine_pass": true,
+      "decode_ref_equal": true,
+      "decode_candidate_equal": true,
+      "prefill_ref_equal": true,
+      "prefill_candidate_equal": true,
+      "patched_ref": 1524195361645451065,
+      "pristine_ref": 1524195361645451065,
+      "expert_bytes": 107520
+    },
+    {
+      "type": "q6_k",
+      "role": "up",
+      "patched_pass": true,
+      "pristine_pass": true,
+      "decode_ref_equal": true,
+      "decode_candidate_equal": true,
+      "prefill_ref_equal": true,
+      "prefill_candidate_equal": true,
+      "patched_ref": 1524195361645451065,
+      "pristine_ref": 1524195361645451065,
+      "expert_bytes": 107520
+    },
+    {
+      "type": "q6_k",
+      "role": "down",
+      "patched_pass": true,
+      "pristine_pass": true,
+      "decode_ref_equal": true,
+      "decode_candidate_equal": true,
+      "prefill_ref_equal": true,
+      "prefill_candidate_equal": true,
+      "patched_ref": 9449674447990030024,
+      "pristine_ref": 9449674447990030024,
+      "expert_bytes": 107520
+    }
+  ],
+  "backend_commit": "ff5a23376725e5a889fa0bfb987b7541dc304da0",
+  "patched_binary": "build/inference-release/moe_quantized_gate",
+  "pristine_binary": "/tmp/moe_quantized_gate_pristine",
+  "compiler": "GCC 11.4.0 host Release",
+  "note": "Pristine tree extracted from the pinned commit without patches; same gate source."
+}

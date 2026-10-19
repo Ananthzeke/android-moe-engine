@@ -1,0 +1,19 @@
+{
+  "file": "/media/ananth/17AB9D0651C6CC1F/ame-tools/models/qwen15moe/Qwen1.5-MoE-A2.7B_q4_k_m.gguf",
+  "bytes": 1073741824,
+  "read_bytes": 1073741824,
+  "resident_sha256": "679707d04d7248a7c97f546faf5cb87a48bc7e58f3c1eb80bdf676674b74237f",
+  "buffer_bytes": 67108864,
+  "repeats": 4,
+  "read_seconds": 2.05591,
+  "read_mib_per_second": 498.076,
+  "resident_sha256_seconds": 0.271198,
+  "resident_sha256_mib_per_second": 235.99,
+  "combined_seconds": 5.25596,
+  "combined_mib_per_second": 194.826,
+  "build": "release",
+  "compiler": "11.4.0",
+  "hash_implementation": "portable scalar SHA-256",
+  "cpu": "flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibrs ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd cppc arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sev sev_es ibpb_exit_to_user",
+  "cache_condition": "uncontrolled OS page cache; bounded prefix"
+}

@@ -1,0 +1,22 @@
+{
+  "type": "q4_k",
+  "role": "down",
+  "embd": 256,
+  "ff": 256,
+  "experts": 8,
+  "threads": 4,
+  "expert_bytes": 36864,
+  "decode_a": true,
+  "decode_a_hit": true,
+  "decode_b": true,
+  "decode_duplicate": true,
+  "decode_noncontiguous": true,
+  "prefill": true,
+  "prefill_union": 8,
+  "cache_hits": 4,
+  "cache_misses": 4,
+  "evictions": 3,
+  "corrupt": false,
+  "corrupt_detected": false,
+  "passed": true
+}

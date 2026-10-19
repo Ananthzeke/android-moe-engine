@@ -52,6 +52,11 @@ add_library(ame_run STATIC src/runtime/run_supervisor.cpp)
 target_include_directories(ame_run PUBLIC src/runtime src/common)
 ame_project_target(ame_run)
 
+add_executable(hash_diagnostic bench/hash_diagnostic.cpp)
+target_link_libraries(hash_diagnostic PRIVATE ame_crypto)
+target_include_directories(hash_diagnostic PRIVATE src/common)
+ame_project_target(hash_diagnostic)
+
 add_executable(ame apps/cli/main.cpp)
 target_link_libraries(ame PRIVATE ame_model ame_probe ame_compare ame_run)
 ame_project_target(ame)
@@ -107,6 +112,10 @@ if(AME_INFERENCE_INTEGRATION)
   add_executable(moe_kernel_gate bench/moe_kernel_gate.cpp)
   target_link_libraries(moe_kernel_gate PRIVATE ame_residency)
   ame_inference_target(moe_kernel_gate)
+
+  add_executable(moe_quantized_gate bench/moe_quantized_gate.cpp)
+  target_link_libraries(moe_quantized_gate PRIVATE ame_residency)
+  ame_inference_target(moe_quantized_gate)
 
   add_executable(llama_baseline_stream bench/llama_baseline.cpp)
   target_link_libraries(llama_baseline_stream PRIVATE ame_backend ame_prefill ame_crypto)

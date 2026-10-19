@@ -114,6 +114,11 @@ Result<void, FileError> FileSource::read_exact(std::uint64_t offset,
   }
   std::size_t completed = 0;
   while (completed < destination.size()) {
+    if (!cancel_injected_ && bytes_read_ >= kReadChunk &&
+        std::getenv("AME_IO_CANCEL_AFTER_CHUNKS") != nullptr) {
+      cancel_injected_ = true;
+      const_cast<Cancellation&>(stop).request();
+    }
     if (stop.requested()) {
       return FileError::Cancelled;
     }

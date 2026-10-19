@@ -46,6 +46,7 @@ class FileSource {
   std::uint64_t size_bytes_ = 0;
   mutable std::uint64_t bytes_read_ = 0;
   mutable bool eintr_consumed_ = false;
+  mutable bool cancel_injected_ = false;
 };
 
 }  // namespace ame::residency

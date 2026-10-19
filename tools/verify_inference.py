@@ -140,6 +140,41 @@ def gate_faults(binary: Path, workdir: Path) -> list[dict[str, object]]:
     return checks
 
 
+def gate_quantized(binary: Path, workdir: Path) -> list[dict[str, object]]:
+    checks: list[dict[str, object]] = []
+    for type_name in ("q4_k", "q6_k"):
+      for role in ("gate", "up", "down"):
+        for threads in (1, 2, 4):
+            case_dir = workdir / f"{type_name}_{role}_{threads}"
+            case_dir.mkdir(parents=True, exist_ok=True)
+            command = [str(binary), "--type", type_name, "--role", role,
+                       "--threads", str(threads),
+                       "--embd", "256", "--ff", "256", "--experts", "8", "--top-k", "4",
+                       "--prefill-tokens", "8", "--workdir", str(case_dir)]
+            result = run(command, timeout=300, check=False)
+            payload = json.loads(result.stdout)
+            if result.returncode != 0 or payload.get("passed") is not True:
+                raise RuntimeError(f"quantized gate {type_name} threads={threads} failed: "
+                                   f"{payload} stderr={result.stderr}")
+            checks.append({"type": type_name, "role": role, "threads": threads,
+                           "hits": payload.get("cache_hits"), "misses": payload.get("cache_misses"),
+                           "evictions": payload.get("evictions"),
+                           "prefill_union": payload.get("prefill_union"),
+                           "duplicate": payload.get("decode_duplicate"),
+                           "noncontiguous": payload.get("decode_noncontiguous")})
+            corrupt = run([str(binary), "--type", type_name, "--role", role,
+                           "--threads", str(threads),
+                           "--embd", "256", "--ff", "256", "--experts", "8", "--top-k", "4",
+                           "--prefill-tokens", "8", "--workdir", str(case_dir / "corrupt"),
+                           "--corrupt"], timeout=300, check=False)
+            corrupt_payload = json.loads(corrupt.stdout)
+            if corrupt_payload.get("corrupt_detected") is not True:
+                raise RuntimeError(f"quantized corruption not detected for {type_name}")
+            checks.append({"type": type_name, "role": role, "threads": threads,
+                           "corrupt_detected": True})
+    return checks
+
+
 def gate_broken(binary: Path, workdir: Path) -> dict[str, object]:
     workdir.mkdir(parents=True, exist_ok=True)
     result = run([str(binary), "--workdir", str(workdir)], timeout=300, check=False)
@@ -179,7 +214,8 @@ def build(config: str, source: Path, libs: Path, build_dir: Path) -> dict[str, o
     configured = run(configure, timeout=900)
     built = run(["cmake", "--build", str(build_dir), "--target",
                  "moe_stream_gate", "moe_stream_gate_broken", "moe_kernel_gate",
-                 "manifest_gate", "artifact_gate", "llama_baseline_stream"], timeout=1800)
+                 "moe_quantized_gate", "manifest_gate", "artifact_gate",
+                 "llama_baseline_stream"], timeout=1800)
     return {
         "configure_returncode": configured.returncode,
         "build_returncode": built.returncode,
@@ -227,6 +263,8 @@ def main() -> int:
                                            build_dir / "gate-stream")
             record["faults"] = gate_faults(build_dir / "moe_stream_gate",
                                            build_dir / "gate-faults")
+            record["quantized"] = gate_quantized(build_dir / "moe_quantized_gate",
+                                                 build_dir / "gate-quantized")
             record["broken"] = gate_broken(build_dir / "moe_stream_gate_broken",
                                            build_dir / "gate-broken")
             record["kernel"] = gate_kernel(build_dir / "moe_kernel_gate",

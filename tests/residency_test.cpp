@@ -276,6 +276,24 @@ void check_external_arena() {
   std::filesystem::remove_all(directory);
 }
 
+void check_cancel_between_chunks() {
+  const auto directory = temporary_directory();
+  const auto path = directory / "cancel_chunks.bin";
+  write_pattern(path, 2, 1024 * 1024, 1024 * 1024);
+  auto source = FileSource::open(path.string());
+  expect(source.ok(), "cancel-chunk source opens");
+  if (source.ok()) {
+    expect(::setenv("AME_IO_CANCEL_AFTER_CHUNKS", "1", 1) == 0, "set cancel injection");
+    std::vector<std::byte> buffer(2U * 1024U * 1024U);
+    ame::Cancellation stop;
+    const auto result = source.value().read_exact(0, buffer, stop);
+    expect(!result.ok() && result.error() == ame::residency::FileError::Cancelled,
+           "cancellation observed between read chunks");
+    expect(::unsetenv("AME_IO_CANCEL_AFTER_CHUNKS") == 0, "clear cancel injection");
+  }
+  std::filesystem::remove_all(directory);
+}
+
 void check_eintr_retry() {
   const auto directory = temporary_directory();
   const auto path = directory / "eintr.bin";
@@ -373,6 +391,7 @@ int main() {
   check_layout();
   check_store();
   check_external_arena();
+  check_cancel_between_chunks();
   check_eintr_retry();
   check_injected_read_failure();
   check_sparse_large_file();
