@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-10-19T11:08:22Z",
+  "run": {
+    "id": "",
+    "tag": "host",
+    "backend": {
+      "name": "llama.cpp",
+      "version": "0.7.0-dev",
+      "commit": "",
+      "binary_sha256": null
+    }
+  },
+  "model": {
+    "path": "/tmp/qwen35-sparse/qwen35moe-moe.gguf",
+    "artifact_sha256": "29527436f00bb4b3d4990427d26e4b9151c99d5a1768a5ebf7c22da37fa1b0a8",
+    "file_bytes": 23009184
+  },
+  "model_info": {
+    "description": "qwen35moe ?B (guessed) all F32",
+    "parameters": 5745858,
+    "tensor_bytes": 22983432,
+    "n_ctx_train": 256,
+    "n_embd": 256,
+    "n_layer": 2
+  },
+  "options": {
+    "context_tokens": 64,
+    "max_new_tokens": 1,
+    "threads": 4,
+    "batch_size": 8,
+    "seed": 1234,
+    "temperature": 0,
+    "top_k": 40,
+    "top_p": 0.95,
+    "mmap": true,
+    "chat_template": false,
+    "gpu_layers": 0,
+    "expert_count": 8,
+    "expert_used_count": 2,
+    "prefill_unit_tokens": 2
+  },
+  "prompt": {
+    "text": "hello"
+  },
+  "prompt_token_count": 1,
+  "prompt_token_ids": [
+    82
+  ],
+  "output": {
+    "token_ids": [
+      24
+    ],
+    "text": "18",
+    "tokens": 1,
+    "finish_reason": "limit"
+  },
+  "timing": {
+    "load_seconds": 0.006524796,
+    "model_load_seconds": 0.003482382,
+    "context_init_seconds": 0.003042414,
+    "tokenize_seconds": 2.365e-06,
+    "prefill_seconds": 0.006838076,
+    "request_ttft_seconds": 0.007015911,
+    "decode_seconds": 0,
+    "decode_tokens_per_second": null,
+    "generate_seconds": 0.007016732,
+    "wall_seconds": 0.145858133
+  },
+  "memory": {
+    "rss_kib_after_load": 10428,
+    "rss_kib_after_prefill": 21628,
+    "rss_kib_end": 21628,
+    "vm_hwm_kib_end": 21628,
+    "threads_end": 1,
+    "mem_available_kib_after_load": 807268,
+    "mem_available_kib_after_prefill": 805488,
+    "mem_available_kib_end": 805488,
+    "project_owned_bytes": null,
+    "scope": "process RSS/VmHWM samples and system MemAvailable; backend allocation coverage not instrumented"
+  },
+  "cancellation": {
+    "requested": false,
+    "after_ms": 0
+  },
+  "status": "ok",
+  "finish_reason": "limit",
+  "streaming": {
+    "installed": true,
+    "manifest": "evidence/unit3/qwen35-sparse.manifest",
+    "slots": 4,
+    "arena_bytes": 4718592,
+    "materialize_calls": 4,
+    "tensor_switches": 4,
+    "reads": 8,
+    "read_bytes": 4718592,
+    "read_seconds": 0.0037890000000000003,
+    "hits": 0,
+    "misses": 8,
+    "evictions": 0,
+    "max_union": 2,
+    "manifest_version": 2,
+    "manifest_identity_checked": true,
+    "manifest_layout_hash": "35f838eec9676d2a",
+    "declared_artifact_sha256": "29527436f00bb4b3d4990427d26e4b9151c99d5a1768a5ebf7c22da37fa1b0a8",
+    "verified_artifact_sha256": "29527436f00bb4b3d4990427d26e4b9151c99d5a1768a5ebf7c22da37fa1b0a8",
+    "artifact_verified": true,
+    "artifact_hash_seconds": 0.126813892,
+    "failed": false,
+    "cancelled": false
+  },
+  "unavailable": [
+    {
+      "field": "run.binary_sha256",
+      "reason": "not_supplied"
+    },
+    {
+      "field": "run.backend.commit",
+      "reason": "not_supplied"
+    },
+    {
+      "field": "memory.project_owned_bytes",
+      "reason": "backend_allocation_coverage_not_instrumented"
+    }
+  ]
+}
