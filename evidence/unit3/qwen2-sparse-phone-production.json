@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-10-19T11:21:59Z",
+  "run": {
+    "id": "",
+    "tag": "host",
+    "backend": {
+      "name": "llama.cpp",
+      "version": "0.7.0-dev",
+      "commit": "",
+      "binary_sha256": null
+    }
+  },
+  "model": {
+    "path": "/data/local/tmp/ame-engine/qwen2-sparse.gguf",
+    "artifact_sha256": "56b62accf9c606fd65c5a6e9f4367e7beda7b27abc92fe16728475c7543c067e",
+    "file_bytes": 22469248
+  },
+  "model_info": {
+    "description": "qwen2moe ?B (guessed) all F32",
+    "parameters": 5610876,
+    "tensor_bytes": 22443504,
+    "n_ctx_train": 256,
+    "n_embd": 256,
+    "n_layer": 2
+  },
+  "options": {
+    "context_tokens": 128,
+    "max_new_tokens": 3,
+    "threads": 4,
+    "batch_size": 64,
+    "seed": 1234,
+    "temperature": 0,
+    "top_k": 40,
+    "top_p": 0.95,
+    "mmap": true,
+    "chat_template": false,
+    "gpu_layers": 0,
+    "expert_count": 8,
+    "expert_used_count": 2,
+    "prefill_unit_tokens": 2,
+    "effective_ubatch_tokens": 2
+  },
+  "prompt": {
+    "text": "a"
+  },
+  "prompt_token_count": 1,
+  "prompt_token_ids": [
+    97
+  ],
+  "output": {
+    "token_ids": [
+      106,
+      33,
+      16
+    ],
+    "text": "6a2110",
+    "tokens": 3,
+    "finish_reason": "limit"
+  },
+  "timing": {
+    "load_seconds": 0.017448646,
+    "model_load_seconds": 0.009845469,
+    "context_init_seconds": 0.007603177,
+    "tokenize_seconds": 6.511e-06,
+    "prefill_seconds": 0.020895937,
+    "request_ttft_seconds": 0.021311406,
+    "decode_seconds": 0.014052552,
+    "decode_tokens_per_second": 142.32290334168485,
+    "generate_seconds": 0.035372291,
+    "wall_seconds": 0.372996354
+  },
+  "memory": {
+    "rss_kib_after_load": 9832,
+    "rss_kib_after_prefill": 16068,
+    "rss_kib_end": 16196,
+    "vm_hwm_kib_end": 16220,
+    "threads_end": 1,
+    "mem_available_kib_after_load": 5676396,
+    "mem_available_kib_after_prefill": 5674460,
+    "mem_available_kib_end": 5674336,
+    "project_owned_bytes": null,
+    "scope": "process RSS/VmHWM samples and system MemAvailable; backend allocation coverage not instrumented"
+  },
+  "cancellation": {
+    "requested": false,
+    "after_ms": 0
+  },
+  "status": "ok",
+  "finish_reason": "limit",
+  "streaming": {
+    "installed": true,
+    "manifest": "/data/local/tmp/ame-engine/qwen2-sparse.manifest",
+    "slots": 4,
+    "arena_bytes": 1572864,
+    "materialize_calls": 18,
+    "tensor_switches": 18,
+    "reads": 36,
+    "read_bytes": 14155776,
+    "read_seconds": 0.008555883,
+    "hits": 0,
+    "misses": 36,
+    "evictions": 32,
+    "max_union": 2,
+    "manifest_version": 2,
+    "manifest_identity_checked": true,
+    "manifest_layout_hash": "b8ced6d84d1ca24c",
+    "declared_artifact_sha256": "56b62accf9c606fd65c5a6e9f4367e7beda7b27abc92fe16728475c7543c067e",
+    "verified_artifact_sha256": "56b62accf9c606fd65c5a6e9f4367e7beda7b27abc92fe16728475c7543c067e",
+    "artifact_verified": true,
+    "artifact_hash_seconds": 0.310528907,
+    "failed": false,
+    "cancelled": false
+  },
+  "unavailable": [
+    {
+      "field": "run.binary_sha256",
+      "reason": "not_supplied"
+    },
+    {
+      "field": "run.backend.commit",
+      "reason": "not_supplied"
+    },
+    {
+      "field": "memory.project_owned_bytes",
+      "reason": "backend_allocation_coverage_not_instrumented"
+    }
+  ]
+}

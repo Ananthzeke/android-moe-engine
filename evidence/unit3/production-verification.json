@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "rows": [
+    {
+      "name": "qwen35-sparse",
+      "requested_batch": 64,
+      "admitted": 2,
+      "effective": 2,
+      "tokens": [
+        106,
+        57,
+        108
+      ],
+      "logits_equal": true,
+      "status": "ok",
+      "capacity_refused": true,
+      "bad_identity_refused": true,
+      "missing_consumer_refused": true,
+      "cancelled": true,
+      "read_failure": true,
+      "fresh_replay": true
+    },
+    {
+      "name": "qwen2-sparse",
+      "requested_batch": 64,
+      "admitted": 2,
+      "effective": 2,
+      "tokens": [
+        106,
+        33,
+        16
+      ],
+      "logits_equal": true,
+      "status": "ok",
+      "capacity_refused": true,
+      "bad_identity_refused": true,
+      "missing_consumer_refused": true,
+      "cancelled": true,
+      "read_failure": true,
+      "fresh_replay": true
+    },
+    {
+      "name": "granite",
+      "requested_batch": 64,
+      "admitted": 2,
+      "effective": 2,
+      "tokens": [
+        1,
+        123,
+        52
+      ],
+      "logits_equal": true,
+      "status": "ok",
+      "capacity_refused": true,
+      "bad_identity_refused": true,
+      "missing_consumer_refused": true,
+      "cancelled": true,
+      "read_failure": true,
+      "fresh_replay": true
+    }
+  ],
+  "supervisor_timeout": "timeout"
+}

@@ -276,6 +276,8 @@ struct Options {
   bool chat = false;
   bool include_prompt_text = true;
   bool stream = false;
+  bool cancel_before_decode = false;
+  std::string logits_output;
   std::string manifest;
   std::uint32_t moe_slots = 64;
   std::uint32_t moe_arena_mib = 512;
@@ -306,6 +308,10 @@ bool parse_double(std::string_view text, double& value) {
 ParseResult parse_options(int argc, char* argv[], Options& options) {
   for (int index = 1; index < argc; ++index) {
     const std::string_view argument = argv[index];
+    if (argument == "--cancel-before-decode") {
+      options.cancel_before_decode = true;
+      continue;
+    }
     if (argument == "--chat") {
       options.chat = true;
       continue;
@@ -339,7 +345,7 @@ ParseResult parse_options(int argc, char* argv[], Options& options) {
                              argument == "--temperature" || argument == "--top-k" ||
                              argument == "--top-p" || argument == "--manifest" ||
                              argument == "--moe-slots" || argument == "--moe-arena-mib" ||
-                             argument == "--cancel-after-ms";
+                             argument == "--cancel-after-ms" || argument == "--logits-output";
     if (!needs_value || index + 1 >= argc) {
       return {false, "Unsupported or incomplete argument: " + std::string(argument)};
     }
@@ -364,6 +370,8 @@ ParseResult parse_options(int argc, char* argv[], Options& options) {
       options.run_id = value;
     } else if (argument == "--tag") {
       options.tag = value;
+    } else if (argument == "--logits-output") {
+      options.logits_output = value;
     } else {
       std::uint64_t number = 0;
       if (argument == "--temperature" || argument == "--top-p") {
@@ -821,6 +829,8 @@ int main(int argc, char* argv[]) {
   }
   json.key("prefill_unit_tokens");
   json.unsigned_value(prefill_unit);
+  json.key("effective_ubatch_tokens");
+  json.unsigned_value(static_cast<std::uint64_t>(llama_n_ubatch(context)));
   json.end_object();
 
   json.key("prompt");
@@ -885,6 +895,7 @@ int main(int argc, char* argv[]) {
   }
 
   llama_batch batch = llama_batch_init(static_cast<int32_t>(context_params.n_batch), 0, 1);
+  std::vector<std::vector<float>> logit_rows;
   auto decode_chunk = [&](const std::vector<llama_token>& tokens, int32_t position) -> bool {
     if (tokens.empty()) {
       return true;
@@ -897,7 +908,17 @@ int main(int argc, char* argv[]) {
       batch.seq_id[index][0] = 0;
       batch.logits[index] = index + 1 == tokens.size() ? 1 : 0;
     }
-    return llama_decode(context, batch) == 0;
+    if (llama_decode(context, batch) != 0) {
+      return false;
+    }
+    if (!options.logits_output.empty()) {
+      const float* row = llama_get_logits_ith(context, batch.n_tokens - 1);
+      if (row == nullptr) {
+        return false;
+      }
+      logit_rows.emplace_back(row, row + llama_vocab_n_tokens(vocab));
+    }
+    return true;
   };
 
   const Clock::time_point prefill_start = Clock::now();
@@ -934,6 +955,9 @@ int main(int argc, char* argv[]) {
     return stream_failed ? 1 : (cancelled ? 0 : 1);
   }
   const Sample after_prefill = take_sample();
+  if (options.cancel_before_decode) {
+    g_cancelled.store(true, std::memory_order_relaxed);
+  }
 
   llama_sampler_chain_params sampler_params = llama_sampler_chain_default_params();
   llama_sampler* sampler = llama_sampler_chain_init(sampler_params);
@@ -1011,6 +1035,27 @@ int main(int argc, char* argv[]) {
   ame::backend::MoeStreamStats stream_stats{};
   if (options.stream) {
     stream_stats = ame::backend::moe_stream_stats();
+  }
+
+  if (!options.logits_output.empty()) {
+    std::ofstream stream(options.logits_output, std::ios::binary | std::ios::trunc);
+    const std::uint64_t rows = logit_rows.size();
+    const std::uint64_t width = logit_rows.empty() ? 0 : logit_rows.front().size();
+    stream.write(reinterpret_cast<const char*>(&rows), sizeof(rows));
+    for (const auto& row : logit_rows) {
+      stream.write(reinterpret_cast<const char*>(&width), sizeof(width));
+      stream.write(reinterpret_cast<const char*>(row.data()),
+                   static_cast<std::streamsize>(row.size() * sizeof(float)));
+    }
+    if (!stream.good()) {
+      std::cerr << "cannot write logits\n";
+      (void)emit_status(options, "error", "logits_output", "cannot write logits");
+      llama_batch_free(batch);
+      llama_free(context);
+      llama_model_free(model);
+      llama_backend_free();
+      return 1;
+    }
   }
 
   json.key("output");

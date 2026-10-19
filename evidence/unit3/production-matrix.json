@@ -1,0 +1,28 @@
+{
+  "cases": [
+    {
+      "name": "qwen35-sparse",
+      "model": "/tmp/qwen35-sparse/qwen35moe-moe.gguf",
+      "manifest": "evidence/unit3/qwen35-sparse.manifest",
+      "sha256": "29527436f00bb4b3d4990427d26e4b9151c99d5a1768a5ebf7c22da37fa1b0a8",
+      "slots": 4,
+      "admitted": 2
+    },
+    {
+      "name": "qwen2-sparse",
+      "model": "/tmp/qwen2-sparse/qwen2moe-moe.gguf",
+      "manifest": "evidence/unit3/qwen2-sparse.manifest",
+      "sha256": "56b62accf9c606fd65c5a6e9f4367e7beda7b27abc92fe16728475c7543c067e",
+      "slots": 4,
+      "admitted": 2
+    },
+    {
+      "name": "granite",
+      "model": "/tmp/fixture-granite/granite-moe.gguf",
+      "manifest": "evidence/unit3/granite.manifest",
+      "sha256": "71ec3affc5279459b233f81a114ea044aa05d20be757dc5bfcee4d75acdc7876",
+      "slots": 4,
+      "admitted": 2
+    }
+  ]
+}

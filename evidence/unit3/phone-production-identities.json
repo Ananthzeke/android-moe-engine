@@ -1,0 +1,17 @@
+{
+  "binary_sha256": "1d59e1cdedbd897c1c410efe74401766d96ad218c2173b910d3a6528d6024584",
+  "backend_commit": "ff5a23376725e5a889fa0bfb987b7541dc304da0",
+  "patch_set_sha256": "fd1be78f82d6d568653c0899cf21e7f994777f3163ae39487be1853acf55f780",
+  "fixtures": {
+    "qwen35-sparse": "29527436f00bb4b3d4990427d26e4b9151c99d5a1768a5ebf7c22da37fa1b0a8",
+    "qwen2-sparse": "56b62accf9c606fd65c5a6e9f4367e7beda7b27abc92fe16728475c7543c067e"
+  },
+  "requested_batch": 64,
+  "admitted": 2,
+  "effective": 2,
+  "phone_results": {
+    "qwen35-sparse": "[106, 57, 108]",
+    "qwen2-sparse": "[106, 33, 16]"
+  },
+  "note": "sparse phone harness; RSS output is process VmHWM from harness records"
+}

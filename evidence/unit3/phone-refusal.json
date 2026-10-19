@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "status": "refused",
+  "observed_at": "2026-10-19T11:22:09Z",
+  "run": {
+    "id": "",
+    "tag": "host"
+  },
+  "model": {
+    "path": "/data/local/tmp/ame-engine/qwen35-sparse.gguf",
+    "artifact_sha256": "29527436f00bb4b3d4990427d26e4b9151c99d5a1768a5ebf7c22da37fa1b0a8"
+  },
+  "finish_reason": "contract_prefill_refused",
+  "error": "consumer pool capacity is below its selection bound"
+}
