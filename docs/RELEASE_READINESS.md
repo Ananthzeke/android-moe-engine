@@ -265,3 +265,16 @@ C++ validates it against the verified artifact and source-derived consumers. No
 second serialized contract is required.
 
 See [production path](PRODUCTION_PATH.md).
+
+## Phone HTTP API (2026-10-19)
+
+- Native ARM64 server at `/data/local/tmp/ame-api/ame-server`.
+- Dense Qwen3.5-2B non-streaming and SSE passed host and phone API checks.
+- Real Qwen1.5-MoE completed a phone non-streaming and SSE chat through verified
+  artifact binding and expert materialization; `/health` recorded 5,897 misses,
+  5,705 evictions, 11,274,633,216 read bytes, and 426,770,432 arena bytes.
+- OpenAI client (1.109.1) worked against the phone server through `adb forward`.
+- No 30-minute sustained campaign was run.
+- Real 35B API and output parity are not qualified.
+
+See [RUN_PHONE.md](RUN_PHONE.md).
