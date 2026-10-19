@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "base_commit": "d4512c2dfcac35ce079658753f9c24c9319cef86",
+  "scope": "Model metadata Jinja rendering with thinking disabled by default; startup ownership and API input checks",
+  "source_files_sha256": {
+    "apps/server/main.cpp": "563659f16db8e6c621e3a1db40819bc21f7edafdc42248ae376b22fffb673a34",
+    "apps/server/chat_template.hpp": "c3c55ba85b56bc4993befc8f3551677b752bced22e1a3d7f5ca8ecea7b5e173a",
+    "bench/build_server.sh": "bf3b7a68b18f7a15c0d7e6b048ff5c26169e0e77bf8291b9ea290f3cbbee4b2d",
+    "tools/verify_api.py": "b3ec8bb6c87fcde0b449232322066cc64c4373a16c1dc90e43a72fabbdb753bf",
+    "tests/chat_template_test.cpp": "9779cfba841d732cd9ffa810ac3222f611a982ab7da64e3db5b1516b302f169d",
+    "tests/fixtures/qwen36-chat-template.jinja": "e84f32a23fdda27689f868aa4a1a5621f41133e51a48d7f3efcbea2839574259",
+    "tests/fixtures/qwen36-chat-template.provenance.json": "b55081bf761a4a8872c271f07b2faae92e63776291554313c57e0b3788fceb44"
+  },
+  "backend_commit": "ff5a23376725e5a889fa0bfb987b7541dc304da0",
+  "backend_patch_set_sha256": "fd1be78f82d6d568653c0899cf21e7f994777f3163ae39487be1853acf55f780",
+  "backend_working_diff_from_head_sha256": "fd1be78f82d6d568653c0899cf21e7f994777f3163ae39487be1853acf55f780",
+  "binaries_sha256": {
+    "host": "6b43d9361110ebc44e5b66e497492ca6371762cc6053fd114f7b0a1e0946a7b1",
+    "android": "68f3c3cbe29a278f3ef9e937261d471654ffa7db38db0c6026566698ff9e7093"
+  },
+  "verification": {
+    "offline": "12/12 CTest tests each in Debug, Release and ASan+UBSan",
+    "template": "Actual enrolled 35B metadata fixture, Release-active full prompt checks, thinking false/true, multi-turn and marked input",
+    "mutation": "Forcing thinking enabled makes the default-formatting fixture fail",
+    "host_api": "2B is a host API regression fixture; it is not evidence of 35B generation",
+    "build_command": "AME_TOOLS=/path/to/existing/ame-tools sh bench/build_server.sh"
+  },
+  "limits": [
+    "No new real-35B numerical reference parity",
+    "The offline CTest matrix does not instrument upstream static libraries or the HTTP server",
+    "Cross-piece stop matching, UTF-8 buffering and bounded disconnect cancellation remain open"
+  ]
+}

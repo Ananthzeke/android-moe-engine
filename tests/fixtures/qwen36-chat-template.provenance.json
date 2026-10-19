@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "source": "tokenizer.chat_template from the locally enrolled Qwen3.6-35B-A3B-Q4_K_M GGUF",
+  "model_sha256": "671e47e0ec53c665d048b98c3ecbfd5236b5ca9c3e02ed19fc8f81f7b85140c7",
+  "model_bytes": 20419565568,
+  "template_sha256": "e84f32a23fdda27689f868aa4a1a5621f41133e51a48d7f3efcbea2839574259",
+  "backend_commit": "ff5a23376725e5a889fa0bfb987b7541dc304da0",
+  "scope": "formatting fixture; no weights, trained-quality or numerical parity claim"
+}

@@ -56,15 +56,29 @@ def main():
     results["unknown_model"] = {"http": status, "error": json.loads(body).get("error", {}).get("code")}
     status, body = post(base, {**prompt, "messages": []})
     results["malformed_messages"] = {"http": status}
+    status, body = post(base, {**prompt, "enable_thinking": "false"})
+    results["malformed_thinking"] = {"http": status}
     status, body = post(base, {**prompt, "max_tokens": 100000})
     results["context_overflow"] = {"http": status, "error": json.loads(body).get("error", {}).get("code")}
     # Independent fresh request after all failures.
     status, body = post(base, prompt)
     results["fresh_after_failures"] = {"http": status, "finish": json.loads(body)["choices"][0]["finish_reason"]}
-    passed = (results["health"]["body"].get("status") == "ready"
-              and results["chat"]["http"] == 200 and results["stream"]["done"]
+    passed = (results["health"]["http"] == 200
+              and results["health"]["body"].get("status") == "ready"
+              and results["models"]["http"] == 200
+              and any(x.get("id") == a.model for x in results["models"]["body"].get("data", []))
+              and results["chat"]["http"] == 200
+              and results["chat"]["status"] in ("stop", "length")
+              and bool(results["chat"]["content"])
+              and isinstance(results["chat"]["usage"], dict)
+              and results["stream"]["http"] == 200 and results["stream"]["done"]
+              and results["stream"]["finish"] in ("stop", "length")
+              and isinstance(results["stream"]["usage"], dict)
+              and results["stop"]["http"] == 200 and results["stop"]["finish"] == "stop"
               and results["unsupported_tools"]["http"] == 400
               and results["unknown_model"]["http"] == 404
+              and results["malformed_messages"]["http"] == 400
+              and results["malformed_thinking"]["http"] == 400
               and results["context_overflow"]["http"] == 400
               and results["fresh_after_failures"]["http"] == 200)
     results["passed"] = passed

@@ -1,0 +1,7 @@
+{
+  "mutation": "force thinking enabled despite default=false",
+  "exit": 1,
+  "stdout": "",
+  "stderr": "default must disable thinking\n",
+  "passed": true
+}

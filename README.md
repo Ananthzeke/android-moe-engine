@@ -6,6 +6,8 @@ The first physical target is a vivo S1 Pro with a Snapdragon 665, Android 12, an
 
 ## Current state
 
+For the target 35B model, use [the dedicated phone API launcher and commands](docs/RUN_35B.md).
+
 This repository contains a buildable C++20 host coding foundation and a read-only device probe:
 
 - a help/version/probe CLI, checked file extents, a validated expert-table layout, and boundary tests;

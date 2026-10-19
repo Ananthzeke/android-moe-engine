@@ -1,4 +1,5 @@
 #define CPPHTTPLIB_IMPLEMENTATION
+#include "chat_template.hpp"
 #include "httplib.h"
 #include "json.hpp"
 #include "llama.h"
@@ -47,6 +48,7 @@ std::atomic<bool> g_ready{false};
 std::atomic<bool> g_failed{false};
 std::string g_error;
 llama_model* g_model = nullptr;
+ame::server::ChatTemplate* g_chat_template = nullptr;
 Options g_options;
 std::mutex g_generation;
 std::atomic<std::uint64_t> g_counter{0};
@@ -70,33 +72,7 @@ std::string id_for() {
          std::to_string(g_counter.fetch_add(1));
 }
 
-std::string apply_template(const std::vector<llama_chat_message>& messages, std::string& error) {
-  const char* tmpl = llama_model_chat_template(g_model, nullptr);
-  if (tmpl == nullptr || tmpl[0] == '\0') {
-    error = "model has no chat template";
-    return {};
-  }
-  int32_t needed =
-      llama_chat_apply_template(tmpl, messages.data(), messages.size(), true, nullptr, 0);
-  if (needed < 0) {
-    error = "chat template failed";
-    return {};
-  }
-  std::vector<char> buffer(static_cast<std::size_t>(needed) + 1);
-  const int32_t written =
-      llama_chat_apply_template(tmpl, messages.data(), messages.size(), true, buffer.data(),
-                                static_cast<int32_t>(buffer.size()));
-  if (written < 0) {
-    error = "chat template buffer failed";
-    return {};
-  }
-  return std::string(buffer.data(), static_cast<std::size_t>(written));
-}
-
 struct Request {
-  std::vector<llama_chat_message> messages;
-  std::vector<std::string> storage;
-  std::string prompt;
   std::vector<llama_token> tokens;
   int max_tokens = 128;
   double temperature = 0.0;
@@ -104,13 +80,15 @@ struct Request {
   std::uint32_t seed = 0;
   bool stream = false;
   bool include_usage = false;
+  bool enable_thinking = false;
   std::vector<std::string> stops;
 };
 
 std::optional<Request> parse_request(const json& body, httplib::Response& res) {
   Request request;
-  if (!body.is_object() || !body.contains("messages") || !body["messages"].is_array()) {
-    set_error(res, 400, "messages must be an array");
+  if (!body.is_object() || !body.contains("messages") || !body["messages"].is_array() ||
+      body["messages"].empty()) {
+    set_error(res, 400, "messages must be a nonempty array");
     return std::nullopt;
   }
   const std::string model = body.value("model", g_options.model_id);
@@ -118,6 +96,7 @@ std::optional<Request> parse_request(const json& body, httplib::Response& res) {
     set_error(res, 404, "unknown model: " + model, "model_not_found");
     return std::nullopt;
   }
+  std::vector<common_chat_msg> messages;
   for (const auto& message : body["messages"]) {
     if (!message.is_object() || !message.contains("role") || !message.contains("content") ||
         !message["role"].is_string() || !message["content"].is_string()) {
@@ -129,12 +108,21 @@ std::optional<Request> parse_request(const json& body, httplib::Response& res) {
       set_error(res, 400, "unsupported message role: " + role);
       return std::nullopt;
     }
-    request.storage.push_back(role);
-    request.storage.push_back(message["content"]);
+    common_chat_msg owned;
+    owned.role = role;
+    owned.content = message["content"];
+    messages.push_back(std::move(owned));
   }
-  for (std::size_t index = 0; index < request.storage.size(); index += 2) {
-    request.messages.push_back(
-        {request.storage[index].c_str(), request.storage[index + 1].c_str()});
+  if (body.contains("enable_thinking")) {
+    if (!body["enable_thinking"].is_boolean()) {
+      set_error(res, 400, "enable_thinking must be a boolean");
+      return std::nullopt;
+    }
+    request.enable_thinking = body["enable_thinking"].get<bool>();
+  }
+  if (body.contains("chat_template_kwargs")) {
+    set_error(res, 400, "arbitrary template kwargs are unsupported; use enable_thinking");
+    return std::nullopt;
   }
   if (body.contains("tools") || body.contains("tool_choice") || body.contains("functions") ||
       body.contains("response_format") || body.contains("audio") || body.contains("logprobs")) {
@@ -195,33 +183,15 @@ std::optional<Request> parse_request(const json& body, httplib::Response& res) {
       return std::nullopt;
     }
   }
-  std::string template_error;
-  request.prompt = apply_template(request.messages, template_error);
-  if (request.prompt.empty()) {
-    set_error(res, 500, template_error, "server_error");
+  try {
+    const auto prompt = g_chat_template->render(messages, request.enable_thinking);
+    request.tokens = ame::server::tokenize_chat(llama_model_get_vocab(g_model), prompt);
+  } catch (const std::exception& error) {
+    set_error(res, 400, std::string("chat preparation failed: ") + error.what());
     return std::nullopt;
   }
-  const llama_vocab* vocab = llama_model_get_vocab(g_model);
-  const int32_t size_needed =
-      llama_tokenize(vocab, request.prompt.c_str(), static_cast<int32_t>(request.prompt.size()),
-                     nullptr, 0, true, true);
-  if (size_needed == INT32_MIN) {
-    set_error(res, 400, "prompt tokenization overflow");
-    return std::nullopt;
-  }
-  const std::size_t capacity = size_needed < 0 ? static_cast<std::size_t>(-size_needed)
-                                               : static_cast<std::size_t>(size_needed);
-  request.tokens.resize(capacity + 1);
-  const int32_t written = llama_tokenize(
-      vocab, request.prompt.c_str(), static_cast<int32_t>(request.prompt.size()),
-      request.tokens.data(), static_cast<int32_t>(request.tokens.size()), true, true);
-  if (written < 0) {
-    set_error(res, 400, "prompt tokenization failed");
-    return std::nullopt;
-  }
-  request.tokens.resize(static_cast<std::size_t>(written));
-  if (written < 0) {
-    set_error(res, 400, "prompt tokenization failed");
+  if (request.tokens.empty()) {
+    set_error(res, 400, "prompt tokenization produced no tokens");
     return std::nullopt;
   }
   if (static_cast<int64_t>(request.tokens.size()) + request.max_tokens + 8 > g_options.context) {
@@ -434,7 +404,40 @@ json message_json(const Request& request, const Generation& generation) {
 }
 }  // namespace
 
-int main(int argc, char** argv) {
+class LoadingListener {
+ public:
+  LoadingListener(httplib::Server& server, const std::string& host, int port) : server_(server) {
+    if (!server_.bind_to_port(host, port)) throw std::runtime_error("loading listener bind failed");
+    try {
+      thread_ = std::thread([this] { server_.listen_after_bind(); });
+    } catch (...) {
+      server_.stop();
+      throw;
+    }
+  }
+  ~LoadingListener() { stop(); }
+  void stop() {
+    server_.stop();
+    if (thread_.joinable()) thread_.join();
+  }
+
+ private:
+  httplib::Server& server_;
+  std::thread thread_;
+};
+
+struct BackendLifetime {
+  BackendLifetime() { llama_backend_init(); }
+  ~BackendLifetime() { llama_backend_free(); }
+};
+
+#ifdef AME_STREAMING
+struct StreamLifetime {
+  ~StreamLifetime() { ame::backend::uninstall_moe_stream(); }
+};
+#endif
+
+int run_server(int argc, char** argv) {
   Options options;
   for (int index = 1; index < argc; ++index) {
     const std::string arg = argv[index];
@@ -481,20 +484,29 @@ int main(int argc, char** argv) {
     std::cerr << "--model required\n";
     return 2;
   }
+  if (options.context <= 0 || options.threads <= 0 || options.slots <= 0 || options.port <= 0 ||
+      options.port > 65535 || options.arena_mib == 0 ||
+      options.arena_mib > UINT64_MAX / (1024ULL * 1024ULL)) {
+    std::cerr << "invalid server resource options\n";
+    return 2;
+  }
+  if (options.stream && (options.manifest.empty() || options.artifact_sha.size() != 64)) {
+    std::cerr << "streaming requires --manifest and --artifact-sha\n";
+    return 2;
+  }
+  BackendLifetime backend_lifetime;
   httplib::Server loading_server;
   loading_server.Get("/health", [](const httplib::Request&, httplib::Response& res) {
     res.set_content(json{{"status", "loading"}, {"model", g_options.model_id}}.dump(),
                     "application/json");
   });
-  std::thread loading_thread([&] { loading_server.listen(options.host.c_str(), options.port); });
-  llama_backend_init();
+  LoadingListener loading_listener(loading_server, options.host, options.port);
   std::string load_path = options.model;
   std::unique_ptr<ame::backend::Artifact> artifact;
+#ifdef AME_STREAMING
+  StreamLifetime stream_lifetime;
+#endif
   if (options.stream) {
-    if (options.manifest.empty() || options.artifact_sha.size() != 64) {
-      std::cerr << "streaming requires --manifest and --artifact-sha\n";
-      return 2;
-    }
     std::error_code size_error;
     const auto bytes = std::filesystem::file_size(options.model, size_error);
     if (size_error) return 1;
@@ -516,7 +528,9 @@ int main(int argc, char** argv) {
   llama_model_params model_params = llama_model_default_params();
   model_params.n_gpu_layers = 0;
   model_params.use_extra_bufts = !options.stream;
-  g_model = llama_model_load_from_file(load_path.c_str(), model_params);
+  std::unique_ptr<llama_model, decltype(&llama_model_free)> model_owner(
+      llama_model_load_from_file(load_path.c_str(), model_params), &llama_model_free);
+  g_model = model_owner.get();
   if (g_model == nullptr) {
     std::cerr << "model load failed\n";
     return 1;
@@ -528,9 +542,10 @@ int main(int argc, char** argv) {
       return 1;
     }
   }
+  ame::server::ChatTemplate chat_template(g_model);
+  g_chat_template = &chat_template;
   g_ready = true;
-  loading_server.stop();
-  if (loading_thread.joinable()) loading_thread.join();
+  loading_listener.stop();
   httplib::Server server;
   server.set_payload_max_length(2 * 1024 * 1024);
   server.Get("/health", [](const httplib::Request&, httplib::Response& res) {
@@ -593,10 +608,6 @@ int main(int argc, char** argv) {
                            "-" + std::to_string(g_counter.fetch_add(1));
     const std::time_t created = std::time(nullptr);
     Request copied = *request;
-    copied.messages.clear();
-    for (std::size_t index = 0; index < copied.storage.size(); index += 2) {
-      copied.messages.push_back({copied.storage[index].c_str(), copied.storage[index + 1].c_str()});
-    }
     res.set_chunked_content_provider(
         "text/event-stream",
         [request = std::move(copied), id, created](std::size_t, httplib::DataSink& sink) {
@@ -680,7 +691,14 @@ int main(int argc, char** argv) {
     std::cerr << "listen failed\n";
     return 1;
   }
-  llama_model_free(g_model);
-  llama_backend_free();
   return 0;
+}
+
+int main(int argc, char** argv) {
+  try {
+    return run_server(argc, argv);
+  } catch (const std::exception& error) {
+    std::cerr << "server failed: " << error.what() << '\n';
+    return 1;
+  }
 }
