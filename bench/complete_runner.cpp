@@ -30,6 +30,7 @@ struct Options {
   std::uint32_t batch = 8;
   std::uint32_t ubatch = 8;
   std::uint32_t predict = 2;
+  std::uint32_t slots = 8;
   std::vector<std::int32_t> prompt_ids;
 };
 
@@ -108,7 +109,7 @@ int main(int argc, char* argv[]) {
     } else if (arg == "--prompt-ids") {
       if (!next(text) || !parse_ids(text, options.prompt_ids)) return 2;
     } else if (arg == "--context" || arg == "--threads" || arg == "--batch" ||
-               arg == "--ubatch" || arg == "--predict") {
+               arg == "--ubatch" || arg == "--predict" || arg == "--slots") {
       if (!next(text)) return 2;
       std::uint32_t value = 0;
       const auto result = std::from_chars(text.data(), text.data() + text.size(), value);
@@ -117,6 +118,7 @@ int main(int argc, char* argv[]) {
       else if (arg == "--threads") options.threads = value;
       else if (arg == "--batch") options.batch = value;
       else if (arg == "--ubatch") options.ubatch = value;
+      else if (arg == "--slots") options.slots = value;
       else options.predict = value;
     } else {
       std::cerr << "unsupported argument: " << arg << '\n';
@@ -150,8 +152,8 @@ int main(int argc, char* argv[]) {
     llama_backend_free();
     return 1;
   }
-  if (!ame::backend::install_moe_stream(*artifact.value(), options.manifest, 8,
-                                        64ULL * 1024ULL * 1024ULL)) {
+  if (!ame::backend::install_moe_stream(*artifact.value(), options.manifest, options.slots,
+                                        128ULL * 1024ULL * 1024ULL)) {
     std::cerr << "install: " << ame::backend::moe_stream_stats().error << '\n';
     llama_backend_free();
     return 1;
@@ -292,7 +294,19 @@ int main(int argc, char* argv[]) {
     if (index != 0) std::cout << ", ";
     std::cout << generated[index];
   }
-  std::cout << "]}\n";
+  std::cout << "]";
+#ifdef AME_STREAMING
+  const auto stats = ame::backend::moe_stream_stats();
+  std::cout << ", \"streaming\": {\"slots\": " << stats.slots
+            << ", \"hits\": " << stats.hits << ", \"misses\": " << stats.misses
+            << ", \"evictions\": " << stats.evictions
+            << ", \"reads\": " << stats.reads << ", \"read_bytes\": " << stats.read_bytes
+            << ", \"materialize_calls\": " << stats.materialize_calls
+            << ", \"max_union\": " << stats.max_union
+            << ", \"arena_bytes\": " << stats.arena_bytes
+            << ", \"failed\": " << (stats.failed ? "true" : "false") << "}";
+#endif
+  std::cout << "}\n";
 
   llama_batch_free(batch);
   llama_free(context);

@@ -1,0 +1,10 @@
+# ame-expert-manifest 2
+# artifact_bytes 23009184
+# artifact_sha256 29527436f00bb4b3d4990427d26e4b9151c99d5a1768a5ebf7c22da37fa1b0a8
+# tensor_count 4
+# layout_fnv1a64 35f838eec9676d2a
+# source local 23009184 29527436f00bb4b3d4990427d26e4b9151c99d5a1768a5ebf7c22da37fa1b0a8
+tensor blk.0.ffn_down_exps.weight 0 ffn_down_exps 0 f32 8 393216 393216 1347360 3145728
+tensor blk.0.ffn_gate_up_exps.weight 0 ffn_gate_up_exps 0 f32 8 786432 786432 4493088 6291456
+tensor blk.1.ffn_down_exps.weight 1 ffn_down_exps 0 f32 8 393216 393216 12980640 3145728
+tensor blk.1.ffn_gate_up_exps.weight 1 ffn_gate_up_exps 0 f32 8 786432 786432 16126368 6291456

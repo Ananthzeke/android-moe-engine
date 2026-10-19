@@ -1,0 +1,61 @@
+{
+  "calls": 32,
+  "distinct_sets": [
+    [
+      0,
+      4
+    ],
+    [
+      0,
+      7
+    ],
+    [
+      1,
+      4
+    ],
+    [
+      1,
+      7
+    ],
+    [
+      3,
+      2
+    ],
+    [
+      3,
+      4
+    ],
+    [
+      3,
+      6
+    ],
+    [
+      4,
+      0
+    ],
+    [
+      4,
+      6
+    ],
+    [
+      5,
+      2
+    ],
+    [
+      6,
+      4
+    ],
+    [
+      6,
+      7
+    ]
+  ],
+  "max_selected_per_call": 2,
+  "slots": 4,
+  "misses": 56,
+  "evictions": 48,
+  "reads": 56,
+  "read_bytes": 33030144,
+  "arena_bytes": 4718592,
+  "unselected_never_in_trace": true
+}

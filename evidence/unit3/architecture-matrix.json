@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "rows": [
+    {
+      "architecture": "qwen35-sparse",
+      "artifact": "sparse",
+      "rows": 8,
+      "mismatched_floats": 0,
+      "tokens_equal": true,
+      "tokens": [
+        91,
+        20,
+        117,
+        88,
+        53,
+        98,
+        59,
+        82
+      ]
+    },
+    {
+      "architecture": "qwen35-sparse",
+      "artifact": "sparse-q4",
+      "rows": 8,
+      "mismatched_floats": 0,
+      "tokens_equal": true,
+      "tokens": [
+        91,
+        20,
+        117,
+        88,
+        53,
+        98,
+        59,
+        82
+      ]
+    },
+    {
+      "architecture": "qwen35-sparse",
+      "artifact": "sparse-q6",
+      "rows": 8,
+      "mismatched_floats": 0,
+      "tokens_equal": true,
+      "tokens": [
+        91,
+        20,
+        117,
+        88,
+        53,
+        98,
+        59,
+        82
+      ]
+    },
+    {
+      "architecture": "qwen2moe",
+      "artifact": "qwen2moe",
+      "rows": 4,
+      "mismatched_floats": 0,
+      "tokens_equal": true,
+      "tokens": [
+        58,
+        22
+      ]
+    },
+    {
+      "architecture": "qwen2moe",
+      "artifact": "qwen2moe-q4",
+      "rows": 4,
+      "mismatched_floats": 0,
+      "tokens_equal": true,
+      "tokens": [
+        58,
+        22
+      ]
+    },
+    {
+      "architecture": "qwen2moe",
+      "artifact": "qwen2moe-q6",
+      "rows": 4,
+      "mismatched_floats": 0,
+      "tokens_equal": true,
+      "tokens": [
+        58,
+        22
+      ]
+    },
+    {
+      "architecture": "granite",
+      "artifact": "granite",
+      "rows": 4,
+      "mismatched_floats": 0,
+      "tokens_equal": true,
+      "tokens": [
+        123,
+        52
+      ]
+    },
+    {
+      "architecture": "granite",
+      "artifact": "granite-q4",
+      "rows": 4,
+      "mismatched_floats": 0,
+      "tokens_equal": true,
+      "tokens": [
+        123,
+        52
+      ]
+    },
+    {
+      "architecture": "granite",
+      "artifact": "granite-q6",
+      "rows": 4,
+      "mismatched_floats": 0,
+      "tokens_equal": true,
+      "tokens": [
+        123,
+        52
+      ]
+    }
+  ]
+}

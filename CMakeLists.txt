@@ -130,6 +130,11 @@ if(AME_INFERENCE_INTEGRATION)
   target_link_libraries(complete_runner PRIVATE ame_backend ame_crypto)
   ame_inference_target(complete_runner)
 
+  add_executable(complete_runner_broken bench/complete_runner.cpp)
+  target_compile_definitions(complete_runner_broken PRIVATE AME_STREAMING=1)
+  target_link_libraries(complete_runner_broken PRIVATE ame_backend_broken ame_crypto)
+  ame_inference_target(complete_runner_broken)
+
   add_executable(manifest_gate bench/manifest_gate.cpp)
   target_link_libraries(manifest_gate PRIVATE ame_backend)
   ame_inference_target(manifest_gate)

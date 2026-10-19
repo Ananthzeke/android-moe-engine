@@ -1,0 +1,25 @@
+{
+  "pristine_tokens": [
+    91,
+    20,
+    117,
+    88,
+    53,
+    98,
+    59,
+    82
+  ],
+  "streamed_tokens": [
+    91,
+    20,
+    117,
+    88,
+    53,
+    98,
+    59,
+    82
+  ],
+  "mismatched_floats": 0,
+  "rows": 8,
+  "trace_calls": 33
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "rows": [
+    {
+      "architecture": "qwen2moe",
+      "exit_code": 1,
+      "logits_absent": true,
+      "error_tail": "dule entries for seq_id = 0, pos = [0, +inf)\nllama_decode: failed to decode, ret = 2\nprefill failed\n~llama_context:        CPU compute buffer size is   0.1136 MiB, matches expectation of   0.1136 MiB\n"
+    },
+    {
+      "architecture": "granite",
+      "exit_code": 1,
+      "logits_absent": true,
+      "error_tail": "dule entries for seq_id = 0, pos = [0, +inf)\nllama_decode: failed to decode, ret = 2\nprefill failed\n~llama_context:        CPU compute buffer size is   0.1136 MiB, matches expectation of   0.1136 MiB\n"
+    }
+  ]
+}
