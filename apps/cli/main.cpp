@@ -219,6 +219,12 @@ int main(int argc, char* argv[]) {
         case ame::compare::CompareError::NotAnObject:
           std::cerr << "measurement JSON is not an object";
           break;
+        case ame::compare::CompareError::InvalidSchema:
+          std::cerr << "measurement schema is unsupported";
+          break;
+        case ame::compare::CompareError::InvalidMeasurement:
+          std::cerr << "measurement fields or token IDs are invalid";
+          break;
       }
       std::cerr << '\n';
       return 3;
@@ -238,8 +244,9 @@ int main(int argc, char* argv[]) {
         return 3;
       }
     }
-    const bool same = value.same_status && value.same_artifact && value.same_prompt_tokens &&
-                      value.same_output_tokens && value.same_finish_reason;
+    const bool same = value.same_status && value.same_artifact && value.same_file_bytes &&
+                      value.same_settings && value.same_prompt_tokens && value.same_output_tokens &&
+                      value.same_finish_reason;
     return same ? 0 : 1;
   }
   if (argc >= 2 && std::string_view(argv[1]) == "probe") {

@@ -18,6 +18,8 @@ struct Metrics {
 struct Comparison {
   bool same_status{false};
   bool same_artifact{false};
+  bool same_file_bytes{false};
+  bool same_settings{false};
   bool same_prompt_tokens{false};
   bool same_output_tokens{false};
   bool same_finish_reason{false};
@@ -31,10 +33,13 @@ enum class CompareError {
   FileTooLarge,
   InvalidJson,
   NotAnObject,
+  InvalidSchema,
+  InvalidMeasurement,
 };
 
-// Compare two harness measurement JSON files. Missing observations are reported as
-// differences rather than treated as equal. The comparison does not execute a model.
+// Compare two harness measurement JSON files. Required fields and integer token IDs
+// are validated; malformed measurements are errors, not "different" runs. The
+// comparison does not execute a model.
 [[nodiscard]] Result<Comparison, CompareError> compare_files(const std::string& left_path,
                                                              const std::string& right_path);
 [[nodiscard]] std::string to_json(const Comparison& comparison);

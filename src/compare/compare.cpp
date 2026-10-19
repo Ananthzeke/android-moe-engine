@@ -271,7 +271,10 @@ class Parser {
         if (!parse_value(member, depth + 1)) {
           return false;
         }
-        value.object.emplace(std::move(key), std::move(member));
+        if (!value.object.emplace(std::move(key), std::move(member)).second) {
+          error_ = "duplicate object key";
+          return false;
+        }
         skip();
         if (position_ < text_.size() && text_[position_] == ',') {
           ++position_;
@@ -332,14 +335,6 @@ class Parser {
   std::string error_;
 };
 
-std::optional<std::string> string_field(const Json& object, std::string_view key) {
-  const Json* field = object.find(key);
-  if (field == nullptr || field->kind != Json::Kind::String) {
-    return std::nullopt;
-  }
-  return field->text;
-}
-
 std::optional<double> number_field(const Json& object, std::string_view key) {
   const Json* field = object.find(key);
   if (field == nullptr || field->kind != Json::Kind::Number) {
@@ -353,22 +348,56 @@ const Json* object_field(const Json& object, std::string_view key) {
   return field != nullptr && field->kind == Json::Kind::Object ? field : nullptr;
 }
 
-std::vector<std::int64_t> integer_array(const Json& value, bool& present) {
-  present = value.kind == Json::Kind::Array;
-  std::vector<std::int64_t> result;
-  if (!present) {
-    return result;
+enum class ArrayStatus { Missing, Valid, Invalid };
+
+ArrayStatus read_ids(const Json& root, const Json* value, std::vector<std::int32_t>& output) {
+  (void)root;
+  if (value == nullptr || value->kind != Json::Kind::Array) {
+    return ArrayStatus::Missing;
   }
-  result.reserve(value.array.size());
-  for (const auto& item : value.array) {
-    if (item.kind != Json::Kind::Number) {
-      present = false;
-      result.clear();
-      return result;
+  output.clear();
+  output.reserve(value->array.size());
+  for (const auto& item : value->array) {
+    if (item.kind != Json::Kind::Number || !std::isfinite(item.number) ||
+        std::floor(item.number) != item.number ||
+        item.number < static_cast<double>(std::numeric_limits<std::int32_t>::min()) ||
+        item.number > static_cast<double>(std::numeric_limits<std::int32_t>::max())) {
+      output.clear();
+      return ArrayStatus::Invalid;
     }
-    result.push_back(static_cast<std::int64_t>(item.number));
+    output.push_back(static_cast<std::int32_t>(item.number));
   }
-  return result;
+  return ArrayStatus::Valid;
+}
+
+bool json_equal(const Json* left, const Json* right) {
+  if (left == nullptr || right == nullptr || left->kind != right->kind) {
+    return false;
+  }
+  switch (left->kind) {
+    case Json::Kind::Null:
+      return true;
+    case Json::Kind::Bool:
+      return left->boolean == right->boolean;
+    case Json::Kind::Number:
+      return left->number == right->number;
+    case Json::Kind::String:
+      return left->text == right->text;
+    case Json::Kind::Array:
+    case Json::Kind::Object:
+      return false;
+  }
+  return false;
+}
+
+const Json* required_string(const Json& root, std::string_view key) {
+  const Json* value = root.find(key);
+  return value != nullptr && value->kind == Json::Kind::String ? value : nullptr;
+}
+
+const Json* required_number(const Json& root, std::string_view key) {
+  const Json* value = root.find(key);
+  return value != nullptr && value->kind == Json::Kind::Number ? value : nullptr;
 }
 
 std::string escape(std::string_view text) {
@@ -473,66 +502,104 @@ Result<Comparison, CompareError> compare_files(const std::string& left_path,
     return CompareError::NotAnObject;
   }
 
+  const auto schema_ok = [](const Json& root) {
+    const Json* schema = required_number(root, "schema_version");
+    return schema != nullptr && schema->number == 1.0;
+  };
+  if (!schema_ok(left) || !schema_ok(right)) {
+    return CompareError::InvalidSchema;
+  }
+
+  const auto status_ok = [](const Json& root) {
+    return required_string(root, "status") != nullptr;
+  };
+  const auto model_ok = [](const Json& root) {
+    const Json* model = object_field(root, "model");
+    return model != nullptr && required_string(*model, "artifact_sha256") != nullptr &&
+           required_number(*model, "file_bytes") != nullptr;
+  };
+  const auto options_ok = [](const Json& root) { return object_field(root, "options") != nullptr; };
+  const auto output_ok = [](const Json& root) {
+    const Json* output = object_field(root, "output");
+    return output != nullptr && output->find("token_ids") != nullptr &&
+           required_string(*output, "finish_reason") != nullptr;
+  };
+  if (!status_ok(left) || !status_ok(right) || !model_ok(left) || !model_ok(right) ||
+      !options_ok(left) || !options_ok(right) || !output_ok(left) || !output_ok(right)) {
+    return CompareError::InvalidMeasurement;
+  }
+
   Comparison comparison;
   comparison.a = metrics_from(left);
   comparison.b = metrics_from(right);
 
-  const auto left_status = string_field(left, "status");
-  const auto right_status = string_field(right, "status");
-  comparison.same_status = left_status.has_value() && left_status == right_status;
+  comparison.same_status =
+      required_string(left, "status")->text == required_string(right, "status")->text;
   if (!comparison.same_status) {
     comparison.differences.push_back("status");
   }
 
   const Json* left_model = object_field(left, "model");
   const Json* right_model = object_field(right, "model");
-  const auto left_sha = left_model ? string_field(*left_model, "artifact_sha256") : std::nullopt;
-  const auto right_sha = right_model ? string_field(*right_model, "artifact_sha256") : std::nullopt;
-  comparison.same_artifact = left_sha.has_value() && left_sha == right_sha;
+  const auto left_sha = required_string(*left_model, "artifact_sha256")->text;
+  const auto right_sha = required_string(*right_model, "artifact_sha256")->text;
+  comparison.same_artifact = left_sha == right_sha;
   if (!comparison.same_artifact) {
     comparison.differences.push_back("model.artifact_sha256");
   }
+  const double left_file_bytes = required_number(*left_model, "file_bytes")->number;
+  const double right_file_bytes = required_number(*right_model, "file_bytes")->number;
+  comparison.same_file_bytes = left_file_bytes == right_file_bytes;
+  if (!comparison.same_file_bytes) {
+    comparison.differences.push_back("model.file_bytes");
+  }
 
-  bool left_prompt_present = false;
-  bool right_prompt_present = false;
-  const auto left_prompt = integer_array(
-      left.find("prompt_token_ids") != nullptr ? *left.find("prompt_token_ids") : Json{},
-      left_prompt_present);
-  const auto right_prompt = integer_array(
-      right.find("prompt_token_ids") != nullptr ? *right.find("prompt_token_ids") : Json{},
-      right_prompt_present);
-  comparison.same_prompt_tokens =
-      left_prompt_present && right_prompt_present && left_prompt == right_prompt;
+  std::vector<std::int32_t> left_prompt;
+  std::vector<std::int32_t> right_prompt;
+  const auto left_prompt_status = read_ids(left, left.find("prompt_token_ids"), left_prompt);
+  const auto right_prompt_status = read_ids(right, right.find("prompt_token_ids"), right_prompt);
+  if (left_prompt_status != ArrayStatus::Valid || right_prompt_status != ArrayStatus::Valid) {
+    return CompareError::InvalidMeasurement;
+  }
+  comparison.same_prompt_tokens = left_prompt_status == ArrayStatus::Valid &&
+                                  right_prompt_status == ArrayStatus::Valid &&
+                                  left_prompt == right_prompt;
   if (!comparison.same_prompt_tokens) {
     comparison.differences.push_back("prompt_token_ids");
   }
 
   const Json* left_output = object_field(left, "output");
   const Json* right_output = object_field(right, "output");
-  bool left_output_present = false;
-  bool right_output_present = false;
-  const auto left_tokens =
-      integer_array(left_output != nullptr && left_output->find("token_ids") != nullptr
-                        ? *left_output->find("token_ids")
-                        : Json{},
-                    left_output_present);
-  const auto right_tokens =
-      integer_array(right_output != nullptr && right_output->find("token_ids") != nullptr
-                        ? *right_output->find("token_ids")
-                        : Json{},
-                    right_output_present);
-  comparison.same_output_tokens =
-      left_output_present && right_output_present && left_tokens == right_tokens;
+  std::vector<std::int32_t> left_tokens;
+  std::vector<std::int32_t> right_tokens;
+  const auto left_token_status = read_ids(left, left_output->find("token_ids"), left_tokens);
+  const auto right_token_status = read_ids(right, right_output->find("token_ids"), right_tokens);
+  if (left_token_status != ArrayStatus::Valid || right_token_status != ArrayStatus::Valid) {
+    return CompareError::InvalidMeasurement;
+  }
+  comparison.same_output_tokens = left_token_status == ArrayStatus::Valid &&
+                                  right_token_status == ArrayStatus::Valid &&
+                                  left_tokens == right_tokens;
   if (!comparison.same_output_tokens) {
     comparison.differences.push_back("output.token_ids");
   }
-
-  const auto left_finish = left_output ? string_field(*left_output, "finish_reason") : std::nullopt;
-  const auto right_finish =
-      right_output ? string_field(*right_output, "finish_reason") : std::nullopt;
-  comparison.same_finish_reason = left_finish.has_value() && left_finish == right_finish;
+  comparison.same_finish_reason = required_string(*left_output, "finish_reason")->text ==
+                                  required_string(*right_output, "finish_reason")->text;
   if (!comparison.same_finish_reason) {
     comparison.differences.push_back("output.finish_reason");
+  }
+
+  const Json* left_options = object_field(left, "options");
+  const Json* right_options = object_field(right, "options");
+  static constexpr std::string_view kSettings[] = {
+      "context_tokens", "max_new_tokens", "threads", "batch_size",    "seed",      "temperature",
+      "top_k",          "top_p",          "mmap",    "chat_template", "gpu_layers"};
+  comparison.same_settings = true;
+  for (const auto key : kSettings) {
+    if (!json_equal(left_options->find(key), right_options->find(key))) {
+      comparison.same_settings = false;
+      comparison.differences.push_back("options." + std::string(key));
+    }
   }
 
   return comparison;
@@ -544,6 +611,10 @@ std::string to_json(const Comparison& comparison) {
       std::string("  \"same_status\": ") + (comparison.same_status ? "true" : "false") + ",\n";
   output +=
       std::string("  \"same_artifact\": ") + (comparison.same_artifact ? "true" : "false") + ",\n";
+  output += std::string("  \"same_file_bytes\": ") +
+            (comparison.same_file_bytes ? "true" : "false") + ",\n";
+  output +=
+      std::string("  \"same_settings\": ") + (comparison.same_settings ? "true" : "false") + ",\n";
   output += std::string("  \"same_prompt_tokens\": ") +
             (comparison.same_prompt_tokens ? "true" : "false") + ",\n";
   output += std::string("  \"same_output_tokens\": ") +
@@ -554,7 +625,12 @@ std::string to_json(const Comparison& comparison) {
   write_metrics(output, comparison.a);
   output += ",\n    \"right\": ";
   write_metrics(output, comparison.b);
-  output += "\n  },\n  \"differences\": [";
+  const bool compatible = comparison.same_status && comparison.same_artifact &&
+                          comparison.same_file_bytes && comparison.same_settings &&
+                          comparison.same_prompt_tokens && comparison.same_output_tokens &&
+                          comparison.same_finish_reason;
+  output += std::string("  \"compatible\": ") + (compatible ? "true" : "false") + ",\n";
+  output += "  \"differences\": [";
   for (std::size_t index = 0; index < comparison.differences.size(); ++index) {
     if (index != 0) {
       output += ", ";
