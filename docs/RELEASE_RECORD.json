@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "date": "2026-10-19",
-  "commit": "d0e41eb6927448ece75dbd51169c1e03e3e93e00",
+  "commit": "ec9cd1e8439ed5f558d5d8a4ce0cf3b01c03c74d",
   "branch": "codex/hardening",
   "backend": {
     "name": "llama.cpp",
@@ -10,7 +10,7 @@
   },
   "server": {
     "host_sha256": "3634ea494217fc29b37c268d5890e3eb3c2aa423d3cbb9837f93a22dd683aa59",
-    "android_sha256": "78f829c39a2ba6b228e2df61221c937bd9a9fcacc1e0b5c1a00af741673f515c",
+    "android_sha256": "1dd187eb180529a6362cf826a69983b55a862138e0b7cd10c4ef15e46fd4c0b1",
     "build": "AME_TOOLS=... sh bench/build_server.sh",
     "listen": "127.0.0.1:8080",
     "api": "OpenAI-compatible text Chat Completions"
@@ -36,6 +36,13 @@
       "bytes": 9490338464,
       "manifest_sha256": "2938872b4e658f1c5f51bc6e6cfbae8d769187f3f838c9e40d39a84d685253b4",
       "mode": "stream slots=64 arena_mib=1024"
+    },
+    "qwen36_35b": {
+      "id": "Qwen3.6-35B-A3B",
+      "path": "/data/local/tmp/ame-engine/models/Qwen3.6-35B-A3B-Q4_K_M.gguf",
+      "sha256": "671e47e0ec53c665d048b98c3ecbfd5236b5ca9c3e02ed19fc8f81f7b85140c7",
+      "bytes": 20419565568,
+      "mode": "stream slots=64 arena_mib=256"
     }
   },
   "tests": {
@@ -50,7 +57,9 @@
     "sustained_campaign": "evidence/api/phone-sustained.jsonl",
     "sustained_summary": "evidence/api/phone-sustained-summary.txt",
     "phone_openai_client": "evidence/api/phone-openai-client.txt",
-    "phone_dense_api_final": "evidence/api/phone-dense-api-verification-final.json"
+    "phone_dense_api_final": "evidence/api/phone-dense-api-verification-final.json",
+    "qwen36_35b_summary": "evidence/api/qwen36-api-summary.json",
+    "sha256_acceleration": "evidence/api/sha256-acceleration.json"
   },
   "moe_health": {
     "model": "Qwen1.5-MoE",
@@ -71,10 +80,11 @@
     }
   },
   "limits": [
-    "no real-35B API qualification",
+    "real-35B pristine reference parity not established",
+    "near-context 35B request exceeded 300 s client deadline",
+    "35B decode is sub-token-per-second",
     "runtime writable-file mutation integrity unchanged",
-    "client disconnect may remain busy until next token boundary",
-    "sustained campaign used one-token requests, not long-form generation"
+    "no two-hour long-form 35B campaign"
   ],
   "campaign": {
     "requests": 216,
@@ -89,5 +99,14 @@
       33,
       34
     ]
+  },
+  "qwen36": {
+    "hash_scalar_seconds": 403.728,
+    "hash_arm_seconds": 173.759,
+    "short_request_seconds": 46.603,
+    "generation_32_seconds": 105,
+    "rss_kib": 2000584,
+    "hwm_kib": 2109232,
+    "pss_kib": 2083974
   }
 }
