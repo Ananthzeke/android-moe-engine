@@ -1,0 +1,1448 @@
+{
+  "schema_version": 1,
+  "review_date_client": "2026-10-20",
+  "created_at_utc": "2026-10-20T14:46:16.230884+00:00",
+  "purpose": "Source and reference provenance for root research.md. Read-only review; no external code/scripts executed, models downloaded, runtime changed or performance campaign run.",
+  "attachment": {
+    "attachment_sha256": "bdfd63f1cf7543e4d53d2c19d9baa809f13923bf3bb7fee91b5ff1719d23f919",
+    "url_occurrences": 25,
+    "distinct_urls_without_tracking": 13,
+    "references": [
+      {
+        "url": "https://arxiv.org/abs/2308.14352",
+        "occurrences": 6,
+        "original_urls": [
+          "https://arxiv.org/abs/2308.14352?utm_source=chatgpt.com",
+          "https://arxiv.org/abs/2308.14352"
+        ]
+      },
+      {
+        "url": "https://arxiv.org/abs/2312.11514",
+        "occurrences": 3,
+        "original_urls": [
+          "https://arxiv.org/abs/2312.11514?utm_source=chatgpt.com",
+          "https://arxiv.org/abs/2312.11514"
+        ]
+      },
+      {
+        "url": "https://github.com/ggml-org/llama.cpp/blob/master/docs/android.md",
+        "occurrences": 2,
+        "original_urls": [
+          "https://github.com/ggml-org/llama.cpp/blob/master/docs/android.md?utm_source=chatgpt.com"
+        ]
+      },
+      {
+        "url": "https://github.com/Helldez/BigMoeOnEdge",
+        "occurrences": 2,
+        "original_urls": [
+          "https://github.com/Helldez/BigMoeOnEdge",
+          "https://github.com/Helldez/BigMoeOnEdge?utm_source=chatgpt.com"
+        ]
+      },
+      {
+        "url": "https://github.com/ggml-org/llama.cpp",
+        "occurrences": 1,
+        "original_urls": [
+          "https://github.com/ggml-org/llama.cpp"
+        ]
+      },
+      {
+        "url": "https://github.com/UbiquitousLearning/mllm",
+        "occurrences": 1,
+        "original_urls": [
+          "https://github.com/UbiquitousLearning/mllm"
+        ]
+      },
+      {
+        "url": "https://arxiv.org/abs/2601.17063",
+        "occurrences": 2,
+        "original_urls": [
+          "https://arxiv.org/abs/2601.17063",
+          "https://arxiv.org/abs/2601.17063?utm_source=chatgpt.com"
+        ]
+      },
+      {
+        "url": "https://arxiv.org/abs/2609.14643",
+        "occurrences": 1,
+        "original_urls": [
+          "https://arxiv.org/abs/2609.14643"
+        ]
+      },
+      {
+        "url": "https://arxiv.org/html/2609.14643v2",
+        "occurrences": 1,
+        "original_urls": [
+          "https://arxiv.org/html/2609.14643v2?utm_source=chatgpt.com"
+        ]
+      },
+      {
+        "url": "https://arxiv.org/abs/2406.06282",
+        "occurrences": 2,
+        "original_urls": [
+          "https://arxiv.org/abs/2406.06282",
+          "https://arxiv.org/abs/2406.06282?utm_source=chatgpt.com"
+        ]
+      },
+      {
+        "url": "https://arxiv.org/abs/2609.29032",
+        "occurrences": 1,
+        "original_urls": [
+          "https://arxiv.org/abs/2609.29032"
+        ]
+      },
+      {
+        "url": "https://arxiv.org/html/2609.29032v1",
+        "occurrences": 1,
+        "original_urls": [
+          "https://arxiv.org/html/2609.29032v1?utm_source=chatgpt.com"
+        ]
+      },
+      {
+        "url": "https://arxiv.org/abs/2605.27358",
+        "occurrences": 2,
+        "original_urls": [
+          "https://arxiv.org/abs/2605.27358",
+          "https://arxiv.org/abs/2605.27358?utm_source=chatgpt.com"
+        ]
+      }
+    ]
+  },
+  "bigmoe": {
+    "repository": "https://github.com/Helldez/BigMoeOnEdge",
+    "commit": "8a2c3f6f4aa8f51737ae62e92de40db386a95e0a",
+    "review_date": "2026-10-20",
+    "execution": "No downloaded project scripts or inference executed. Read-only clone and source inspection only.",
+    "coverage_counts": {
+      "not_read": 591,
+      "read_excerpt_or_search": 49,
+      "read_full": 11
+    },
+    "tracked_entry_count": 651,
+    "files_read": [
+      {
+        "path": ".gitmodules",
+        "coverage": "read_excerpt_or_search",
+        "category": "root",
+        "bytes": 114,
+        "sha256": "b2eb850731710aa18ca57de05f1f731c332cb595d26bc0d1ff71e570ec37e17d",
+        "reason": null
+      },
+      {
+        "path": "CMakeLists.txt",
+        "coverage": "read_excerpt_or_search",
+        "category": "root",
+        "bytes": 8360,
+        "sha256": "7a12f1b9b7feda30ae5cad2b5d0da15c8189e48123db08ef8cef045e1c38e7f7",
+        "reason": null
+      },
+      {
+        "path": "LICENSE",
+        "coverage": "read_excerpt_or_search",
+        "category": "root",
+        "bytes": 11358,
+        "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+        "reason": null
+      },
+      {
+        "path": "README.md",
+        "coverage": "read_excerpt_or_search",
+        "category": "root",
+        "bytes": 9710,
+        "sha256": "fd140faf789246829d2397a5ece87f9c3feb62a249484f59dfa8c5f7ad77332c",
+        "reason": null
+      },
+      {
+        "path": "core/include/bmoe/config.h",
+        "coverage": "read_excerpt_or_search",
+        "category": "core",
+        "bytes": 41405,
+        "sha256": "7193f61f28022f0921c3a6fff5dac958bfd284198fdb0f678b05fa801a04975d",
+        "reason": null
+      },
+      {
+        "path": "core/src/engine/decide/backend.h",
+        "coverage": "read_excerpt_or_search",
+        "category": "core",
+        "bytes": 2765,
+        "sha256": "a3e6433d4660941b4106d7c1bacd597b84af414acf47bd0445bd0c5c956b6acf",
+        "reason": "Outside selected engine, I/O, benchmark and Android integration trace; inventoried only."
+      },
+      {
+        "path": "core/src/engine/decide/decider.cpp",
+        "coverage": "read_excerpt_or_search",
+        "category": "core",
+        "bytes": 4889,
+        "sha256": "b2af54a28bbfe244e3bb2df93bd38b51915565314527b96ab7285585e7efcaa1",
+        "reason": "Outside selected engine, I/O, benchmark and Android integration trace; inventoried only."
+      },
+      {
+        "path": "core/src/engine/decide/llama_backend.cpp",
+        "coverage": "read_excerpt_or_search",
+        "category": "core",
+        "bytes": 5307,
+        "sha256": "25c3caace8b825e6275c4ca28bcb8f577cd94a8f0795be4dd8281b66730ef952",
+        "reason": "Outside selected engine, I/O, benchmark and Android integration trace; inventoried only."
+      },
+      {
+        "path": "core/src/engine/decide/llama_backend.h",
+        "coverage": "read_excerpt_or_search",
+        "category": "core",
+        "bytes": 2916,
+        "sha256": "f04c4323e4f293409d89de5a45684cbdbb4b58c7ebd91647a0fe7e2846fa5e3d",
+        "reason": "Outside selected engine, I/O, benchmark and Android integration trace; inventoried only."
+      },
+      {
+        "path": "core/src/engine/decide/prefix_cache.cpp",
+        "coverage": "read_full",
+        "category": "core",
+        "bytes": 1301,
+        "sha256": "7be7e716e3588a3273bc80d0986b0aef5881ac07b53702a75572e6193e87110d",
+        "reason": "Outside selected engine, I/O, benchmark and Android integration trace; inventoried only."
+      },
+      {
+        "path": "core/src/engine/decide/prefix_cache.h",
+        "coverage": "read_excerpt_or_search",
+        "category": "core",
+        "bytes": 1819,
+        "sha256": "dfb87790a53d56ddafd7c35e79df34a9e215dc4bbe6a7b5a749cd62ca877d77b",
+        "reason": "Outside selected engine, I/O, benchmark and Android integration trace; inventoried only."
+      },
+      {
+        "path": "core/src/engine/ngram_draft.cpp",
+        "coverage": "read_full",
+        "category": "core",
+        "bytes": 2513,
+        "sha256": "2d3466883ddbf32be34fd11eeaff01c75e61b4f8d1019ac50d00204f280f0113",
+        "reason": "Outside selected engine, I/O, benchmark and Android integration trace; inventoried only."
+      },
+      {
+        "path": "core/src/engine/session.cpp",
+        "coverage": "read_excerpt_or_search",
+        "category": "core",
+        "bytes": 138058,
+        "sha256": "90644fc7dcb2776f27d69989908ac2f8f4baf337de3c08c1ee7ce23c0e66f6bd",
+        "reason": null
+      },
+      {
+        "path": "core/src/io/file_reader.cpp",
+        "coverage": "read_full",
+        "category": "core",
+        "bytes": 10270,
+        "sha256": "0416b4538e27250119bea9e6ff7494c88e83d719a6beb46066381fa2f4767353",
+        "reason": null
+      },
+      {
+        "path": "core/src/io/mapping_release.cpp",
+        "coverage": "read_excerpt_or_search",
+        "category": "core",
+        "bytes": 16989,
+        "sha256": "eb78a1faf4c7e02ee32c464e4a9fbdb8acca96847e88c723366f884025a445ba",
+        "reason": null
+      },
+      {
+        "path": "core/src/io/platform_io.cpp",
+        "coverage": "read_excerpt_or_search",
+        "category": "core",
+        "bytes": 47521,
+        "sha256": "e708bde79d5dc9f8f25a33ee3a2eedbe5a579c2b62f4cd4ae60e7749fd16ed9a",
+        "reason": null
+      },
+      {
+        "path": "core/src/moe/dense_weights.cpp",
+        "coverage": "read_excerpt_or_search",
+        "category": "core",
+        "bytes": 23823,
+        "sha256": "292c05264b58b88eed82fdaf663b6affa3848d3e64a3242f3dd687d198fb90a3",
+        "reason": null
+      },
+      {
+        "path": "core/src/moe/expert_layout.cpp",
+        "coverage": "read_full",
+        "category": "core",
+        "bytes": 3372,
+        "sha256": "444bb8cade4df865ab5bbeb8c40850479113363c65a0d7ee1cad7b54c2451459",
+        "reason": null
+      },
+      {
+        "path": "core/src/moe/expert_stream_source.cpp",
+        "coverage": "read_excerpt_or_search",
+        "category": "core",
+        "bytes": 80490,
+        "sha256": "5abf999848652ee05de4042b75a30f147e19abe490707f25c50894369c7cc8bc",
+        "reason": null
+      },
+      {
+        "path": "core/src/moe/gguf_offsets.cpp",
+        "coverage": "read_full",
+        "category": "core",
+        "bytes": 7726,
+        "sha256": "da998b621e6740d79ffdabd21ca8ad2b642ed5a4da39797c43ea24cc494c420e",
+        "reason": null
+      },
+      {
+        "path": "core/src/moe/router_hook.cpp",
+        "coverage": "read_excerpt_or_search",
+        "category": "core",
+        "bytes": 82417,
+        "sha256": "c513d8d5f4ddc73a5f4c8a455abea8190001d2876051279bb9965fa2e9d49cbd",
+        "reason": null
+      },
+      {
+        "path": "core/src/moe/row_stream.cpp",
+        "coverage": "read_full",
+        "category": "core",
+        "bytes": 11519,
+        "sha256": "5fcb8eba9d6a5c196b2e2efcbf21544900a977042c0624103c20b81640057e9c",
+        "reason": null
+      },
+      {
+        "path": "core/src/plan/allocate.cpp",
+        "coverage": "read_excerpt_or_search",
+        "category": "core",
+        "bytes": 40529,
+        "sha256": "ad88e09136d30c70b9cdb0e814703e2999d21bf76b01f190064f45d3885278db",
+        "reason": "Outside selected engine, I/O, benchmark and Android integration trace; inventoried only."
+      },
+      {
+        "path": "core/src/plan/auto_plan.cpp",
+        "coverage": "read_full",
+        "category": "core",
+        "bytes": 3168,
+        "sha256": "2a3c14caf8ec0ee9f592d08f40040ad0046568fa91774d6504b6a74bf6c635d1",
+        "reason": null
+      },
+      {
+        "path": "core/src/plan/bandwidth_probe.cpp",
+        "coverage": "read_excerpt_or_search",
+        "category": "core",
+        "bytes": 21018,
+        "sha256": "a0a649129ab2d3d14099fa33db6f55ea9c5af6370aa5558297e3c75d47fdddc1",
+        "reason": "Outside selected engine, I/O, benchmark and Android integration trace; inventoried only."
+      },
+      {
+        "path": "core/src/plan/hardware_probe.cpp",
+        "coverage": "read_excerpt_or_search",
+        "category": "core",
+        "bytes": 18367,
+        "sha256": "a2532f59fe1dcb2063c99258372242eeae86e7522b7a9d482ae21a15672d68a6",
+        "reason": "Outside selected engine, I/O, benchmark and Android integration trace; inventoried only."
+      },
+      {
+        "path": "core/src/plan/headroom_probe.cpp",
+        "coverage": "read_full",
+        "category": "core",
+        "bytes": 7879,
+        "sha256": "99b8b227797d085538f96a41c43f099a6bbc5a669aae7890e702ebaa0f545163",
+        "reason": "Outside selected engine, I/O, benchmark and Android integration trace; inventoried only."
+      },
+      {
+        "path": "core/src/plan/model_probe.cpp",
+        "coverage": "read_excerpt_or_search",
+        "category": "core",
+        "bytes": 11380,
+        "sha256": "fe88443b045b524643b0a696ac347637665ccfee807b4aa7096e5492ec9d4a7a",
+        "reason": "Outside selected engine, I/O, benchmark and Android integration trace; inventoried only."
+      },
+      {
+        "path": "core/src/plan/placement_probe.cpp",
+        "coverage": "read_excerpt_or_search",
+        "category": "core",
+        "bytes": 16716,
+        "sha256": "b80600286d171b0fd91088950c94bb608bf99fde801c56baea12342dc2d49332",
+        "reason": "Outside selected engine, I/O, benchmark and Android integration trace; inventoried only."
+      },
+      {
+        "path": "core/src/plan/plan.cpp",
+        "coverage": "read_excerpt_or_search",
+        "category": "core",
+        "bytes": 9472,
+        "sha256": "9e93b20b4cc44439b0903a25b3c1b5a8814419d9f85d628dacc182ab22758c60",
+        "reason": "Outside selected engine, I/O, benchmark and Android integration trace; inventoried only."
+      },
+      {
+        "path": "core/src/plan/planner.cpp",
+        "coverage": "read_excerpt_or_search",
+        "category": "core",
+        "bytes": 104033,
+        "sha256": "100dfd43ac0604b30e037aaafbe077cd6565f921d98a796cc1d98fa6db378302",
+        "reason": null
+      },
+      {
+        "path": "docs/architecture.md",
+        "coverage": "read_excerpt_or_search",
+        "category": "docs",
+        "bytes": 13667,
+        "sha256": "b8b5e0b27361cfad62eb2a970716bf3e313aa056e4debdad19b9944eb962c301",
+        "reason": null
+      },
+      {
+        "path": "docs/backends.md",
+        "coverage": "read_excerpt_or_search",
+        "category": "docs",
+        "bytes": 9939,
+        "sha256": "738774b207870e3cf8041ad4b94b491a16fce021888a76ba226e4bab8259d1b0",
+        "reason": null
+      },
+      {
+        "path": "docs/bench-data/2026-07-13/qwen_autocap_ov.csv",
+        "coverage": "read_excerpt_or_search",
+        "category": "docs",
+        "bytes": 16044,
+        "sha256": "a43ab960b188d6670904da0141c6f6f6adf8af5ca368146aa1261692bf6898f5",
+        "reason": null
+      },
+      {
+        "path": "docs/bench-data/2026-07-13/qwen_autocap_ov.log",
+        "coverage": "read_full",
+        "category": "docs",
+        "bytes": 646,
+        "sha256": "7bf0fd6d80b64710d388c4abefe5af51ae535efe1211f466384c937bdfa87ab6",
+        "reason": null
+      },
+      {
+        "path": "docs/bench-data/2026-07-13/qwen_autocap_ov.metrics",
+        "coverage": "read_excerpt_or_search",
+        "category": "docs",
+        "bytes": 217,
+        "sha256": "966fd81d5bc32664721302b84a648095def3c70e41079bf25d072a7dc3305d33",
+        "reason": null
+      },
+      {
+        "path": "docs/bench-data/2026-07-13/summary.md",
+        "coverage": "read_excerpt_or_search",
+        "category": "docs",
+        "bytes": 8352,
+        "sha256": "04ff341ed4d6d29c96e7a897f8e955ef2733e60b4d0d508966641c6bf7f563e9",
+        "reason": null
+      },
+      {
+        "path": "docs/bench-data/2026-07-20-cache-replay/layer-lfu-verdict.md",
+        "coverage": "read_excerpt_or_search",
+        "category": "docs",
+        "bytes": 4401,
+        "sha256": "56e6d1513e90b59b54a0fef60dd38df312b447a269f3e5fe1efa94455d250dc2",
+        "reason": null
+      },
+      {
+        "path": "docs/bench-data/2026-07-20-sidecar/findings.md",
+        "coverage": "read_excerpt_or_search",
+        "category": "docs",
+        "bytes": 3192,
+        "sha256": "d09b4fdf931ac4a95032a40e9e40d321bc6c572139b8a0e102918c6a571e686a",
+        "reason": null
+      },
+      {
+        "path": "docs/bench-data/2026-08-29-mmap-serialisation/findings.md",
+        "coverage": "read_excerpt_or_search",
+        "category": "docs",
+        "bytes": 10430,
+        "sha256": "703e8b6f7336ab0005e203ec93de7d44929661d70df813d29065a44f4e28c453",
+        "reason": null
+      },
+      {
+        "path": "docs/benchmark-method.md",
+        "coverage": "read_excerpt_or_search",
+        "category": "docs",
+        "bytes": 16267,
+        "sha256": "1c8e57eca5327ac06e419aef9366e92e0bb0e8a435ba2b9c0740ae85d9b5c85e",
+        "reason": null
+      },
+      {
+        "path": "docs/benchmarks.md",
+        "coverage": "read_excerpt_or_search",
+        "category": "docs",
+        "bytes": 31928,
+        "sha256": "1f35f6fd55019bc2c679edfc3084d293611ecfb3588d6e023db7fe507da83a3c",
+        "reason": null
+      },
+      {
+        "path": "docs/cache-aware-substitution.md",
+        "coverage": "read_excerpt_or_search",
+        "category": "docs",
+        "bytes": 11811,
+        "sha256": "386b77cbf8a9e392aad0681f01978be919f2b2ab038890cad7a9e5b7425546a6",
+        "reason": null
+      },
+      {
+        "path": "docs/expert-dropping.md",
+        "coverage": "read_excerpt_or_search",
+        "category": "docs",
+        "bytes": 13770,
+        "sha256": "e24411f27081ba5d83afb09c0d0dd19f012f38e134a30aca7539c458a38e7ca8",
+        "reason": null
+      },
+      {
+        "path": "docs/expert-prediction.md",
+        "coverage": "read_excerpt_or_search",
+        "category": "docs",
+        "bytes": 13122,
+        "sha256": "6d84fdb1624ac0c9f4b99ab9bad46ed49220e997d2d3da368300111a6577107f",
+        "reason": null
+      },
+      {
+        "path": "docs/limitations.md",
+        "coverage": "read_excerpt_or_search",
+        "category": "docs",
+        "bytes": 6822,
+        "sha256": "1845d8fcd00a99b563ada4e1d8da9618d78bc63fe92edda7c36b925536bc420e",
+        "reason": null
+      },
+      {
+        "path": "docs/moe-streaming.md",
+        "coverage": "read_excerpt_or_search",
+        "category": "docs",
+        "bytes": 7769,
+        "sha256": "4ed09c3f1a58da1d5003b4cf8bc2ea207159cf06509c2ceca513c7833e1c87b0",
+        "reason": null
+      },
+      {
+        "path": "docs/prefetch.md",
+        "coverage": "read_excerpt_or_search",
+        "category": "docs",
+        "bytes": 5115,
+        "sha256": "ed08ee44ff87248da4aa4ce1209cdebd272856df6088c217424ef8a78c410c40",
+        "reason": null
+      },
+      {
+        "path": "docs/route-ahead.md",
+        "coverage": "read_excerpt_or_search",
+        "category": "docs",
+        "bytes": 14860,
+        "sha256": "0fb3c0055ce62d582e3085219a1fdddaeec5b2e07d062647222d522ba7b7a988",
+        "reason": null
+      },
+      {
+        "path": "docs/seam.md",
+        "coverage": "read_full",
+        "category": "docs",
+        "bytes": 20163,
+        "sha256": "a58b421328390f54dc2b1e5f60c22b86084dd47d5426d010b3d92d16dbdbbc04",
+        "reason": null
+      },
+      {
+        "path": "examples/android/app/build.gradle",
+        "coverage": "read_excerpt_or_search",
+        "category": "examples",
+        "bytes": 6317,
+        "sha256": "f8541ee1f16883b355b528561703df07c9395a6e3643632cda66c09733ea2a90",
+        "reason": null
+      },
+      {
+        "path": "examples/android/app/src/main/java/io/bigmoeonedge/app/engine/Engine.kt",
+        "coverage": "read_excerpt_or_search",
+        "category": "examples",
+        "bytes": 31502,
+        "sha256": "1d7db1c1ea72838ae0924043280cde689ab10663e9dcb85a9e959266e501f270",
+        "reason": null
+      },
+      {
+        "path": "examples/android/app/src/main/java/io/bigmoeonedge/app/engine/EngineService.kt",
+        "coverage": "read_excerpt_or_search",
+        "category": "examples",
+        "bytes": 14113,
+        "sha256": "00a5a1ed943fd4c3987d71b93a893ee26183ff3a8086537013b4f8e121a776b3",
+        "reason": null
+      },
+      {
+        "path": "scripts/build-android.ps1",
+        "coverage": "read_excerpt_or_search",
+        "category": "scripts",
+        "bytes": 4315,
+        "sha256": "05e085819fdfe73e5a09e1de652cac84bdb700c6033c5a02fb093879f497d1b8",
+        "reason": null
+      },
+      {
+        "path": "scripts/build-hexagon-android.sh",
+        "coverage": "read_excerpt_or_search",
+        "category": "scripts",
+        "bytes": 3638,
+        "sha256": "ea644a88ba7f26dc828a82432f798e8a83d60146804271f52b9273ff7c8c152e",
+        "reason": null
+      },
+      {
+        "path": "server/engine_host.cpp",
+        "coverage": "read_excerpt_or_search",
+        "category": "server",
+        "bytes": 13243,
+        "sha256": "e4eecca650169b778a583acc3fbcc58d12f86f174a215809411b33548e867c6d",
+        "reason": null
+      },
+      {
+        "path": "server/http_server.cpp",
+        "coverage": "read_excerpt_or_search",
+        "category": "server",
+        "bytes": 51293,
+        "sha256": "3c05362cd5ad14bb34a238d2a21d0648e0aac604ead01d7991f0e48e48962032",
+        "reason": null
+      },
+      {
+        "path": "server/openai_chat.cpp",
+        "coverage": "read_excerpt_or_search",
+        "category": "server",
+        "bytes": 12610,
+        "sha256": "6e7142c25071120fb3e835132fb74889ffd901087d1f625ad7147ff794d80aa0",
+        "reason": null
+      },
+      {
+        "path": "server/turn_queue.cpp",
+        "coverage": "read_full",
+        "category": "server",
+        "bytes": 1532,
+        "sha256": "9c7ba222bd5cc79d3fb29f578bc974ce7ac623d32b8ad7125c2dc2de72c58ba2",
+        "reason": null
+      },
+      {
+        "path": "tests/moe_gates.cpp",
+        "coverage": "read_excerpt_or_search",
+        "category": "tests",
+        "bytes": 75186,
+        "sha256": "15494335a1bef4c7eb576a53245e981b55fa948a64c1fae6c54705526ed865e3",
+        "reason": null
+      }
+    ],
+    "unread_entries_regeneration": "git ls-tree -r --name-only COMMIT; exclude the files_read paths. No claim of a full source-line audit.",
+    "dependency": {
+      "repository": "https://github.com/Helldez/llama.cpp",
+      "commit": "efaae99292ee34851137332c6efd20292b5ad4af",
+      "parent": "5aeac37a35b44fde4bdffaec9159f2fcb253b622",
+      "patch_stat": "34 insertions across 3 files",
+      "tracked_entry_count": 3846,
+      "coverage_counts": {
+        "not_read": 3841,
+        "read_full": 1,
+        "read_patch_or_excerpt": 4
+      },
+      "files_read": [
+        {
+          "path": "LICENSE",
+          "coverage": "read_full",
+          "reason": "Top-level MIT license identified directly."
+        },
+        {
+          "path": "ggml/include/ggml-cpu.h",
+          "coverage": "read_patch_or_excerpt",
+          "reason": "Pinned seam verification"
+        },
+        {
+          "path": "ggml/src/ggml-backend.cpp",
+          "coverage": "read_patch_or_excerpt",
+          "reason": "Pinned seam verification"
+        },
+        {
+          "path": "ggml/src/ggml-cpu/ggml-cpu.c",
+          "coverage": "read_patch_or_excerpt",
+          "reason": "Pinned seam verification"
+        },
+        {
+          "path": "ggml/src/ggml-cpu/ggml-cpu.cpp",
+          "coverage": "read_patch_or_excerpt",
+          "reason": "Pinned seam verification"
+        }
+      ],
+      "unread_entries_regeneration": "git ls-tree -r --name-only COMMIT; exclude the files_read paths. No claim of a full source-line audit."
+    },
+    "supplemental_scope": "Supplemental slice. Unlisted files are not_read in this slice; bigmoe-files.json has full repository inventory. Truncated outputs count partial.",
+    "supplemental_source_files": [
+      {
+        "path": "core/src/plan/auto_plan.cpp",
+        "coverage": "read_full",
+        "sha256": "2a3c14caf8ec0ee9f592d08f40040ad0046568fa91774d6504b6a74bf6c635d1",
+        "bytes": 3168
+      },
+      {
+        "path": "core/src/plan/headroom_probe.cpp",
+        "coverage": "read_full",
+        "sha256": "99b8b227797d085538f96a41c43f099a6bbc5a669aae7890e702ebaa0f545163",
+        "bytes": 7879
+      },
+      {
+        "path": "core/src/engine/ngram_draft.cpp",
+        "coverage": "read_full",
+        "sha256": "2d3466883ddbf32be34fd11eeaff01c75e61b4f8d1019ac50d00204f280f0113",
+        "bytes": 2513
+      },
+      {
+        "path": "core/src/engine/decide/prefix_cache.cpp",
+        "coverage": "read_full",
+        "sha256": "7be7e716e3588a3273bc80d0986b0aef5881ac07b53702a75572e6193e87110d",
+        "bytes": 1301
+      },
+      {
+        "path": "core/src/moe/row_stream.cpp",
+        "coverage": "read_full",
+        "sha256": "5fcb8eba9d6a5c196b2e2efcbf21544900a977042c0624103c20b81640057e9c",
+        "bytes": 11519
+      },
+      {
+        "path": "core/src/plan/allocate.cpp",
+        "coverage": "read_excerpt_or_search",
+        "sha256": "ad88e09136d30c70b9cdb0e814703e2999d21bf76b01f190064f45d3885278db",
+        "bytes": 40529
+      },
+      {
+        "path": "core/src/plan/planner.cpp",
+        "coverage": "read_excerpt_or_search",
+        "sha256": "100dfd43ac0604b30e037aaafbe077cd6565f921d98a796cc1d98fa6db378302",
+        "bytes": 104033
+      },
+      {
+        "path": "core/src/plan/hardware_probe.cpp",
+        "coverage": "read_excerpt_or_search",
+        "sha256": "a2532f59fe1dcb2063c99258372242eeae86e7522b7a9d482ae21a15672d68a6",
+        "bytes": 18367
+      },
+      {
+        "path": "core/src/plan/placement_probe.cpp",
+        "coverage": "read_excerpt_or_search",
+        "sha256": "b80600286d171b0fd91088950c94bb608bf99fde801c56baea12342dc2d49332",
+        "bytes": 16716
+      },
+      {
+        "path": "core/src/plan/bandwidth_probe.cpp",
+        "coverage": "read_excerpt_or_search",
+        "sha256": "a0a649129ab2d3d14099fa33db6f55ea9c5af6370aa5558297e3c75d47fdddc1",
+        "bytes": 21018
+      },
+      {
+        "path": "core/src/plan/model_probe.cpp",
+        "coverage": "read_excerpt_or_search",
+        "sha256": "fe88443b045b524643b0a696ac347637665ccfee807b4aa7096e5492ec9d4a7a",
+        "bytes": 11380
+      },
+      {
+        "path": "core/src/plan/plan.cpp",
+        "coverage": "read_excerpt_or_search",
+        "sha256": "9e93b20b4cc44439b0903a25b3c1b5a8814419d9f85d628dacc182ab22758c60",
+        "bytes": 9472
+      },
+      {
+        "path": "core/src/engine/session.cpp",
+        "coverage": "read_excerpt_or_search",
+        "sha256": "90644fc7dcb2776f27d69989908ac2f8f4baf337de3c08c1ee7ce23c0e66f6bd",
+        "bytes": 138058
+      },
+      {
+        "path": "core/src/engine/decide/llama_backend.cpp",
+        "coverage": "read_excerpt_or_search",
+        "sha256": "25c3caace8b825e6275c4ca28bcb8f577cd94a8f0795be4dd8281b66730ef952",
+        "bytes": 5307
+      },
+      {
+        "path": "core/src/engine/decide/llama_backend.h",
+        "coverage": "read_excerpt_or_search",
+        "sha256": "f04c4323e4f293409d89de5a45684cbdbb4b58c7ebd91647a0fe7e2846fa5e3d",
+        "bytes": 2916
+      },
+      {
+        "path": "core/src/engine/decide/backend.h",
+        "coverage": "read_excerpt_or_search",
+        "sha256": "a3e6433d4660941b4106d7c1bacd597b84af414acf47bd0445bd0c5c956b6acf",
+        "bytes": 2765
+      },
+      {
+        "path": "core/src/engine/decide/decider.cpp",
+        "coverage": "read_excerpt_or_search",
+        "sha256": "b2af54a28bbfe244e3bb2df93bd38b51915565314527b96ab7285585e7efcaa1",
+        "bytes": 4889
+      },
+      {
+        "path": "core/src/engine/decide/prefix_cache.h",
+        "coverage": "read_excerpt_or_search",
+        "sha256": "dfb87790a53d56ddafd7c35e79df34a9e215dc4bbe6a7b5a749cd62ca877d77b",
+        "bytes": 1819
+      },
+      {
+        "path": "core/src/moe/dense_weights.cpp",
+        "coverage": "read_excerpt_or_search",
+        "sha256": "292c05264b58b88eed82fdaf663b6affa3848d3e64a3242f3dd687d198fb90a3",
+        "bytes": 23823
+      },
+      {
+        "path": "core/src/moe/router_hook.cpp",
+        "coverage": "read_excerpt_or_search",
+        "sha256": "c513d8d5f4ddc73a5f4c8a455abea8190001d2876051279bb9965fa2e9d49cbd",
+        "bytes": 82417
+      }
+    ],
+    "license": {
+      "spdx": "Apache-2.0",
+      "path": "LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "scope": "BigMoeOnEdge project code; third-party components and model weights have separate licenses"
+    }
+  },
+  "mobile_systems": {
+    "status": "ISSUES",
+    "date": "2026-10-20",
+    "scope": "read-only primary paper and source investigation; no code executed or models downloaded",
+    "repositories": [
+      {
+        "repository": "https://github.com/UbiquitousLearning/mllm",
+        "branch": "main",
+        "sha": "1d3c3d8e506e3d12e902af82866972623b240ce0",
+        "license": "MIT overall, Apache-2.0 wenet component",
+        "files_read": [
+          "README.md",
+          "mllm/models/qwen3_moe/modeling_qwen3_moe_fa2.hpp",
+          "mllm/backends/qnn/QNNBackend.cpp",
+          "mllm/backends/qnn/QNNModel.cpp",
+          "docs/qnn_backend/setup_env.rst",
+          "docs/qnn_backend/core_design.rst",
+          "LICENSE"
+        ],
+        "relevant_inventory": [
+          "docs/qnn_backend/aot_execute.rst",
+          "docs/qnn_backend/core_design.rst",
+          "docs/qnn_backend/index.rst",
+          "docs/qnn_backend/qnn_model_convert.rst",
+          "docs/qnn_backend/setup_env.rst",
+          "examples/qwen3_moe/CMakeLists.txt",
+          "examples/qwen3_moe/config_30B_A3B_gguf.json",
+          "examples/qwen3_moe/main.cpp",
+          "examples/qwen3_moe/quant_cfg_30B_q4_k.json",
+          "mllm/backends/qnn/CMakeLists.txt",
+          "mllm/backends/qnn/CustomLayers.cpp",
+          "mllm/backends/qnn/CustomLayers.hpp",
+          "mllm/backends/qnn/QNNAllocator.cpp",
+          "mllm/backends/qnn/QNNAllocator.hpp",
+          "mllm/backends/qnn/QNNBackend.cpp",
+          "mllm/backends/qnn/QNNBackend.hpp",
+          "mllm/backends/qnn/QNNDispatcher.cpp",
+          "mllm/backends/qnn/QNNDispatcher.hpp",
+          "mllm/backends/qnn/QNNModel.cpp",
+          "mllm/backends/qnn/QNNModel.hpp",
+          "mllm/backends/qnn/QNNTypeMacros.hpp",
+          "mllm/backends/qnn/QNNUtils.cpp",
+          "mllm/backends/qnn/QNNUtils.hpp",
+          "mllm/backends/qnn/Register.cpp",
+          "mllm/backends/qnn/aot/QnnTargetMachine.hpp",
+          "mllm/backends/qnn/aot/QnnTargetMachineParser.cpp",
+          "mllm/backends/qnn/aot/QnnTargetMachineParser.hpp",
+          "mllm/backends/qnn/aot/QnnWrappersAPI.cpp",
+          "mllm/backends/qnn/aot/QnnWrappersAPI.hpp",
+          "mllm/backends/qnn/aot/README.md",
+          "mllm/backends/qnn/aot/passes/AOTCompileContext.cpp",
+          "mllm/backends/qnn/aot/passes/AOTCompileContext.hpp",
+          "mllm/backends/qnn/aot/passes/AOTPass.cpp",
+          "mllm/backends/qnn/aot/passes/AOTPass.hpp",
+          "mllm/backends/qnn/aot/passes/AOTPipeline.cpp",
+          "mllm/backends/qnn/aot/passes/AOTPipeline.hpp",
+          "mllm/backends/qnn/aot/passes/LLM2QnnLoweringPass.cpp",
+          "mllm/backends/qnn/aot/passes/LLM2QnnLoweringPass.hpp",
+          "mllm/backends/qnn/aot/passes/LLMQuantRecipePass.cpp",
+          "mllm/backends/qnn/aot/passes/LLMQuantRecipePass.hpp",
+          "mllm/backends/qnn/aot/passes/LPBQCanonicalizePass.cpp",
+          "mllm/backends/qnn/aot/passes/LPBQCanonicalizePass.hpp",
+          "mllm/backends/qnn/aot/passes/MarkQnnGraphPass.cpp",
+          "mllm/backends/qnn/aot/passes/MarkQnnGraphPass.hpp",
+          "mllm/backends/qnn/aot/passes/MarkTensorIO.cpp",
+          "mllm/backends/qnn/aot/passes/MarkTensorIO.hpp",
+          "mllm/backends/qnn/aot/passes/MergeLLMHeadIntoMainGraphPass.cpp",
+          "mllm/backends/qnn/aot/passes/MergeLLMHeadIntoMainGraphPass.hpp",
+          "mllm/backends/qnn/aot/passes/OpNamingPass.cpp",
+          "mllm/backends/qnn/aot/passes/OpNamingPass.hpp",
+          "mllm/backends/qnn/aot/passes/PTQPass.cpp",
+          "mllm/backends/qnn/aot/passes/PTQPass.hpp",
+          "mllm/backends/qnn/aot/passes/SplitLLMGraphPass.cpp",
+          "mllm/backends/qnn/aot/passes/SplitLLMGraphPass.hpp",
+          "mllm/backends/qnn/aot/passes/TensorRenamingPass.cpp",
+          "mllm/backends/qnn/aot/passes/TensorRenamingPass.hpp",
+          "mllm/backends/qnn/aot/visitor/Base.hpp",
+          "mllm/backends/qnn/aot/visitor/CastType.cpp",
+          "mllm/backends/qnn/aot/visitor/CastType.hpp",
+          "mllm/backends/qnn/aot/visitor/Concat.cpp",
+          "mllm/backends/qnn/aot/visitor/Concat.hpp",
+          "mllm/backends/qnn/aot/visitor/Conv2D.cpp",
+          "mllm/backends/qnn/aot/visitor/Conv2D.hpp",
+          "mllm/backends/qnn/aot/visitor/Elewise.cpp",
+          "mllm/backends/qnn/aot/visitor/Elewise.hpp",
+          "mllm/backends/qnn/aot/visitor/Embedding.cpp",
+          "mllm/backends/qnn/aot/visitor/Embedding.hpp",
+          "mllm/backends/qnn/aot/visitor/Equal.cpp",
+          "mllm/backends/qnn/aot/visitor/Equal.hpp",
+          "mllm/backends/qnn/aot/visitor/Gather.cpp",
+          "mllm/backends/qnn/aot/visitor/Gather.hpp",
+          "mllm/backends/qnn/aot/visitor/Index.cpp",
+          "mllm/backends/qnn/aot/visitor/Index.hpp",
+          "mllm/backends/qnn/aot/visitor/Linear.cpp",
+          "mllm/backends/qnn/aot/visitor/Linear.hpp",
+          "mllm/backends/qnn/aot/visitor/Matmul.cpp",
+          "mllm/backends/qnn/aot/visitor/Matmul.hpp",
+          "mllm/backends/qnn/aot/visitor/RMSNorm.cpp",
+          "mllm/backends/qnn/aot/visitor/RMSNorm.hpp",
+          "mllm/backends/qnn/aot/visitor/Reduce.cpp",
+          "mllm/backends/qnn/aot/visitor/Reduce.hpp",
+          "mllm/backends/qnn/aot/visitor/Repeat.cpp",
+          "mllm/backends/qnn/aot/visitor/Repeat.hpp",
+          "mllm/backends/qnn/aot/visitor/RoPE.cpp",
+          "mllm/backends/qnn/aot/visitor/RoPE.hpp",
+          "mllm/backends/qnn/aot/visitor/SiLU.cpp",
+          "mllm/backends/qnn/aot/visitor/SiLU.hpp",
+          "mllm/backends/qnn/aot/visitor/Sigmoid.cpp",
+          "mllm/backends/qnn/aot/visitor/Sigmoid.hpp",
+          "mllm/backends/qnn/aot/visitor/Slice.cpp",
+          "mllm/backends/qnn/aot/visitor/Slice.hpp",
+          "mllm/backends/qnn/aot/visitor/Softmax.cpp",
+          "mllm/backends/qnn/aot/visitor/Softmax.hpp",
+          "mllm/backends/qnn/aot/visitor/Transpose.cpp",
+          "mllm/backends/qnn/aot/visitor/Transpose.hpp",
+          "mllm/backends/qnn/aot/visitor/View.cpp",
+          "mllm/backends/qnn/aot/visitor/View.hpp",
+          "mllm/backends/qnn/aot/visitor/Where.cpp",
+          "mllm/backends/qnn/aot/visitor/Where.hpp",
+          "mllm/backends/qnn/aot_rt/KVCacheManager.cpp",
+          "mllm/backends/qnn/aot_rt/KVCacheManager.hpp",
+          "mllm/backends/qnn/aot_rt/PromptProcessor.cpp",
+          "mllm/backends/qnn/aot_rt/PromptProcessor.hpp",
+          "mllm/backends/qnn/aot_rt/QnnAOTConfig.hpp",
+          "mllm/backends/qnn/aot_rt/QnnAOTModule.cpp",
+          "mllm/backends/qnn/aot_rt/QnnAOTModule.hpp",
+          "mllm/backends/qnn/aot_rt/QnnAOTRuntime.cpp",
+          "mllm/backends/qnn/aot_rt/QnnAOTRuntime.hpp",
+          "mllm/backends/qnn/aot_rt/README.md",
+          "mllm/backends/qnn/aot_rt/TokenGenerator.cpp",
+          "mllm/backends/qnn/aot_rt/TokenGenerator.hpp",
+          "mllm/backends/qnn/custom-op-package/LLaMAPackage/Makefile",
+          "mllm/backends/qnn/custom-op-package/LLaMAPackage/config/LLaMAOpPackageHtp.xml",
+          "mllm/backends/qnn/custom-op-package/LLaMAPackage/src/LLaMAPackageInterface.cpp",
+          "mllm/backends/qnn/custom-op-package/LLaMAPackage/src/ops/CausalMask.cpp",
+          "mllm/backends/qnn/custom-op-package/LLaMAPackage/src/ops/IRoPE.cpp",
+          "mllm/backends/qnn/custom-op-package/LLaMAPackage/src/ops/KVCache.cpp",
+          "mllm/backends/qnn/custom-op-package/LLaMAPackage/src/ops/LLaMAAdd.cpp",
+          "mllm/backends/qnn/custom-op-package/LLaMAPackage/src/ops/LLaMADequantize.cpp",
+          "mllm/backends/qnn/custom-op-package/LLaMAPackage/src/ops/LLaMADequantizeAdd.cpp",
+          "mllm/backends/qnn/custom-op-package/LLaMAPackage/src/ops/LLaMALinear.cpp",
+          "mllm/backends/qnn/custom-op-package/LLaMAPackage/src/ops/LLaMAMul.cpp",
+          "mllm/backends/qnn/custom-op-package/LLaMAPackage/src/ops/LLaMAQuantize.cpp",
+          "mllm/backends/qnn/custom-op-package/LLaMAPackage/src/ops/LLaMAReLU.cpp",
+          "mllm/backends/qnn/custom-op-package/LLaMAPackage/src/ops/LLaMASuperSiLU.cpp",
+          "mllm/backends/qnn/custom-op-package/LLaMAPackage/src/ops/QLayerNorm.cpp",
+          "mllm/backends/qnn/custom-op-package/LLaMAPackage/src/ops/RMSNorm.cpp",
+          "mllm/backends/qnn/custom-op-package/LLaMAPackage/src/ops/RoPE.cpp",
+          "mllm/backends/qnn/custom-op-package/LLaMAPackage/src/ops/RoPESimple.cpp",
+          "mllm/backends/qnn/custom-op-package/LLaMAPackage/src/ops/SiLU.cpp",
+          "mllm/backends/qnn/custom-op-package/LLaMAPackage/src/ops/WNop.cpp",
+          "mllm/backends/qnn/op/QNNBaseOp.hpp",
+          "mllm/backends/qnn/op/QNNCastTypeOp.cpp",
+          "mllm/backends/qnn/op/QNNCastTypeOp.hpp",
+          "mllm/backends/qnn/op/QNNElewiseOp.cpp",
+          "mllm/backends/qnn/op/QNNElewiseOp.hpp",
+          "mllm/backends/qnn/op/QNNEmbeddingOp.cpp",
+          "mllm/backends/qnn/op/QNNEmbeddingOp.hpp",
+          "mllm/backends/qnn/op/QNNGraphOp.cpp",
+          "mllm/backends/qnn/op/QNNGraphOp.hpp",
+          "mllm/backends/qnn/op/QNNLinearOp.cpp",
+          "mllm/backends/qnn/op/QNNLinearOp.hpp",
+          "mllm/backends/qnn/op/QNNParamOp.cpp",
+          "mllm/backends/qnn/op/QNNParamOp.hpp",
+          "mllm/backends/qnn/op/QNNRMSNormOp.cpp",
+          "mllm/backends/qnn/op/QNNRMSNormOp.hpp",
+          "mllm/backends/qnn/op/QNNSiLUOp.cpp",
+          "mllm/backends/qnn/op/QNNSiLUOp.hpp",
+          "mllm/backends/qnn/op/QNNTransposeOp.cpp",
+          "mllm/backends/qnn/op/QNNTransposeOp.hpp",
+          "mllm/backends/qnn/op/QNNViewOp.cpp",
+          "mllm/backends/qnn/op/QNNViewOp.hpp",
+          "mllm/backends/qnn/op/QNNX2XOp.cpp",
+          "mllm/backends/qnn/op/QNNX2XOp.hpp",
+          "mllm/backends/qnn/passes/CustomOpPatterns.cpp",
+          "mllm/backends/qnn/passes/CustomOpPatterns.hpp",
+          "mllm/backends/qnn/passes/QNNGraphBuildPass.cpp",
+          "mllm/backends/qnn/passes/QNNGraphBuildPass.hpp",
+          "mllm/backends/qnn/passes/QNNGraphBuildPipeline.hpp",
+          "mllm/backends/qnn/passes/QNNGraphIOTensorPass.cpp",
+          "mllm/backends/qnn/passes/QNNGraphIOTensorPass.hpp",
+          "mllm/backends/qnn/passes/QNNOpNamingPass.cpp",
+          "mllm/backends/qnn/passes/QNNOpNamingPass.hpp",
+          "mllm/models/qwen3_moe/configuration_qwen3_moe.hpp",
+          "mllm/models/qwen3_moe/modeling_qwen3_moe_fa2.hpp",
+          "mllm/models/qwen3_moe/tokenization_qwen3_moe.hpp",
+          "pymllm/models/qwen3_moe.py"
+        ]
+      },
+      {
+        "repository": "https://github.com/UbiquitousLearning/mllm",
+        "branch": "v1",
+        "sha": "013e4cecf183358ce5fe5e6a19bee332c50d880c",
+        "files_read": [
+          "examples/demo_minicpm_moe_mbm.cpp",
+          "mllm/models/minicpm_moe/mbm/modeling_minicpm_moe_mbm.hpp",
+          "mllm/models/minicpm_moe/mbm/settings_minicpm_moe_mbm.hpp",
+          "mllm/models/minicpm_moe/mbp/modeling_minicpm_moe_mbp.hpp",
+          "mllm/Layer.cpp",
+          "mllm/Layer.hpp",
+          "mllm/ParamLoader.cpp",
+          "mllm/backends/cpu/op/CPULinear.cpp"
+        ],
+        "coverage": "selected bodies; settings map inventory not all numeric map entries",
+        "relevant_inventory": [
+          "examples/demo_bailing_moe.cpp",
+          "examples/demo_bailing_moe_mbp.cpp",
+          "examples/demo_minicpm_moe.cpp",
+          "examples/demo_minicpm_moe_mbm.cpp",
+          "examples/demo_minicpm_moe_mbp.cpp",
+          "mllm/ParamLoader.cpp",
+          "mllm/ParamLoader.hpp",
+          "mllm/backends/cpu/op/CPULinear.cpp",
+          "mllm/backends/cpu/op/CPULinear.hpp",
+          "mllm/backends/cpu/op/CPULinearINT8Shadow.cpp",
+          "mllm/backends/cpu/op/CPULinearINT8Shadow.hpp",
+          "mllm/backends/cpu/op/CPULinearInt8.cpp",
+          "mllm/backends/cpu/op/CPULinearInt8.hpp",
+          "mllm/models/ling/configuration_bailing_moe.hpp",
+          "mllm/models/ling/mbp/modeling_bailing_moe_mbp.hpp",
+          "mllm/models/ling/mbp/modeling_bailing_moe_mbp_e.hpp",
+          "mllm/models/ling/mbp/modeling_bailing_moe_mbppip.hpp",
+          "mllm/models/ling/mbp/settings_bailing_moe_mbp.hpp",
+          "mllm/models/ling/mbp/settings_bailing_moe_mbp_e.hpp",
+          "mllm/models/ling/modeling_bailing_moe.hpp",
+          "mllm/models/minicpm_moe/configuration_minicpm_moe.hpp",
+          "mllm/models/minicpm_moe/mbm/modeling_minicpm_moe_mbm.hpp",
+          "mllm/models/minicpm_moe/mbm/settings_minicpm_moe_mbm.hpp",
+          "mllm/models/minicpm_moe/mbp/modeling_minicpm_moe_mbp.hpp",
+          "mllm/models/minicpm_moe/mbp/settings_minicpm_moe_mbp.hpp",
+          "mllm/models/minicpm_moe/modeling_minicpm_moe.hpp",
+          "test/cpu/CPULinearTest.cpp",
+          "test/cpu/CPULinearTest.py"
+        ]
+      },
+      {
+        "repository": "https://github.com/UbiquitousLearning/mllm",
+        "branch": "v2",
+        "sha": "e0b7464f14391df182660e5bbae0164c9c382eaf",
+        "files_read": [],
+        "coverage": "identity fetched, no deep source trace"
+      },
+      {
+        "repository": "https://github.com/Tiiny-AI/PowerInfer",
+        "original_url": "https://github.com/SJTU-IPADS/PowerInfer",
+        "branch": "main",
+        "sha": "8bd56d69906c9d2dba4d3bf6899763401e01a9a4",
+        "license": "MIT",
+        "files_read": [
+          "README.md",
+          "smallthinker/powerinfer/moe_sparse_pipeline/expert_cache.cpp",
+          "smallthinker/powerinfer/moe_sparse_pipeline/iou.cpp",
+          "smallthinker/powerinfer/moe_sparse_pipeline/pipeline.cpp",
+          "smallthinker/powerinfer/powerinfer-cpu/src/sparse_moe_ffn.cpp",
+          "LICENSE"
+        ],
+        "relevant_inventory": [
+          "smallthinker/powerinfer/moe_sparse_pipeline/CMakeLists.txt",
+          "smallthinker/powerinfer/moe_sparse_pipeline/expert_bundle.cpp",
+          "smallthinker/powerinfer/moe_sparse_pipeline/expert_cache.cpp",
+          "smallthinker/powerinfer/moe_sparse_pipeline/iou.cpp",
+          "smallthinker/powerinfer/moe_sparse_pipeline/moe_sparse_pipeline/config.hpp",
+          "smallthinker/powerinfer/moe_sparse_pipeline/moe_sparse_pipeline/expert_bundle.hpp",
+          "smallthinker/powerinfer/moe_sparse_pipeline/moe_sparse_pipeline/expert_cache.hpp",
+          "smallthinker/powerinfer/moe_sparse_pipeline/moe_sparse_pipeline/iou.hpp",
+          "smallthinker/powerinfer/moe_sparse_pipeline/moe_sparse_pipeline/lockfree_queue.hpp",
+          "smallthinker/powerinfer/moe_sparse_pipeline/moe_sparse_pipeline/object_pool.hpp",
+          "smallthinker/powerinfer/moe_sparse_pipeline/moe_sparse_pipeline/packed_kernel.hpp",
+          "smallthinker/powerinfer/moe_sparse_pipeline/moe_sparse_pipeline/pipeline.hpp",
+          "smallthinker/powerinfer/moe_sparse_pipeline/moe_sparse_pipeline/task.hpp",
+          "smallthinker/powerinfer/moe_sparse_pipeline/packed_kernel.cpp",
+          "smallthinker/powerinfer/moe_sparse_pipeline/pipeline.cpp",
+          "smallthinker/powerinfer/moe_sparse_pipeline/task.cpp",
+          "smallthinker/powerinfer/powerinfer-cpu/src/sparse_moe_ffn.cpp",
+          "smallthinker/powerinfer/powerinfer-cpu/src/sparse_moe_ffn.hpp"
+        ],
+        "coverage": "later SmallThinker source is not verified as PowerInfer-2 mobile code"
+      },
+      {
+        "repository": "https://huggingface.co/facebook/MobileMoE-S-SFT",
+        "sha": "4decae01abfeaf46046b8774fdc4404b3e33a3a4",
+        "license": "fair-noncommercial-research-license",
+        "files_read": [
+          "LICENSE"
+        ],
+        "files_blocked": [
+          "modeling_mobilemoe.py",
+          "config.json"
+        ],
+        "inventory": [
+          ".gitattributes",
+          "LICENSE",
+          "README.md",
+          "config.json",
+          "configuration_mobilemoe.py",
+          "generation_config.json",
+          "mobilemoe_pareto.png",
+          "mobilemoe_recipe.png",
+          "model.safetensors",
+          "modeling_mobilemoe.py",
+          "special_tokens_map.json",
+          "tokenizer.json",
+          "tokenizer_config.json"
+        ],
+        "coverage": "metadata and license only; model source is gated"
+      }
+    ],
+    "papers": [
+      {
+        "url": "https://arxiv.org/html/2308.14352v2",
+        "sections_read": [
+          "II",
+          "III",
+          "IV"
+        ],
+        "coverage": "system/method/evaluation full text, sections and tables; no figure digitization"
+      },
+      {
+        "url": "https://arxiv.org/html/2406.06282v3",
+        "sections_read": [
+          "2.2",
+          "2.3",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7"
+        ],
+        "coverage": "full method/evaluation text and tables; no figure digitization"
+      },
+      {
+        "url": "https://arxiv.org/html/2605.27358v1",
+        "sections_read": [
+          "3",
+          "4"
+        ],
+        "coverage": "full methods/runtime evaluation and tables; no figure digitization"
+      }
+    ],
+    "gaps": [
+      "No EdgeMoE paper experiment SHA established",
+      "No PowerInfer-2 mobile code release verified",
+      "No MobileMoE custom ExecuTorch operator release pinned",
+      "MobileMoE official Python source access restricted",
+      "No target phone or current engine tests performed"
+    ]
+  },
+  "flash_speculation": {
+    "status": "ISSUES",
+    "date": "2026-10-20",
+    "repositories": [
+      {
+        "url": "https://github.com/MusaShams/Routide",
+        "commit": "d9c1df0dbfa395433abd5c715c8b0dbdea87e9bc",
+        "license": "MIT",
+        "notice": "Derived from MLX Swift examples revision378f2449c257788c5067b9f8b086731d76b39b33; preserve upstream notices."
+      }
+    ],
+    "papers": [
+      {
+        "url": "https://arxiv.org/html/2609.14643v2",
+        "sha256": "a025ab251ed1f02d4ac5a528f2e26a15bb18df3a43fbb504a256a6ad933077ae",
+        "coverage": "full artifact retrieved; targeted methods/evaluation/appendix sections read"
+      },
+      {
+        "url": "https://arxiv.org/html/2601.17063v2",
+        "sha256": "168795a19acbd91d0a464d540158490a3c7cf25f4544a37bc63e60fd44cb22bd",
+        "coverage": "full artifact retrieved; targeted methods/evaluation/appendix sections read"
+      },
+      {
+        "url": "https://arxiv.org/html/2609.29032v1",
+        "sha256": "767417353d986ae017d9962a0f9ad5b58cb32c934fe8c9bf70504bc1c07e7800",
+        "coverage": "full artifact retrieved; targeted methods/evaluation/appendix sections read"
+      },
+      {
+        "url": "https://arxiv.org/html/2312.11514v3",
+        "sha256": "26c5b81200fc05874cde310c411545df6a69833b3a675d6b9ebc60930be6ad7b",
+        "coverage": "full artifact retrieved; targeted methods/evaluation/appendix sections read"
+      }
+    ],
+    "files_read": [
+      {
+        "repository": "https://github.com/MusaShams/Routide",
+        "commit": "d9c1df0dbfa395433abd5c715c8b0dbdea87e9bc",
+        "path": "README.md",
+        "read_scope": "full",
+        "sha256": "0dce3ab9fc5943ce568cb8391d7edf2ee91c47662ad1805836182c16d90f074a",
+        "url": "https://github.com/MusaShams/Routide/blob/d9c1df0dbfa395433abd5c715c8b0dbdea87e9bc/README.md"
+      },
+      {
+        "repository": "https://github.com/MusaShams/Routide",
+        "commit": "d9c1df0dbfa395433abd5c715c8b0dbdea87e9bc",
+        "path": "docs/REPRODUCIBILITY.md",
+        "read_scope": "full",
+        "sha256": "ba8d79aea07a4e60a4e17c1020855cce70ee3421a864ef61e2d03a13d42fee10",
+        "url": "https://github.com/MusaShams/Routide/blob/d9c1df0dbfa395433abd5c715c8b0dbdea87e9bc/docs/REPRODUCIBILITY.md"
+      },
+      {
+        "repository": "https://github.com/MusaShams/Routide",
+        "commit": "d9c1df0dbfa395433abd5c715c8b0dbdea87e9bc",
+        "path": "Sources/RoutideRuntime/ExpertCache.swift",
+        "read_scope": "full",
+        "sha256": "51c4f987ceed334b587c05a01f965595aaf782db4ee50487167b04a0ce342db7",
+        "url": "https://github.com/MusaShams/Routide/blob/d9c1df0dbfa395433abd5c715c8b0dbdea87e9bc/Sources/RoutideRuntime/ExpertCache.swift"
+      },
+      {
+        "repository": "https://github.com/MusaShams/Routide",
+        "commit": "d9c1df0dbfa395433abd5c715c8b0dbdea87e9bc",
+        "path": "Sources/RoutideRuntime/ExpertPackReader.swift",
+        "read_scope": "full",
+        "sha256": "7ad4d109ffd6e38272c171d18dbe5f877d53d3f6205d5ecec7f12b26c6779db5",
+        "url": "https://github.com/MusaShams/Routide/blob/d9c1df0dbfa395433abd5c715c8b0dbdea87e9bc/Sources/RoutideRuntime/ExpertPackReader.swift"
+      },
+      {
+        "repository": "https://github.com/MusaShams/Routide",
+        "commit": "d9c1df0dbfa395433abd5c715c8b0dbdea87e9bc",
+        "path": "Sources/RoutideMLXRuntime/PackedExpertDecoder.swift",
+        "read_scope": "full",
+        "sha256": "145acbb50d37ee8a25f9a5af5fe342f371f70d485ed3632d41518c82e6d9460e",
+        "url": "https://github.com/MusaShams/Routide/blob/d9c1df0dbfa395433abd5c715c8b0dbdea87e9bc/Sources/RoutideMLXRuntime/PackedExpertDecoder.swift"
+      },
+      {
+        "repository": "https://github.com/MusaShams/Routide",
+        "commit": "d9c1df0dbfa395433abd5c715c8b0dbdea87e9bc",
+        "path": "Sources/RoutideMLXRuntime/PagedExpertKernel.swift",
+        "read_scope": "full",
+        "sha256": "34ad7fc9bef8cbcc07422f11fa471c5438e0dc5c543272a2d6d9372b87455382",
+        "url": "https://github.com/MusaShams/Routide/blob/d9c1df0dbfa395433abd5c715c8b0dbdea87e9bc/Sources/RoutideMLXRuntime/PagedExpertKernel.swift"
+      },
+      {
+        "repository": "https://github.com/MusaShams/Routide",
+        "commit": "d9c1df0dbfa395433abd5c715c8b0dbdea87e9bc",
+        "path": "Sources/RoutideMLXRuntime/PagedSparseMoEBlock.swift",
+        "read_scope": "full",
+        "sha256": "6566781e5eb2bcaa9ee05e2995d1b1de73d2d814627b2e4d94bafe8db9560efe",
+        "url": "https://github.com/MusaShams/Routide/blob/d9c1df0dbfa395433abd5c715c8b0dbdea87e9bc/Sources/RoutideMLXRuntime/PagedSparseMoEBlock.swift"
+      },
+      {
+        "repository": "https://github.com/MusaShams/Routide",
+        "commit": "d9c1df0dbfa395433abd5c715c8b0dbdea87e9bc",
+        "path": "Sources/RoutideMLXRuntime/ExpertPrefetchPolicy.swift",
+        "read_scope": "full",
+        "sha256": "ed7232b9051832c29cb28d1cdd89f5dbc66668f17ea6df9c98a2967e5cbb72c7",
+        "url": "https://github.com/MusaShams/Routide/blob/d9c1df0dbfa395433abd5c715c8b0dbdea87e9bc/Sources/RoutideMLXRuntime/ExpertPrefetchPolicy.swift"
+      },
+      {
+        "repository": "https://github.com/MusaShams/Routide",
+        "commit": "d9c1df0dbfa395433abd5c715c8b0dbdea87e9bc",
+        "path": "Sources/RoutideMLXRuntime/PagedQwenModel.swift",
+        "read_scope": "load, logits, greedy generation, reset, metric drain; other regions partial",
+        "sha256": "c9329f9e4598c7dafbc811a3e1828a8567f3fc337ccf5417c06693ab86749e17",
+        "url": "https://github.com/MusaShams/Routide/blob/d9c1df0dbfa395433abd5c715c8b0dbdea87e9bc/Sources/RoutideMLXRuntime/PagedQwenModel.swift"
+      },
+      {
+        "repository": "https://github.com/MusaShams/Routide",
+        "commit": "d9c1df0dbfa395433abd5c715c8b0dbdea87e9bc",
+        "path": "Research/ExpertPack/routide_pack/packer.py",
+        "read_scope": "through source inventory/manifest construction; CLI tail not read",
+        "sha256": "f48347189ccb036159e57d14e56b27e988cbe5444575cdb5cd891b8693619bd8",
+        "url": "https://github.com/MusaShams/Routide/blob/d9c1df0dbfa395433abd5c715c8b0dbdea87e9bc/Research/ExpertPack/routide_pack/packer.py"
+      },
+      {
+        "repository": "https://github.com/MusaShams/Routide",
+        "commit": "d9c1df0dbfa395433abd5c715c8b0dbdea87e9bc",
+        "path": "Research/RouterTrace/routide_trace/policy_sensitivity.py",
+        "read_scope": "first 100 lines, protocol and reuse-distance construction",
+        "sha256": "771edd8cb7537f2c46e280ba104f23b590600fe66e7c52e2f7fb478c8653209f",
+        "url": "https://github.com/MusaShams/Routide/blob/d9c1df0dbfa395433abd5c715c8b0dbdea87e9bc/Research/RouterTrace/routide_trace/policy_sensitivity.py"
+      },
+      {
+        "repository": "https://github.com/MusaShams/Routide",
+        "commit": "d9c1df0dbfa395433abd5c715c8b0dbdea87e9bc",
+        "path": "Sources/RoutideMLXRuntime/PagedFullAttentionLayer.swift",
+        "read_scope": "prefetch launch and attention overlap, reset and drain regions",
+        "sha256": "9c7116bb701eda685cff52a1d93ec17bea4a3a4af79005f1c046b2b8c20447ba",
+        "url": "https://github.com/MusaShams/Routide/blob/d9c1df0dbfa395433abd5c715c8b0dbdea87e9bc/Sources/RoutideMLXRuntime/PagedFullAttentionLayer.swift"
+      },
+      {
+        "repository": "https://github.com/MusaShams/Routide",
+        "commit": "d9c1df0dbfa395433abd5c715c8b0dbdea87e9bc",
+        "path": "Sources/RoutideMLXRuntime/PagedLinearAttentionLayer.swift",
+        "read_scope": "prefetch launch and attention overlap, reset and drain regions",
+        "sha256": "fc3f0b560d64705155e3b4d71ad4cf3705cbb5c7433f1bc626a9f12e6574c0eb",
+        "url": "https://github.com/MusaShams/Routide/blob/d9c1df0dbfa395433abd5c715c8b0dbdea87e9bc/Sources/RoutideMLXRuntime/PagedLinearAttentionLayer.swift"
+      },
+      {
+        "repository": "https://github.com/MusaShams/Routide",
+        "commit": "d9c1df0dbfa395433abd5c715c8b0dbdea87e9bc",
+        "path": "LICENSE",
+        "read_scope": "full",
+        "sha256": "c66670fcf1c70984136f2e9c46f7ac87d3ee190dffebbfe10790cb4ae339c081",
+        "url": "https://github.com/MusaShams/Routide/blob/d9c1df0dbfa395433abd5c715c8b0dbdea87e9bc/LICENSE"
+      },
+      {
+        "repository": "https://github.com/MusaShams/Routide",
+        "commit": "d9c1df0dbfa395433abd5c715c8b0dbdea87e9bc",
+        "path": "NOTICE.md",
+        "read_scope": "full",
+        "sha256": "bbab1dbf71e92fc791a7daab9549804f33359f65057b054e83dfea75e1625aca",
+        "url": "https://github.com/MusaShams/Routide/blob/d9c1df0dbfa395433abd5c715c8b0dbdea87e9bc/NOTICE.md"
+      }
+    ],
+    "execution": "No downloaded scripts, models, benchmarks, tests, or device operations executed",
+    "unavailable": [
+      "BigMoMo author runtime release",
+      "Kim et al. FlashMoE author runtime/predictors",
+      "Apple LLM in a flash end-to-end source"
+    ]
+  },
+  "current_llama_reference": {
+    "repo": "https://github.com/ggml-org/llama.cpp",
+    "commit": "1ba568c5ad5c6c718984bd2bf4e7c71485b706f9",
+    "files": [
+      {
+        "path": "docs/android.md",
+        "bytes": 6431,
+        "status": "fetched",
+        "sha256": "bc66f29afc8e081714be092363fdc64522933e42bb01f1dfb746aac483a33c32",
+        "read_scope": "Full Android guide; targeted loading, placement, SLRU, mmap and aligned-I/O source sections. Fetched size is not read-line coverage."
+      },
+      {
+        "path": "src/llama-mmap.cpp",
+        "bytes": 30403,
+        "status": "fetched",
+        "sha256": "130601ff8c2b6e16668b70a1dca07cc09ae84328d91bbd5bd259aea5658103e7",
+        "read_scope": "Full Android guide; targeted loading, placement, SLRU, mmap and aligned-I/O source sections. Fetched size is not read-line coverage."
+      },
+      {
+        "path": "src/llama-moe-cache.cpp",
+        "bytes": 26727,
+        "status": "fetched",
+        "sha256": "7d896685c5a80645fcbb5a340ee4fdb2a7d39982451da4a5631d910155caaefe",
+        "read_scope": "Full Android guide; targeted loading, placement, SLRU, mmap and aligned-I/O source sections. Fetched size is not read-line coverage."
+      },
+      {
+        "path": "src/llama-model-loader.cpp",
+        "bytes": 80776,
+        "status": "fetched",
+        "sha256": "7975d83406627e405d36876472495c6111696e70db66c65a629d6213ec54fc04",
+        "read_scope": "Full Android guide; targeted loading, placement, SLRU, mmap and aligned-I/O source sections. Fetched size is not read-line coverage."
+      },
+      {
+        "path": "common/arg.cpp",
+        "bytes": 224650,
+        "status": "fetched",
+        "sha256": "bf4c58c189a774f2308acfe88e4ec5cebb0c43f60cf05cef4c5b2b9affd5822d",
+        "read_scope": "Full Android guide; targeted loading, placement, SLRU, mmap and aligned-I/O source sections. Fetched size is not read-line coverage."
+      }
+    ]
+  },
+  "local_engine": {
+    "commit": "062a9c2e36b1811096fb00342e1fd561b3dccb46",
+    "backend_commit": "ff5a23376725e5a889fa0bfb987b7541dc304da0",
+    "scope": "Critical materializer, planner, reader, hash, server, patch and evidence spans; not a new full-repository audit.",
+    "files_read": [
+      {
+        "path": "src/backend/artifact.cpp",
+        "sha256": "8e502c6395816b0dcfab00c625e7807be000bbd79f687746c19f86b0bd5890c3",
+        "read_scope": "Relevant bodies or metric records; see research.md for exact span citations."
+      },
+      {
+        "path": "src/backend/moe_stream.cpp",
+        "sha256": "604875b7540992a2439119ace64f050d7269395a3815b2ebff2ede2c2ff5bcde",
+        "read_scope": "Relevant bodies or metric records; see research.md for exact span citations."
+      },
+      {
+        "path": "src/residency/store.cpp",
+        "sha256": "d067327fd776d18050c7fd7be475553380a98efdbdf0806bb1f7f3ad20ff27c3",
+        "read_scope": "Relevant bodies or metric records; see research.md for exact span citations."
+      },
+      {
+        "path": "src/residency/file_source.cpp",
+        "sha256": "e085ddca8863d4dc78cd7b96a23966656ecae4bf4f9901d4d65978f06ec0235e",
+        "read_scope": "Relevant bodies or metric records; see research.md for exact span citations."
+      },
+      {
+        "path": "src/runtime/prefill_plan.cpp",
+        "sha256": "5cdb7ba2125e08f507b9eca1e850ae1d375f687b9709c9206c50830af1553bb9",
+        "read_scope": "Relevant bodies or metric records; see research.md for exact span citations."
+      },
+      {
+        "path": "src/common/sha256.cpp",
+        "sha256": "7260ecf370bf01e043bc5336c9522b3e44167a65b24c458cc161c07325332f53",
+        "read_scope": "Relevant bodies or metric records; see research.md for exact span citations."
+      },
+      {
+        "path": "apps/server/main.cpp",
+        "sha256": "563659f16db8e6c621e3a1db40819bc21f7edafdc42248ae376b22fffb673a34",
+        "read_scope": "Relevant bodies or metric records; see research.md for exact span citations."
+      },
+      {
+        "path": "apps/server/chat_template.hpp",
+        "sha256": "c3c55ba85b56bc4993befc8f3551677b752bced22e1a3d7f5ca8ecea7b5e173a",
+        "read_scope": "Relevant bodies or metric records; see research.md for exact span citations."
+      },
+      {
+        "path": "patches/0001-ggml-moe-materializer.patch",
+        "sha256": "97dcef60600020889a73a470b2581fcd6d6551ff3e0e2349f7016400e2f4cf97",
+        "read_scope": "Relevant bodies or metric records; see research.md for exact span citations."
+      },
+      {
+        "path": "patches/0002-llama-no-eager-mmap-prefetch.patch",
+        "sha256": "8ecc835c0c095c79893b6dc03420deae14b45777fe1353f958c060c28c918707",
+        "read_scope": "Relevant bodies or metric records; see research.md for exact span citations."
+      },
+      {
+        "path": "bench/build_server.sh",
+        "sha256": "bf3b7a68b18f7a15c0d7e6b048ff5c26169e0e77bf8291b9ea290f3cbbee4b2d",
+        "read_scope": "Relevant bodies or metric records; see research.md for exact span citations."
+      },
+      {
+        "path": "bench/hash_diagnostic.cpp",
+        "sha256": "8a8b0fd182133a0c0b5817b5da8dcfb98f40ecd0124eb942274b4a742c2d5de1",
+        "read_scope": "Relevant bodies or metric records; see research.md for exact span citations."
+      },
+      {
+        "path": "configs/device-vivo-s1-pro.json",
+        "sha256": "adf3a56d81659df07af1e1a6af6c2b9f45f3a16cc3a2f54edea75db00f76a466",
+        "read_scope": "Relevant bodies or metric records; see research.md for exact span citations."
+      },
+      {
+        "path": "configs/dependencies.lock.json",
+        "sha256": "e64af90e483a0cd587690781a111b2ccc650055bf8b6cbe80ca806f7f40ea90a",
+        "read_scope": "Relevant bodies or metric records; see research.md for exact span citations."
+      },
+      {
+        "path": "evidence/phase0/probe-vivo-1920.json",
+        "sha256": "775b3d082b37e2ca2479fc2aee42f492b613a4522e9859d83841fdabbac5af89",
+        "read_scope": "Relevant bodies or metric records; see research.md for exact span citations."
+      },
+      {
+        "path": "evidence/api/phone-35b-direct/run.json",
+        "sha256": "55945de677956c5da87f88664761e35fb5003d61be4c188822997616583bc0de",
+        "read_scope": "Relevant bodies or metric records; see research.md for exact span citations."
+      },
+      {
+        "path": "evidence/phase4/cache-experiment.json",
+        "sha256": "b2a1cb7787e33949aae1f1e8443163c7f6f3fb1d82d77783f6f84c89a9a1baad",
+        "read_scope": "Relevant bodies or metric records; see research.md for exact span citations."
+      },
+      {
+        "path": "evidence/phase4/qwen36-stream-aggregate.json",
+        "sha256": "c0a19b5fc7703e93839138b32aca2d2a0840bebd4e77684a374cb7b3ee11d441",
+        "read_scope": "Relevant bodies or metric records; see research.md for exact span citations."
+      },
+      {
+        "path": "evidence/unit3-hash-host.json",
+        "sha256": "3470f2e2fb4d6960c71b47c5b2ab28e9acd442db266fc20bed2866b21eaad399",
+        "read_scope": "Relevant bodies or metric records; see research.md for exact span citations."
+      }
+    ]
+  },
+  "coverage_note": "All 25 supplied URL occurrences map to 13 normalized references, covering 7 papers and 3 repositories. Full inventories and pin identity do not mean every source line was read. Gated/unreleased sources, historical benchmark provenance gaps and unrelated same-name repositories are explicit.",
+  "validation": {
+    "attachment_url_occurrences": 25,
+    "attachment_distinct_urls": 13,
+    "missing_attachment_urls": [],
+    "immutable_source_citations_checked": 39,
+    "original_mutable_reference_urls": 2,
+    "errors": [],
+    "scope": "Offline pin/path/line existence and source hashes; not a claim of semantic correctness, every URL availability, runtime validation or paper reproduction.",
+    "independent_static_review": "PASS within targeted source-review scope; no runtime reproduction",
+    "repository_verification": {
+      "command": ".venv/bin/python tools/verify.py",
+      "result": "passed",
+      "configurations": [
+        "Debug",
+        "Release",
+        "ASan+UBSan"
+      ],
+      "tests_per_configuration": 12,
+      "scope": "existing repository checks; no external engine or phone benchmark"
+    }
+  }
+}

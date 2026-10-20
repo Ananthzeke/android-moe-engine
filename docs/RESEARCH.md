@@ -4,6 +4,12 @@ Reviewed on 18 October 2026. Source inspection establishes code structure, not w
 
 The [19 October LiteRT-LM and AirLLM review](UPSTREAM_DESIGNS.md) adds pinned primary-source evidence and the resulting architecture changes. It distinguishes delivery streaming from runtime residency and current conditional expert hooks from generic model support.
 
+The [20 October MoE research review](../research.md) covers the supplied EdgeMoE,
+FlashMoE, BigMoMo, PowerInfer-2, Paging the Experts, LLM in a flash, and MobileMoE
+studies, their available implementations, and optimizations relevant to the
+working 35B phone path. Its source inventory distinguishes full reads, partial
+reads, unreleased code, and gated source.
+
 ## MNN integration evidence
 
 Inspected commit: `dbf9ba61b08106a3b43426e295d1a29cb41cc8fe`.

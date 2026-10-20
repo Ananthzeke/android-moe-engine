@@ -38,6 +38,7 @@ The design also draws from source inspection of LiteRT-LM and current AirLLM. It
 - [Validation contract](docs/VALIDATION.md) defines correctness and performance evidence.
 - [Model selection](docs/MODELS.md) explains the current candidates and support policy.
 - [Sources and inspected backend code](docs/RESEARCH.md) distinguishes observations from hypotheses.
+- [MoE streaming studies and code review](research.md) compares the supplied papers and public implementations, with pinned sources and practical optimization experiments.
 - [LiteRT-LM and AirLLM research](docs/UPSTREAM_DESIGNS.md) records useful mechanisms, limits, and adopted changes.
 - [Design decision](docs/DESIGN_DECISION.md) records alternatives and independent review.
 - [Release readiness](docs/RELEASE_READINESS.md) marks each hardening gate passed, failed, or blocked.
