@@ -1,0 +1,1 @@
+{"model":"Qwen3.6-35B-A3B","status":"ready","streaming":{"arena_bytes":37748736,"cancelled":false,"contract_routed":120,"contract_shared":160,"evictions":52550,"failed":false,"hits":0,"materialize_calls":4680,"misses":52614,"read_bytes":31032999936,"reads":52614,"slots":64}}

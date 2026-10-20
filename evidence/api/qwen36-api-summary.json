@@ -1,0 +1,112 @@
+{
+  "date": "2026-10-19",
+  "model": "Qwen3.6-35B-A3B",
+  "artifact_sha256": "671e47e0ec53c665d048b98c3ecbfd5236b5ca9c3e02ed19fc8f81f7b85140c7",
+  "artifact_bytes": 20419565568,
+  "startup": {
+    "scalar_hash_seconds": 403.728,
+    "arm_sha2_hash_seconds": 173.759,
+    "speedup": 2.323494034841361,
+    "digest_match": true
+  },
+  "requests": {
+    "short": {
+      "choices": [
+        {
+          "finish_reason": "stop",
+          "index": 0,
+          "message": {
+            "content": "Hello!",
+            "role": "assistant"
+          }
+        }
+      ],
+      "created": 1792526264,
+      "id": "chatcmpl-11868-0",
+      "model": "Qwen3.6-35B-A3B",
+      "object": "chat.completion",
+      "usage": {
+        "completion_tokens": 2,
+        "prompt_tokens": 19,
+        "total_tokens": 21
+      }
+    },
+    "timed_short": {
+      "elapsed_seconds": 46.603491851,
+      "usage": {
+        "completion_tokens": 2,
+        "prompt_tokens": 19,
+        "total_tokens": 21
+      },
+      "content": "Hello!",
+      "finish": "stop"
+    },
+    "generation_32": {
+      "choices": [
+        {
+          "finish_reason": "length",
+          "index": 0,
+          "message": {
+            "content": "Tests serve as essential diagnostic tools that bridge the gap between theoretical knowledge and practical application, ensuring that individuals and systems can accurately assess their readiness and identify areas for improvement",
+            "role": "assistant"
+          }
+        }
+      ],
+      "created": 1792526373,
+      "id": "chatcmpl-11868-1",
+      "model": "Qwen3.6-35B-A3B",
+      "object": "chat.completion",
+      "usage": {
+        "completion_tokens": 32,
+        "prompt_tokens": 22,
+        "total_tokens": 54
+      }
+    },
+    "multiturn": {
+      "choices": [
+        {
+          "finish_reason": "stop",
+          "index": 0,
+          "message": {
+            "content": "Your name is Sam.",
+            "role": "assistant"
+          }
+        }
+      ],
+      "created": 1792526515,
+      "id": "chatcmpl-11868-4",
+      "model": "Qwen3.6-35B-A3B",
+      "object": "chat.completion",
+      "usage": {
+        "completion_tokens": 5,
+        "prompt_tokens": 43,
+        "total_tokens": 48
+      }
+    },
+    "sse_lines": 6,
+    "near_context": {
+      "error": "timed out",
+      "elapsed": 300.1021647453308
+    }
+  },
+  "health_after": {
+    "model": "Qwen3.6-35B-A3B",
+    "status": "ready",
+    "streaming": {
+      "arena_bytes": 37748736,
+      "cancelled": false,
+      "contract_routed": 120,
+      "contract_shared": 160,
+      "evictions": 11885,
+      "failed": false,
+      "hits": 0,
+      "materialize_calls": 600,
+      "misses": 11949,
+      "read_bytes": 7047806976,
+      "reads": 11949,
+      "slots": 64
+    }
+  },
+  "memory": "  PID    RSS     VSZ STAT  CMD            \n12774 2000584 30974992 S   ame-server\nVmHWM:\t 2109232 kB\nVmRSS:\t 2000584 kB\nVmSwap:\t   84104 kB\n           TOTAL PSS:  2083974            TOTAL RSS:  2000860       TOTAL SWAP PSS:    84004\n",
+  "openai_client": "nonstream Hello! 17"
+}

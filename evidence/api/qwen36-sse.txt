@@ -1,0 +1,12 @@
+data: {"choices":[{"delta":{"role":"assistant"},"finish_reason":null,"index":0}],"created":1792526377,"id":"chatcmpl-11868-2","model":"Qwen3.6-35B-A3B","object":"chat.completion.chunk"}
+
+data: {"choices":[{"delta":{"content":"Hi"},"finish_reason":null,"index":0}],"created":1792526377,"id":"chatcmpl-11868-2","model":"Qwen3.6-35B-A3B","object":"chat.completion.chunk"}
+
+data: {"choices":[{"delta":{"content":"!"},"finish_reason":null,"index":0}],"created":1792526377,"id":"chatcmpl-11868-2","model":"Qwen3.6-35B-A3B","object":"chat.completion.chunk"}
+
+data: {"choices":[{"delta":{},"finish_reason":"stop","index":0}],"created":1792526377,"id":"chatcmpl-11868-2","model":"Qwen3.6-35B-A3B","object":"chat.completion.chunk"}
+
+data: {"choices":[],"created":1792526377,"id":"chatcmpl-11868-2","model":"Qwen3.6-35B-A3B","object":"chat.completion.chunk","usage":{"completion_tokens":2,"prompt_tokens":15,"total_tokens":17}}
+
+data: [DONE]
+

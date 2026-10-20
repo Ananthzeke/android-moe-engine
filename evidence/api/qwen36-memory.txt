@@ -1,0 +1,6 @@
+  PID    RSS     VSZ STAT  CMD            
+12774 2000584 30974992 S   ame-server
+VmHWM:	 2109232 kB
+VmRSS:	 2000584 kB
+VmSwap:	   84104 kB
+           TOTAL PSS:  2083974            TOTAL RSS:  2000860       TOTAL SWAP PSS:    84004

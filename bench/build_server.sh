@@ -37,8 +37,9 @@ g++ -std=c++20 -O2 -DNDEBUG tests/chat_template_test.cpp $INCLUDES \
 g++ -std=c++20 -O2 -DNDEBUG -DAME_STREAMING=1 apps/server/main.cpp $ENGINE $INCLUDES \
   -Wl,--whole-archive "$HOST/src/libllama.a" -Wl,--no-whole-archive \
   -Wl,--start-group $HOST_LIBS -Wl,--end-group -lpthread -ldl -lm -o "$OUT/ame-server-host"
+"$CXX" -std=c++20 -O2 -march=armv8-a+crypto -Isrc/common -c src/common/sha256_arm.cpp -o "$OUT/sha256_arm.o"
 "$CXX" -std=c++20 -O2 -DNDEBUG -DAME_STREAMING=1 -static-libstdc++ apps/server/main.cpp $ENGINE $INCLUDES \
   -Wl,--whole-archive "$ANDROID/src/libllama.a" -Wl,--no-whole-archive \
-  -Wl,--start-group $ANDROID_LIBS -Wl,--end-group -llog -lm -pthread -o "$OUT/ame-server-android"
+  -Wl,--start-group $ANDROID_LIBS -Wl,--end-group "$OUT/sha256_arm.o" -llog -lm -pthread -o "$OUT/ame-server-android"
 "$STRIP" "$OUT/ame-server-android"
 echo "built $OUT/ame-server-host and $OUT/ame-server-android"

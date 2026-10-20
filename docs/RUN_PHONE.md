@@ -97,3 +97,30 @@ resident.
   remain busy until the next token boundary or completion.
 - Real 35B API serving was not qualified in this release.
 - Runtime writable-file mutation integrity remains the Unit 2 limit.
+
+## 35B server (experimental)
+
+```sh
+adb shell 'kill $(pgrep -f /data/local/tmp/ame-api/ame-server) 2>/dev/null || true'
+adb shell 'cd /data/local/tmp/ame-api && \
+  nohup ./ame-server --model /data/local/tmp/ame-engine/models/Qwen3.6-35B-A3B-Q4_K_M.gguf \
+  --model-id Qwen3.6-35B-A3B --stream \
+  --manifest /data/local/tmp/ame-api/qwen36-35b.manifest \
+  --artifact-sha 671e47e0ec53c665d048b98c3ecbfd5236b5ca9c3e02ed19fc8f81f7b85140c7 \
+  --slots 64 --arena-mib 256 --context 512 --threads 4 --port 8080 >qwen36.log 2>&1 </dev/null &'
+adb forward tcp:8080 tcp:8080
+```
+
+Measured on this phone:
+
+- full digest: `671e47e0…5140c7`, 20,419,565,568 bytes
+- scalar hash: 403.728 s; ARMv8 SHA2 hash: 173.759 s (2.32×)
+- short answer: `Hello!`, 2 completion tokens, 46.6 s total
+- 32-token deterministic answer: 105 s, 22 prompt / 32 completion tokens
+- multi-turn "What is my name?" answered "Your name is Sam."
+- SSE completed with `[DONE]`
+- RSS 2.00 GB, HWM 2.11 GB, swap 84 MB; arena 37,748,736 bytes
+- near-context 450-token prefill exceeded a 300 s client deadline; retain as a failed case
+
+This is experimental: 35B decode is sub-token-per-second, and real-35B pristine
+reference parity was not established.

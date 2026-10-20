@@ -294,3 +294,13 @@ comparison. No earlier release gate is promoted by this result.
 See [the 35B runbook](RUN_35B.md),
 [phone evidence](../evidence/api/phone-35b-direct/run.json), and
 [host build/verification evidence](../evidence/api/chat-template-fix/build-and-verification.json).
+
+## 35B API qualification (2026-10-19)
+
+- Real Qwen3.6-35B-A3B served through the native API on the phone.
+- Verified artifact digest `671e47e0…5140c7`, 20,419,565,568 bytes.
+- Full startup SHA-256: scalar 403.728 s; ARMv8 SHA2 173.759 s, identical digest.
+- Short, 32-token deterministic, multi-turn, and SSE requests completed.
+- Near-context prefill exceeded a 300 s deadline; retained as failed evidence.
+- RSS ~2.00 GB, HWM ~2.11 GB, arena 37,748,736 bytes.
+- Real-35B pristine reference parity and long-form 2-hour campaign remain open.

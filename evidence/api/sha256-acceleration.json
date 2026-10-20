@@ -1,0 +1,10 @@
+{
+  "implementation": "ARMv8 SHA2 intrinsics, runtime HWCAP_SHA2 dispatch, scalar fallback",
+  "vectors": "tests/sha256_test.cpp passed on phone with accelerated compression",
+  "artifact_digest": "671e47e0ec53c665d048b98c3ecbfd5236b5ca9c3e02ed19fc8f81f7b85140c7",
+  "scalar_seconds": 403.728,
+  "accelerated_seconds": 173.759,
+  "speedup": 2.323494034841361,
+  "scalar_measured_in": "qwen36 scalar startup log (artifact_hash_seconds)",
+  "accelerated_measured_in": "qwen36 accelerated startup log (artifact_hash_seconds)"
+}

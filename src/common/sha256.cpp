@@ -9,6 +9,11 @@
 #include <vector>
 
 namespace ame::crypto {
+#if defined(__aarch64__)
+bool sha256_arm_available();
+void sha256_arm_compress(std::uint32_t state[8], const std::uint8_t* block);
+#endif
+
 namespace {
 
 constexpr std::uint32_t kInitial[8] = {0x6a09e667U, 0xbb67ae85U, 0x3c6ef372U, 0xa54ff53aU,
@@ -31,6 +36,12 @@ constexpr std::uint32_t rotr(std::uint32_t value, int count) {
 }
 
 void compress(std::array<std::uint32_t, 8>& state, const std::uint8_t* block) {
+#if defined(__aarch64__)
+  if (sha256_arm_available()) {
+    sha256_arm_compress(state.data(), block);
+    return;
+  }
+#endif
   std::array<std::uint32_t, 64> words{};
   for (int index = 0; index < 16; ++index) {
     words[static_cast<std::size_t>(index)] =

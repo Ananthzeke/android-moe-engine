@@ -53,6 +53,7 @@ Options g_options;
 std::mutex g_generation;
 std::atomic<std::uint64_t> g_counter{0};
 std::atomic<bool> g_client_cancelled{false};
+std::atomic<std::int64_t> g_deadline_ms{0};
 
 std::string json_error(const std::string& message,
                        const std::string& code = "invalid_request_error") {
@@ -262,6 +263,15 @@ std::optional<Generation> generate(const Request& request, bool stream,
   Generation generation;
   generation.id = id_for();
   g_client_cancelled.store(false, std::memory_order_relaxed);
+  const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(300);
+  g_deadline_ms.store(
+      std::chrono::duration_cast<std::chrono::milliseconds>(deadline.time_since_epoch()).count(),
+      std::memory_order_relaxed);
+  auto deadline_expired = [] {
+    return std::chrono::duration_cast<std::chrono::milliseconds>(
+               std::chrono::steady_clock::now().time_since_epoch())
+               .count() > g_deadline_ms.load(std::memory_order_relaxed);
+  };
   generation.prompt_tokens = static_cast<int>(request.tokens.size());
   llama_context_params params = llama_context_default_params();
   params.n_ctx = g_options.context;
@@ -304,6 +314,13 @@ std::optional<Generation> generate(const Request& request, bool stream,
     return llama_decode(context, batch_tokens) == 0;
   };
   for (std::size_t offset = 0; offset < request.tokens.size();) {
+    if (deadline_expired()) {
+      generation.failed = true;
+      generation.error = "request deadline exceeded";
+      llama_batch_free(batch_tokens);
+      llama_free(context);
+      return generation;
+    }
     const std::size_t chunk =
         std::min<std::size_t>(static_cast<std::size_t>(batch), request.tokens.size() - offset);
     std::vector<llama_token> piece(
@@ -335,6 +352,11 @@ std::optional<Generation> generate(const Request& request, bool stream,
   int position = static_cast<int>(request.tokens.size());
   bool stopped_early = false;
   for (int step = 0; step < request.max_tokens; ++step) {
+    if (deadline_expired()) {
+      generation.failed = true;
+      generation.error = "request deadline exceeded";
+      break;
+    }
     if (g_client_cancelled.load(std::memory_order_relaxed)) {
       generation.cancelled = true;
       generation.finish = "cancelled";
@@ -517,6 +539,8 @@ int run_server(int argc, char** argv) {
       return 1;
     }
     artifact = std::move(opened).value();
+    std::cerr << "artifact_hash_seconds=" << artifact->hash_seconds()
+              << " artifact_bytes=" << artifact->size() << "\n";
     if (!ame::backend::install_moe_stream(*artifact, options.manifest,
                                           static_cast<std::uint32_t>(options.slots),
                                           options.arena_mib * 1024ULL * 1024ULL)) {

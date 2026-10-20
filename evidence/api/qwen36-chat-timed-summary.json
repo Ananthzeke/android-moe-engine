@@ -1,0 +1,10 @@
+{
+  "elapsed_seconds": 46.603491851,
+  "usage": {
+    "completion_tokens": 2,
+    "prompt_tokens": 19,
+    "total_tokens": 21
+  },
+  "content": "Hello!",
+  "finish": "stop"
+}
