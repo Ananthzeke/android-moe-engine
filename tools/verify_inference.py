@@ -67,7 +67,7 @@ def verify_source(source: Path) -> dict[str, object]:
     expected = pinned_commit()
     if head != expected:
         raise RuntimeError(f"llama.cpp HEAD {head} != pinned {expected}")
-    diff = run(["git", "diff", "--binary"], cwd=source).stdout.encode()
+    diff = run(["git", "diff", "--binary", "--abbrev=7"], cwd=source).stdout.encode()
     diff_hash = hashlib.sha256(diff).hexdigest()
     patch_hash = sha256_patch_set()
     if diff_hash != patch_hash:

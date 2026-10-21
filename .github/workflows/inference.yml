@@ -17,6 +17,7 @@ jobs:
           git -C /tmp/llama.cpp checkout "$LLAMA_COMMIT"
           git -C /tmp/llama.cpp apply "$GITHUB_WORKSPACE/patches/0001-ggml-moe-materializer.patch"
           git -C /tmp/llama.cpp apply "$GITHUB_WORKSPACE/patches/0002-llama-no-eager-mmap-prefetch.patch"
+          git -C /tmp/llama.cpp add --intent-to-add -- ggml/include/ggml-moe.h
       - run: |
           .venv/bin/cmake -S /tmp/llama.cpp -B /tmp/llama-build -GNinja             -DCMAKE_BUILD_TYPE=Release -DLLAMA_CURL=OFF -DGGML_NATIVE=OFF
           .venv/bin/cmake --build /tmp/llama-build --target llama -j 2
