@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "date": "2026-10-19",
-  "commit": "ec9cd1e8439ed5f558d5d8a4ce0cf3b01c03c74d",
+  "commit": "71ef7d76a61b32c607a78a4daabc2868da67e282",
   "branch": "codex/hardening",
   "backend": {
     "name": "llama.cpp",
@@ -13,7 +13,9 @@
     "android_sha256": "1dd187eb180529a6362cf826a69983b55a862138e0b7cd10c4ef15e46fd4c0b1",
     "build": "AME_TOOLS=... sh bench/build_server.sh",
     "listen": "127.0.0.1:8080",
-    "api": "OpenAI-compatible text Chat Completions"
+    "api": "OpenAI-compatible text Chat Completions",
+    "queued_android_sha256": "30b1c769ecf9d51ee357698183b2459fae0f25bbb40d253e8a29b15b56590a0b",
+    "phone_verified_sha256": "1dd187eb180529a6362cf826a69983b55a862138e0b7cd10c4ef15e46fd4c0b1"
   },
   "device": {
     "serial": "192.168.0.7:5555",
@@ -59,7 +61,9 @@
     "phone_openai_client": "evidence/api/phone-openai-client.txt",
     "phone_dense_api_final": "evidence/api/phone-dense-api-verification-final.json",
     "qwen36_35b_summary": "evidence/api/qwen36-api-summary.json",
-    "sha256_acceleration": "evidence/api/sha256-acceleration.json"
+    "sha256_acceleration": "evidence/api/sha256-acceleration.json",
+    "queue_host": "evidence/api/queue-host.json",
+    "queue_api": "evidence/api/host-api-queue-verification.json"
   },
   "moe_health": {
     "model": "Qwen1.5-MoE",
@@ -108,5 +112,20 @@
     "rss_kib": 2000584,
     "hwm_kib": 2109232,
     "pss_kib": 2083974
-  }
+  },
+  "queue": {
+    "outstanding_limit": 4,
+    "active_limit": 1,
+    "wait_deadline_seconds": 300,
+    "execution_deadline_seconds": 300,
+    "host_test": "evidence/api/queue-host.json",
+    "phone_status": "blocked_by_wireless_adb_disconnect"
+  },
+  "limitations": [
+    "queued binary not phone-tested after wireless ADB disconnect",
+    "real 35B reference parity blocked",
+    "continuous batching not implemented",
+    "two-hour 35B campaign not run",
+    "near-context 35B request failed 300 s deadline"
+  ]
 }
