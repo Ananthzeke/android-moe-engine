@@ -1,0 +1,29 @@
+{
+  "branch": "web-playground",
+  "commit": "9400995",
+  "app": "apps/playground",
+  "checks": {
+    "typecheck": "0 errors, 0 warnings",
+    "unit_tests": "5 passed",
+    "production_build": "passed",
+    "browser_smoke": "Chromium CDP loaded app, sent 'Say hi.', observed completed response and TTFT/total/decode strip",
+    "proxy_sse": "5 data events + [DONE]"
+  },
+  "fixture": {
+    "kind": "host Qwen3.5-2B, not phone",
+    "reason": "wireless ADB was unavailable during this documentation run",
+    "model": "Qwen3.5-2B"
+  },
+  "screenshots": [
+    "evidence/playground/chat-ui-connected.png",
+    "evidence/playground/chat-ui-conversation.png"
+  ],
+  "not_verified": [
+    "real phone chat in this run",
+    "backend request telemetry",
+    "browser E2E against phone",
+    "comparison runner",
+    "monitoring-overhead measurement"
+  ],
+  "telemetry": "Phase 2 backend extension is specified in apps/playground/PLAN.md but not implemented; UI shows backend_telemetry only if provided and marks unavailable otherwise."
+}
