@@ -49,16 +49,17 @@ The table distinguishes implemented foundation code from planned modules. No pub
 | Path | Knowledge and state owned |
 | --- | --- |
 | `include/ame/engine.hpp` (planned, absent) | Public engine, options, token sink, errors, and outcomes after source gates. |
-| `src/model/` (partial) | Internal checked extent arithmetic exists. Index, identity, and quantized layouts remain planned. |
+| `src/model/` (partial) | Internal checked extent arithmetic exists. Checked extents and expert layouts are implemented; GGUF identity and source-derived consumers are validated in the backend adapter. |
 | `src/runtime/` | One engine session, memory admission, backend instance, KV and recurrent state, cancellation, and accounting coverage. |
 | `src/residency/` (store implemented) | Fixed aligned expert arena, slot index, move-only leases, demand reads, byte-based LRU, and cancellation. Tested with sparse files above 4 GiB. |
-| `src/backend/` (prototype) | llama.cpp is the provisional production backend. A runtime materializer, a manifest-driven arena, two small upstream patches, structured multi-worker failure outcomes, and a conservative prefill plan exist. Allocation instrumentation, a shared per-tensor cache, and changed-microbatch parity do not. |
+| `src/backend/` (prototype) | llama.cpp is the provisional production backend. A runtime materializer, a manifest-driven arena, two small upstream patches, structured multi-worker failure outcomes, and a conservative prefill plan exist. Stores persist by expert size class. Complete allocation instrumentation and real-35B reference parity remain open. |
 | `src/probe/` (implemented) | Read-only host/Android observation of memory, CPU, storage, OS, thermal, and power state. No device profile inference and no performance claim. |
 | `apps/cli/` (foundation) | Help/version, invalid-argument diagnostics, and `ame probe`. Engine calls remain planned. |
+| `apps/server/` | Native text HTTP API, model template, bounded outstanding admission, and per-request context/cancellation. One generation is active at a time. |
 | `bench/` | Reference runs, artifact provenance, telemetry, parity, and result aggregation. |
 | `patches/` | Small ordered upstream patches against a pinned commit. |
 
-Runtime and backend integration remain planned; residency now contains checked file sources, a fixed arena, leases, and eviction, and bench contains the baseline harness and expert-remap gate. Upstream patches remain empty. `CheckedFileExtent::within` returns a checked value or a small error enum. It accepts empty extents including EOF and checks length against `file_size - offset` only after checking offset. It proves no tensor layout or file identity contract. See [coding rules](CODING.md).
+Runtime/backend integration and the native HTTP server are implemented for the tested scope. Residency contains checked file sources, fixed arenas, leases, and eviction. The two tracked upstream patches provide the materializer boundary and conditional mmap prefetch. See [current measurements and limits](BENCHMARKS.md). `CheckedFileExtent::within` returns a checked value or a small error enum. It accepts empty extents including EOF and checks length against `file_size - offset` only after checking offset. It proves no tensor layout or file identity contract. See [coding rules](CODING.md).
 
 The probe records raw observations. It does not interpret thermal-zone sentinels or unavailable power-supply nodes, and it does not turn a snapshot into a reservation. Its host mode reports `execution_tag: host`; only an on-Android run reports `physical_target`, and an Android property that marks an emulator reports `emulator`.
 

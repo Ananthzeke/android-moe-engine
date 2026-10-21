@@ -26,6 +26,11 @@ ctest --preset host-debug
 ./build/host-debug/ame --help
 ```
 
-Read [coding rules](docs/CODING.md), [architecture](docs/ARCHITECTURE.md), and [validation](docs/VALIDATION.md). Submit reviewable units with commands, actual results, and limitations. Keep weights and private logs untracked. License selection remains an owner decision.
+Read [coding rules](docs/CODING.md), [architecture](docs/ARCHITECTURE.md), and [validation](docs/VALIDATION.md). Submit reviewable units with commands, actual results, and limitations. Keep weights and private logs untracked. Project-owned contributions use the [MIT license](LICENSE); preserve [third-party notices](THIRD_PARTY_NOTICES.md).
 
 `android-arm64` is conditional on `ANDROID_NDK_HOME`; it targets ARM64/API31 with tests disabled and never substitutes a host toolchain. Set that variable to the NDK pinned in [the dependency lock](configs/dependencies.lock.json) (r27c, 27.2.12479018), then configure and build with the matching presets. The cross-build, AArch64 ELF inspection, physical-device probe, host/phone baseline, and 35B streaming runs have passed. The inference integration gates require an existing pinned llama.cpp tree and are documented in [release readiness](docs/RELEASE_READINESS.md); they are separate from the offline foundation verifier.
+## Report issues and propose changes
+
+Use the repository issue templates for bugs, feature requests, or sponsorship inquiries. Include the engine/backend commit, model digest, exact reproduction, and host or phone environment. Remove credentials, serials, private prompts, and personal paths. Do not attach weights.
+
+Performance claims need timing boundaries, repeat counts, memory scope, output comparisons, and retained failures. See [recorded measurements](docs/BENCHMARKS.md) for the current evidence. Open pull requests against `main`, describe the behavior change, and list checks actually run. Do not label unexecuted tests as passed.

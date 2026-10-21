@@ -5,7 +5,9 @@ streaming. The launcher uses 64 expert slots, a 256 MiB arena allowance, a
 512-token context, and four CPU threads. The arena allowance is not a process
 memory cap.
 
-## Physical-phone result (2026-10-20)
+## Separate direct API observation (2026-10-20)
+
+Other accelerated API records report 46.60 s for a two-token answer and 105 s for 32 completion tokens. They are different runs, not a controlled before/after comparison. See [recorded measurements and their scopes](BENCHMARKS.md).
 
 The enrolled 35B artifact completed both requests through this server on the
 physical vivo 1920, with thinking disabled by default:
@@ -29,7 +31,7 @@ failure. RSS, PSS, arena bytes, and kernel I/O counters have separate scopes in
 [JSON](../evidence/api/phone-35b-direct/chat.json) and
 [SSE](../evidence/api/phone-35b-direct/sse.sse) responses are retained.
 
-## Build and deploy
+## Build and deploy in an existing tool environment
 
 These commands assume the server package already exists at
 `/data/local/tmp/ame-api` and the model already exists at
@@ -60,9 +62,7 @@ The launcher pins the expected artifact SHA-256:
 
 The enrolled artifact has 20,419,565,568 bytes. Startup verifies the whole file
 before loading the model. Keep the process running to retain the verified model
-across requests. Restarting repeats verification. The first API run in this
-session needed roughly half an hour to become ready on this phone; allow for
-this startup cost rather than treating a loading response as an error.
+across requests. Restarting repeats verification. A historical direct API monitor observed readiness after roughly half an hour. Separate isolated hash records range from 173.759 to 403.728 s. These have different timing boundaries. Allow for loading rather than treating a loading response as an error.
 
 ## Start the server
 
@@ -129,6 +129,4 @@ Earlier harness runs establish short 35B execution. They do not establish
 complete reference-logit parity. New API startup and generation evidence is kept
 separately from those historical harness results. A successful bounded API smoke
 does not establish long-context correctness, sustained throughput, or a hard
-process memory limit. Cross-piece stop matching, incremental UTF-8 buffering,
-and bounded disconnect cancellation still need fixes and dedicated tests. The
-new template and startup fixes do not close those separate API issues.
+process memory limit. The current server includes stop/UTF-8 buffering and request deadlines, but client-disconnect cancellation was not re-qualified on the 35B release. One generation is active at a time, with at most four requests outstanding. FIFO waiting is not guaranteed. See [current qualification limits](BENCHMARKS.md).

@@ -18,10 +18,11 @@
     "phone_verified_sha256": "30b1c769ecf9d51ee357698183b2459fae0f25bbb40d253e8a29b15b56590a0b"
   },
   "device": {
-    "serial": "192.168.0.4:5555",
+    "serial": null,
     "model": "vivo 1920",
     "abi": "arm64-v8a",
-    "android_package": "/data/local/tmp/ame-api"
+    "android_package": "/data/local/tmp/ame-api",
+    "serial_unavailable_reason": "Local ADB endpoint omitted from the current public release metadata; not needed to reproduce model execution."
   },
   "models": {
     "dense_default": {
@@ -126,10 +127,17 @@
     "phone_active_during": 1
   },
   "limitations": [
-    "queued binary not phone-tested after wireless ADB disconnect",
     "real 35B reference parity blocked",
     "continuous batching not implemented",
     "two-hour 35B campaign not run",
-    "near-context 35B request failed 300 s deadline"
-  ]
+    "near-context 35B request failed 300 s deadline",
+    "bounded waiting has no guaranteed FIFO ordering"
+  ],
+  "publication_review": {
+    "date": "2026-10-21",
+    "status": "experimental; not real-35B pristine-reference-qualified",
+    "measurement_scope": "docs/BENCHMARKS.md",
+    "historical_snapshots": "Retained observations refer to different builds, requests, and counter scopes; do not combine as a controlled benchmark.",
+    "phone_queue": "Two simultaneous phone requests completed; no continuous batching or fairness qualification."
+  }
 }

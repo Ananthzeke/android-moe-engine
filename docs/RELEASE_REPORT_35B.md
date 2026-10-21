@@ -1,16 +1,18 @@
-# 35B CPU release report
+# 35B CPU experimental release report
 
 Date: 2026-10-19. Branch: `codex/hardening`. Backend:
 `ff5a23376725e5a889fa0bfb987b7541dc304da0`.
+
+Public-claims review: 21 October 2026. This report retains historical observations, not a new benchmark. See [measurement scopes and variation](BENCHMARKS.md). The 35B API is experimental and not pristine-reference-qualified.
 
 ## Status matrix
 
 | Area | Status | Evidence |
 | --- | --- | --- |
 | Real 35B phone API | Passed before queue change | qwen36 API evidence |
-| ARMv8 SHA2 startup | Passed, 2.32× hash speedup | sha256-acceleration.json |
-| Bounded FIFO queue | Passed on host | queue-host.json |
-| Queued 35B phone deployment | Passed at 192.168.0.4 | qwen36-queue-summary.json |
+| ARMv8 SHA2 startup | Passed, one observed 2.32× hash-time ratio | sha256-acceleration.json |
+| Bounded outstanding queue | Passed on host | queue-host.json |
+| Queued 35B phone deployment | Two requests completed | qwen36-queue-summary.json |
 | Real 35B pristine reference | Blocked | no host reference run |
 | Continuous two-sequence batching | Not implemented | no claim |
 | Two-hour 35B campaign | Not run | no claim |
@@ -28,11 +30,11 @@ Date: 2026-10-19. Branch: `codex/hardening`. Backend:
 | Short request, 2 tokens | 46.603 s |
 | 32-token request | 105 s |
 | Effective 32-token throughput | ~0.30 completion tokens/s |
-| Expert reads, 32-token request | 31,032,999,936 bytes |
+| Expert read counter after 32-token output, cumulative | 31,032,999,936 bytes |
 | Arena | 37,748,736 bytes |
 | RSS / HWM / PSS | 2,000,584 / 2,109,232 / 2,083,974 KiB |
 
-These are not interactive speeds.
+These are not interactive speeds. The 105 s duration is a reported total request time; 0.30 completion tokens/s is 32 divided by that duration, not isolated decode throughput. Health read counters are cumulative rather than request-local. RSS and PSS are snapshots; HWM is the process peak. A later separate API record reports longer request times. See [benchmark scope](BENCHMARKS.md).
 
 ## Implemented
 
@@ -40,7 +42,7 @@ These are not interactive speeds.
   multi-turn, stop strings, validation, errors.
 - Verified artifact and retained FD; 64-slot expert streaming.
 - ARMv8 SHA2 acceleration with scalar fallback and runtime dispatch.
-- Four-outstanding-request FIFO admission.
+- Four-outstanding-request admission; no FIFO ordering guarantee.
 - HTTP 429 with `Retry-After` when four requests are outstanding.
 - 300 s queue waiting and 300 s execution deadlines.
 - Request-owned cancellation/deadline state.
@@ -62,16 +64,13 @@ Five simultaneous requests at the 2B host API:
 
 ## Queue on phone
 
-Wireless debugging was restored at 192.168.0.4:5555. The queued binary was
+Wireless debugging was restored for the recorded test. Connect your own authorized device using USB or its current ADB endpoint. The queued binary was
 deployed and two simultaneous 35B requests completed. During execution health
 reported outstanding: 2, active: 1; both returned HTTP 200 with one completion
 token each. Startup hash on this run was 268.139 s.
 
 
-```text
-adb connect 192.168.0.4:5555
-# device
-```
+The saved local-network address is not a connection target for other users. Use `adb devices` to confirm your own target.
 
 ## Reproduction
 
@@ -95,7 +94,7 @@ adb forward tcp:8080 tcp:8080
 adb shell 'cd /data/local/tmp/ame-api && nohup ./ame-server \
   --model /data/local/tmp/ame-engine/models/Qwen3.6-35B-A3B-Q4_K_M.gguf \
   --model-id Qwen3.6-35B-A3B --stream \
-  --manifest /data/local/tmp/ame-api/qwen36-35b.manifest \
+  --manifest /data/local/tmp/ame-api/qwen36-35b-v2.manifest \
   --artifact-sha 671e47e0ec53c665d048b98c3ecbfd5236b5ca9c3e02ed19fc8f81f7b85140c7 \
   --slots 64 --arena-mib 256 --context 512 --threads 4 --port 8080 \
   >qwen36.log 2>&1 </dev/null &'

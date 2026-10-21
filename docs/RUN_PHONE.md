@@ -84,7 +84,7 @@ Supported: text system/user/assistant messages, `model`, `stream`, `max_tokens`,
 `temperature`, `top_p`, `stop`, `seed`, and `stream_options.include_usage`.
 
 Rejected: tools, images/audio, `response_format`, logprobs, and `n != 1`.
-One generation is active at a time; concurrent requests receive 429 `server_busy`.
+One generation is active at a time, with at most four outstanding requests. Concurrent requests wait within that bound; overflow receives 429 `server_busy`.
 Each request uses a fresh llama context; the model and verified artifact FD remain
 resident.
 
@@ -95,17 +95,19 @@ resident.
 - SSE UTF-8 pieces are emitted on complete UTF-8 boundaries.
 - Client disconnect is checked between emitted tokens; a disconnected generation may
   remain busy until the next token boundary or completion.
-- Real 35B API serving was not qualified in this release.
+- Real 35B API smoke is recorded; full real-35B pristine-reference numerical parity remains unqualified.
 - Runtime writable-file mutation integrity remains the Unit 2 limit.
 
 ## 35B server (experimental)
+
+For the current package deployment and port-8081 launcher, use [the dedicated 35B guide](RUN_35B.md). The explicit port-8080 invocation below is an alternative for an already deployed package.
 
 ```sh
 adb shell 'kill $(pgrep -f /data/local/tmp/ame-api/ame-server) 2>/dev/null || true'
 adb shell 'cd /data/local/tmp/ame-api && \
   nohup ./ame-server --model /data/local/tmp/ame-engine/models/Qwen3.6-35B-A3B-Q4_K_M.gguf \
   --model-id Qwen3.6-35B-A3B --stream \
-  --manifest /data/local/tmp/ame-api/qwen36-35b.manifest \
+  --manifest /data/local/tmp/ame-api/qwen36-35b-v2.manifest \
   --artifact-sha 671e47e0ec53c665d048b98c3ecbfd5236b5ca9c3e02ed19fc8f81f7b85140c7 \
   --slots 64 --arena-mib 256 --context 512 --threads 4 --port 8080 >qwen36.log 2>&1 </dev/null &'
 adb forward tcp:8080 tcp:8080
@@ -114,12 +116,12 @@ adb forward tcp:8080 tcp:8080
 Measured on this phone:
 
 - full digest: `671e47e0…5140c7`, 20,419,565,568 bytes
-- scalar hash: 403.728 s; ARMv8 SHA2 hash: 173.759 s (2.32×)
+- scalar hash: 403.728 s; ARMv8 SHA2 hash: 173.759 s in one pair; 268.139 s in a later run
 - short answer: `Hello!`, 2 completion tokens, 46.6 s total
 - 32-token deterministic answer: 105 s, 22 prompt / 32 completion tokens
 - multi-turn "What is my name?" answered "Your name is Sam."
 - SSE completed with `[DONE]`
-- RSS 2.00 GB, HWM 2.11 GB, swap 84 MB; arena 37,748,736 bytes
+- RSS 2,000,584 KiB, HWM 2,109,232 KiB, VmSwap 84,104 KiB; arena 37,748,736 bytes
 - near-context 450-token prefill exceeded a 300 s client deadline; retain as a failed case
 
 This is experimental: 35B decode is sub-token-per-second, and real-35B pristine
@@ -131,4 +133,6 @@ The server admits four outstanding requests, with one active generation. Excess
 requests receive HTTP 429 and `Retry-After: 1`. Queued requests wait up to 300 s;
 active execution has a separate 300 s deadline. Health exposes `queue` counters.
 
-The queued binary was host-tested but not phone-tested after wireless ADB disconnected.
+The queued binary was also phone-tested with two simultaneous 35B requests; both returned HTTP 200. See [phone queue evidence](../evidence/api/qwen36-queue-summary.json). The queue does not guarantee FIFO ordering or run two sequences concurrently.
+
+See [measurement scopes and qualification limits](BENCHMARKS.md). The 105 s result includes prompt processing and request overhead; it is not a decode-only measurement.
