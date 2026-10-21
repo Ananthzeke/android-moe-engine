@@ -84,15 +84,26 @@ Build the backend libraries:
 .venv/bin/cmake -S "$AME_TOOLS/src/llama.cpp" -B "$AME_TOOLS/build/llama-host" \
   -GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF \
   -DLLAMA_CURL=OFF -DGGML_NATIVE=OFF -DGGML_OPENMP=OFF
-.venv/bin/cmake --build "$AME_TOOLS/build/llama-host" --target llama -j 2
+.venv/bin/cmake --build "$AME_TOOLS/build/llama-host" --target llama-common -j 2
 ```
 
 For Android, configure the same pinned source with the NDK r27c toolchain for
-arm64-v8a/API 31 into `$AME_TOOLS/build/llama-android`, then build the
-`llama`, `llama-common`, and `ggml` targets. The repository's
-`android-arm64` preset builds the project foundation; it does not replace the
-pinned llama.cpp Android libraries. This configure step was not re-executed on
-this documentation branch.
+arm64-v8a/API 31:
+
+```sh
+NDK="$AME_TOOLS/android-ndk-r27c"
+.venv/bin/cmake -S "$AME_TOOLS/src/llama.cpp" -B "$AME_TOOLS/build/llama-android" \
+  -GNinja \
+  -DCMAKE_TOOLCHAIN_FILE="$NDK/build/cmake/android.toolchain.cmake" \
+  -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-31 \
+  -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF \
+  -DLLAMA_CURL=OFF -DGGML_NATIVE=OFF -DGGML_OPENMP=OFF
+.venv/bin/cmake --build "$AME_TOOLS/build/llama-android" --target llama-common -j 2
+```
+
+The repository's `android-arm64` preset builds the project foundation; it
+does not replace the pinned llama.cpp Android libraries. This configure step
+was not re-executed on this documentation branch.
 
 ## Build the harnesses and server
 
