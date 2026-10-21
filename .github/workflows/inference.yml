@@ -19,7 +19,7 @@ jobs:
           git -C /tmp/llama.cpp apply "$GITHUB_WORKSPACE/patches/0002-llama-no-eager-mmap-prefetch.patch"
           git -C /tmp/llama.cpp add --intent-to-add -- ggml/include/ggml-moe.h
       - run: |
-          .venv/bin/cmake -S /tmp/llama.cpp -B /tmp/llama-build -GNinja             -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DLLAMA_CURL=OFF -DGGML_NATIVE=OFF
+          .venv/bin/cmake -S /tmp/llama.cpp -B /tmp/llama-build -GNinja             -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DLLAMA_CURL=OFF -DGGML_NATIVE=OFF -DGGML_OPENMP=OFF
           .venv/bin/cmake --build /tmp/llama-build --target llama -j 2
       - run: |
           AME_LLAMA_SOURCE_DIR=/tmp/llama.cpp \
