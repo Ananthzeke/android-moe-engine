@@ -1,0 +1,7 @@
+import type { ChatMessage, GenerationMetrics } from './api';
+export interface Conversation { id: string; title: string; model: string; system: string; messages: ChatMessage[]; metrics: GenerationMetrics | null; createdAt: number; }
+const DB='android-moe-playground'; const STORE='conversations';
+function open(): Promise<IDBDatabase> { return new Promise((resolve,reject)=>{ const r=indexedDB.open(DB,1); r.onupgradeneeded=()=>{ const d=r.result; if(!d.objectStoreNames.contains(STORE)) d.createObjectStore(STORE,{keyPath:'id'}); }; r.onsuccess=()=>resolve(r.result); r.onerror=()=>reject(r.error); }); }
+export async function saveConversation(c: Conversation): Promise<void> { const d=await open(); await new Promise((resolve,reject)=>{const tx=d.transaction(STORE,'readwrite');tx.objectStore(STORE).put(c);tx.oncomplete=()=>resolve(undefined);tx.onerror=()=>reject(tx.error);}); d.close(); }
+export async function listConversations(): Promise<Conversation[]> { const d=await open(); const all=await new Promise<Conversation[]>((resolve,reject)=>{const tx=d.transaction(STORE,'readonly');const q=tx.objectStore(STORE).getAll();q.onsuccess=()=>resolve(q.result as Conversation[]);q.onerror=()=>reject(q.error);}); d.close(); return all.sort((a,b)=>b.createdAt-a.createdAt); }
+export async function clearConversations(): Promise<void> { const d=await open(); await new Promise((resolve,reject)=>{const tx=d.transaction(STORE,'readwrite');tx.objectStore(STORE).clear();tx.oncomplete=()=>resolve(undefined);tx.onerror=()=>reject(tx.error);}); d.close(); }

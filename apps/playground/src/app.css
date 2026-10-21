@@ -1,0 +1,8 @@
+@tailwind base; @tailwind components; @tailwind utilities;
+:root { color-scheme: dark; }
+body { @apply bg-ink text-slate-100 antialiased; }
+.card { @apply rounded-2xl border border-white/10 bg-panel/80 shadow-xl shadow-black/20; }
+.btn { @apply rounded-xl border border-white/10 px-3 py-2 text-sm transition hover:border-accent/60 disabled:cursor-not-allowed disabled:opacity-40; }
+.btn-primary { @apply btn bg-accent text-ink font-semibold hover:bg-indigo-300; }
+.input { @apply w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm outline-none focus:border-accent; }
+.label { @apply mb-1 block text-xs uppercase tracking-wider text-slate-400; }

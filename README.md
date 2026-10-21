@@ -121,6 +121,10 @@ The immediate work is trustworthy timing, kernel/materializer efficiency, measur
 
 [Discuss sponsorship](https://github.com/Ananthzeke/android-moe-engine/issues/new?template=sponsorship.md) or read [the sponsorship priorities](SPONSORSHIP.md). No payment page is configured yet. Contributions, reproducible bug reports, and independent measurements are also welcome through [the contribution guide](CONTRIBUTING.md).
 
+## Local web playground
+
+The [SvelteKit playground](apps/playground/README.md) is a local chat and telemetry UI. It proxies only health, models, and Chat Completions to an already-running phone endpoint; inference never moves to the laptop.
+
 ## Documentation and license
 
 - [Published documentation site](https://ananthzeke.github.io/android-moe-engine/) and [site source](site-docs/index.md).
