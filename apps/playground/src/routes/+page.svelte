@@ -32,10 +32,10 @@
     if (status === 'connecting') status = 'idle';
   }
   onMount(async () => { history = await listConversations(); refresh(); });
-  async function send(text: string) {
+  async function send(text: string, appendUser = true) {
     if (streaming || !text.trim()) return;
     error = ''; lastMetrics = null;
-    messages = [...messages, { role: 'user', content: text }, { role: 'assistant', content: '', status: 'waiting' }];
+    messages = appendUser ? [...messages, { role: 'user', content: text }, { role: 'assistant', content: '', status: 'waiting' }] : [...messages, { role: 'assistant', content: '', status: 'waiting' }];
     const assistant = messages[messages.length - 1];
     streaming = true; status = 'waiting'; controller = new AbortController();
     const context = [{ role: 'system' as const, content: system }, ...messages.slice(0, -1).filter((m) => m.content.trim())];
@@ -60,7 +60,7 @@
   }
   function stop() { if (controller) { status = 'cancelling'; controller.abort(); } }
   function clear() { if (!streaming) { messages = []; lastMetrics = null; error = ''; } }
-  function retry() { const u = [...messages].reverse().find((m) => m.role === 'user'); if (u && !streaming) send(u.content); }
+  function retry() { if (streaming) return; const idx = messages.map((m) => m.role).lastIndexOf('user'); if (idx < 0) return; const text = messages[idx].content; messages = messages.slice(0, idx + 1); send(text, false); }
   function copy() { const a = [...messages].reverse().find((m) => m.role === 'assistant'); if (a) navigator.clipboard.writeText(a.content); }
   function dl(content: string, name: string, type: string) { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([content], { type })); a.download = name; a.click(); URL.revokeObjectURL(a.href); }
   function exportJson() { dl(JSON.stringify({ model, system, temperature, maxTokens, seed, messages, metrics: lastMetrics, createdAt: new Date().toISOString() }, null, 2), 'android-moe-chat.json', 'application/json'); }
