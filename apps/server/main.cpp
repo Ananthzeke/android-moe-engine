@@ -13,6 +13,7 @@
 
 #include <atomic>
 #include <chrono>
+#include <condition_variable>
 #include <cstdint>
 #include <cstring>
 #include <ctime>
@@ -50,10 +51,57 @@ std::string g_error;
 llama_model* g_model = nullptr;
 ame::server::ChatTemplate* g_chat_template = nullptr;
 Options g_options;
-std::mutex g_generation;
 std::atomic<std::uint64_t> g_counter{0};
-std::atomic<bool> g_client_cancelled{false};
-std::atomic<std::int64_t> g_deadline_ms{0};
+
+class AdmissionQueue {
+ public:
+  enum class Result { Active, Full, WaitTimeout };
+  Result acquire() {
+    std::unique_lock<std::mutex> lock(mutex_);
+    if (outstanding_ >= 4) {
+      ++rejected_;
+      return Result::Full;
+    }
+    ++outstanding_;
+    const auto wait_deadline = std::chrono::steady_clock::now() + std::chrono::seconds(300);
+    while (active_) {
+      if (cv_.wait_until(lock, wait_deadline) == std::cv_status::timeout) {
+        --outstanding_;
+        ++queue_timeouts_;
+        return Result::WaitTimeout;
+      }
+    }
+    active_ = true;
+    ++admitted_;
+    return Result::Active;
+  }
+  void release() {
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (active_) active_ = false;
+    if (outstanding_ > 0) --outstanding_;
+    cv_.notify_one();
+  }
+  json snapshot() {
+    std::lock_guard<std::mutex> lock(mutex_);
+    return {{"outstanding", outstanding_},
+            {"active", active_},
+            {"admitted", admitted_},
+            {"rejected", rejected_},
+            {"queue_timeouts", queue_timeouts_},
+            {"wait_limit_seconds", 300},
+            {"execution_limit_seconds", 300}};
+  }
+
+ private:
+  std::mutex mutex_;
+  std::condition_variable cv_;
+  int outstanding_ = 0;
+  bool active_ = false;
+  std::uint64_t admitted_ = 0;
+  std::uint64_t rejected_ = 0;
+  std::uint64_t queue_timeouts_ = 0;
+};
+AdmissionQueue g_queue;
 
 std::string json_error(const std::string& message,
                        const std::string& code = "invalid_request_error") {
@@ -259,19 +307,12 @@ bool emit_piece(Generation& generation, std::string& pending, const std::string&
 }
 
 std::optional<Generation> generate(const Request& request, bool stream,
-                                   const std::function<void(const std::string&)>& emit) {
+                                   const std::function<void(const std::string&)>& emit,
+                                   std::atomic<bool>& cancelled,
+                                   std::chrono::steady_clock::time_point deadline) {
   Generation generation;
   generation.id = id_for();
-  g_client_cancelled.store(false, std::memory_order_relaxed);
-  const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(300);
-  g_deadline_ms.store(
-      std::chrono::duration_cast<std::chrono::milliseconds>(deadline.time_since_epoch()).count(),
-      std::memory_order_relaxed);
-  auto deadline_expired = [] {
-    return std::chrono::duration_cast<std::chrono::milliseconds>(
-               std::chrono::steady_clock::now().time_since_epoch())
-               .count() > g_deadline_ms.load(std::memory_order_relaxed);
-  };
+  auto deadline_expired = [&] { return std::chrono::steady_clock::now() > deadline; };
   generation.prompt_tokens = static_cast<int>(request.tokens.size());
   llama_context_params params = llama_context_default_params();
   params.n_ctx = g_options.context;
@@ -357,7 +398,7 @@ std::optional<Generation> generate(const Request& request, bool stream,
       generation.error = "request deadline exceeded";
       break;
     }
-    if (g_client_cancelled.load(std::memory_order_relaxed)) {
+    if (cancelled.load(std::memory_order_relaxed)) {
       generation.cancelled = true;
       generation.finish = "cancelled";
       break;
@@ -382,7 +423,7 @@ std::optional<Generation> generate(const Request& request, bool stream,
     if (!emit_piece(generation, pending, bytes, request.stops, [&](const std::string& visible) {
           if (stream) {
             emit(visible);
-            return !g_client_cancelled.load(std::memory_order_relaxed);
+            return !cancelled.load(std::memory_order_relaxed);
           }
           return true;
         })) {
@@ -572,6 +613,9 @@ int run_server(int argc, char** argv) {
   loading_listener.stop();
   httplib::Server server;
   server.set_payload_max_length(2 * 1024 * 1024);
+  server.set_read_timeout(300);
+  server.set_write_timeout(10);
+  server.new_task_queue = [] { return new httplib::ThreadPool(12); };
   server.Get("/health", [](const httplib::Request&, httplib::Response& res) {
     json body = {{"status", g_failed ? "failed" : "ready"}, {"model", g_options.model_id}};
     if (!g_error.empty()) body["error"] = g_error;
@@ -592,6 +636,7 @@ int run_server(int argc, char** argv) {
                            {"cancelled", stats.cancelled}};
     }
 #endif
+    body["queue"] = g_queue.snapshot();
     res.set_content(body.dump(), "application/json");
   });
   server.Get("/v1/models", [](const httplib::Request&, httplib::Response& res) {
@@ -611,13 +656,23 @@ int run_server(int argc, char** argv) {
     }
     auto request = parse_request(body, res);
     if (!request.has_value()) return;
-    if (!g_generation.try_lock()) {
-      set_error(res, 429, "a generation is already active", "server_busy");
+    const auto admission = g_queue.acquire();
+    if (admission == AdmissionQueue::Result::Full) {
+      res.set_header("Retry-After", "1");
+      set_error(res, 429, "four requests are already outstanding", "server_busy");
       return;
     }
+    if (admission == AdmissionQueue::Result::WaitTimeout) {
+      set_error(res, 504, "request waited 300 seconds for a generation slot", "queue_timeout");
+      return;
+    }
+    auto execution_deadline = std::chrono::steady_clock::now() + std::chrono::seconds(300);
     if (!request->stream) {
-      auto generation = generate(*request, false, [](const std::string&) {});
-      g_generation.unlock();
+      std::atomic<bool> cancelled{false};
+      auto generation =
+          generate(*request, false, [](const std::string&) {}, cancelled, execution_deadline);
+      g_queue.release();
+      ame::backend::release_moe_stream_leases();
       if (!generation.has_value() || generation->failed) {
         set_error(res, 500, generation.has_value() ? generation->error : "generation failed",
                   "server_error");
@@ -633,8 +688,9 @@ int run_server(int argc, char** argv) {
     const std::time_t created = std::time(nullptr);
     Request copied = *request;
     res.set_chunked_content_provider(
-        "text/event-stream",
-        [request = std::move(copied), id, created](std::size_t, httplib::DataSink& sink) {
+        "text/event-stream", [request = std::move(copied), id, created, execution_deadline](
+                                 std::size_t, httplib::DataSink& sink) {
+          auto cancelled = std::make_shared<std::atomic<bool>>(false);
           auto send = [&](const json& payload) {
             const std::string data = "data: " + payload.dump() + "\n\n";
             return sink.write(data.data(), data.size());
@@ -647,32 +703,33 @@ int run_server(int argc, char** argv) {
                                                   {"delta", {{"role", "assistant"}}},
                                                   {"finish_reason", nullptr}}})}};
           if (!send(first)) {
-            g_generation.unlock();
+            g_queue.release();
             return false;
           }
-          bool cancelled = false;
-          auto generation = generate(request, true, [&](const std::string& piece) {
-            if (!sink.is_writable()) {
-              cancelled = true;
-              g_client_cancelled.store(true);
-              return;
-            }
-            json chunk = {{"id", id},
-                          {"object", "chat.completion.chunk"},
-                          {"created", created},
-                          {"model", g_options.model_id},
-                          {"choices", json::array({{{"index", 0},
-                                                    {"delta", {{"content", piece}}},
-                                                    {"finish_reason", nullptr}}})}};
-            if (!send(chunk)) cancelled = true;
-          });
-          if (!generation.has_value() || generation->failed || cancelled) {
+          auto generation = generate(
+              request, true,
+              [&](const std::string& piece) {
+                if (!sink.is_writable()) {
+                  cancelled->store(true);
+                  return;
+                }
+                json chunk = {{"id", id},
+                              {"object", "chat.completion.chunk"},
+                              {"created", created},
+                              {"model", g_options.model_id},
+                              {"choices", json::array({{{"index", 0},
+                                                        {"delta", {{"content", piece}}},
+                                                        {"finish_reason", nullptr}}})}};
+                if (!send(chunk)) cancelled->store(true);
+              },
+              *cancelled, execution_deadline);
+          if (!generation.has_value() || generation->failed || cancelled->load()) {
             json error = {{"error",
                            {{"message", generation.has_value() ? generation->error : "cancelled"},
                             {"type", "server_error"},
                             {"code", "stream_failed"}}}};
             send(error);
-            g_generation.unlock();
+            g_queue.release();
             return false;
           }
           json last = {{"id", id},
@@ -683,7 +740,7 @@ int run_server(int argc, char** argv) {
                                                  {"delta", json::object()},
                                                  {"finish_reason", generation->finish}}})}};
           if (!send(last)) {
-            g_generation.unlock();
+            g_queue.release();
             return false;
           }
           if (request.include_usage) {
@@ -698,14 +755,15 @@ int run_server(int argc, char** argv) {
                   {"completion_tokens", generation->completion_tokens},
                   {"total_tokens", generation->prompt_tokens + generation->completion_tokens}}}};
             if (!send(usage)) {
-              g_generation.unlock();
+              g_queue.release();
               return false;
             }
           }
           const std::string done = "data: [DONE]\n\n";
           sink.write(done.data(), done.size());
           sink.done();
-          g_generation.unlock();
+          g_queue.release();
+          ame::backend::release_moe_stream_leases();
           return true;
         });
   });

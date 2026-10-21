@@ -742,6 +742,13 @@ bool moe_stream_cancelled() { return g_stats.cancelled; }
 
 std::string moe_stream_error() { return g_stats.error; }
 
+void release_moe_stream_leases() {
+  for (auto& [key, cache] : g_caches) {
+    (void)key;
+    cache.lease = Lease{};
+  }
+}
+
 void uninstall_moe_stream() {
   ggml_moe_set_materializer(nullptr);
   if (g_trace.is_open()) {

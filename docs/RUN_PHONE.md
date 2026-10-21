@@ -124,3 +124,11 @@ Measured on this phone:
 
 This is experimental: 35B decode is sub-token-per-second, and real-35B pristine
 reference parity was not established.
+
+## Queue behavior
+
+The server admits four outstanding requests, with one active generation. Excess
+requests receive HTTP 429 and `Retry-After: 1`. Queued requests wait up to 300 s;
+active execution has a separate 300 s deadline. Health exposes `queue` counters.
+
+The queued binary was host-tested but not phone-tested after wireless ADB disconnected.

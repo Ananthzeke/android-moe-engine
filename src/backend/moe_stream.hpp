@@ -48,6 +48,10 @@ bool install_moe_stream(const std::string& model_path, const std::string& manife
                         std::uint32_t slots, std::uint64_t arena_limit_bytes);
 void uninstall_moe_stream();
 
+// Release pinned expert leases without destroying the cache or model. Safe after
+// all backend workers for a request have drained.
+void release_moe_stream_leases();
+
 // Bind the loaded backend's source-derived routed/shared expert consumers to the
 // verified manifest. Must be called after model load and before generation.
 bool bind_model_contract(const llama_model* model, std::string& error);

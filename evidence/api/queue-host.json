@@ -1,0 +1,32 @@
+{
+  "rows": [
+    {
+      "request": 1,
+      "http": 429,
+      "code": "server_busy"
+    },
+    {
+      "request": 2,
+      "http": 200,
+      "code": null
+    },
+    {
+      "request": 3,
+      "http": 200,
+      "code": null
+    },
+    {
+      "request": 4,
+      "http": 200,
+      "code": null
+    },
+    {
+      "request": 5,
+      "http": 200,
+      "code": null
+    }
+  ],
+  "outstanding_limit": 4,
+  "accepted": 4,
+  "rejected": 1
+}
