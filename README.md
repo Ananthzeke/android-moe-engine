@@ -123,6 +123,8 @@ The immediate work is trustworthy timing, kernel/materializer efficiency, measur
 
 ## Documentation and license
 
+- [Published documentation site](https://ananthzeke.github.io/android-moe-engine/) and [site source](site-docs/index.md).
+
 - [Architecture](docs/ARCHITECTURE.md), [implementation plan](docs/IMPLEMENTATION_PLAN.md), and [validation contract](docs/VALIDATION.md).
 - [Model catalog](configs/model-candidates.json), [dependency lock](configs/dependencies.lock.json), and [coding rules](docs/CODING.md).
 - [Research references](docs/RESEARCH.md), [MoE source review](research.md), and [LiteRT-LM/AirLLM lessons](docs/UPSTREAM_DESIGNS.md).

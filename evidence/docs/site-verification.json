@@ -1,0 +1,40 @@
+{
+  "branch": "docs-site",
+  "site": {
+    "generator": "MkDocs Material",
+    "versions": {
+      "mkdocs": "1.6.1",
+      "mkdocs-material": "9.6.14",
+      "pymdown-extensions": "10.16.1"
+    },
+    "strict_build": "passed",
+    "link_check": "passed; 7 HTML pages",
+    "preview_command": ".venv/bin/mkdocs serve -a 127.0.0.1:8010",
+    "build_output": "site/",
+    "site_url": "https://ananthzeke.github.io/android-moe-engine/"
+  },
+  "tested_commands": [
+    ".venv/bin/python -m pip install -r requirements-docs.txt",
+    ".venv/bin/mkdocs build --strict",
+    ".venv/bin/python tools/check_docs.py --site site",
+    ".venv/bin/mkdocs serve -a 127.0.0.1:8010",
+    "AME_TOOLS=/media/ananth/17AB9D0651C6CC1F/ame-tools sh bench/build_harness.sh"
+  ],
+  "build_fix": {
+    "file": "bench/build_harness.sh",
+    "issue": "AArch64 harness linked sha256.cpp without sha256_arm.o",
+    "fix": "compile sha256_arm.cpp with -march=armv8-a+crypto and link it into llama_baseline, moe_stream_gate, and complete_runner Android binaries",
+    "result": "harness build passed"
+  },
+  "model_evidence": {
+    "source": "origin/main docs/SMALLER_MOE_RESULTS.md and evidence/small-moe/20261021",
+    "status": "imported published aggregates; not re-executed on this documentation branch",
+    "measurement_scope": "physical phone harness, not HTTP API or quality evaluation"
+  },
+  "not_verified": [
+    "Android llama.cpp NDK configure was not re-executed on this branch",
+    "Granite model download and phone deployment were not re-executed on this branch",
+    "external link availability was not checked",
+    "GitHub Pages deployment was not executed locally"
+  ]
+}

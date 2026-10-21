@@ -48,10 +48,12 @@ g++ $CXXFLAGS bench/moe_stream_gate.cpp $ENGINE $ENGINE_INCLUDES \
   -Wl,--start-group $LIBS_HOST -Wl,--end-group \
   -lpthread -ldl -lm -o "$OUT/moe_stream_gate_host"
 
+"$CXX" $CXXFLAGS -march=armv8-a+crypto -Isrc/common -c src/common/sha256_arm.cpp -o "$OUT/sha256_arm.o"
+
 "$CXX" $CXXFLAGS -static-libstdc++ bench/llama_baseline.cpp $ENGINE $ENGINE_INCLUDES \
   -I"$LLAMA/include" -I"$LLAMA/ggml/include" \
   -Wl,--whole-archive "$ANDROID_BUILD/src/libllama.a" -Wl,--no-whole-archive -Wl,--start-group $LIBS_ANDROID -Wl,--end-group \
-  -llog -lm -o "$OUT/llama_baseline_android"
+  "$OUT/sha256_arm.o" -llog -lm -o "$OUT/llama_baseline_android"
 
 "$CXX" $CXXFLAGS -static-libstdc++ bench/moe_kernel_gate.cpp \
   src/model/file_extent.cpp src/model/expert_layout.cpp \
@@ -64,15 +66,16 @@ g++ $CXXFLAGS bench/moe_stream_gate.cpp $ENGINE $ENGINE_INCLUDES \
 "$CXX" $CXXFLAGS -static-libstdc++ bench/moe_stream_gate.cpp $ENGINE $ENGINE_INCLUDES \
   -I"$LLAMA/include" -I"$LLAMA/src" -I"$LLAMA/ggml/include" \
   -Wl,--whole-archive "$ANDROID_BUILD/src/libllama.a" -Wl,--no-whole-archive \
-  -Wl,--start-group $LIBS_ANDROID -Wl,--end-group -llog -lm \
+  -Wl,--start-group $LIBS_ANDROID -Wl,--end-group "$OUT/sha256_arm.o" -llog -lm \
   -o "$OUT/moe_stream_gate_android"
 
 "$CXX" $CXXFLAGS -static-libstdc++ bench/moe_quantized_gate.cpp   src/model/file_extent.cpp src/model/expert_layout.cpp   src/residency/file_source.cpp src/residency/store.cpp   -Isrc/model -Isrc/residency -Isrc/common   -I"$LLAMA/include" -I"$LLAMA/ggml/include"   -Wl,--start-group $LIBS_ANDROID -Wl,--end-group -llog -lm   -o "$OUT/moe_quantized_gate_android"
 
 "$CXX" $CXXFLAGS -static-libstdc++ -DAME_STREAMING=1 bench/complete_runner.cpp $ENGINE $ENGINE_INCLUDES \
   -I"$LLAMA/include" -I"$LLAMA/ggml/include" \
-  -Wl,--start-group "$ANDROID_BUILD/src/libllama.a" $LIBS_ANDROID -Wl,--end-group \
-  -llog -lm -o "$OUT/complete_runner_android"
+  -Wl,--whole-archive "$ANDROID_BUILD/src/libllama.a" -Wl,--no-whole-archive \
+  -Wl,--start-group $LIBS_ANDROID -Wl,--end-group "$OUT/sha256_arm.o" -llog -lm \
+  -o "$OUT/complete_runner_android"
 
 "$STRIP" "$OUT/llama_baseline_android" "$OUT/moe_kernel_gate_android" "$OUT/moe_stream_gate_android" "$OUT/moe_quantized_gate_android" "$OUT/complete_runner_android"
 echo "built harnesses in $OUT"
