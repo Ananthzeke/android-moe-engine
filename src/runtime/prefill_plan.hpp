@@ -30,6 +30,8 @@ enum class PlanError {
 // Conservative union bound: min(expert_count, unit_tokens * expert_used) must
 // fit both slot capacity and the fixed lease limit. The unit is also capped by
 // the caller's batch size.
+inline constexpr std::uint32_t kMaxLeaseExperts = 128;
+
 struct ConsumerBound {
   std::uint32_t expert_count{0};
   std::uint32_t max_selected{0};

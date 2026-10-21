@@ -18,10 +18,12 @@ Result<Plan, PlanError> make_contract_plan(std::span<const ConsumerBound> consum
       return PlanError::InvalidExpertUsed;
     }
     if (consumer.slots == 0) return PlanError::InvalidSlots;
-    if (consumer.lease_limit < consumer.max_selected) return PlanError::LeaseCapacity;
+    const std::uint32_t effective_lease =
+        std::min(consumer.lease_limit, ame::prefill::kMaxLeaseExperts);
+    if (effective_lease < consumer.max_selected) return PlanError::LeaseCapacity;
     if (consumer.slots < consumer.max_selected) return PlanError::Capacity;
     const std::uint64_t by_slots = consumer.slots / consumer.max_selected;
-    const std::uint64_t by_lease = consumer.lease_limit / consumer.max_selected;
+    const std::uint64_t by_lease = effective_lease / consumer.max_selected;
     unit = std::min(unit, std::min(by_slots, by_lease));
     min_experts = std::min(min_experts, consumer.expert_count);
     max_selected = std::max(max_selected, consumer.max_selected);

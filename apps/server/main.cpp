@@ -102,6 +102,47 @@ class AdmissionQueue {
   std::uint64_t queue_timeouts_ = 0;
 };
 AdmissionQueue g_queue;
+std::mutex g_snapshot_mutex;
+json g_stream_snapshot = json::object();
+
+void publish_stream_snapshot() {
+#ifdef AME_STREAMING
+  if (!g_options.stream) return;
+  const auto stats = ame::backend::moe_stream_stats();
+  json snapshot = {{"slots", stats.slots},
+                   {"hits", stats.hits},
+                   {"misses", stats.misses},
+                   {"evictions", stats.evictions},
+                   {"reads", stats.reads},
+                   {"read_bytes", stats.read_bytes},
+                   {"materialize_calls", stats.materialize_calls},
+                   {"arena_bytes", stats.arena_bytes},
+                   {"contract_routed", stats.contract_routed},
+                   {"contract_shared", stats.contract_shared},
+                   {"failed", stats.failed},
+                   {"cancelled", stats.cancelled},
+                   {"artifact_hash_seconds", stats.artifact_hash_seconds}};
+  std::lock_guard<std::mutex> lock(g_snapshot_mutex);
+  g_stream_snapshot = std::move(snapshot);
+#endif
+}
+
+class RequestAdmission {
+ public:
+  RequestAdmission() = default;
+  RequestAdmission(const RequestAdmission&) = delete;
+  RequestAdmission& operator=(const RequestAdmission&) = delete;
+  ~RequestAdmission() { finish(); }
+  void finish() {
+    if (!active_) return;
+    active_ = false;
+    ame::backend::release_moe_stream_leases();
+    g_queue.release();
+  }
+
+ private:
+  bool active_ = true;
+};
 
 std::string json_error(const std::string& message,
                        const std::string& code = "invalid_request_error") {
@@ -619,23 +660,10 @@ int run_server(int argc, char** argv) {
   server.Get("/health", [](const httplib::Request&, httplib::Response& res) {
     json body = {{"status", g_failed ? "failed" : "ready"}, {"model", g_options.model_id}};
     if (!g_error.empty()) body["error"] = g_error;
-#ifdef AME_STREAMING
-    if (g_options.stream) {
-      const auto stats = ame::backend::moe_stream_stats();
-      body["streaming"] = {{"slots", stats.slots},
-                           {"hits", stats.hits},
-                           {"misses", stats.misses},
-                           {"evictions", stats.evictions},
-                           {"reads", stats.reads},
-                           {"read_bytes", stats.read_bytes},
-                           {"materialize_calls", stats.materialize_calls},
-                           {"arena_bytes", stats.arena_bytes},
-                           {"contract_routed", stats.contract_routed},
-                           {"contract_shared", stats.contract_shared},
-                           {"failed", stats.failed},
-                           {"cancelled", stats.cancelled}};
+    {
+      std::lock_guard<std::mutex> lock(g_snapshot_mutex);
+      if (!g_stream_snapshot.empty()) body["streaming"] = g_stream_snapshot;
     }
-#endif
     body["queue"] = g_queue.snapshot();
     res.set_content(body.dump(), "application/json");
   });
@@ -667,12 +695,13 @@ int run_server(int argc, char** argv) {
       return;
     }
     auto execution_deadline = std::chrono::steady_clock::now() + std::chrono::seconds(300);
+    auto admission_guard = std::make_shared<RequestAdmission>();
     if (!request->stream) {
       std::atomic<bool> cancelled{false};
       auto generation =
           generate(*request, false, [](const std::string&) {}, cancelled, execution_deadline);
-      g_queue.release();
-      ame::backend::release_moe_stream_leases();
+      admission_guard->finish();
+      publish_stream_snapshot();
       if (!generation.has_value() || generation->failed) {
         set_error(res, 500, generation.has_value() ? generation->error : "generation failed",
                   "server_error");
@@ -688,8 +717,8 @@ int run_server(int argc, char** argv) {
     const std::time_t created = std::time(nullptr);
     Request copied = *request;
     res.set_chunked_content_provider(
-        "text/event-stream", [request = std::move(copied), id, created, execution_deadline](
-                                 std::size_t, httplib::DataSink& sink) {
+        "text/event-stream", [request = std::move(copied), id, created, execution_deadline,
+                              admission_guard](std::size_t, httplib::DataSink& sink) {
           auto cancelled = std::make_shared<std::atomic<bool>>(false);
           auto send = [&](const json& payload) {
             const std::string data = "data: " + payload.dump() + "\n\n";
@@ -703,7 +732,7 @@ int run_server(int argc, char** argv) {
                                                   {"delta", {{"role", "assistant"}}},
                                                   {"finish_reason", nullptr}}})}};
           if (!send(first)) {
-            g_queue.release();
+            admission_guard->finish();
             return false;
           }
           auto generation = generate(
@@ -729,7 +758,7 @@ int run_server(int argc, char** argv) {
                             {"type", "server_error"},
                             {"code", "stream_failed"}}}};
             send(error);
-            g_queue.release();
+            admission_guard->finish();
             return false;
           }
           json last = {{"id", id},
@@ -740,7 +769,7 @@ int run_server(int argc, char** argv) {
                                                  {"delta", json::object()},
                                                  {"finish_reason", generation->finish}}})}};
           if (!send(last)) {
-            g_queue.release();
+            admission_guard->finish();
             return false;
           }
           if (request.include_usage) {
@@ -755,15 +784,15 @@ int run_server(int argc, char** argv) {
                   {"completion_tokens", generation->completion_tokens},
                   {"total_tokens", generation->prompt_tokens + generation->completion_tokens}}}};
             if (!send(usage)) {
-              g_queue.release();
+              admission_guard->finish();
               return false;
             }
           }
           const std::string done = "data: [DONE]\n\n";
           sink.write(done.data(), done.size());
           sink.done();
-          g_queue.release();
-          ame::backend::release_moe_stream_leases();
+          admission_guard->finish();
+          publish_stream_snapshot();
           return true;
         });
   });
