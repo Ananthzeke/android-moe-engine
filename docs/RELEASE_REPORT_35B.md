@@ -10,7 +10,7 @@ Date: 2026-10-19. Branch: `codex/hardening`. Backend:
 | Real 35B phone API | Passed before queue change | qwen36 API evidence |
 | ARMv8 SHA2 startup | Passed, 2.32× hash speedup | sha256-acceleration.json |
 | Bounded FIFO queue | Passed on host | queue-host.json |
-| Queued 35B phone deployment | Blocked: wireless ADB disconnected | this report |
+| Queued 35B phone deployment | Passed at 192.168.0.4 | qwen36-queue-summary.json |
 | Real 35B pristine reference | Blocked | no host reference run |
 | Continuous two-sequence batching | Not implemented | no claim |
 | Two-hour 35B campaign | Not run | no claim |
@@ -24,7 +24,7 @@ Date: 2026-10-19. Branch: `codex/hardening`. Backend:
 | Artifact bytes | 20,419,565,568 |
 | Digest | `671e47e0…5140c7` |
 | Scalar full SHA-256 | 403.728 s |
-| ARMv8 SHA2 full SHA-256 | 173.759 s |
+| ARMv8 SHA2 full SHA-256 | 173.759 s / 268.139 s later run |
 | Short request, 2 tokens | 46.603 s |
 | 32-token request | 105 s |
 | Effective 32-token throughput | ~0.30 completion tokens/s |
@@ -60,19 +60,17 @@ Five simultaneous requests at the 2B host API:
 {"accepted":4,"rejected":1,"outstanding_limit":4}
 ```
 
-## Target blocker
+## Queue on phone
 
-Wireless ADB disappeared after the queued server was rebuilt. The last
-verified phone 35B API run used the prior binary (SHA
-`1dd187eb…`). The queued binary was host-tested but not phone-tested.
-Exact blocker:
+Wireless debugging was restored at 192.168.0.4:5555. The queued binary was
+deployed and two simultaneous 35B requests completed. During execution health
+reported outstanding: 2, active: 1; both returned HTTP 200 with one completion
+token each. Startup hash on this run was 268.139 s.
+
 
 ```text
-adb devices
-List of devices attached
-# empty
-adb connect 192.168.0.7:5555
-failed to connect: Connection refused
+adb connect 192.168.0.4:5555
+# device
 ```
 
 ## Reproduction
@@ -105,8 +103,7 @@ adb shell 'cd /data/local/tmp/ame-api && nohup ./ame-server \
 
 ## Remaining blockers
 
-1. Reconnect wireless ADB and deploy/test the queued 35B binary.
-2. Real 35B pristine reference comparison (tokens, router IDs, teacher-forced logits).
+1. Real 35B pristine reference comparison (tokens, router IDs, teacher-forced logits).
 3. Genuine two-sequence continuous batching; current server remains one active generation.
 4. Near-context prefill beyond 300 s.
 5. Two-hour mixed-request 35B campaign and graphs.
