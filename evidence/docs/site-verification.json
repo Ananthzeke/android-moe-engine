@@ -1,5 +1,9 @@
 {
   "branch": "docs-site",
+  "commits": [
+    "ad7bea3",
+    "0918bf1"
+  ],
   "site": {
     "generator": "MkDocs Material",
     "versions": {
@@ -17,13 +21,15 @@
     ".venv/bin/python -m pip install -r requirements-docs.txt",
     ".venv/bin/mkdocs build --strict",
     ".venv/bin/python tools/check_docs.py --site site",
-    ".venv/bin/mkdocs serve -a 127.0.0.1:8010",
-    "AME_TOOLS=/media/ananth/17AB9D0651C6CC1F/ame-tools sh bench/build_harness.sh"
+    "AME_TOOLS=/media/ananth/17AB9D0651C6CC1F/ame-tools sh bench/build_harness.sh",
+    ".venv/bin/python tools/check_elf.py --binary ... --readelf ... --objdump ... --output /tmp/ame-server-elf.json",
+    "sh -n deploy/phone/start-moe.sh",
+    ".venv/bin/python tools/verify.py"
   ],
   "build_fix": {
     "file": "bench/build_harness.sh",
     "issue": "AArch64 harness linked sha256.cpp without sha256_arm.o",
-    "fix": "compile sha256_arm.cpp with -march=armv8-a+crypto and link it into llama_baseline, moe_stream_gate, and complete_runner Android binaries",
+    "fix": "compile with -march=armv8-a+crypto and link into Android harnesses",
     "result": "harness build passed"
   },
   "model_evidence": {
@@ -33,8 +39,9 @@
   },
   "not_verified": [
     "Android llama.cpp NDK configure was not re-executed on this branch",
-    "Granite model download and phone deployment were not re-executed on this branch",
+    "Granite download and phone deployment were not re-executed on this branch",
     "external link availability was not checked",
-    "GitHub Pages deployment was not executed locally"
+    "GitHub Pages deploy was not executed locally",
+    "git push failed: no GitHub credential in this environment"
   ]
 }
