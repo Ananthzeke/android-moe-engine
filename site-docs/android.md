@@ -109,6 +109,8 @@ Streamed mode needs the manifest, the artifact hash, an arena, and a slot count:
 adb shell 'cd /data/local/tmp/ame-api && \
   AME_MODEL=/data/local/tmp/ame-engine/models/granite-3.1-1b-a400m-instruct-Q4_K_M.gguf \
   AME_MODEL_ID=granite-1b AME_SLOTS=64 AME_ARENA_MIB=256 \
+  AME_MANIFEST=/data/local/tmp/ame-api/granite.manifest \
+  AME_ARTIFACT_SHA=3a2ec1c2a78cb29d901e29bbf5162dcd03381e13803d2cbdcff838d4d08142eb \
   AME_CONTEXT=512 AME_THREADS=4 \
   nohup ./start-moe.sh >granite-streamed.log 2>&1 </dev/null &'
 ```

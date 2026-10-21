@@ -113,9 +113,14 @@ The fix was built successfully in this branch.
 ## Inspect the Android ELF
 
 ```sh
-.venv/bin/python tools/check_elf.py "$AME_TOOLS/build/harness/ame-server-android"
+.venv/bin/python tools/check_elf.py \
+  --binary "$AME_TOOLS/build/harness/ame-server-android" \
+  --readelf "$AME_TOOLS/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf" \
+  --objdump "$AME_TOOLS/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-objdump" \
+  --output /tmp/ame-server-elf.json
 file "$AME_TOOLS/build/harness/ame-server-android"
-llvm-readelf -d "$AME_TOOLS/build/harness/ame-server-android" | grep NEEDED
+"$AME_TOOLS"/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf -d \
+  "$AME_TOOLS/build/harness/ame-server-android" | grep NEEDED
 ```
 
 The binary must be AArch64 and must not link a host-only library. The target
