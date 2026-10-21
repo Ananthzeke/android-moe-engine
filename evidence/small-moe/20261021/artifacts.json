@@ -1,0 +1,70 @@
+[
+  {
+    "repo": "bartowski/granite-3.1-1b-a400m-instruct-GGUF",
+    "revision": "940d2e1f9f65330615c7c8e980e6c5ac73d3360c",
+    "files": [
+      {
+        "rfilename": "granite-3.1-1b-a400m-instruct-Q4_K_M.gguf",
+        "blobId": "9b05622edb597eefae74f03774a4dac96803db31",
+        "size": 821847360,
+        "lfs": {
+          "sha256": "3a2ec1c2a78cb29d901e29bbf5162dcd03381e13803d2cbdcff838d4d08142eb",
+          "size": 821847360,
+          "pointerSize": 134
+        }
+      }
+    ],
+    "id": "granite-1b"
+  },
+  {
+    "repo": "bartowski/granite-3.1-3b-a800m-instruct-GGUF",
+    "revision": "be9a36f042806cb586bc65556c527079782b78e0",
+    "files": [
+      {
+        "rfilename": "granite-3.1-3b-a800m-instruct-Q4_K_M.gguf",
+        "blobId": "f0a432917ac69e9f56ce689eceeef83310324c8f",
+        "size": 2016888384,
+        "lfs": {
+          "sha256": "48e0edcd578fd4462f26127f04c651d0e650741110185297741089aea01a82b3",
+          "size": 2016888384,
+          "pointerSize": 135
+        }
+      }
+    ],
+    "id": "granite-3b"
+  },
+  {
+    "repo": "allenai/OLMoE-1B-7B-0125-Instruct-GGUF",
+    "revision": "2ac1d27317927518c9ef7bd99f91f3f1e4ee288d",
+    "files": [
+      {
+        "rfilename": "OLMoE-1B-7B-0125-Instruct-Q4_K_M.gguf",
+        "blobId": "aa557e00caf61aeea1c500f826a4a31c317c7505",
+        "size": 4213512192,
+        "lfs": {
+          "sha256": "4ddc0e53159ed512b8dd67914a66e27bc618f694672ba43a9a0454eabd9c684f",
+          "size": 4213512192,
+          "pointerSize": 135
+        }
+      }
+    ],
+    "id": "olmoe-7b"
+  },
+  {
+    "repo": "LiquidAI/LFM2.5-8B-A1B-GGUF",
+    "revision": "49c14831707011e64d70b2ebd8462ba08d608434",
+    "files": [
+      {
+        "rfilename": "LFM2.5-8B-A1B-Q4_K_M.gguf",
+        "blobId": "5cd9b16c0996455ac58f5ed88bf0ff7de06068de",
+        "size": 5155564768,
+        "lfs": {
+          "sha256": "4923ec14f06b968b74d663e5949867d2d9c3bf13a20b8be1a9f9af39989b2bb0",
+          "size": 5155564768,
+          "pointerSize": 135
+        }
+      }
+    ],
+    "id": "lfm25-8b"
+  }
+]

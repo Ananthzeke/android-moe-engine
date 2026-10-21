@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "question": "Which smaller MoE artifacts execute correctly on the phone, and what are resident versus streamed CPU latency, throughput and RSS?",
+  "execution_tag": "physical_target",
+  "context": 512,
+  "threads": 4,
+  "batch_size": 1,
+  "max_new_tokens": 16,
+  "seed": 1234,
+  "temperature": 0,
+  "arena_mib": 256,
+  "primary_prompt": "Write a short paragraph explaining why the sky appears blue during the day.",
+  "distinct_prompt": "Write a short paragraph explaining how plants use sunlight to grow.",
+  "primary_repetitions": 5,
+  "warmup_pairs": 1,
+  "distinct_prompt_pairs": 1,
+  "order": "Resident/streamed on even pairs; streamed/resident on odd pairs. Warmup excluded from aggregates.",
+  "parity": "Exact prompt IDs, output IDs, output bytes and all retained float-logit bytes within each matched pair; no tolerance widening.",
+  "reference_scope": "Same pinned patched backend with materializer disabled, not a pristine unpatched upstream binary. Resident extra CPU buffer selection differs from streaming as shipped and is disclosed.",
+  "cache": "Fresh processes; OS cache uncontrolled. Artifact SHA verification precedes inference and warms file cache. No cold-storage claim.",
+  "hashing": "Host and phone model SHA256 checked; streaming additionally verifies its retained descriptor. Per-process wall includes streaming hashing, inference timings exclude it.",
+  "limits": [
+    "Short text characterization only, not quality or long-context qualification",
+    "No API queuing or continuous batching performance claim",
+    "No hard process memory cap",
+    "Cross-host parity is not assumed"
+  ],
+  "slots_by_model": {
+    "granite-1b": 64,
+    "granite-3b": 64,
+    "olmoe-7b": 64,
+    "lfm25-8b": 32
+  },
+  "liquid_slot_amendment": {
+    "basis": "Metadata/source preflight before Liquid execution; no failed 64-slot Liquid run",
+    "unique_expert_bytes": [
+      2064384,
+      3010560
+    ],
+    "predicted_arena_mib_at_64": 309.75,
+    "predicted_arena_mib_at_32": 154.875,
+    "cap_mib": 256
+  },
+  "publication_scope": "Report, graphs, artifact identities and aggregate results only. Detailed device logs, probe snapshots, individual measurements, logit hashes and full replay scripts remain local. Public files cannot independently reproduce aggregation from raw trials."
+}
