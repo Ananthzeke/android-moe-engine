@@ -1,0 +1,806 @@
+{
+  "schema_version": 1,
+  "execution_tag": "physical_target",
+  "models": [
+    {
+      "id": "granite-1b",
+      "file_bytes": 821847360,
+      "trial_count": 14,
+      "complete": true,
+      "token_text_parity": true,
+      "sampled_logits_parity": true,
+      "pairs": [
+        {
+          "label": "distinct",
+          "pair": 0,
+          "tokens_exact": true,
+          "text_exact": true,
+          "logits_exact": true,
+          "configuration_exact": true,
+          "finish_exact": true
+        },
+        {
+          "label": "measured",
+          "pair": 0,
+          "tokens_exact": true,
+          "text_exact": true,
+          "logits_exact": true,
+          "configuration_exact": true,
+          "finish_exact": true
+        },
+        {
+          "label": "measured",
+          "pair": 1,
+          "tokens_exact": true,
+          "text_exact": true,
+          "logits_exact": null,
+          "configuration_exact": true,
+          "finish_exact": true
+        },
+        {
+          "label": "measured",
+          "pair": 2,
+          "tokens_exact": true,
+          "text_exact": true,
+          "logits_exact": null,
+          "configuration_exact": true,
+          "finish_exact": true
+        },
+        {
+          "label": "measured",
+          "pair": 3,
+          "tokens_exact": true,
+          "text_exact": true,
+          "logits_exact": null,
+          "configuration_exact": true,
+          "finish_exact": true
+        },
+        {
+          "label": "measured",
+          "pair": 4,
+          "tokens_exact": true,
+          "text_exact": true,
+          "logits_exact": null,
+          "configuration_exact": true,
+          "finish_exact": true
+        },
+        {
+          "label": "warmup",
+          "pair": 0,
+          "tokens_exact": true,
+          "text_exact": true,
+          "logits_exact": null,
+          "configuration_exact": true,
+          "finish_exact": true
+        }
+      ],
+      "failures": [],
+      "metrics": {
+        "resident": {
+          "load_seconds": {
+            "n": 5,
+            "median": 0.388558386,
+            "min": 0.386021302,
+            "max": 0.389373542
+          },
+          "prefill_seconds": {
+            "n": 5,
+            "median": 2.987910363,
+            "min": 2.519158957,
+            "max": 3.35969078
+          },
+          "request_ttft_seconds": {
+            "n": 5,
+            "median": 2.990243436,
+            "min": 2.520649687,
+            "max": 3.361133748
+          },
+          "decode_tokens_per_second": {
+            "n": 5,
+            "median": 7.275308538086896,
+            "min": 6.605187812528947,
+            "max": 12.486272155372857
+          },
+          "generate_seconds": {
+            "n": 5,
+            "median": 5.052013488,
+            "min": 3.721971197,
+            "max": 5.592676612
+          },
+          "wall_seconds": {
+            "n": 5,
+            "median": 5.445710832,
+            "min": 4.117864165,
+            "max": 5.98938906
+          },
+          "process_wall_seconds": {
+            "n": 5,
+            "median": 15.889660119020846,
+            "min": 6.769224237999879,
+            "max": 17.254915504017845
+          },
+          "peak_rss_kib": {
+            "n": 5,
+            "median": 852524,
+            "min": 852392,
+            "max": 859556
+          },
+          "artifact_hash_seconds": {
+            "n": 0,
+            "median": null,
+            "min": null,
+            "max": null
+          },
+          "output_token_counts": [
+            16
+          ],
+          "prompt_token_counts": [
+            22
+          ]
+        },
+        "streamed": {
+          "load_seconds": {
+            "n": 5,
+            "median": 0.327282917,
+            "min": 0.31562625,
+            "max": 0.493365468
+          },
+          "prefill_seconds": {
+            "n": 5,
+            "median": 5.668300102,
+            "min": 5.294790519,
+            "max": 5.856448904
+          },
+          "request_ttft_seconds": {
+            "n": 5,
+            "median": 5.669782602,
+            "min": 5.296278592,
+            "max": 5.858064165
+          },
+          "decode_tokens_per_second": {
+            "n": 5,
+            "median": 3.7669670978628518,
+            "min": 3.7286074076940374,
+            "max": 3.9320530866969565
+          },
+          "generate_seconds": {
+            "n": 5,
+            "median": 9.534584268,
+            "min": 9.266596975,
+            "max": 9.840049372
+          },
+          "wall_seconds": {
+            "n": 5,
+            "median": 17.711850774,
+            "min": 16.614573952,
+            "max": 18.158522754
+          },
+          "process_wall_seconds": {
+            "n": 5,
+            "median": 46.648925528978,
+            "min": 42.579760883993,
+            "max": 48.68252684897743
+          },
+          "peak_rss_kib": {
+            "n": 5,
+            "median": 189732,
+            "min": 189504,
+            "max": 196684
+          },
+          "artifact_hash_seconds": {
+            "n": 5,
+            "median": 7.90156807,
+            "min": 6.588699529,
+            "max": 7.958874216
+          },
+          "output_token_counts": [
+            16
+          ],
+          "prompt_token_counts": [
+            22
+          ]
+        }
+      }
+    },
+    {
+      "id": "granite-3b",
+      "file_bytes": 2016888384,
+      "trial_count": 14,
+      "complete": true,
+      "token_text_parity": true,
+      "sampled_logits_parity": true,
+      "pairs": [
+        {
+          "label": "distinct",
+          "pair": 0,
+          "tokens_exact": true,
+          "text_exact": true,
+          "logits_exact": true,
+          "configuration_exact": true,
+          "finish_exact": true
+        },
+        {
+          "label": "measured",
+          "pair": 0,
+          "tokens_exact": true,
+          "text_exact": true,
+          "logits_exact": true,
+          "configuration_exact": true,
+          "finish_exact": true
+        },
+        {
+          "label": "measured",
+          "pair": 1,
+          "tokens_exact": true,
+          "text_exact": true,
+          "logits_exact": null,
+          "configuration_exact": true,
+          "finish_exact": true
+        },
+        {
+          "label": "measured",
+          "pair": 2,
+          "tokens_exact": true,
+          "text_exact": true,
+          "logits_exact": null,
+          "configuration_exact": true,
+          "finish_exact": true
+        },
+        {
+          "label": "measured",
+          "pair": 3,
+          "tokens_exact": true,
+          "text_exact": true,
+          "logits_exact": null,
+          "configuration_exact": true,
+          "finish_exact": true
+        },
+        {
+          "label": "measured",
+          "pair": 4,
+          "tokens_exact": true,
+          "text_exact": true,
+          "logits_exact": null,
+          "configuration_exact": true,
+          "finish_exact": true
+        },
+        {
+          "label": "warmup",
+          "pair": 0,
+          "tokens_exact": true,
+          "text_exact": true,
+          "logits_exact": null,
+          "configuration_exact": true,
+          "finish_exact": true
+        }
+      ],
+      "failures": [],
+      "metrics": {
+        "resident": {
+          "load_seconds": {
+            "n": 5,
+            "median": 0.526519791,
+            "min": 0.516622656,
+            "max": 0.532676875
+          },
+          "prefill_seconds": {
+            "n": 5,
+            "median": 4.984248279,
+            "min": 3.783892967,
+            "max": 5.093748175
+          },
+          "request_ttft_seconds": {
+            "n": 5,
+            "median": 4.986388279,
+            "min": 3.785421665,
+            "max": 5.095210258
+          },
+          "decode_tokens_per_second": {
+            "n": 5,
+            "median": 4.700571630154503,
+            "min": 4.404244097678478,
+            "max": 7.2687118636068435
+          },
+          "generate_seconds": {
+            "n": 5,
+            "median": 7.869640987,
+            "min": 7.050029372,
+            "max": 8.421144789
+          },
+          "wall_seconds": {
+            "n": 5,
+            "median": 8.402637185,
+            "min": 7.584311247,
+            "max": 8.961562549
+          },
+          "process_wall_seconds": {
+            "n": 5,
+            "median": 23.594024156976957,
+            "min": 16.062316480034497,
+            "max": 26.18983649101574
+          },
+          "peak_rss_kib": {
+            "n": 5,
+            "median": 2028572,
+            "min": 2028448,
+            "max": 2035648
+          },
+          "artifact_hash_seconds": {
+            "n": 0,
+            "median": null,
+            "min": null,
+            "max": null
+          },
+          "output_token_counts": [
+            16
+          ],
+          "prompt_token_counts": [
+            22
+          ]
+        },
+        "streamed": {
+          "load_seconds": {
+            "n": 5,
+            "median": 0.35438599,
+            "min": 0.345426822,
+            "max": 0.732461979
+          },
+          "prefill_seconds": {
+            "n": 5,
+            "median": 9.667881715,
+            "min": 8.828217028,
+            "max": 10.292914059
+          },
+          "request_ttft_seconds": {
+            "n": 5,
+            "median": 9.669463538,
+            "min": 8.829787341,
+            "max": 10.294534892
+          },
+          "decode_tokens_per_second": {
+            "n": 5,
+            "median": 2.163124980861662,
+            "min": 2.1294541784710717,
+            "max": 3.0747654865447998
+          },
+          "generate_seconds": {
+            "n": 5,
+            "median": 16.560330879,
+            "min": 15.101908015,
+            "max": 16.816850515
+          },
+          "wall_seconds": {
+            "n": 5,
+            "median": 35.344059362,
+            "min": 34.218864414,
+            "max": 37.307148215
+          },
+          "process_wall_seconds": {
+            "n": 5,
+            "median": 91.09990956797265,
+            "min": 84.1808055259753,
+            "max": 99.36953183496371
+          },
+          "peak_rss_kib": {
+            "n": 5,
+            "median": 318024,
+            "min": 317892,
+            "max": 325124
+          },
+          "artifact_hash_seconds": {
+            "n": 5,
+            "median": 18.714956243,
+            "min": 18.239830045,
+            "max": 19.96818244
+          },
+          "output_token_counts": [
+            16
+          ],
+          "prompt_token_counts": [
+            22
+          ]
+        }
+      }
+    },
+    {
+      "id": "olmoe-7b",
+      "file_bytes": 4213512192,
+      "trial_count": 14,
+      "complete": true,
+      "token_text_parity": true,
+      "sampled_logits_parity": true,
+      "pairs": [
+        {
+          "label": "distinct",
+          "pair": 0,
+          "tokens_exact": true,
+          "text_exact": true,
+          "logits_exact": true,
+          "configuration_exact": true,
+          "finish_exact": true
+        },
+        {
+          "label": "measured",
+          "pair": 0,
+          "tokens_exact": true,
+          "text_exact": true,
+          "logits_exact": true,
+          "configuration_exact": true,
+          "finish_exact": true
+        },
+        {
+          "label": "measured",
+          "pair": 1,
+          "tokens_exact": true,
+          "text_exact": true,
+          "logits_exact": null,
+          "configuration_exact": true,
+          "finish_exact": true
+        },
+        {
+          "label": "measured",
+          "pair": 2,
+          "tokens_exact": true,
+          "text_exact": true,
+          "logits_exact": null,
+          "configuration_exact": true,
+          "finish_exact": true
+        },
+        {
+          "label": "measured",
+          "pair": 3,
+          "tokens_exact": true,
+          "text_exact": true,
+          "logits_exact": null,
+          "configuration_exact": true,
+          "finish_exact": true
+        },
+        {
+          "label": "measured",
+          "pair": 4,
+          "tokens_exact": true,
+          "text_exact": true,
+          "logits_exact": null,
+          "configuration_exact": true,
+          "finish_exact": true
+        },
+        {
+          "label": "warmup",
+          "pair": 0,
+          "tokens_exact": true,
+          "text_exact": true,
+          "logits_exact": null,
+          "configuration_exact": true,
+          "finish_exact": true
+        }
+      ],
+      "failures": [],
+      "metrics": {
+        "resident": {
+          "load_seconds": {
+            "n": 5,
+            "median": 0.947273958,
+            "min": 0.685525052,
+            "max": 0.962401979
+          },
+          "prefill_seconds": {
+            "n": 5,
+            "median": 6.143861716,
+            "min": 4.953863123,
+            "max": 6.246648956
+          },
+          "request_ttft_seconds": {
+            "n": 5,
+            "median": 6.145234581,
+            "min": 4.955347863,
+            "max": 6.248010675
+          },
+          "decode_tokens_per_second": {
+            "n": 5,
+            "median": 4.933307338355641,
+            "min": 4.063221012304501,
+            "max": 6.665986801191482
+          },
+          "generate_seconds": {
+            "n": 5,
+            "median": 8.867639424,
+            "min": 7.777742862,
+            "max": 9.89908234
+          },
+          "wall_seconds": {
+            "n": 5,
+            "median": 9.577638382,
+            "min": 8.747788903,
+            "max": 10.854300152
+          },
+          "process_wall_seconds": {
+            "n": 5,
+            "median": 23.66038628696697,
+            "min": 18.433516605000477,
+            "max": 30.50540138798533
+          },
+          "peak_rss_kib": {
+            "n": 5,
+            "median": 4205144,
+            "min": 4205104,
+            "max": 4212552
+          },
+          "artifact_hash_seconds": {
+            "n": 0,
+            "median": null,
+            "min": null,
+            "max": null
+          },
+          "output_token_counts": [
+            16
+          ],
+          "prompt_token_counts": [
+            23
+          ]
+        },
+        "streamed": {
+          "load_seconds": {
+            "n": 5,
+            "median": 0.323898177,
+            "min": 0.317471719,
+            "max": 0.368704323
+          },
+          "prefill_seconds": {
+            "n": 5,
+            "median": 12.371775255,
+            "min": 11.221359319,
+            "max": 12.936214474
+          },
+          "request_ttft_seconds": {
+            "n": 5,
+            "median": 12.373285203,
+            "min": 11.222750047,
+            "max": 12.937688484
+          },
+          "decode_tokens_per_second": {
+            "n": 5,
+            "median": 1.86273077749892,
+            "min": 1.7657259141696748,
+            "max": 2.159120218689883
+          },
+          "generate_seconds": {
+            "n": 5,
+            "median": 19.553396503,
+            "min": 19.320561347,
+            "max": 21.055092648
+          },
+          "wall_seconds": {
+            "n": 5,
+            "median": 60.100337529,
+            "min": 57.58700727,
+            "max": 61.37867357
+          },
+          "process_wall_seconds": {
+            "n": 5,
+            "median": 153.0084063480026,
+            "min": 135.903517299972,
+            "max": 163.6789997619926
+          },
+          "peak_rss_kib": {
+            "n": 5,
+            "median": 527132,
+            "min": 526844,
+            "max": 534320
+          },
+          "artifact_hash_seconds": {
+            "n": 5,
+            "median": 39.813025871,
+            "min": 37.848103579,
+            "max": 40.182602797
+          },
+          "output_token_counts": [
+            16
+          ],
+          "prompt_token_counts": [
+            23
+          ]
+        }
+      }
+    },
+    {
+      "id": "lfm25-8b",
+      "file_bytes": 5155564768,
+      "trial_count": 14,
+      "complete": true,
+      "token_text_parity": true,
+      "sampled_logits_parity": true,
+      "pairs": [
+        {
+          "label": "distinct",
+          "pair": 0,
+          "tokens_exact": true,
+          "text_exact": true,
+          "logits_exact": true,
+          "configuration_exact": true,
+          "finish_exact": true
+        },
+        {
+          "label": "measured",
+          "pair": 0,
+          "tokens_exact": true,
+          "text_exact": true,
+          "logits_exact": true,
+          "configuration_exact": true,
+          "finish_exact": true
+        },
+        {
+          "label": "measured",
+          "pair": 1,
+          "tokens_exact": true,
+          "text_exact": true,
+          "logits_exact": null,
+          "configuration_exact": true,
+          "finish_exact": true
+        },
+        {
+          "label": "measured",
+          "pair": 2,
+          "tokens_exact": true,
+          "text_exact": true,
+          "logits_exact": null,
+          "configuration_exact": true,
+          "finish_exact": true
+        },
+        {
+          "label": "measured",
+          "pair": 3,
+          "tokens_exact": true,
+          "text_exact": true,
+          "logits_exact": null,
+          "configuration_exact": true,
+          "finish_exact": true
+        },
+        {
+          "label": "measured",
+          "pair": 4,
+          "tokens_exact": true,
+          "text_exact": true,
+          "logits_exact": null,
+          "configuration_exact": true,
+          "finish_exact": true
+        },
+        {
+          "label": "warmup",
+          "pair": 0,
+          "tokens_exact": true,
+          "text_exact": true,
+          "logits_exact": null,
+          "configuration_exact": true,
+          "finish_exact": true
+        }
+      ],
+      "failures": [],
+      "metrics": {
+        "resident": {
+          "load_seconds": {
+            "n": 5,
+            "median": 2.063587499,
+            "min": 1.804266145,
+            "max": 2.079362968
+          },
+          "prefill_seconds": {
+            "n": 5,
+            "median": 7.751972601,
+            "min": 6.194910362,
+            "max": 7.984821143
+          },
+          "request_ttft_seconds": {
+            "n": 5,
+            "median": 7.753925518,
+            "min": 6.197045518,
+            "max": 7.98697932
+          },
+          "decode_tokens_per_second": {
+            "n": 5,
+            "median": 3.170330637757806,
+            "min": 3.0229371986223814,
+            "max": 3.7635524167648833
+          },
+          "generate_seconds": {
+            "n": 5,
+            "median": 11.739524162,
+            "min": 10.773417965,
+            "max": 12.71834885
+          },
+          "wall_seconds": {
+            "n": 5,
+            "median": 13.787154318,
+            "min": 12.585375725,
+            "max": 14.804066453
+          },
+          "process_wall_seconds": {
+            "n": 5,
+            "median": 34.189709675032645,
+            "min": 29.532115619978867,
+            "max": 42.474943948036525
+          },
+          "peak_rss_kib": {
+            "n": 5,
+            "median": 5105208,
+            "min": 5105064,
+            "max": 5119308
+          },
+          "artifact_hash_seconds": {
+            "n": 0,
+            "median": null,
+            "min": null,
+            "max": null
+          },
+          "output_token_counts": [
+            16
+          ],
+          "prompt_token_counts": [
+            23
+          ]
+        },
+        "streamed": {
+          "load_seconds": {
+            "n": 5,
+            "median": 1.364837031,
+            "min": 1.199030521,
+            "max": 1.378014322
+          },
+          "prefill_seconds": {
+            "n": 5,
+            "median": 16.457052233,
+            "min": 14.956021452,
+            "max": 17.168339056
+          },
+          "request_ttft_seconds": {
+            "n": 5,
+            "median": 16.459610723,
+            "min": 14.95822739,
+            "max": 17.170435046
+          },
+          "decode_tokens_per_second": {
+            "n": 5,
+            "median": 1.569595693815972,
+            "min": 1.3318130754555537,
+            "max": 1.6763146829727704
+          },
+          "generate_seconds": {
+            "n": 5,
+            "median": 26.118637855,
+            "min": 25.14771973,
+            "max": 27.722455094
+          },
+          "wall_seconds": {
+            "n": 5,
+            "median": 76.621412211,
+            "min": 73.771572837,
+            "max": 77.746934398
+          },
+          "process_wall_seconds": {
+            "n": 5,
+            "median": 190.91023074195255,
+            "min": 181.92122743203072,
+            "max": 204.2503129490069
+          },
+          "peak_rss_kib": {
+            "n": 5,
+            "median": 720596,
+            "min": 720492,
+            "max": 739284
+          },
+          "artifact_hash_seconds": {
+            "n": 5,
+            "median": 48.513967325,
+            "min": 47.116474566,
+            "max": 49.034167586
+          },
+          "output_token_counts": [
+            16
+          ],
+          "prompt_token_counts": [
+            23
+          ]
+        }
+      }
+    }
+  ]
+}

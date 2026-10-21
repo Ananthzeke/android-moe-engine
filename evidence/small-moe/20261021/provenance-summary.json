@@ -1,0 +1,14 @@
+{
+  "engine_commit": "a1d4cc799c13e2a310d9e811240c626d1ecc8a19",
+  "harness_source_sha256": "060ca6dbcc577f70e2b49e1eec5a24aedc06396e87f1dccefe16e088a0c00b35",
+  "binary_sha256": "ffa840734c4e925ac7f37d631921196784076fd4642ed6b37997555229218376",
+  "binary_bytes": 5891560,
+  "backend_commit": "ff5a23376725e5a889fa0bfb987b7541dc304da0",
+  "reference": "patched pinned backend with streaming disabled",
+  "hardware": "vivo 1920 / Snapdragon 665, nominal 8 GB RAM",
+  "os": "Android 12 / API 31",
+  "execution": "CPU, no GPU layers",
+  "ndk": "r27c / clang 18.0.3",
+  "build": "C++20 -O2 -DNDEBUG; pinned static backend. ARM SHA2 source compiled separately with -march=armv8-a+crypto and runtime dispatch. Benchmark build script required adding this object to its Android link commands.",
+  "source_scope": "The arithmetic and inference source match the recorded source commit; the local build-script link correction is not included in this report-only publication."
+}

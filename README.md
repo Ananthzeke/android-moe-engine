@@ -41,6 +41,10 @@ Other API runs took 246.77 s for two completion tokens and 284.02 s for one. The
 
 ## What is implemented
 
+[Smaller MoE phone results](docs/SMALLER_MOE_RESULTS.md) compare Granite 1B and 3B,
+OLMoE 7B, and Liquid LFM2.5 8B with resident and streamed inference, exact output
+checks, and latency, throughput, and memory graphs.
+
 - Native ARM64 HTTP server with health, model listing, JSON Chat Completions, SSE, usage, and multi-turn message formatting.
 - One active generation, at most four outstanding requests, HTTP 429 overflow handling, and separate queue-wait and execution deadlines. This is not continuous batching or a guaranteed FIFO scheduler.
 - Verified-artifact loading through a retained file descriptor, GGUF layout validation, and source-derived expert-consumer contracts.
