@@ -19,12 +19,14 @@ const endpoint = '/api/backend';
 
 export async function getHealth(): Promise<Health> {
   const r = await fetch(endpoint + '/health', { headers: { accept: 'application/json' } });
-  if (!r.ok) throw new Error('health failed: HTTP ' + r.status);
-  return r.json();
+  if (!r.ok) { let body: unknown = null; try { body = await r.json(); } catch {} throw new Error(errorMessage(r.status, body)); }
+  const value: unknown = await r.json();
+  if (!value || typeof value !== 'object' || !('status' in value) || typeof value.status !== 'string' || !('model' in value) || typeof value.model !== 'string') throw new Error('Phone health response malformed.');
+  return value as Health;
 }
 export async function getModels(): Promise<string[]> {
   const r = await fetch(endpoint + '/v1/models');
-  if (!r.ok) throw new Error('models failed: HTTP ' + r.status);
+  if (!r.ok) { let body: unknown = null; try { body = await r.json(); } catch {} throw new Error(errorMessage(r.status, body)); }
   const body = await r.json();
   if (!Array.isArray(body.data)) throw new Error('model list malformed');
   return body.data.map((m: {id?: string}) => m.id).filter((x: unknown): x is string => typeof x === 'string');
@@ -92,6 +94,7 @@ export async function streamChat(messages: ChatMessage[], options: ChatOptions, 
     }
     buffer += decoder.decode();
   } finally { reader.releaseLock(); }
+  if (!finishReason) throw new Error('Response stream ended before a completion event. Retry when the phone is ready.');
   const total = performance.now() - started;
   const n = usage?.completion_tokens ?? null;
   const decode = firstAt !== null && lastAt !== null && n !== null && n >= 2 && lastAt > firstAt ? (n - 1) / ((lastAt - firstAt) / 1000) : null;

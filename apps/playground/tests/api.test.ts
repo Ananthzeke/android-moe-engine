@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, afterEach } from 'vitest';
-import { streamChat } from '../src/lib/api';
+import { streamChat, getHealth } from '../src/lib/api';
 function chunkStream(chunks: string[]) {
   const enc = new TextEncoder();
   return new ReadableStream({ start(c) { for (const chunk of chunks) c.enqueue(enc.encode(chunk)); c.close(); } });
@@ -44,5 +44,20 @@ describe('SSE chat client', () => {
   it('surfaces 429 without inventing a response', async () => {
     mock([JSON.stringify({ error: { message: 'four requests are already outstanding', code: 'server_busy' } })], 429);
     await expect(streamChat([{ role: 'user', content: 'hi' }], base, new AbortController().signal, () => {})).rejects.toThrow('four requests');
+  });
+});
+
+describe('connection and completion failures', () => {
+  it('shows actionable proxy connection errors', async () => {
+    mock([JSON.stringify({ error: { message: 'Phone API unreachable. Check adb devices.', code: 'backend_unreachable' } })], 502);
+    await expect(getHealth()).rejects.toThrow('Phone API unreachable');
+  });
+  it('rejects malformed health instead of declaring a connection', async () => {
+    mock([JSON.stringify({ status: 'ready' })]);
+    await expect(getHealth()).rejects.toThrow('malformed');
+  });
+  it('does not mark an interrupted response completed', async () => {
+    mock([sse({ choices: [{ delta: { content: 'partial' } }] })]);
+    await expect(streamChat([{ role: 'user', content: 'hi' }], base, new AbortController().signal, () => {})).rejects.toThrow('before a completion event');
   });
 });

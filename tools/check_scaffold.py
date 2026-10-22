@@ -77,7 +77,7 @@ def validate(root):
     if device["performance_measured"]:
         evidence(root, device.get("evidence"))
     markdown = sorted(path for path in root.rglob("*.md")
-                      if not any(part.startswith(".") or part in {"build", "third_party"}
+                      if not any(part.startswith(".") or part in {"build", "third_party", "node_modules"}
                                  for part in path.relative_to(root).parts))
     for path in markdown:
         for target in re.findall(r"\]\(([^)]+)\)", path.read_text()):
