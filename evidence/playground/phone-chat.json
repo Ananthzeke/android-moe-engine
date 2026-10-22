@@ -1,0 +1,42 @@
+{
+  "model": "Qwen3.6-35B-A3B",
+  "system": "Be brief.",
+  "temperature": 0,
+  "maxTokens": 8,
+  "seed": 1234,
+  "messages": [
+    {
+      "role": "user",
+      "content": "Say hi."
+    },
+    {
+      "role": "assistant",
+      "content": "Hi!",
+      "status": "completed",
+      "metrics": {
+        "source": "browser+backend-usage",
+        "ttft_ms": 238445.90000003576,
+        "total_ms": 254596.69999998808,
+        "decode_tps": 0.30998140111593303,
+        "completion_tokens": 2,
+        "token_latency_reason": null,
+        "backend_telemetry": null
+      },
+      "usage": {
+        "completion_tokens": 2,
+        "prompt_tokens": 23,
+        "total_tokens": 25
+      }
+    }
+  ],
+  "metrics": {
+    "source": "browser+backend-usage",
+    "ttft_ms": 238445.90000003576,
+    "total_ms": 254596.69999998808,
+    "decode_tps": 0.30998140111593303,
+    "completion_tokens": 2,
+    "token_latency_reason": null,
+    "backend_telemetry": null
+  },
+  "createdAt": "2026-10-22T02:22:46.259Z"
+}

@@ -125,7 +125,36 @@ The immediate work is trustworthy timing, kernel/materializer efficiency, measur
 
 [Discuss sponsorship](https://github.com/Ananthzeke/android-moe-engine/issues/new?template=sponsorship.md) or read [the sponsorship priorities](SPONSORSHIP.md). No payment page is configured yet. Contributions, reproducible bug reports, and independent measurements are also welcome through [the contribution guide](CONTRIBUTING.md).
 
+## Local web playground
+
+Chat with the model already loaded on your phone through the [local SvelteKit playground](apps/playground/README.md). It provides streaming Markdown chat, generation controls, browser timing charts, JSON/CSV export, and browser-local history. The laptop serves the UI and proxies requests; inference runs on the phone.
+
+With Node.js 22 and an authorized ADB connection, first [run the native phone server](docs/RUN_PHONE.md), then:
+
+```sh
+adb devices
+adb forward tcp:8080 tcp:8080
+curl --fail http://127.0.0.1:8080/health
+curl --fail http://127.0.0.1:8080/v1/models
+
+cd apps/playground
+npm ci
+AME_BACKEND_URL=http://127.0.0.1:8080 \
+AME_ALLOWED_BACKENDS=http://127.0.0.1:8080 \
+npm run dev -- --host 127.0.0.1 --port 5173
+```
+
+Open [the playground](http://127.0.0.1:5173). Wait for **Connected**, select a small output limit for the first request, and send a message. The model list comes from the phone; selecting it does not load or switch weights. An unreachable API produces connection guidance and disables sending.
+
+**Phone connectivity verified:** the loaded `Qwen3.6-35B-A3B` returned “Hi!” through the built UI. That smoke request took 254.60 seconds overall, with 238.45 seconds to first visible text; this includes any queue/transport time and is not a controlled inference benchmark. See [the retained outcome and screenshot](evidence/playground/VERIFICATION.md).
+
+![Real-phone playground conversation and browser timings](evidence/playground/phone-chat.jpg)
+
+TTFT and text delivery rate are browser observations, including transport and buffering. Engine decode timing, per-token latency, and request-scoped memory remain unavailable. Cache/read counters are cumulative health snapshots. See [setup, metric definitions, troubleshooting, and verification](apps/playground/README.md).
+
 ## Documentation and license
+
+- [Published documentation site](https://ananthzeke.github.io/android-moe-engine/) and [site source](site-docs/index.md).
 
 - [Architecture](docs/ARCHITECTURE.md), [implementation plan](docs/IMPLEMENTATION_PLAN.md), and [validation contract](docs/VALIDATION.md).
 - [Model catalog](configs/model-candidates.json), [dependency lock](configs/dependencies.lock.json), and [coding rules](docs/CODING.md).
