@@ -1,0 +1,32 @@
+{
+  "branch": "web-playground",
+  "commits": [
+    "9400995",
+    "978b83f",
+    "f129e4e"
+  ],
+  "checks": {
+    "typecheck": "0 errors, 0 warnings",
+    "unit_tests": "5 passed",
+    "production_build": "passed",
+    "ci_equivalent": "npm ci + check + test + build + repository verifier passed",
+    "browser_smoke": "Chromium CDP against host Qwen3.5-2B fixture: sent Say hi, observed completed response and TTFT/total/decode strip",
+    "proxy_sse": "5 data events plus [DONE]"
+  },
+  "fixture": {
+    "kind": "host Qwen3.5-2B fixture, not phone",
+    "reason": "wireless ADB was unavailable during this run"
+  },
+  "screenshots": [
+    "evidence/playground/chat-ui-connected.png",
+    "evidence/playground/chat-ui-conversation.png"
+  ],
+  "not_verified": [
+    "real phone chat in this run",
+    "backend request telemetry",
+    "browser E2E against phone",
+    "controlled comparison runner",
+    "monitoring-overhead measurement"
+  ],
+  "telemetry": "Backend telemetry is specified in apps/playground/PLAN.md but not implemented; UI displays browser-observed metrics and marks missing backend fields unavailable."
+}

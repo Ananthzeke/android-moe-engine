@@ -1,0 +1,1 @@
+{"model":"Qwen3.5-2B","queue":{"active":false,"admitted":4,"execution_limit_seconds":300,"outstanding":0,"queue_timeouts":0,"rejected":1,"wait_limit_seconds":300},"status":"ready"}

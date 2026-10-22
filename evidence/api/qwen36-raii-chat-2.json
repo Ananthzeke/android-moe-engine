@@ -1,0 +1,1 @@
+{"choices":[{"finish_reason":"length","index":0,"message":{"content":"Hi","role":"assistant"}}],"created":1792593120,"id":"chatcmpl-9390-1","model":"Qwen3.6-35B-A3B","object":"chat.completion","usage":{"completion_tokens":1,"prompt_tokens":15,"total_tokens":16}}
