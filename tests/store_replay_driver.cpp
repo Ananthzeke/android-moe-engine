@@ -14,6 +14,7 @@
 
 #include "cancellation.hpp"
 #include "file_source.hpp"
+#include "layered_store.hpp"
 #include "store.hpp"
 
 int main(int argc, char** argv) {
@@ -24,6 +25,8 @@ int main(int argc, char** argv) {
   std::ifstream scenario(argv[1]);
   std::string line;
   std::uint32_t capacity = 0;
+  std::string policy;  // empty: the shipped Store; "lru" or "lfu": one LayeredStore pool
+  std::uint32_t halve_every = 0;
   std::vector<std::vector<std::uint32_t>> steps;
   std::uint32_t max_id = 0;
   while (std::getline(scenario, line)) {
@@ -32,6 +35,14 @@ int main(int argc, char** argv) {
     fields >> head;
     if (head == "capacity") {
       fields >> capacity;
+      continue;
+    }
+    if (head == "policy") {
+      fields >> policy;
+      continue;
+    }
+    if (head == "halve") {
+      fields >> halve_every;
       continue;
     }
     std::vector<std::uint32_t> ids;
@@ -59,6 +70,51 @@ int main(int argc, char** argv) {
   }
   auto source = ame::residency::FileSource::open(path.string());
   if (!source.ok()) return 3;
+  if (!policy.empty()) {
+    ame::residency::LayerSpec spec;
+    spec.slots = capacity;
+    spec.slot_bytes = kSlot;
+    for (std::uint32_t id = 0; id <= max_id; ++id) {
+      ame::residency::LayerExpert expert;
+      expert.slices[0] = {ame::model::FileOffset{id * kSlot}, ame::model::ByteCount{kSlot}, 0};
+      expert.slice_count = 1;
+      spec.experts.push_back(expert);
+    }
+    ame::residency::LayeredOptions options;
+    options.policy =
+        policy == "lfu" ? ame::residency::EvictionPolicy::Lfu : ame::residency::EvictionPolicy::Lru;
+    options.lfu_halve_every = halve_every;
+    std::vector<ame::residency::LayerSpec> layers;
+    layers.push_back(std::move(spec));
+    auto layered =
+        ame::residency::LayeredStore::create(std::move(source).value(), std::move(layers), options);
+    if (!layered.ok()) return 3;
+    ame::Cancellation layered_stop;
+    ame::residency::LayerLease layered_lease;
+    for (const auto& ids : steps) {
+      layered_lease = ame::residency::LayerLease{};
+      const auto before = layered.value()->stats();
+      auto acquired = layered.value()->acquire(0, ids, layered_stop);
+      if (!acquired.ok()) {
+        std::cout << "refused\n";
+        continue;
+      }
+      layered_lease = std::move(acquired).value();
+      const auto after = layered.value()->stats();
+      std::cout << (after.hits - before.hits) << ' ' << (after.misses - before.misses) << ' '
+                << (after.evictions - before.evictions);
+      std::vector<std::uint32_t> seen;
+      for (const auto id : ids) {
+        if (std::find(seen.begin(), seen.end(), id) != seen.end()) continue;
+        seen.push_back(id);
+        std::cout << ' ' << layered_lease.slot_index(id).value_or(9999);
+      }
+      std::cout << '\n';
+    }
+    layered_lease = ame::residency::LayerLease{};
+    std::filesystem::remove_all(directory);
+    return 0;
+  }
   std::vector<ame::residency::ExpertEntry> entries;
   for (std::uint32_t id = 0; id <= max_id; ++id) {
     entries.push_back({ame::model::ExpertKey{0, id}, ame::model::FileOffset{id * kSlot},

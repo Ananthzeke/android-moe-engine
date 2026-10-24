@@ -1,6 +1,7 @@
 """Exercise the complete runner's batch boundary and the harness's result-write failure."""
 import argparse
 import hashlib
+import json
 import subprocess
 import sys
 import tempfile
@@ -14,6 +15,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--complete-runner", type=Path, required=True)
 parser.add_argument("--harness", type=Path, required=True)
 parser.add_argument("--model", type=Path, required=True)
+parser.add_argument("--layered-model", type=Path,
+                    help="tiny MoE with separate gate, up and down expert tensors")
 arguments = parser.parse_args()
 model = arguments.model
 digest = hashlib.sha256(model.read_bytes()).hexdigest()
@@ -72,3 +75,50 @@ with tempfile.TemporaryDirectory() as scratch:
                    "--moe-arena-mib", 64, "--output", scratch / "result.json"])
     if control.returncode != 0 or not (scratch / "result.json").is_file():
         raise SystemExit(f"harness control run failed: {control.returncode} {control.stderr[-800:]}")
+
+
+if arguments.layered_model is not None:
+    # The layered cache must give the same tokens and logits as the shipped cache, and
+    # refuse a model whose experts are fused.
+    layered_model = arguments.layered_model
+    layered_digest = hashlib.sha256(layered_model.read_bytes()).hexdigest()
+    with tempfile.TemporaryDirectory() as scratch:
+        scratch = Path(scratch)
+        layered_manifest = scratch / "layered.manifest"
+        index = run([sys.executable, ROOT / "tools" / "gguf_index.py", "--input", layered_model,
+                     "--file-size", layered_model.stat().st_size, "--manifest-out",
+                     layered_manifest, "--artifact-sha256", layered_digest, "--output",
+                     scratch / "index.json"])
+        if index.returncode != 0:
+            raise SystemExit(f"layered manifest failed: {index.stderr[-400:]}")
+
+        def harness(name, *extra):
+            output, logits = scratch / f"{name}.json", scratch / f"{name}.logits"
+            result = run([arguments.harness, "--model", layered_model, "--manifest",
+                          layered_manifest, "--artifact-sha", layered_digest, "--stream",
+                          "--prompt", "a", "--max-new-tokens", 6, "--context", 64, "--threads", 2,
+                          "--batch-size", 64, "--temperature", 0, "--seed", 1, "--moe-arena-mib",
+                          64, "--logits-output", logits, "--output", output, *extra])
+            if result.returncode != 0 or not output.is_file():
+                raise SystemExit(f"{name} harness failed: {result.returncode} {result.stderr[-600:]}")
+            return json.loads(output.read_text()), logits.read_bytes()
+
+        legacy, legacy_logits = harness("legacy", "--moe-slots", 8)
+        for name, extra in (("layered", ["--cache", "layered"]),
+                            ("layered-lfu", ["--cache", "layered", "--eviction", "lfu",
+                                             "--fadvise-random", "--fadvise-dontneed"])):
+            record, logits = harness(name, *extra)
+            if record["streaming"]["cache_layout"] != "layered":
+                raise SystemExit(f"{name}: layered cache was not used")
+            if record["output"]["token_ids"] != legacy["output"]["token_ids"]:
+                raise SystemExit(f"{name}: token IDs differ from the shipped cache")
+            if logits != legacy_logits:
+                raise SystemExit(f"{name}: logits differ from the shipped cache")
+        # The fused-expert fixture cannot be expressed as three role views: refused at install.
+        refused = run([arguments.harness, "--model", model, "--manifest", manifest,
+                       "--artifact-sha", digest, "--stream", "--prompt", "a", "--cache", "layered",
+                       "--max-new-tokens", 2, "--context", 64, "--moe-arena-mib", 64,
+                       "--output", scratch / "fused.json"])
+        record = json.loads((scratch / "fused.json").read_text())
+        if refused.returncode == 0 or record.get("status") == "ok":
+            raise SystemExit("a fused gate_up model was accepted by the layered cache")

@@ -46,6 +46,12 @@ class FileSource {
   // it only when no read is in flight. It keeps the source's cumulative byte count.
   void reload_fault_injection() const noexcept;
 
+  // Page-cache hints on the read descriptor. They are advisory: the kernel may ignore them.
+  // advise_random asks for no readahead; advise_dontneed drops clean cached pages of one
+  // extent. Both are no-ops on failure.
+  void advise_random() const noexcept;
+  void advise_dontneed(std::uint64_t offset, std::uint64_t length) const noexcept;
+
   // Actual pread syscalls and the bytes they returned. These differ from the expert
   // read counts kept by the store, which count completed expert slices.
   [[nodiscard]] std::uint64_t pread_calls() const noexcept { return pread_calls_; }

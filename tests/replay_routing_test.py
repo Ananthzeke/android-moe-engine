@@ -13,10 +13,12 @@ from replay_routing import Refused, StoreSim, layer_units, parse_trace, run  # n
 driver = sys.argv[1]
 
 
-def real_store(directory, capacity, steps):
+def real_store(directory, capacity, steps, policy=None, halve=0):
     scenario = Path(directory) / "scenario.txt"
-    scenario.write_text(f"capacity {capacity}\n" + "\n".join(" ".join(map(str, s)) for s in steps)
-                        + "\n")
+    header = f"capacity {capacity}\n"
+    if policy:
+        header += f"policy {policy}\nhalve {halve}\n"
+    scenario.write_text(header + "\n".join(" ".join(map(str, s)) for s in steps) + "\n")
     result = subprocess.run([driver, str(scenario)], capture_output=True, text=True)
     if result.returncode != 0:
         raise SystemExit(f"store driver failed: {result}")
@@ -26,8 +28,8 @@ def real_store(directory, capacity, steps):
     return rows
 
 
-def simulated(capacity, steps):
-    sim = StoreSim(capacity)
+def simulated(capacity, steps, policy="lru", halve=0):
+    sim = StoreSim(capacity, policy, halve)
     rows = []
     for step in steps:
         before = (sim.hits, sim.misses, sim.evictions)
@@ -65,6 +67,21 @@ with tempfile.TemporaryDirectory() as directory:
         sim = simulated(capacity, steps)
         if real != sim:
             raise SystemExit(f"case {case} (capacity {capacity}): real {real} != simulated {sim}")
+
+    # The layered store's per-layer pool, LRU and LFU, against the same simulator. The
+    # simulator is what every candidate-policy number in the replay comes from.
+    for case in range(80):
+        policy = generator.choice(["lru", "lfu"])
+        halve = generator.choice([0, 3, 5]) if policy == "lfu" else 0
+        capacity = generator.randint(1, 7)
+        universe = generator.randint(capacity, capacity + 8)
+        steps = [[generator.randrange(universe) for _ in range(generator.randint(1, capacity + 2))]
+                 for _ in range(generator.randint(5, 50))]
+        real = real_store(directory, capacity, steps, policy, halve)
+        sim = simulated(capacity, steps, policy, halve)
+        if real != sim:
+            raise SystemExit(f"layered {policy} halve {halve} capacity {capacity} case {case}: "
+                             f"real {real} != simulated {sim}")
 
     # Trace parsing: a format-2 trace, replayed through every policy.
     trace = Path(directory) / "trace.txt"

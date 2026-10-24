@@ -147,3 +147,15 @@ The server publishes the terminal snapshot inside `RequestScope`, after lease re
 before admission release, on every exit including failed SSE writes. `/health` reads only the
 published value. Limits: real-35B recovery parity, a blocked `pread`, and backend abort on
 deadline or disconnect remain open.
+
+## One cache owner: a layer-keyed, layer-partitioned arena (2026-10-24)
+
+The routing replay of a 330-token phone trace (`evidence/core-opt/unit3/README.md`) shows
+that capacity, not policy, sets the reads per token: 566 MB with the shipped 64-slot design,
+then 361, 280, 224 and 184 MB at 0.57, 1.13, 1.70 and 2.26 GB. Per-layer partitioning
+and LFU change the hit rate by at most 3.1 points over a (tensor, expert) LRU of the same bytes.
+The layered cache is built for what partitioning does buy: one reservation and one read batch per
+layer visit (three slices per expert), no cross-layer eviction, a pool that can be sized per layer, and
+an arena that can be the only cache when the kernel is told to drop its copy. Per-layer LRU is the
+default policy; LFU stays behind a flag. The phone A/B that decides the default layout is in
+`evidence/core-opt/unit4/`. The shipped layout stays the default until that gate is met.

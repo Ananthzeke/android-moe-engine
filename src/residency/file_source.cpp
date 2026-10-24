@@ -44,6 +44,19 @@ void FileSource::reload_fault_injection() const noexcept {
   eintr_consumed_ = false;
 }
 
+void FileSource::advise_random() const noexcept {
+  if (descriptor_ >= 0) {
+    (void)::posix_fadvise(descriptor_, 0, 0, POSIX_FADV_RANDOM);
+  }
+}
+
+void FileSource::advise_dontneed(std::uint64_t offset, std::uint64_t length) const noexcept {
+  if (descriptor_ >= 0) {
+    (void)::posix_fadvise(descriptor_, static_cast<off_t>(offset), static_cast<off_t>(length),
+                          POSIX_FADV_DONTNEED);
+  }
+}
+
 FileSource::FileSource(FileSource&& other) noexcept
     : descriptor_(other.descriptor_),
       size_bytes_(other.size_bytes_),

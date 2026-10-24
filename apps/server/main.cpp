@@ -46,6 +46,7 @@ struct Options {
   std::uint64_t arena_mib = 256;
   bool stream = false;
   std::string request_log;
+  ame::backend::StreamOptions stream_options;
   std::string system_root = "/";
 };
 
@@ -126,6 +127,11 @@ void publish_stream_snapshot() {
                    {"read_bytes", stats.read_bytes},
                    {"materialize_calls", stats.materialize_calls},
                    {"arena_bytes", stats.arena_bytes},
+                   {"cache_layout", stats.layered ? "layered" : "legacy"},
+                   {"layer_slots", stats.layer_slots},
+                   {"cache_metadata_bytes", stats.cache_metadata_bytes},
+                   {"resident_slots", stats.resident_slots},
+                   {"pread_calls", stats.pread_calls},
                    {"contract_routed", stats.contract_routed},
                    {"contract_shared", stats.contract_shared},
                    {"failed", stats.failed},
@@ -789,6 +795,24 @@ int run_server(int argc, char** argv) {
     } else if (arg == "--arena-mib") {
       if (!next(value)) return 2;
       options.arena_mib = std::stoull(value);
+    } else if (arg == "--cache") {
+      if (!next(value) || (value != "legacy" && value != "layered")) return 2;
+      options.stream_options.layout = value == "layered" ? ame::backend::CacheLayout::Layered
+                                                         : ame::backend::CacheLayout::Legacy;
+    } else if (arg == "--eviction") {
+      if (!next(value) || (value != "lru" && value != "lfu")) return 2;
+      options.stream_options.eviction =
+          value == "lfu" ? ame::backend::Eviction::Lfu : ame::backend::Eviction::Lru;
+    } else if (arg == "--layer-slots") {
+      if (!next(value)) return 2;
+      options.stream_options.layer_slots = static_cast<std::uint32_t>(std::stoul(value));
+    } else if (arg == "--lfu-halve") {
+      if (!next(value)) return 2;
+      options.stream_options.lfu_halve_every = static_cast<std::uint32_t>(std::stoul(value));
+    } else if (arg == "--fadvise-random") {
+      options.stream_options.fadvise_random = true;
+    } else if (arg == "--fadvise-dontneed") {
+      options.stream_options.fadvise_dontneed = true;
     } else if (arg == "--request-log") {
       if (!next(options.request_log)) return 2;
     } else if (arg == "--stream") {
@@ -854,7 +878,7 @@ int run_server(int argc, char** argv) {
     startup.begin("manifest_install");
     const bool installed = ame::backend::install_moe_stream(
         *artifact, options.manifest, static_cast<std::uint32_t>(options.slots),
-        options.arena_mib * 1024ULL * 1024ULL);
+        options.arena_mib * 1024ULL * 1024ULL, options.stream_options);
     startup.end();
     if (!installed) {
       std::cerr << "install: " << ame::backend::moe_stream_stats().error << '\n';

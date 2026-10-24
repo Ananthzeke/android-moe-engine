@@ -118,6 +118,14 @@ The current server creates a fresh context per request. Include earlier messages
 in each request when continuing a conversation. Only one generation runs at a
 time.
 
+## Cache layout flags
+
+`--cache legacy|layered` selects the expert cache (default `legacy`). Layered mode also takes
+`--eviction lru|lfu`, `--layer-slots N` (zero derives the pool from `--arena-mib`), `--lfu-halve N`,
+`--fadvise-random` and `--fadvise-dontneed`. `--arena-mib` must cover the arenas plus bookkeeping;
+for 16 slots per layer on the 35B model use `--layer-slots 16 --arena-mib 1152`. See
+[the architecture note](ARCHITECTURE.md#layered-expert-cache-unit-4-2026-10-24).
+
 ## Per-request records
 
 Set `AME_REQUEST_LOG=/data/local/tmp/ame-api/requests.jsonl` before `start-35b.sh` to log

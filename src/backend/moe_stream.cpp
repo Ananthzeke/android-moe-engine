@@ -30,6 +30,7 @@
 #include "file_source.hpp"
 #include "ggml-moe.h"
 #include "ggml.h"
+#include "layered_store.hpp"
 #include "store.hpp"
 
 namespace ame::backend {
@@ -95,6 +96,22 @@ std::uint32_t g_trace_ubatch = 0;
 std::string g_trace_phase = "unknown";
 std::vector<char> g_trace_buffer;
 ame::Cancellation g_cancellation;
+
+// Layered cache: one LayeredStore, a pool per layer, and per-layer lease state.
+using ame::residency::LayeredStore;
+using ame::residency::LayerLease;
+
+struct LayerState {
+  LayerLease lease;
+  std::uint8_t visited{0};  // roles served in the current visit, one bit per role
+};
+bool g_layered = false;
+bool g_build_legacy_entries = true;
+std::unique_ptr<LayeredStore> g_layered_store;
+std::vector<LayerState> g_layer_state;
+std::vector<std::uint32_t> g_pool_of_table;         // table_id -> pool index
+std::vector<std::uint64_t> g_slot_offset_of_table;  // table_id -> role offset inside a slot
+std::vector<std::uint8_t> g_role_bit_of_table;
 
 // Routing trace, format 2: one row per MUL_MAT_ID call. Writes are buffered; the buffer is
 // flushed when the next graph is labelled, at request start, and at uninstall.
@@ -241,13 +258,15 @@ bool read_manifest(const std::string& path, std::uint64_t model_bytes) {
       canonical += '\n';
     }
     canonical += canonical_row(spec);
-    auto& entries = g_entries_by_size[spec.expert_bytes];
-    entries.reserve(entries.size() + spec.n_expert);
-    for (std::uint32_t expert = 0; expert < spec.n_expert; ++expert) {
-      entries.push_back(
-          ExpertEntry{ExpertKey{spec.table_id, expert},
-                      FileOffset{spec.offset + static_cast<std::uint64_t>(expert) * spec.stride},
-                      ByteCount{spec.expert_bytes}});
+    if (g_build_legacy_entries) {
+      auto& entries = g_entries_by_size[spec.expert_bytes];
+      entries.reserve(entries.size() + spec.n_expert);
+      for (std::uint32_t expert = 0; expert < spec.n_expert; ++expert) {
+        entries.push_back(
+            ExpertEntry{ExpertKey{spec.table_id, expert},
+                        FileOffset{spec.offset + static_cast<std::uint64_t>(expert) * spec.stride},
+                        ByteCount{spec.expert_bytes}});
+      }
     }
   }
   if (version == 0) {
@@ -341,6 +360,204 @@ Cache* cache_for(std::uint64_t expert_bytes) {
   return &inserted->second;
 }
 
+std::uint64_t align_up(std::uint64_t value, std::uint64_t alignment) {
+  return (value + alignment - 1) / alignment * alignment;
+}
+
+// Group the manifest by layer and build one pool per layer. Every routed layer must have
+// separate gate, up and down tensors with the same expert count; anything else is refused
+// here, never loaded as a full bank or approximated.
+bool build_layered_cache(const StreamOptions& options) {
+  constexpr std::uint64_t kAlign = 64;
+  std::map<std::uint32_t, std::array<const TensorSpec*, 3>> groups;
+  for (const auto& [name, spec] : g_specs) {
+    int role = -1;
+    if (spec.role == "ffn_gate_exps") role = 0;
+    if (spec.role == "ffn_up_exps") role = 1;
+    if (spec.role == "ffn_down_exps") role = 2;
+    if (role < 0) {
+      return manifest_error("layered cache cannot hold " + name + " (role " + spec.role +
+                            "): it needs separate gate, up and down expert tensors");
+    }
+    auto& group = groups.try_emplace(spec.layer).first->second;
+    if (group[static_cast<std::size_t>(role)] != nullptr) {
+      return manifest_error("layered cache found two " + spec.role + " tensors in layer " +
+                            std::to_string(spec.layer));
+    }
+    group[static_cast<std::size_t>(role)] = &spec;
+  }
+  std::vector<std::uint32_t> layer_numbers;
+  std::vector<std::uint64_t> slot_bytes_of_layer;
+  std::uint32_t smallest_experts = UINT32_MAX;
+  std::uint64_t total_slot_bytes = 0;
+  g_pool_of_table.assign(g_specs.size(), 0);
+  g_slot_offset_of_table.assign(g_specs.size(), 0);
+  g_role_bit_of_table.assign(g_specs.size(), 0);
+  for (const auto& [layer, group] : groups) {
+    for (const TensorSpec* spec : group) {
+      if (spec == nullptr) {
+        return manifest_error("layered cache needs gate, up and down tensors in layer " +
+                              std::to_string(layer));
+      }
+    }
+    if (group[0]->n_expert != group[1]->n_expert || group[0]->n_expert != group[2]->n_expert) {
+      return manifest_error("layered cache needs equal expert counts across the roles of layer " +
+                            std::to_string(layer));
+    }
+    std::uint64_t cursor = 0;
+    const auto pool_index = static_cast<std::uint32_t>(layer_numbers.size());
+    for (std::size_t role = 0; role < 3; ++role) {
+      cursor = align_up(cursor, kAlign);
+      g_pool_of_table[group[role]->table_id] = pool_index;
+      g_slot_offset_of_table[group[role]->table_id] = cursor;
+      g_role_bit_of_table[group[role]->table_id] = static_cast<std::uint8_t>(1U << role);
+      cursor += group[role]->expert_bytes;
+    }
+    layer_numbers.push_back(layer);
+    slot_bytes_of_layer.push_back(align_up(cursor, kAlign));
+    total_slot_bytes += slot_bytes_of_layer.back();
+    smallest_experts = std::min(smallest_experts, group[0]->n_expert);
+  }
+  if (layer_numbers.empty() || total_slot_bytes == 0) {
+    return manifest_error("layered cache found no routed layers");
+  }
+  std::uint32_t slots = options.layer_slots != 0
+                            ? options.layer_slots
+                            : static_cast<std::uint32_t>(std::min<std::uint64_t>(
+                                  g_arena_limit / total_slot_bytes, smallest_experts));
+  slots = std::min(slots, smallest_experts);
+  while (slots != 0) {
+    std::vector<ame::residency::LayerSpec> layers;
+    layers.reserve(layer_numbers.size());
+    for (std::size_t index = 0; index < layer_numbers.size(); ++index) {
+      const auto& group = groups.at(layer_numbers[index]);
+      ame::residency::LayerSpec layer;
+      layer.slots = slots;
+      layer.slot_bytes = slot_bytes_of_layer[index];
+      layer.experts.resize(group[0]->n_expert);
+      for (std::uint32_t expert = 0; expert < group[0]->n_expert; ++expert) {
+        auto& entry = layer.experts[expert];
+        entry.slice_count = 3;
+        for (std::size_t role = 0; role < 3; ++role) {
+          entry.slices[role] = ame::residency::SliceExtent{
+              FileOffset{group[role]->offset +
+                         static_cast<std::uint64_t>(expert) * group[role]->stride},
+              ByteCount{group[role]->expert_bytes}, g_slot_offset_of_table[group[role]->table_id]};
+        }
+      }
+      layers.push_back(std::move(layer));
+    }
+    auto source = g_artifact != nullptr ? FileSource::open_fd(g_artifact->fd())
+                                        : FileSource::open(g_model_path);
+    if (!source.ok()) {
+      return manifest_error("cannot open the model for the layered cache");
+    }
+    ame::residency::LayeredOptions store_options;
+    store_options.policy = options.eviction == Eviction::Lfu ? ame::residency::EvictionPolicy::Lfu
+                                                             : ame::residency::EvictionPolicy::Lru;
+    store_options.lfu_halve_every = options.lfu_halve_every;
+    store_options.fadvise_random = options.fadvise_random;
+    store_options.fadvise_dontneed = options.fadvise_dontneed;
+    store_options.alignment = 64;
+    auto store = LayeredStore::create(std::move(source).value(), std::move(layers), store_options);
+    if (!store.ok()) {
+      return manifest_error("layered cache creation failed");
+    }
+    const std::uint64_t covered = store.value()->arena_bytes() + store.value()->metadata_bytes();
+    if (covered > g_arena_limit) {
+      if (options.layer_slots != 0) {
+        return manifest_error("layered cache needs " + std::to_string(covered) +
+                              " bytes, above the arena allowance " + std::to_string(g_arena_limit));
+      }
+      --slots;
+      continue;
+    }
+    g_layered_store = std::move(store).value();
+    g_layer_state.clear();
+    g_layer_state.resize(layer_numbers.size());
+    g_stats.arena_bytes = g_layered_store->arena_bytes();
+    g_stats.cache_metadata_bytes = g_layered_store->metadata_bytes();
+    g_stats.layer_slots = slots;
+    g_stats.layered = true;
+    g_slots = slots;
+    g_layered = true;
+    return true;
+  }
+  return manifest_error("the arena allowance of " + std::to_string(g_arena_limit) +
+                        " bytes cannot hold one slot per layer (" +
+                        std::to_string(total_slot_bytes) + " bytes)");
+}
+
+// Stage one routed tensor from its layer's pool. The first tensor of a layer visit acquires
+// the experts for all three roles; the other two roles find them already leased.
+int stage_layered(const TensorSpec& spec, const ggml_tensor* weights, const ggml_tensor* ids,
+                  const std::array<ExpertKey, ame::residency::kMaxLeaseExperts>& unique,
+                  std::uint32_t unique_count, int64_t n_ids, int64_t tokens) {
+  const std::uint32_t pool = g_pool_of_table[spec.table_id];
+  LayerState& state = g_layer_state[pool];
+  const std::uint8_t bit = g_role_bit_of_table[spec.table_id];
+  if (!state.lease.valid() || (state.visited & bit) != 0) {
+    state.lease = LayerLease{};
+    state.visited = 0;
+  }
+  bool covered = state.lease.valid();
+  for (std::uint32_t index = 0; covered && index < unique_count; ++index) {
+    covered = state.lease.slot_index(unique[index].expert).has_value();
+  }
+  if (!covered) {
+    state.lease = LayerLease{};
+    std::array<std::uint32_t, ame::residency::kMaxLeaseExperts> experts{};
+    for (std::uint32_t index = 0; index < unique_count; ++index) {
+      experts[index] = unique[index].expert;
+    }
+    auto lease = g_layered_store->acquire(
+        pool, std::span<const std::uint32_t>(experts.data(), unique_count), g_cancellation);
+    if (!lease.ok()) {
+      if (lease.error() == ame::residency::StoreError::Cancelled || g_cancellation.requested()) {
+        return cancel_outcome("cancelled during materialization: " + spec.name);
+      }
+      return fail_outcome("layer store acquire failed for " + spec.name);
+    }
+    state.lease = std::move(lease).value();
+  }
+  state.visited = static_cast<std::uint8_t>(state.visited | bit);
+
+  const auto* ids_bytes = static_cast<const char*>(ids->data);
+  g_remapped.resize(static_cast<std::size_t>(n_ids * tokens));
+  for (int64_t token = 0; token < tokens; ++token) {
+    for (int64_t rank = 0; rank < n_ids; ++rank) {
+      std::int32_t expert = 0;
+      const std::size_t id_offset = static_cast<std::size_t>(token) * ids->nb[1] +
+                                    static_cast<std::size_t>(rank) * ids->nb[0];
+      std::memcpy(&expert, ids_bytes + id_offset, sizeof(expert));
+      const auto slot = state.lease.slot_index(static_cast<std::uint32_t>(expert));
+      if (!slot.has_value()) {
+        state.lease = LayerLease{};
+        return fail_outcome("remap failed for expert " + std::to_string(expert));
+      }
+      g_remapped[static_cast<std::size_t>(token * n_ids + rank)] = static_cast<std::int32_t>(*slot);
+    }
+  }
+  const std::uint32_t slots = g_layered_store->slots(pool);
+  const std::uint64_t slot_bytes = g_layered_store->slot_bytes(pool);
+  g_staged_weights = *weights;
+  g_staged_weights.data =
+      g_layered_store->pool_arena(pool).data() + g_slot_offset_of_table[spec.table_id];
+  g_staged_weights.ne[2] = slots;
+  g_staged_weights.nb[2] = slot_bytes;
+  g_staged_weights.nb[3] = slot_bytes * slots;
+  g_staged_ids = *ids;
+  g_staged_ids.data = g_remapped.data();
+  g_staged_ids.nb[0] = sizeof(std::int32_t);
+  g_staged_ids.nb[1] = sizeof(std::int32_t) * static_cast<std::size_t>(n_ids);
+  if (g_last_tensor != spec.name) {
+    ++g_stats.tensor_switches;
+    g_last_tensor = spec.name;
+  }
+  ++g_stats.materialize_calls;
+  return GGML_MOE_STAGED;
+}
+
 int materialize(const ggml_tensor* weights, const ggml_tensor* ids) {
   if (!g_installed || weights == nullptr || ids == nullptr || weights->name[0] == '\0' ||
       ids->data == nullptr) {
@@ -422,6 +639,9 @@ int materialize(const ggml_tensor* weights, const ggml_tensor* ids) {
     return GGML_MOE_PASS_THROUGH;
   }
 
+  if (g_layered) {
+    return stage_layered(spec, weights, ids, unique, unique_count, n_ids, tokens);
+  }
   Cache* cache = cache_for(spec.expert_bytes);
   if (cache == nullptr) {
     return GGML_MOE_FAILED;
@@ -540,8 +760,19 @@ bool bind_model_contract_impl(const llama_model* model, std::string& error) {
       return false;
     }
     const auto& s = spec->second;
+    std::uint32_t pool_slots = g_slots;
+    if (g_layered) {
+      pool_slots = g_layered_store->slots(g_pool_of_table[s.table_id]);
+      if (pool_slots < consumer.max_selected) {
+        error = "layer pool of " + std::to_string(pool_slots) + " slots is below top-" +
+                std::to_string(consumer.max_selected) + " for " + name +
+                "; raise the arena allowance";
+        return false;
+      }
+    }
     g_contract_bounds.push_back({static_cast<std::uint32_t>(consumer.tensor->ne[2]),
-                                 consumer.max_selected, g_slots, ame::residency::kMaxLeaseExperts});
+                                 consumer.max_selected, pool_slots,
+                                 ame::residency::kMaxLeaseExperts});
     if (consumer.tensor->type != s.type_id ||
         consumer.tensor->ne[2] != static_cast<int64_t>(s.n_expert) ||
         consumer.tensor->nb[2] != s.expert_bytes || ggml_nbytes(consumer.tensor) != s.nbytes) {
@@ -677,12 +908,19 @@ namespace ame::backend {
 
 bool install_moe_stream(const Artifact& artifact, const std::string& manifest_path,
                         std::uint32_t slots, std::uint64_t arena_limit_bytes) {
+  return install_moe_stream(artifact, manifest_path, slots, arena_limit_bytes, StreamOptions{});
+}
+
+bool install_moe_stream(const Artifact& artifact, const std::string& manifest_path,
+                        std::uint32_t slots, std::uint64_t arena_limit_bytes,
+                        const StreamOptions& options) {
   uninstall_moe_stream();
   g_stats = MoeStreamStats{};
   if (slots == 0 || arena_limit_bytes == 0) {
     g_stats.error = "invalid stream options";
     return false;
   }
+  g_build_legacy_entries = options.layout == CacheLayout::Legacy;
   g_artifact = &artifact;
   std::string recheck_error;
   if (!artifact.recheck(recheck_error)) {
@@ -704,7 +942,13 @@ bool install_moe_stream(const Artifact& artifact, const std::string& manifest_pa
   }
   g_stats.manifest_validation_seconds =
       std::chrono::duration<double>(std::chrono::steady_clock::now() - validation_begin).count();
-  g_slots = slots;
+  if (options.layout == CacheLayout::Layered) {
+    if (!build_layered_cache(options)) {
+      return false;
+    }
+  } else {
+    g_slots = slots;
+  }
   g_cancellation.reset();
   g_stats.slots = g_slots;
   g_trace_call = 0;
@@ -718,6 +962,12 @@ bool install_moe_stream(const Artifact& artifact, const std::string& manifest_pa
 
 bool install_moe_stream(const std::string& model_path, const std::string& manifest_path,
                         std::uint32_t slots, std::uint64_t arena_limit_bytes) {
+  return install_moe_stream(model_path, manifest_path, slots, arena_limit_bytes, StreamOptions{});
+}
+
+bool install_moe_stream(const std::string& model_path, const std::string& manifest_path,
+                        std::uint32_t slots, std::uint64_t arena_limit_bytes,
+                        const StreamOptions& options) {
   if (std::getenv("AME_ALLOW_UNVERIFIED_ARTIFACT") == nullptr) {
     g_stats.error =
         "unverified artifact install refused; set AME_ALLOW_UNVERIFIED_ARTIFACT=1 only for "
@@ -739,6 +989,7 @@ bool install_moe_stream(const std::string& model_path, const std::string& manife
   }
   g_model_path = model_path;
   g_arena_limit = arena_limit_bytes;
+  g_build_legacy_entries = options.layout == CacheLayout::Legacy;
   g_trace_only = std::getenv("AME_MOE_TRACE_ONLY") != nullptr;
   if (!read_manifest(manifest_path, model_bytes)) {
     if (g_stats.error.empty()) {
@@ -746,7 +997,13 @@ bool install_moe_stream(const std::string& model_path, const std::string& manife
     }
     return false;
   }
-  g_slots = slots;
+  if (options.layout == CacheLayout::Layered) {
+    if (!build_layered_cache(options)) {
+      return false;
+    }
+  } else {
+    g_slots = slots;
+  }
   g_cancellation.reset();
   g_stats.slots = g_slots;
   g_trace_call = 0;
@@ -770,6 +1027,10 @@ void release_moe_stream_leases() {
   for (auto& [key, cache] : g_caches) {
     (void)key;
     cache.lease = Lease{};
+  }
+  for (auto& state : g_layer_state) {
+    state.lease = LayerLease{};
+    state.visited = 0;
   }
 }
 
@@ -799,6 +1060,9 @@ void begin_moe_stream_request() {
     (void)key;
     cache.store->reload_fault_injection();
   }
+  if (g_layered_store) {
+    g_layered_store->reload_fault_injection();
+  }
   ggml_moe_reset();
 }
 
@@ -816,6 +1080,13 @@ void uninstall_moe_stream() {
   }
   g_caches.clear();
   g_arenas.clear();
+  g_layer_state.clear();  // leases first: they point into the store
+  g_layered_store.reset();
+  g_layered = false;
+  g_build_legacy_entries = true;
+  g_pool_of_table.clear();
+  g_slot_offset_of_table.clear();
+  g_role_bit_of_table.clear();
   g_specs.clear();
   g_contract_tensors.clear();
   g_contract_bounds.clear();
@@ -830,6 +1101,18 @@ void uninstall_moe_stream() {
 
 MoeStreamStats moe_stream_stats() {
   MoeStreamStats result = g_stats;
+  if (g_layered_store) {
+    const auto store_stats = g_layered_store->stats();
+    result.hits += store_stats.hits;
+    result.misses += store_stats.misses;
+    result.evictions += store_stats.evictions;
+    result.reads += store_stats.slice_reads;
+    result.read_bytes += store_stats.read_bytes;
+    result.pread_calls += store_stats.pread_calls;
+    result.pread_bytes += store_stats.pread_bytes;
+    result.read_seconds += store_stats.read_seconds;
+    result.resident_slots = g_layered_store->resident_slots();
+  }
   for (const auto& [key, cache] : g_caches) {
     (void)key;
     if (cache.store) {

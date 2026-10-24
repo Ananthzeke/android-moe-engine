@@ -31,7 +31,7 @@ add_library(ame_model STATIC src/model/file_extent.cpp src/model/expert_layout.c
 target_include_directories(ame_model PUBLIC src/model src/common)
 ame_project_target(ame_model)
 
-add_library(ame_residency STATIC src/residency/file_source.cpp src/residency/store.cpp)
+add_library(ame_residency STATIC src/residency/file_source.cpp src/residency/store.cpp src/residency/layered_store.cpp)
 target_include_directories(ame_residency PUBLIC src/residency src/model src/common)
 target_link_libraries(ame_residency PRIVATE ame_model)
 ame_project_target(ame_residency)
@@ -118,6 +118,10 @@ if(AME_INFERENCE_INTEGRATION)
   target_link_libraries(moe_recovery_gate PRIVATE ame_backend ame_prefill ame_crypto)
   ame_inference_target(moe_recovery_gate)
 
+  add_executable(moe_layered_gate bench/moe_layered_gate.cpp)
+  target_link_libraries(moe_layered_gate PRIVATE ame_backend ame_prefill ame_crypto)
+  ame_inference_target(moe_layered_gate)
+
   add_executable(moe_kernel_gate bench/moe_kernel_gate.cpp)
   target_link_libraries(moe_kernel_gate PRIVATE ame_residency)
   ame_inference_target(moe_kernel_gate)
@@ -174,6 +178,11 @@ if(BUILD_TESTING)
   target_link_libraries(residency_test PRIVATE ame_residency)
   ame_project_target(residency_test)
   add_test(NAME residency COMMAND residency_test)
+
+  add_executable(layered_store_test tests/layered_store_test.cpp)
+  target_link_libraries(layered_store_test PRIVATE ame_residency)
+  ame_project_target(layered_store_test)
+  add_test(NAME layered_store COMMAND layered_store_test)
 
   add_executable(compare_test tests/compare_test.cpp)
   target_link_libraries(compare_test PRIVATE ame_compare)

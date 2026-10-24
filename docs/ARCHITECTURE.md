@@ -298,3 +298,27 @@ cleanup. The loading listener
 has scope-owned stop/join on C++ failure paths. These changes do not alter model
 mathematics, routing, or the expert materializer contract. The enrolled 35B phone
 JSON/SSE smoke and its timing limits are recorded in [RUN_35B.md](RUN_35B.md).
+
+## Layered expert cache (Unit 4, 2026-10-24)
+
+`--cache layered` (adapter `CacheLayout::Layered`, `src/residency/layered_store`) replaces the
+shared (tensor, expert) pool with one pool per routed layer. A slot holds the gate, up and
+down slices of one expert contiguously, each role starting on a 64-byte boundary. The first
+routed tensor of a layer visit acquires every selected expert for all three roles; the other
+two roles find them leased. The staged tensor of each role is a view of the pool:
+`data = pool + role_offset`, `nb[2] = slot_bytes`, `ne[2] = slots_in_layer`. Patch 0001 reads
+`src0_eff->nb[2]`, so no backend change was needed; bit-exact results with F32, Q4_K and Q6_K
+experts are checked by `moe_layered_gate`. Eviction inside a pool is LRU (an intrusive recency
+list; the walk only passes pinned slots) or LFU with periodic halving and an LRU tie-break
+(`--eviction`). A slot is never evicted while pinned. `--cache legacy` keeps the previous design in
+the same binary so A/B runs differ only by flags.
+
+The layered cache refuses what it cannot express: a routed tensor that is not a separate gate,
+up or down tensor (for example a fused `gate_up`), roles with different expert counts, a pool
+below top-k, or an arena allowance that cannot hold one slot per layer. It never falls back to
+loading a full expert bank. `--arena-mib` is the allowance for arenas plus bookkeeping (slot
+records, expert tables, maps, scratch, frequency counters); the pool size is derived from it unless
+`--layer-slots` is given. `plan_model_prefill` uses the per-layer pool, so the prefill unit is
+`pool / top-k` tokens, capped by the 128-expert lease limit. `--fadvise-random` asks for no
+readahead on the read descriptor and `--fadvise-dontneed` drops each extent's page-cache pages after
+the copy, so the arena is the only copy; both are advisory.

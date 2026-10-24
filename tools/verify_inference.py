@@ -153,6 +153,19 @@ def gate_recovery(binary: Path, workdir: Path) -> dict[str, object]:
     return {"passed": True, "runs": cases}
 
 
+def gate_layered(binary: Path, workdir: Path) -> dict[str, object]:
+    workdir.mkdir(parents=True, exist_ok=True)
+    runs = []
+    for threads in (1, 2, 4):
+        result = run([str(binary), "--workdir", str(workdir / f"t{threads}"),
+                      "--threads", str(threads)], timeout=300)
+        payload = json.loads(result.stdout)
+        if payload.get("passed") is not True:
+            raise RuntimeError(f"layered gate failed with {threads} workers: {payload}")
+        runs.append({"threads": threads, **payload})
+    return {"passed": True, "runs": runs}
+
+
 def gate_quantized(binary: Path, workdir: Path) -> list[dict[str, object]]:
     checks: list[dict[str, object]] = []
     for type_name in ("q4_k", "q6_k"):
@@ -212,13 +225,15 @@ def gate_kernel(binary: Path, workdir: Path, output: Path) -> dict[str, object]:
             "all_identical": True}
 
 
-def gate_runner_boundaries(build_dir: Path, fixture: Path | None) -> dict[str, object]:
+def gate_runner_boundaries(build_dir: Path, fixture: Path | None,
+                           layered: Path | None = None) -> dict[str, object]:
     if fixture is None:
         return {"status": "not_run", "reason": "no --fixture-model or AME_FIXTURE_MODEL supplied"}
     result = run([sys.executable, str(ROOT / "tests" / "runner_boundaries_test.py"),
                   "--complete-runner", str(build_dir / "complete_runner"),
                   "--harness", str(build_dir / "llama_baseline_stream"),
-                  "--model", str(fixture)], timeout=600)
+                  "--model", str(fixture),
+                  *(["--layered-model", str(layered)] if layered else [])], timeout=600)
     return {"status": "passed", "returncode": result.returncode}
 
 
@@ -237,6 +252,7 @@ def build(config: str, source: Path, libs: Path, build_dir: Path) -> dict[str, o
     configured = run(configure, timeout=900)
     built = run(["cmake", "--build", str(build_dir), "--target",
                  "moe_stream_gate", "moe_stream_gate_broken", "moe_recovery_gate",
+                 "moe_layered_gate",
                  "moe_kernel_gate",
                  "moe_quantized_gate", "manifest_gate", "artifact_gate",
                  "complete_runner", "llama_baseline_stream"], timeout=1800)
@@ -261,6 +277,10 @@ def main() -> int:
                         default=Path(os.environ["AME_FIXTURE_MODEL"])
                         if os.environ.get("AME_FIXTURE_MODEL") else None,
                         help="tiny MoE GGUF for the runner boundary tests")
+    parser.add_argument("--layered-fixture-model", type=Path,
+                        default=Path(os.environ["AME_LAYERED_FIXTURE_MODEL"])
+                        if os.environ.get("AME_LAYERED_FIXTURE_MODEL") else None,
+                        help="tiny MoE with separate gate/up/down experts (qwen2moe)")
     parser.add_argument("--skip-sanitizers", action="store_true")
     args = parser.parse_args()
 
@@ -293,6 +313,8 @@ def main() -> int:
                                            build_dir / "gate-faults")
             record["recovery"] = gate_recovery(build_dir / "moe_recovery_gate",
                                                build_dir / "gate-recovery")
+            record["layered"] = gate_layered(build_dir / "moe_layered_gate",
+                                             build_dir / "gate-layered")
             record["quantized"] = gate_quantized(build_dir / "moe_quantized_gate",
                                                  build_dir / "gate-quantized")
             record["broken"] = gate_broken(build_dir / "moe_stream_gate_broken",
@@ -300,7 +322,8 @@ def main() -> int:
             record["kernel"] = gate_kernel(build_dir / "moe_kernel_gate",
                                             build_dir / "gate-kernel",
                                             build_dir / "gate-kernel" / "result.json")
-            record["runner_boundaries"] = gate_runner_boundaries(build_dir, args.fixture_model)
+            record["runner_boundaries"] = gate_runner_boundaries(build_dir, args.fixture_model,
+                                                             args.layered_fixture_model)
             manifest = run([sys.executable, str(ROOT / "tests" / "manifest_gate_test.py"),
                             "--binary", str(build_dir / "manifest_gate")], timeout=300)
             artifact = run([sys.executable, str(ROOT / "tests" / "artifact_gate_test.py"),

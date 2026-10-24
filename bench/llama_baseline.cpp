@@ -281,6 +281,7 @@ struct Options {
   std::string manifest;
   std::uint32_t moe_slots = 64;
   std::uint32_t moe_arena_mib = 512;
+  ame::backend::StreamOptions stream_options;
 };
 
 struct ParseResult {
@@ -330,6 +331,37 @@ ParseResult parse_options(int argc, char* argv[], Options& options) {
     }
     if (argument == "--stream") {
       options.stream = true;
+      continue;
+    }
+    if (argument == "--fadvise-random") {
+      options.stream_options.fadvise_random = true;
+      continue;
+    }
+    if (argument == "--fadvise-dontneed") {
+      options.stream_options.fadvise_dontneed = true;
+      continue;
+    }
+    if ((argument == "--cache" || argument == "--eviction" || argument == "--layer-slots" ||
+         argument == "--lfu-halve") &&
+        index + 1 < argc) {
+      const std::string_view text = argv[++index];
+      if (argument == "--cache" && (text == "legacy" || text == "layered")) {
+        options.stream_options.layout = text == "layered" ? ame::backend::CacheLayout::Layered
+                                                          : ame::backend::CacheLayout::Legacy;
+      } else if (argument == "--eviction" && (text == "lru" || text == "lfu")) {
+        options.stream_options.eviction =
+            text == "lfu" ? ame::backend::Eviction::Lfu : ame::backend::Eviction::Lru;
+      } else if (argument == "--layer-slots" || argument == "--lfu-halve") {
+        std::uint32_t number = 0;
+        const auto parsed = std::from_chars(text.data(), text.data() + text.size(), number);
+        if (parsed.ec != std::errc{} || parsed.ptr != text.data() + text.size()) {
+          return {false, "Invalid number for " + std::string(argument)};
+        }
+        (argument == "--layer-slots" ? options.stream_options.layer_slots
+                                     : options.stream_options.lfu_halve_every) = number;
+      } else {
+        return {false, "Invalid value for " + std::string(argument)};
+      }
       continue;
     }
     if (argument == "--help") {
@@ -557,7 +589,9 @@ int main(int argc, char* argv[]) {
                    "       [--top-p F] [--no-mmap] [--artifact-sha HEX] [--output PATH]\n"
                    "       [--backend-commit SHA] [--binary-sha HEX] [--run-id ID]\n"
                    "       [--tag TAG] [--no-prompt-text] [--stream --manifest PATH]\n"
-                   "       [--moe-slots N] [--moe-arena-mib N]\n"
+                   "       [--moe-slots N] [--moe-arena-mib N] [--cache legacy|layered]\n"
+                   "       [--eviction lru|lfu] [--layer-slots N] [--lfu-halve N]\n"
+                   "       [--fadvise-random] [--fadvise-dontneed]\n"
                    "       [--cancel-after-ms N]\n";
       return 0;
     }
@@ -663,7 +697,7 @@ int main(int argc, char* argv[]) {
     const std::uint64_t arena_bytes =
         static_cast<std::uint64_t>(options.moe_arena_mib) * 1024ULL * 1024ULL;
     if (!ame::backend::install_moe_stream(*artifact, options.manifest, options.moe_slots,
-                                          arena_bytes)) {
+                                          arena_bytes, options.stream_options)) {
       const auto stats = ame::backend::moe_stream_stats();
       std::cerr << "moe stream install failed: " << stats.error << '\n';
       (void)emit_status(options, "failed", "manifest_layout", stats.error);
@@ -1176,8 +1210,24 @@ int main(int argc, char* argv[]) {
   }
   json.key("slots");
   json.unsigned_value(stream_stats.slots);
+  json.key("cache_layout");
+  json.string_value(stream_stats.layered ? "layered" : "legacy");
+  json.key("eviction");
+  json.string_value(options.stream_options.eviction == ame::backend::Eviction::Lfu ? "lfu" : "lru");
+  json.key("layer_slots");
+  json.unsigned_value(stream_stats.layer_slots);
+  json.key("fadvise_random");
+  json.bool_value(options.stream_options.fadvise_random);
+  json.key("fadvise_dontneed");
+  json.bool_value(options.stream_options.fadvise_dontneed);
   json.key("arena_bytes");
   json.unsigned_value(stream_stats.arena_bytes);
+  json.key("cache_metadata_bytes");
+  json.unsigned_value(stream_stats.cache_metadata_bytes);
+  json.key("pread_calls");
+  json.unsigned_value(stream_stats.pread_calls);
+  json.key("pread_bytes");
+  json.unsigned_value(stream_stats.pread_bytes);
   json.key("materialize_calls");
   json.unsigned_value(stream_stats.materialize_calls);
   json.key("tensor_switches");
