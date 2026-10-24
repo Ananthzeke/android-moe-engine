@@ -199,6 +199,16 @@ def gate_kernel(binary: Path, workdir: Path, output: Path) -> dict[str, object]:
             "all_identical": True}
 
 
+def gate_runner_boundaries(build_dir: Path, fixture: Path | None) -> dict[str, object]:
+    if fixture is None:
+        return {"status": "not_run", "reason": "no --fixture-model or AME_FIXTURE_MODEL supplied"}
+    result = run([sys.executable, str(ROOT / "tests" / "runner_boundaries_test.py"),
+                  "--complete-runner", str(build_dir / "complete_runner"),
+                  "--harness", str(build_dir / "llama_baseline_stream"),
+                  "--model", str(fixture)], timeout=600)
+    return {"status": "passed", "returncode": result.returncode}
+
+
 def build(config: str, source: Path, libs: Path, build_dir: Path) -> dict[str, object]:
     shutil.rmtree(build_dir, ignore_errors=True)
     configure = [
@@ -233,6 +243,10 @@ def main() -> int:
     parser.add_argument("--configs", default="debug,release,sanitizers")
     parser.add_argument("--evidence", type=Path,
                         default=ROOT / "evidence" / "hardening" / "gate1-integration.json")
+    parser.add_argument("--fixture-model", type=Path,
+                        default=Path(os.environ["AME_FIXTURE_MODEL"])
+                        if os.environ.get("AME_FIXTURE_MODEL") else None,
+                        help="tiny MoE GGUF for the runner boundary tests")
     parser.add_argument("--skip-sanitizers", action="store_true")
     args = parser.parse_args()
 
@@ -270,6 +284,7 @@ def main() -> int:
             record["kernel"] = gate_kernel(build_dir / "moe_kernel_gate",
                                             build_dir / "gate-kernel",
                                             build_dir / "gate-kernel" / "result.json")
+            record["runner_boundaries"] = gate_runner_boundaries(build_dir, args.fixture_model)
             manifest = run([sys.executable, str(ROOT / "tests" / "manifest_gate_test.py"),
                             "--binary", str(build_dir / "manifest_gate")], timeout=300)
             artifact = run([sys.executable, str(ROOT / "tests" / "artifact_gate_test.py"),

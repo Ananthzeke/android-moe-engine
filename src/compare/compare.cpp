@@ -625,6 +625,7 @@ std::string to_json(const Comparison& comparison) {
   write_metrics(output, comparison.a);
   output += ",\n    \"right\": ";
   write_metrics(output, comparison.b);
+  output += "\n  },\n";
   const bool compatible = comparison.same_status && comparison.same_artifact &&
                           comparison.same_file_bytes && comparison.same_settings &&
                           comparison.same_prompt_tokens && comparison.same_output_tokens &&

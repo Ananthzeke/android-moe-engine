@@ -8,6 +8,7 @@
 #include <iostream>
 #include <string>
 #include <string_view>
+#include <thread>
 
 namespace {
 int failures = 0;
@@ -16,6 +17,24 @@ void expect(bool condition, std::string_view message) {
     std::cerr << "Run supervisor test failure: " << message << '\n';
     ++failures;
   }
+}
+
+// A process is gone when it has no /proc entry or is a zombie awaiting a reaper.
+bool process_stopped(long pid) {
+  std::ifstream stat("/proc/" + std::to_string(pid) + "/stat");
+  std::string line;
+  if (!std::getline(stat, line)) {
+    return true;
+  }
+  const auto close = line.rfind(')');
+  return close != std::string::npos && close + 2 < line.size() && line[close + 2] == 'Z';
+}
+
+long read_pid(const std::filesystem::path& path) {
+  std::ifstream stream(path);
+  long pid = 0;
+  stream >> pid;
+  return pid;
 }
 }  // namespace
 
@@ -83,6 +102,54 @@ int main() {
   const auto exists_result = ame::runtime::supervise(exists);
   expect(!exists_result.ok() && exists_result.error() == ame::runtime::RunError::RecordExists,
          "existing record rejected");
+
+  // A TERM-ignoring descendant must not outlive a timed-out run.
+  ame::runtime::RunOptions descendant;
+  descendant.runner = "/bin/sh";
+  descendant.run_dir = root / "descendant-timeout";
+  descendant.timeout_seconds = 1;
+  const auto timeout_pid_file = root / "timeout.pid";
+  descendant.arguments = {
+      "-c", "(trap '' TERM; exec sleep 30) & echo $! > " + timeout_pid_file.string() + "; wait"};
+  const auto descendant_result = ame::runtime::supervise(descendant);
+  expect(descendant_result.ok() && descendant_result.value().timed_out,
+         "descendant timeout returns a record");
+  const long timeout_child = read_pid(timeout_pid_file);
+  expect(timeout_child > 0, "descendant pid recorded");
+  expect(timeout_child > 0 && process_stopped(timeout_child), "timeout drains descendants");
+  if (descendant_result.ok()) {
+    expect(descendant_result.value().descendants_killed, "timeout reports killed descendants");
+  }
+
+  // A leader that exits while a descendant keeps running leaves nothing behind.
+  ame::runtime::RunOptions orphan;
+  orphan.runner = "/bin/sh";
+  orphan.run_dir = root / "descendant-exit";
+  orphan.timeout_seconds = 5;
+  const auto exit_pid_file = root / "exit.pid";
+  orphan.arguments = {"-c", "(trap '' TERM; exec sleep 30) & echo $! > " + exit_pid_file.string()};
+  const auto orphan_result = ame::runtime::supervise(orphan);
+  expect(orphan_result.ok() && orphan_result.value().status == "exited" &&
+             orphan_result.value().exit_code == 0,
+         "leader exit status is preserved");
+  const long exit_child = read_pid(exit_pid_file);
+  expect(exit_child > 0 && process_stopped(exit_child), "normal exit drains descendants");
+  expect(orphan_result.ok() && orphan_result.value().descendants_killed,
+         "normal exit reports killed descendants");
+
+  // With SIGCHLD ignored the kernel discards exit status; that is unknown, not success.
+  ame::runtime::RunOptions ignored;
+  ignored.runner = "/bin/sh";
+  ignored.run_dir = root / "ignored-sigchld";
+  ignored.timeout_seconds = 5;
+  ignored.arguments = {"-c", "exit 3"};
+  const auto previous = std::signal(SIGCHLD, SIG_IGN);
+  const auto ignored_result = ame::runtime::supervise(ignored);
+  std::signal(SIGCHLD, previous);
+  expect(ignored_result.ok() && ignored_result.value().status == "unknown",
+         "discarded child status is unknown");
+  expect(ignored_result.ok() && ignored_result.value().exit_code != 0,
+         "discarded child status is never reported as exit zero");
 
   std::filesystem::remove_all(root);
   return failures == 0 ? 0 : 1;

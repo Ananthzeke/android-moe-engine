@@ -18,10 +18,11 @@ struct RunOptions {
 };
 
 struct RunResult {
-  std::string status;  // exited, timeout, signaled
+  std::string status;  // exited, timeout, signaled, unknown
   int exit_code{-1};
   int signal{0};
   bool timed_out{false};
+  bool descendants_killed{false};
   double duration_seconds{0.0};
   std::string started_at;
   std::string ended_at;

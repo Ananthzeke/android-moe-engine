@@ -1,18 +1,8 @@
 #!/usr/bin/env python3
 """Execute the production harness, not complete_runner, and compare its result."""
-import argparse, hashlib, json, os, pathlib, struct, subprocess, sys
+import argparse, hashlib, json, os, pathlib, subprocess, sys
 
-def read_logits(path):
-    data = pathlib.Path(path).read_bytes(); off = 0
-    n = struct.unpack_from("<Q", data, off)[0]; off += 8; rows = []
-    for _ in range(n):
-        w = struct.unpack_from("<Q", data, off)[0]; off += 8
-        rows.append(data[off:off+4*w]); off += 4*w
-    return rows
-
-def read_tokens(path):
-    data = pathlib.Path(path).read_bytes(); n = struct.unpack_from("<Q", data, 0)[0]
-    return list(struct.unpack_from("<%di" % n, data, 8))
+from logit_io import FormatError, count_mismatched_floats, read_logits, read_tokens
 
 def main() -> int:
     p = argparse.ArgumentParser()
@@ -59,13 +49,20 @@ def main() -> int:
                              text=True, capture_output=True)
         if ref.returncode != 0:
             raise SystemExit(f"reference failed {case['name']}: {ref.stderr[-400:]}")
-        ref_ids = read_tokens(ref_tokens); harness_ids = h["output"]["token_ids"]
+        try:
+            ref_ids = read_tokens(ref_tokens)
+            lhs, rhs = read_logits(logits), read_logits(ref_logits)
+            # harness rows are prefill-chunk last rows + generated rows.
+            ref_rows = rhs[len(prompt_ids)-1:]
+            count_mismatched_floats(lhs, ref_rows)
+        except FormatError as error:
+            raise SystemExit(f"invalid output for {case['name']}: {error}")
+        harness_ids = h["output"]["token_ids"]
         if ref_ids != harness_ids:
             raise SystemExit(f"token mismatch {case['name']}: {harness_ids} != {ref_ids}")
-        lhs, rhs = read_logits(logits), read_logits(ref_logits)
-        # harness rows are prefill-chunk last rows + generated rows.
-        ref_rows = rhs[len(prompt_ids)-1:]
-        logits_equal = len(lhs) == len(ref_rows) and all(x == y for x, y in zip(lhs, ref_rows))
+        logits_equal = lhs == ref_rows
+        if not logits_equal:
+            raise SystemExit(f"logit mismatch {case['name']}")
         row = {"name": case["name"], "requested_batch": 64, "admitted": admitted,
                "effective": effective, "tokens": harness_ids,
                "logits_equal": logits_equal, "status": h["status"]}

@@ -132,6 +132,11 @@ int main(int argc, char* argv[]) {
     std::cerr << "usage: complete_runner --model PATH --prompt-ids N,N --output PATH\n";
     return 2;
   }
+  if (options.context == 0 || options.batch == 0 || options.ubatch == 0 ||
+      options.batch > static_cast<std::uint32_t>(INT32_MAX)) {
+    std::cerr << "--context, --batch, and --ubatch must be positive\n";
+    return 2;
+  }
 
   llama_backend_init();
   std::string model_path = options.model;
@@ -166,6 +171,9 @@ int main(int argc, char* argv[]) {
 
   llama_model_params model_params = llama_model_default_params();
   model_params.n_gpu_layers = 0;
+  // Repacked extra buffers can run expert operations before the materializer sees them.
+  // Pristine and streamed runs both disable them so the compared schedules stay identical.
+  model_params.use_extra_bufts = false;
   llama_model* model = llama_model_load_from_file(model_path.c_str(), model_params);
   if (model == nullptr) {
     std::cerr << "load failed\n";
@@ -225,34 +233,41 @@ int main(int argc, char* argv[]) {
   std::vector<std::vector<float>> logits;
   std::vector<std::int32_t> generated;
   llama_batch batch = llama_batch_init(static_cast<std::int32_t>(options.batch), 0, 1);
+  // Splits ids into chunks of at most options.batch tokens, the capacity of `batch`.
+  // all_logits collects one row per input token; otherwise only the final row is kept.
   auto decode_batch = [&](const std::vector<std::int32_t>& ids, std::int32_t position,
                           bool all_logits) -> bool {
-    batch.n_tokens = 0;
-    for (std::size_t index = 0; index < ids.size(); ++index) {
-      batch.token[batch.n_tokens] = ids[index];
-      batch.pos[batch.n_tokens] = position + static_cast<std::int32_t>(index);
-      batch.n_seq_id[batch.n_tokens] = 1;
-      batch.seq_id[batch.n_tokens][0] = 0;
-      batch.logits[batch.n_tokens] = (all_logits || index + 1 == ids.size()) ? 1 : 0;
-      ++batch.n_tokens;
-    }
-    if (llama_decode(context, batch) != 0) {
-      return false;
-    }
-    if (all_logits) {
-      for (std::int32_t index = 0; index < batch.n_tokens; ++index) {
-        const float* row = llama_get_logits_ith(context, index);
+    for (std::size_t offset = 0; offset < ids.size(); offset += options.batch) {
+      const std::size_t count = std::min<std::size_t>(options.batch, ids.size() - offset);
+      const bool last_chunk = offset + count == ids.size();
+      batch.n_tokens = 0;
+      for (std::size_t chunk_index = 0; chunk_index < count; ++chunk_index) {
+        const std::size_t index = offset + chunk_index;
+        batch.token[batch.n_tokens] = ids[index];
+        batch.pos[batch.n_tokens] = position + static_cast<std::int32_t>(index);
+        batch.n_seq_id[batch.n_tokens] = 1;
+        batch.seq_id[batch.n_tokens][0] = 0;
+        batch.logits[batch.n_tokens] = (all_logits || index + 1 == ids.size()) ? 1 : 0;
+        ++batch.n_tokens;
+      }
+      if (llama_decode(context, batch) != 0) {
+        return false;
+      }
+      if (all_logits) {
+        for (std::int32_t index = 0; index < batch.n_tokens; ++index) {
+          const float* row = llama_get_logits_ith(context, index);
+          if (row == nullptr) {
+            return false;
+          }
+          logits.emplace_back(row, row + n_vocab);
+        }
+      } else if (last_chunk) {
+        const float* row = llama_get_logits_ith(context, batch.n_tokens - 1);
         if (row == nullptr) {
           return false;
         }
         logits.emplace_back(row, row + n_vocab);
       }
-    } else {
-      const float* row = llama_get_logits_ith(context, batch.n_tokens - 1);
-      if (row == nullptr) {
-        return false;
-      }
-      logits.emplace_back(row, row + n_vocab);
     }
     return true;
   };
@@ -302,6 +317,21 @@ int main(int argc, char* argv[]) {
     }
   }
 
+#ifdef AME_STREAMING
+  {
+    // A streamed run that never staged an expert would compare unmodified dispatch.
+    const auto stats = ame::backend::moe_stream_stats();
+    if (stats.contract_routed > 0 && stats.materialize_calls == 0) {
+      std::cerr << "streaming staged no experts; materializer was bypassed\n";
+      llama_batch_free(batch);
+      llama_free(context);
+      llama_model_free(model);
+      ame::backend::uninstall_moe_stream();
+      llama_backend_free();
+      return 1;
+    }
+  }
+#endif
   if (!write_logits(options.output, logits)) {
     std::cerr << "cannot write logits\n";
     return 1;
