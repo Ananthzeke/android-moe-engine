@@ -120,7 +120,10 @@ time.
 
 ## Cache layout flags
 
-`--cache legacy|layered` selects the expert cache (default `legacy`). Layered mode also takes
+`--cache legacy|layered` selects the expert cache (the server's default is `legacy`; the phone launcher
+`deploy/phone/start-35b.sh` starts the layered cache with 32 slots per layer and a 2,200 MiB allowance,
+which needs about 3.6 GB of `MemAvailable` after start; `AME_CACHE=legacy` restores the 64-slot cache.
+Measured effect: [Unit 4 evidence](../evidence/core-opt/unit4/README.md)). Layered mode also takes
 `--eviction lru|lfu`, `--layer-slots N` (zero derives the pool from `--arena-mib`), `--lfu-halve N`,
 `--fadvise-random`, `--fadvise-dontneed`, `--readers 1-4` (reader threads, both layouts) and
 `--reader-cpus auto|none` (pin readers off the big cores), `--overlap topk|off` (layered cache:

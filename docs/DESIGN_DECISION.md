@@ -158,7 +158,12 @@ The layered cache is built for what partitioning does buy: one reservation and o
 layer visit (three slices per expert), no cross-layer eviction, a pool that can be sized per layer, and
 an arena that can be the only cache when the kernel is told to drop its copy. Per-layer LRU is the
 default policy; LFU stays behind a flag. The phone A/B that decides the default layout is in
-`evidence/core-opt/unit4/`. The shipped layout stays the default until that gate is met.
+`evidence/core-opt/unit4/`: with 32 slots per layer (2.26 GB), LRU, and the kernel told to drop its
+copy, requests were 28 to 40% faster than the shipped cache with identical token IDs in 25 trials, outside
+the run-to-run spread; with 16 slots per layer the gain was mixed (faster prefill, slower decode) and
+keeping the kernel's copy was 8% slower. The phone launcher defaults to the 32-slot layered cache; the
+server binary keeps the shipped cache as its default because 2.2 GB is not a safe default for an unknown
+device.
 
 ## Overlap through the eval callback, not a graph-level remap (2026-10-25)
 

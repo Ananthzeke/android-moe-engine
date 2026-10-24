@@ -1,0 +1,320 @@
+{
+  "request": {
+    "model": "Qwen3.6-35B-A3B",
+    "temperature": 0,
+    "ame_debug": true,
+    "messages": [
+      {
+        "role": "user",
+        "content": "Say hello in one short sentence. Answer directly without reasoning."
+      }
+    ],
+    "max_tokens": 8
+  },
+  "http_status": 200,
+  "client_seconds": 43.15932730699569,
+  "response": {
+    "ame": {
+      "big_cores": {
+        "cpus": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "discovery_reason": null,
+        "homogeneous": false
+      },
+      "completion_tokens": 2,
+      "decode_step_seconds": [
+        1.719811926,
+        1.56713427
+      ],
+      "ended_with_eog": true,
+      "error": null,
+      "finish_reason": "stop",
+      "finished_at": "2026-10-24T20:26:31Z",
+      "phases": [
+        {
+          "big_core_khz_end": [
+            {
+              "cpu": 4,
+              "khz": 2016000
+            },
+            {
+              "cpu": 5,
+              "khz": 2016000
+            },
+            {
+              "cpu": 6,
+              "khz": 2016000
+            },
+            {
+              "cpu": 7,
+              "khz": 2016000
+            }
+          ],
+          "big_core_khz_start": [
+            {
+              "cpu": 4,
+              "khz": 1056000
+            },
+            {
+              "cpu": 5,
+              "khz": 1056000
+            },
+            {
+              "cpu": 6,
+              "khz": 1056000
+            },
+            {
+              "cpu": 7,
+              "khz": 1056000
+            }
+          ],
+          "expert_delta": {
+            "expert_bytes": 0,
+            "expert_reads": 0,
+            "hits": 0,
+            "misses": 0,
+            "pread_bytes": 0,
+            "pread_calls": 0,
+            "read_seconds": 0.0
+          },
+          "name": "context_create",
+          "proc_delta": {
+            "majflt": 2,
+            "pswpin": 3,
+            "rchar": 2899,
+            "read_bytes": 0
+          },
+          "seconds": 0.11937427
+        },
+        {
+          "big_core_khz_end": [
+            {
+              "cpu": 4,
+              "khz": 2016000
+            },
+            {
+              "cpu": 5,
+              "khz": 2016000
+            },
+            {
+              "cpu": 6,
+              "khz": 2016000
+            },
+            {
+              "cpu": 7,
+              "khz": 2016000
+            }
+          ],
+          "big_core_khz_start": [
+            {
+              "cpu": 4,
+              "khz": 2016000
+            },
+            {
+              "cpu": 5,
+              "khz": 2016000
+            },
+            {
+              "cpu": 6,
+              "khz": 2016000
+            },
+            {
+              "cpu": 7,
+              "khz": 2016000
+            }
+          ],
+          "expert_delta": {
+            "expert_bytes": 5083693056,
+            "expert_reads": 8619,
+            "hits": 1872,
+            "misses": 2873,
+            "pread_bytes": 5083693056,
+            "pread_calls": 8619,
+            "read_seconds": 29.71215959199982
+          },
+          "name": "prefill",
+          "proc_delta": {
+            "majflt": 696,
+            "pswpin": 41647,
+            "rchar": 5083695954,
+            "read_bytes": 5906067456
+          },
+          "seconds": 39.672969724
+        },
+        {
+          "big_core_khz_end": [
+            {
+              "cpu": 4,
+              "khz": 2016000
+            },
+            {
+              "cpu": 5,
+              "khz": 2016000
+            },
+            {
+              "cpu": 6,
+              "khz": 2016000
+            },
+            {
+              "cpu": 7,
+              "khz": 2016000
+            }
+          ],
+          "big_core_khz_start": [
+            {
+              "cpu": 4,
+              "khz": 2016000
+            },
+            {
+              "cpu": 5,
+              "khz": 2016000
+            },
+            {
+              "cpu": 6,
+              "khz": 2016000
+            },
+            {
+              "cpu": 7,
+              "khz": 2016000
+            }
+          ],
+          "expert_delta": {
+            "expert_bytes": 359202816,
+            "expert_reads": 609,
+            "hits": 437,
+            "misses": 203,
+            "pread_bytes": 359202816,
+            "pread_calls": 609,
+            "read_seconds": 1.9462194849999825
+          },
+          "name": "decode",
+          "proc_delta": {
+            "majflt": 27,
+            "pswpin": 2500,
+            "rchar": 359205718,
+            "read_bytes": 357720064
+          },
+          "seconds": 3.307016561
+        },
+        {
+          "big_core_khz_end": [
+            {
+              "cpu": 4,
+              "khz": 2016000
+            },
+            {
+              "cpu": 5,
+              "khz": 2016000
+            },
+            {
+              "cpu": 6,
+              "khz": 2016000
+            },
+            {
+              "cpu": 7,
+              "khz": 2016000
+            }
+          ],
+          "big_core_khz_start": [
+            {
+              "cpu": 4,
+              "khz": 2016000
+            },
+            {
+              "cpu": 5,
+              "khz": 2016000
+            },
+            {
+              "cpu": 6,
+              "khz": 2016000
+            },
+            {
+              "cpu": 7,
+              "khz": 2016000
+            }
+          ],
+          "expert_delta": {
+            "expert_bytes": 0,
+            "expert_reads": 0,
+            "hits": 0,
+            "misses": 0,
+            "pread_bytes": 0,
+            "pread_calls": 0,
+            "read_seconds": 0.0
+          },
+          "name": "context_teardown",
+          "proc_delta": {
+            "majflt": 25,
+            "pswpin": 57,
+            "rchar": 2902,
+            "read_bytes": 348160
+          },
+          "seconds": 0.029607708
+        }
+      ],
+      "prompt_token_ids": [
+        248045,
+        846,
+        198,
+        44240,
+        23066,
+        303,
+        799,
+        2716,
+        11316,
+        13,
+        21134,
+        5774,
+        1973,
+        31626,
+        13,
+        248046,
+        198,
+        248045,
+        74455,
+        198,
+        248068,
+        271,
+        248069,
+        271
+      ],
+      "prompt_tokens": 24,
+      "queue_wait_seconds": 6.354e-06,
+      "request_id": "chatcmpl-26139-0",
+      "schema_version": 1,
+      "status": "completed",
+      "token_ids": [
+        9419,
+        0,
+        248046
+      ],
+      "total_seconds": 43.134333161,
+      "ttft_seconds": 39.810232485,
+      "type": "request",
+      "unavailable": []
+    },
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "message": {
+          "content": "Hello!",
+          "role": "assistant"
+        }
+      }
+    ],
+    "created": 1792873591,
+    "id": "chatcmpl-26139-0",
+    "model": "Qwen3.6-35B-A3B",
+    "object": "chat.completion",
+    "usage": {
+      "completion_tokens": 2,
+      "prompt_tokens": 24,
+      "total_tokens": 26
+    }
+  }
+}

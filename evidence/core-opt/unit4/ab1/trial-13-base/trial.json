@@ -1,0 +1,22 @@
+{
+  "trial": 13,
+  "variant": "base",
+  "args": "--cache legacy --slots 64 --arena-mib 256",
+  "failed": null,
+  "pid": "24846",
+  "ready_wait_seconds": 175.7140222099988,
+  "requests": [
+    {
+      "kind": "short",
+      "http_status": 200,
+      "client_seconds": 57.24188466399937,
+      "ok": true
+    },
+    {
+      "kind": "long",
+      "http_status": 200,
+      "client_seconds": 122.34868483799801,
+      "ok": true
+    }
+  ]
+}
