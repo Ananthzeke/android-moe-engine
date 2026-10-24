@@ -13,6 +13,7 @@
 #include <ctime>
 #include <filesystem>
 #include <limits>
+#include <sstream>
 #include <string>
 #include <system_error>
 #include <variant>
@@ -334,6 +335,54 @@ void observe_cpu(const ObservationPaths& paths, CpuSnapshot& cpu, std::vector<Un
   }
 }
 
+// The mount whose mount point is the longest prefix of `path` names the filesystem; its type
+// selects /sys/fs/<type>/features/verity. Read-only; unavailable data is reported, not guessed.
+void observe_verity(const ObservationPaths& paths, StorageSnapshot& storage,
+                    std::vector<Unavailable>& list) {
+  const auto mounts =
+      read_text(under_root(paths.root, "proc/self/mounts"), list, "storage.filesystem");
+  if (!mounts.has_value()) {
+    return;
+  }
+  std::istringstream lines(*mounts);
+  std::string line;
+  std::size_t best = 0;
+  std::string type;
+  while (std::getline(lines, line)) {
+    std::istringstream fields(line);
+    std::string device, point, fstype;
+    if (!(fields >> device >> point >> fstype)) continue;
+    const bool prefix =
+        storage.path.compare(0, point.size(), point) == 0 &&
+        (point == "/" || storage.path.size() == point.size() || storage.path[point.size()] == '/');
+    if (prefix && point.size() >= best) {
+      best = point.size();
+      type = fstype;
+    }
+  }
+  if (type.empty()) {
+    note(list, "storage.filesystem", "no_matching_mount");
+    return;
+  }
+  storage.filesystem = type;
+  const std::string features = under_root(paths.root, "sys/fs/" + type + "/features");
+  std::error_code error;
+  const bool directory = std::filesystem::is_directory(features, error);
+  if (error) {
+    note(list, "storage.verity_advertised", "unreadable_feature_directory:" + error.message());
+    return;
+  }
+  if (!directory) {
+    note(list, "storage.verity_advertised", "no_feature_directory_for_" + type);
+    return;
+  }
+  storage.verity_advertised = std::filesystem::exists(features + "/verity", error);
+  if (error) {
+    storage.verity_advertised.reset();
+    note(list, "storage.verity_advertised", "unreadable_feature_file:" + error.message());
+  }
+}
+
 void observe_storage(const ObservationPaths& paths, StorageSnapshot& storage,
                      std::vector<Unavailable>& list) {
   storage.path = paths.storage_path.empty() ? std::string("/") : paths.storage_path;
@@ -360,6 +409,7 @@ void observe_storage(const ObservationPaths& paths, StorageSnapshot& storage,
   } else {
     note(list, "storage.free_bytes", "arithmetic_overflow");
   }
+  observe_verity(paths, storage, list);
 }
 
 void observe_os(OsSnapshot& os, std::vector<Unavailable>& list) {
@@ -740,6 +790,14 @@ std::string to_json(const Snapshot& snapshot) {
   write_optional_unsigned(json, snapshot.storage.free_bytes);
   json.key("fragment_size_bytes");
   write_optional_unsigned(json, snapshot.storage.fragment_size_bytes);
+  json.key("filesystem");
+  write_optional_string(json, snapshot.storage.filesystem);
+  json.key("verity_advertised");
+  if (snapshot.storage.verity_advertised.has_value()) {
+    json.bool_value(*snapshot.storage.verity_advertised);
+  } else {
+    json.null_value();
+  }
   json.end_object();
 
   json.key("process");

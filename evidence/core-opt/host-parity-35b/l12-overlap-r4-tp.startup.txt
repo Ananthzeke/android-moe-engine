@@ -1,0 +1,3 @@
+artifact_hash_seconds=101.978 artifact_bytes=20419565568
+startup_record={"artifact_hash_seconds":101.978076342,"big_cores":{"cpus":[0,1,2,3,4,5,6,7,8,9,10,11],"discovery_reason":null,"homogeneous":true},"finished_at":"2026-10-24T19:23:49Z","first_ready_seconds":102.633009961,"manifest_validation_seconds":0.000502314,"overlap":"topk","poll":0,"readers":4,"
+server ready on http://127.0.0.1:8090 model=Qwen3.6-35B-A3B

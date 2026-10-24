@@ -1,0 +1,5169 @@
+{
+  "schema_version": 1,
+  "gate": "gate1_inference_integration",
+  "llama": {
+    "head": "ff5a23376725e5a889fa0bfb987b7541dc304da0",
+    "diff_sha256": "929ccd6d01fee3ede50b69b9bcd1229b2210a0b7dafba0c2973344fa061a9b3c",
+    "patch_sha256": "929ccd6d01fee3ede50b69b9bcd1229b2210a0b7dafba0c2973344fa061a9b3c",
+    "source": "/media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp"
+  },
+  "libs": "/media/ananth/17AB9D0651C6CC1F/ame-tools/build/llama-host",
+  "configs": {
+    "debug": {
+      "build": {
+        "configure_returncode": 0,
+        "build_returncode": 0,
+        "configure_tail": "-- The CXX compiler identification is GNU 11.4.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD\n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success\n-- Found Threads: TRUE\n-- Configuring done (0.3s)\n-- Generating done (0.0s)\n-- Build files have been written to: /home/ananth/Documents/ChatGPT/Custom OS/build/inference-debug\n",
+        "build_tail": "ibrary libame_prefill.a\n[7/38] Linking CXX static library libame_crypto.a\n[8/38] Building CXX object CMakeFiles/ame_backend.dir/src/backend/artifact.cpp.o\n[9/38] Building CXX object CMakeFiles/ame_residency.dir/src/residency/file_source.cpp.o\n[10/38] Building CXX object CMakeFiles/ame_backend_broken.dir/src/backend/artifact.cpp.o\n[11/38] Building CXX object CMakeFiles/ame_residency.dir/src/residency/reader_pool.cpp.o\n[12/38] Building CXX object CMakeFiles/moe_stream_gate.dir/bench/moe_stream_gate.cpp.o\n[13/38] Building CXX object CMakeFiles/moe_recovery_gate.dir/bench/moe_recovery_gate.cpp.o\n[14/38] Building CXX object CMakeFiles/moe_stream_gate_broken.dir/bench/moe_stream_gate.cpp.o\n[15/38] Building CXX object CMakeFiles/ame_residency.dir/src/residency/store.cpp.o\n[16/38] Building CXX object CMakeFiles/moe_layered_gate.dir/bench/moe_layered_gate.cpp.o\n[17/38] Building CXX object CMakeFiles/manifest_gate.dir/bench/manifest_gate.cpp.o\n[18/38] Building CXX object CMakeFiles/ame_residency.dir/src/residency/layered_store.cpp.o\n[19/38] Linking CXX static library libame_residency.a\n[20/38] Building CXX object CMakeFiles/artifact_gate.dir/bench/artifact_gate.cpp.o\n[21/38] Building CXX object CMakeFiles/complete_runner.dir/bench/complete_runner.cpp.o\n[22/38] Building CXX object CMakeFiles/moe_kernel_gate.dir/bench/moe_kernel_gate.cpp.o\n[23/38] Building CXX object CMakeFiles/moe_quantized_gate.dir/bench/moe_quantized_gate.cpp.o\n[24/38] Linking CXX executable moe_kernel_gate\n[25/38] Linking CXX executable moe_quantized_gate\n[26/38] Building CXX object CMakeFiles/llama_baseline_stream.dir/bench/llama_baseline.cpp.o\n[27/38] Building CXX object CMakeFiles/ame_backend.dir/src/backend/moe_stream.cpp.o\nIn file included from /media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-graph.h:6,\n                 from /media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-model.h:5,\n                 from /home/ananth/Documents/ChatGPT/Custom OS/src/backend/moe_stream.cpp:8:\n/media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-adapter.h: In member function \u2018uint32_t llama_adapter_lora::get_n_nodes() const\u2019:\n/media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-adapter.h:86:30: warning: conversion from \u2018std::unordered_map<std::__cxx11::basic_string<char>, llama_adapter_lora_weight>::size_type\u2019 {aka \u2018long unsigned int\u2019} to \u2018uint32_t\u2019 {aka \u2018unsigned int\u2019} may change value [-Wconversion]\n   86 |         return ab_map.size() * 6u; // a, b, scale, add, 2 x mul_mat\n      |                ~~~~~~~~~~~~~~^~~~\n[28/38] Linking CXX static library libame_backend.a\n[29/38] Building CXX object CMakeFiles/ame_backend_broken.dir/src/backend/moe_stream.cpp.o\nIn file included from /media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-graph.h:6,\n                 from /media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-model.h:5,\n                 from /home/ananth/Documents/ChatGPT/Custom OS/src/backend/moe_stream.cpp:8:\n/media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-adapter.h: In member function \u2018uint32_t llama_adapter_lora::get_n_nodes() const\u2019:\n/media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-adapter.h:86:30: warning: conversion from \u2018std::unordered_map<std::__cxx11::basic_string<char>, llama_adapter_lora_weight>::size_type\u2019 {aka \u2018long unsigned int\u2019} to \u2018uint32_t\u2019 {aka \u2018unsigned int\u2019} may change value [-Wconversion]\n   86 |         return ab_map.size() * 6u; // a, b, scale, add, 2 x mul_mat\n      |                ~~~~~~~~~~~~~~^~~~\n[30/38] Linking CXX static library libame_backend_broken.a\n[31/38] Linking CXX executable moe_stream_gate\n[32/38] Linking CXX executable complete_runner\n[33/38] Linking CXX executable llama_baseline_stream\n[34/38] Linking CXX executable moe_stream_gate_broken\n[35/38] Linking CXX executable manifest_gate\n[36/38] Linking CXX executable moe_recovery_gate\n[37/38] Linking CXX executable artifact_gate\n[38/38] Linking CXX executable moe_layered_gate\n"
+      },
+      "stream": {
+        "fault": "none",
+        "threads": 4,
+        "slots": 4,
+        "selected": 4,
+        "candidate_status": 0,
+        "identical": true,
+        "failed": false,
+        "cancelled": false,
+        "error": "",
+        "materialize_calls": 1,
+        "reads": 4,
+        "read_bytes": 8192,
+        "arena_bytes": 8192,
+        "mismatched": 0,
+        "max_difference": 0,
+        "passed": true
+      },
+      "faults": [
+        {
+          "name": "fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "read",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "cancel",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": false,
+          "cancelled": true,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "capacity",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "eof",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "read",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "cancel",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": false,
+          "cancelled": true,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "capacity",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "eof",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "read",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "cancel",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": false,
+          "cancelled": true,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "capacity",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "eof",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "capacity-minus-one",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 3,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "capacity-at",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "slots-below-top-k",
+          "fault": "capacity",
+          "threads": 4,
+          "slots": 7,
+          "selected": 8,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_slots-below-top-k",
+          "fault": "none",
+          "threads": 4,
+          "slots": 7,
+          "selected": 7,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "slots-at-top-k",
+          "fault": "none",
+          "threads": 4,
+          "slots": 8,
+          "selected": 8,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "slots-above-top-k",
+          "fault": "none",
+          "threads": 4,
+          "slots": 9,
+          "selected": 8,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        }
+      ],
+      "recovery": {
+        "passed": true,
+        "runs": [
+          {
+            "threads": 1,
+            "cases": [
+              {
+                "fault": "read",
+                "failure_reported": true,
+                "poisoned_without_reset": true,
+                "outcome_cleared": true,
+                "dense_after_reset": true,
+                "moe_identical_after_reset": true,
+                "per_request_deltas": true,
+                "recovered_misses": 4,
+                "recovered_hits": 0,
+                "recovered_bytes": 8192,
+                "passed": true
+              },
+              {
+                "fault": "cancel",
+                "failure_reported": true,
+                "poisoned_without_reset": true,
+                "outcome_cleared": true,
+                "dense_after_reset": true,
+                "moe_identical_after_reset": true,
+                "per_request_deltas": true,
+                "recovered_misses": 0,
+                "recovered_hits": 4,
+                "recovered_bytes": 0,
+                "passed": true
+              }
+            ]
+          },
+          {
+            "threads": 2,
+            "cases": [
+              {
+                "fault": "read",
+                "failure_reported": true,
+                "poisoned_without_reset": true,
+                "outcome_cleared": true,
+                "dense_after_reset": true,
+                "moe_identical_after_reset": true,
+                "per_request_deltas": true,
+                "recovered_misses": 4,
+                "recovered_hits": 0,
+                "recovered_bytes": 8192,
+                "passed": true
+              },
+              {
+                "fault": "cancel",
+                "failure_reported": true,
+                "poisoned_without_reset": true,
+                "outcome_cleared": true,
+                "dense_after_reset": true,
+                "moe_identical_after_reset": true,
+                "per_request_deltas": true,
+                "recovered_misses": 0,
+                "recovered_hits": 4,
+                "recovered_bytes": 0,
+                "passed": true
+              }
+            ]
+          },
+          {
+            "threads": 4,
+            "cases": [
+              {
+                "fault": "read",
+                "failure_reported": true,
+                "poisoned_without_reset": true,
+                "outcome_cleared": true,
+                "dense_after_reset": true,
+                "moe_identical_after_reset": true,
+                "per_request_deltas": true,
+                "recovered_misses": 4,
+                "recovered_hits": 0,
+                "recovered_bytes": 8192,
+                "passed": true
+              },
+              {
+                "fault": "cancel",
+                "failure_reported": true,
+                "poisoned_without_reset": true,
+                "outcome_cleared": true,
+                "dense_after_reset": true,
+                "moe_identical_after_reset": true,
+                "per_request_deltas": true,
+                "recovered_misses": 0,
+                "recovered_hits": 4,
+                "recovered_bytes": 0,
+                "passed": true
+              }
+            ]
+          }
+        ]
+      },
+      "layered": {
+        "passed": true,
+        "runs": [
+          {
+            "threads": 1,
+            "readers": 1,
+            "overlap": false,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 1,
+            "readers": 1,
+            "overlap": true,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 1,
+            "readers": 2,
+            "overlap": false,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 1,
+            "readers": 2,
+            "overlap": true,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 1,
+            "readers": 4,
+            "overlap": false,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 1,
+            "readers": 4,
+            "overlap": true,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 2,
+            "readers": 1,
+            "overlap": false,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 2,
+            "readers": 1,
+            "overlap": true,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 2,
+            "readers": 2,
+            "overlap": false,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 2,
+            "readers": 2,
+            "overlap": true,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 2,
+            "readers": 4,
+            "overlap": false,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 2,
+            "readers": 4,
+            "overlap": true,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 4,
+            "readers": 1,
+            "overlap": false,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 4,
+            "readers": 1,
+            "overlap": true,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 4,
+            "readers": 2,
+            "overlap": false,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 4,
+            "readers": 2,
+            "overlap": true,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 4,
+            "readers": 4,
+            "overlap": false,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 4,
+            "readers": 4,
+            "overlap": true,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          }
+        ],
+        "tiled_forced": true,
+        "tiled_digests": {
+          "forced": {
+            "f32": "ab9b687d2a119845",
+            "q4_K": "d2a70ac0d7b74d6d",
+            "q6_K": "a9368d5d4b5bbb9e"
+          },
+          "plain": {
+            "f32": "ab9b687d2a119845",
+            "q4_K": "d07c299ece4cabb3",
+            "q6_K": "6f022e08ca7ad6d1"
+          }
+        },
+        "tiled_applies_on_host": true
+      },
+      "quantized": [
+        {
+          "type": "q4_k",
+          "role": "gate",
+          "threads": 1,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "gate",
+          "threads": 1,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "gate",
+          "threads": 2,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "gate",
+          "threads": 2,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "gate",
+          "threads": 4,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "gate",
+          "threads": 4,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "up",
+          "threads": 1,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "up",
+          "threads": 1,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "up",
+          "threads": 2,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "up",
+          "threads": 2,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "up",
+          "threads": 4,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "up",
+          "threads": 4,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "down",
+          "threads": 1,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "down",
+          "threads": 1,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "down",
+          "threads": 2,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "down",
+          "threads": 2,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "down",
+          "threads": 4,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "down",
+          "threads": 4,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "gate",
+          "threads": 1,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "gate",
+          "threads": 1,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "gate",
+          "threads": 2,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "gate",
+          "threads": 2,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "gate",
+          "threads": 4,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "gate",
+          "threads": 4,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "up",
+          "threads": 1,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "up",
+          "threads": 1,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "up",
+          "threads": 2,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "up",
+          "threads": 2,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "up",
+          "threads": 4,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "up",
+          "threads": 4,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "down",
+          "threads": 1,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "down",
+          "threads": 1,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "down",
+          "threads": 2,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "down",
+          "threads": 2,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "down",
+          "threads": 4,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "down",
+          "threads": 4,
+          "corrupt_detected": true
+        }
+      ],
+      "broken": {
+        "exit_code": 1,
+        "identical": false,
+        "mismatched": 32
+      },
+      "kernel": {
+        "dimensions": {
+          "n_embd": 64,
+          "n_ff": 128,
+          "n_expert": 32,
+          "n_expert_used": 4,
+          "prefill_tokens": 8,
+          "threads": 4
+        },
+        "memory": {
+          "resident_reference_bytes": 1048576,
+          "arena_bytes": 557056,
+          "slot_bytes": 32768,
+          "slots": 17,
+          "prefill_union": 17
+        },
+        "rounds": 2,
+        "all_identical": true
+      },
+      "runner_boundaries": {
+        "status": "passed",
+        "returncode": 0
+      },
+      "artifact": {
+        "returncode": 0,
+        "stdout": "PASS valid artifact: {\"stage\": \"install\", \"ok\": true, \"sha\": \"f16194347ce4a1d3037bf76a0b20adbaccea8e6a858c5225aedaafdccd7455bd\", \"hash_seconds\": 0.00823887}\nPASS same-size bit flip: {\"stage\": \"open\", \"ok\": false, \"error\": \"artifact SHA-256 does not match the enrolled identity\"}\nPASS wrong artifact with matching sidecar: {\"stage\": \"open\", \"ok\": false, \"error\": \"artifact SHA-256 does not match the enrolled identity\"}\nPASS swapped in-bounds offsets: {\"stage\": \"install\", \"ok\": false, \"error\": \"GGUF extent mismatch for blk.0.ffn_gate_exps.weight\"}\nPASS missing routed tensor: {\"stage\": \"install\", \"ok\": false, \"error\": \"routed GGUF tensor is missing from manifest: blk.0.ffn_down_exps.weight\"}\nPASS duplicate tensor: {\"stage\": \"install\", \"ok\": false, \"error\": \"duplicate expert tensor: blk.0.ffn_gate_exps.weight\"}\nPASS replacement after open uses retained FD: {\"stage\": \"install\", \"ok\": true, \"sha\": \"f16194347ce4a1d3037bf76a0b20adbaccea8e6a858c5225aedaafdccd7455bd\", \"hash_seconds\": 0.0030187}\nPASS rename after open uses retained FD: {\"stage\": \"install\", \"ok\": true, \"sha\": \"f16194347ce4a1d3037bf76a0b20adbaccea8e6a858c5225aedaafdccd7455bd\", \"hash_seconds\": 0.00301367}\nPASS hard link does not replace retained FD: {\"stage\": \"install\", \"ok\": true, \"sha\": \"f16194347ce4a1d3037bf76a0b20adbaccea8e6a858c5225aedaafdccd7455bd\", \"hash_seconds\": 0.00302791}\nPASS truncation before install refused: {\"stage\": \"install\", \"ok\": false, \"error\": \"artifact changed after identity verification\"}\nPASS in-place mutation before install refused: {\"stage\": \"install\", \"ok\": false, \"error\": \"artifact changed after identity verification\"}\n",
+        "stderr": ""
+      },
+      "manifest": {
+        "returncode": 0,
+        "stdout": "PASS valid v2 manifest\nPASS wrong tensor_count\nPASS duplicate row\nPASS nbytes mismatch\nPASS overflow\nPASS truncated extent\nPASS unsupported version\nPASS missing layout\nPASS wrong layout\nPASS offset above 4 GiB\n",
+        "stderr": ""
+      }
+    },
+    "release": {
+      "build": {
+        "configure_returncode": 0,
+        "build_returncode": 0,
+        "configure_tail": "-- The CXX compiler identification is GNU 11.4.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD\n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success\n-- Found Threads: TRUE\n-- Configuring done (0.4s)\n-- Generating done (0.0s)\n-- Build files have been written to: /home/ananth/Documents/ChatGPT/Custom OS/build/inference-release\n",
+        "build_tail": "p.o\n[13/38] Building CXX object CMakeFiles/ame_residency.dir/src/residency/store.cpp.o\n[14/38] Building CXX object CMakeFiles/moe_stream_gate_broken.dir/bench/moe_stream_gate.cpp.o\n[15/38] Building CXX object CMakeFiles/moe_stream_gate.dir/bench/moe_stream_gate.cpp.o\n[16/38] Building CXX object CMakeFiles/ame_residency.dir/src/residency/layered_store.cpp.o\n[17/38] Linking CXX static library libame_residency.a\n[18/38] Building CXX object CMakeFiles/manifest_gate.dir/bench/manifest_gate.cpp.o\n[19/38] Building CXX object CMakeFiles/artifact_gate.dir/bench/artifact_gate.cpp.o\n/home/ananth/Documents/ChatGPT/Custom OS/bench/artifact_gate.cpp: In function \u2018void {anonymous}::write_byte(const string&, uint64_t, unsigned char)\u2019:\n/home/ananth/Documents/ChatGPT/Custom OS/bench/artifact_gate.cpp:20:17: warning: ignoring return value of \u2018ssize_t pwrite(int, const void*, size_t, __off_t)\u2019 declared with attribute \u2018warn_unused_result\u2019 [-Wunused-result]\n   20 |   (void)::pwrite(fd, &value, 1, static_cast<off_t>(offset));\n      |         ~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n[20/38] Building CXX object CMakeFiles/moe_layered_gate.dir/bench/moe_layered_gate.cpp.o\n[21/38] Building CXX object CMakeFiles/complete_runner.dir/bench/complete_runner.cpp.o\n[22/38] Building CXX object CMakeFiles/moe_quantized_gate.dir/bench/moe_quantized_gate.cpp.o\n[23/38] Building CXX object CMakeFiles/moe_kernel_gate.dir/bench/moe_kernel_gate.cpp.o\n[24/38] Linking CXX executable moe_quantized_gate\n[25/38] Linking CXX executable moe_kernel_gate\n[26/38] Building CXX object CMakeFiles/llama_baseline_stream.dir/bench/llama_baseline.cpp.o\n[27/38] Building CXX object CMakeFiles/ame_backend_broken.dir/src/backend/moe_stream.cpp.o\nIn file included from /media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-graph.h:6,\n                 from /media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-model.h:5,\n                 from /home/ananth/Documents/ChatGPT/Custom OS/src/backend/moe_stream.cpp:8:\n/media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-adapter.h: In member function \u2018uint32_t llama_adapter_lora::get_n_nodes() const\u2019:\n/media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-adapter.h:86:30: warning: conversion from \u2018std::unordered_map<std::__cxx11::basic_string<char>, llama_adapter_lora_weight>::size_type\u2019 {aka \u2018long unsigned int\u2019} to \u2018uint32_t\u2019 {aka \u2018unsigned int\u2019} may change value [-Wconversion]\n   86 |         return ab_map.size() * 6u; // a, b, scale, add, 2 x mul_mat\n      |                ~~~~~~~~~~~~~~^~~~\n[28/38] Building CXX object CMakeFiles/ame_backend.dir/src/backend/moe_stream.cpp.o\nIn file included from /media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-graph.h:6,\n                 from /media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-model.h:5,\n                 from /home/ananth/Documents/ChatGPT/Custom OS/src/backend/moe_stream.cpp:8:\n/media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-adapter.h: In member function \u2018uint32_t llama_adapter_lora::get_n_nodes() const\u2019:\n/media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-adapter.h:86:30: warning: conversion from \u2018std::unordered_map<std::__cxx11::basic_string<char>, llama_adapter_lora_weight>::size_type\u2019 {aka \u2018long unsigned int\u2019} to \u2018uint32_t\u2019 {aka \u2018unsigned int\u2019} may change value [-Wconversion]\n   86 |         return ab_map.size() * 6u; // a, b, scale, add, 2 x mul_mat\n      |                ~~~~~~~~~~~~~~^~~~\n[29/38] Linking CXX static library libame_backend_broken.a\n[30/38] Linking CXX static library libame_backend.a\n[31/38] Linking CXX executable moe_stream_gate_broken\n[32/38] Linking CXX executable artifact_gate\n[33/38] Linking CXX executable llama_baseline_stream\n[34/38] Linking CXX executable moe_stream_gate\n[35/38] Linking CXX executable moe_layered_gate\n[36/38] Linking CXX executable manifest_gate\n[37/38] Linking CXX executable moe_recovery_gate\n[38/38] Linking CXX executable complete_runner\n"
+      },
+      "stream": {
+        "fault": "none",
+        "threads": 4,
+        "slots": 4,
+        "selected": 4,
+        "candidate_status": 0,
+        "identical": true,
+        "failed": false,
+        "cancelled": false,
+        "error": "",
+        "materialize_calls": 1,
+        "reads": 4,
+        "read_bytes": 8192,
+        "arena_bytes": 8192,
+        "mismatched": 0,
+        "max_difference": 0,
+        "passed": true
+      },
+      "faults": [
+        {
+          "name": "fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "read",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "cancel",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": false,
+          "cancelled": true,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "capacity",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "eof",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "read",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "cancel",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": false,
+          "cancelled": true,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "capacity",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "eof",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "read",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "cancel",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": false,
+          "cancelled": true,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "capacity",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "eof",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "capacity-minus-one",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 3,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "capacity-at",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "slots-below-top-k",
+          "fault": "capacity",
+          "threads": 4,
+          "slots": 7,
+          "selected": 8,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_slots-below-top-k",
+          "fault": "none",
+          "threads": 4,
+          "slots": 7,
+          "selected": 7,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "slots-at-top-k",
+          "fault": "none",
+          "threads": 4,
+          "slots": 8,
+          "selected": 8,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "slots-above-top-k",
+          "fault": "none",
+          "threads": 4,
+          "slots": 9,
+          "selected": 8,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        }
+      ],
+      "recovery": {
+        "passed": true,
+        "runs": [
+          {
+            "threads": 1,
+            "cases": [
+              {
+                "fault": "read",
+                "failure_reported": true,
+                "poisoned_without_reset": true,
+                "outcome_cleared": true,
+                "dense_after_reset": true,
+                "moe_identical_after_reset": true,
+                "per_request_deltas": true,
+                "recovered_misses": 4,
+                "recovered_hits": 0,
+                "recovered_bytes": 8192,
+                "passed": true
+              },
+              {
+                "fault": "cancel",
+                "failure_reported": true,
+                "poisoned_without_reset": true,
+                "outcome_cleared": true,
+                "dense_after_reset": true,
+                "moe_identical_after_reset": true,
+                "per_request_deltas": true,
+                "recovered_misses": 0,
+                "recovered_hits": 4,
+                "recovered_bytes": 0,
+                "passed": true
+              }
+            ]
+          },
+          {
+            "threads": 2,
+            "cases": [
+              {
+                "fault": "read",
+                "failure_reported": true,
+                "poisoned_without_reset": true,
+                "outcome_cleared": true,
+                "dense_after_reset": true,
+                "moe_identical_after_reset": true,
+                "per_request_deltas": true,
+                "recovered_misses": 4,
+                "recovered_hits": 0,
+                "recovered_bytes": 8192,
+                "passed": true
+              },
+              {
+                "fault": "cancel",
+                "failure_reported": true,
+                "poisoned_without_reset": true,
+                "outcome_cleared": true,
+                "dense_after_reset": true,
+                "moe_identical_after_reset": true,
+                "per_request_deltas": true,
+                "recovered_misses": 0,
+                "recovered_hits": 4,
+                "recovered_bytes": 0,
+                "passed": true
+              }
+            ]
+          },
+          {
+            "threads": 4,
+            "cases": [
+              {
+                "fault": "read",
+                "failure_reported": true,
+                "poisoned_without_reset": true,
+                "outcome_cleared": true,
+                "dense_after_reset": true,
+                "moe_identical_after_reset": true,
+                "per_request_deltas": true,
+                "recovered_misses": 4,
+                "recovered_hits": 0,
+                "recovered_bytes": 8192,
+                "passed": true
+              },
+              {
+                "fault": "cancel",
+                "failure_reported": true,
+                "poisoned_without_reset": true,
+                "outcome_cleared": true,
+                "dense_after_reset": true,
+                "moe_identical_after_reset": true,
+                "per_request_deltas": true,
+                "recovered_misses": 0,
+                "recovered_hits": 4,
+                "recovered_bytes": 0,
+                "passed": true
+              }
+            ]
+          }
+        ]
+      },
+      "layered": {
+        "passed": true,
+        "runs": [
+          {
+            "threads": 1,
+            "readers": 1,
+            "overlap": false,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 1,
+            "readers": 1,
+            "overlap": true,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 1,
+            "readers": 2,
+            "overlap": false,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 1,
+            "readers": 2,
+            "overlap": true,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 1,
+            "readers": 4,
+            "overlap": false,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 1,
+            "readers": 4,
+            "overlap": true,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 2,
+            "readers": 1,
+            "overlap": false,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 2,
+            "readers": 1,
+            "overlap": true,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 2,
+            "readers": 2,
+            "overlap": false,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 2,
+            "readers": 2,
+            "overlap": true,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 2,
+            "readers": 4,
+            "overlap": false,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 2,
+            "readers": 4,
+            "overlap": true,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 4,
+            "readers": 1,
+            "overlap": false,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 4,
+            "readers": 1,
+            "overlap": true,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 4,
+            "readers": 2,
+            "overlap": false,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 4,
+            "readers": 2,
+            "overlap": true,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 4,
+            "readers": 4,
+            "overlap": false,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 4,
+            "readers": 4,
+            "overlap": true,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          }
+        ],
+        "tiled_forced": true,
+        "tiled_digests": {
+          "forced": {
+            "f32": "ab9b687d2a119845",
+            "q4_K": "d2a70ac0d7b74d6d",
+            "q6_K": "a9368d5d4b5bbb9e"
+          },
+          "plain": {
+            "f32": "ab9b687d2a119845",
+            "q4_K": "d07c299ece4cabb3",
+            "q6_K": "6f022e08ca7ad6d1"
+          }
+        },
+        "tiled_applies_on_host": true
+      },
+      "quantized": [
+        {
+          "type": "q4_k",
+          "role": "gate",
+          "threads": 1,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "gate",
+          "threads": 1,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "gate",
+          "threads": 2,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "gate",
+          "threads": 2,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "gate",
+          "threads": 4,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "gate",
+          "threads": 4,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "up",
+          "threads": 1,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "up",
+          "threads": 1,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "up",
+          "threads": 2,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "up",
+          "threads": 2,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "up",
+          "threads": 4,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "up",
+          "threads": 4,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "down",
+          "threads": 1,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "down",
+          "threads": 1,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "down",
+          "threads": 2,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "down",
+          "threads": 2,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "down",
+          "threads": 4,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "down",
+          "threads": 4,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "gate",
+          "threads": 1,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "gate",
+          "threads": 1,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "gate",
+          "threads": 2,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "gate",
+          "threads": 2,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "gate",
+          "threads": 4,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "gate",
+          "threads": 4,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "up",
+          "threads": 1,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "up",
+          "threads": 1,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "up",
+          "threads": 2,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "up",
+          "threads": 2,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "up",
+          "threads": 4,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "up",
+          "threads": 4,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "down",
+          "threads": 1,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "down",
+          "threads": 1,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "down",
+          "threads": 2,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "down",
+          "threads": 2,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "down",
+          "threads": 4,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "down",
+          "threads": 4,
+          "corrupt_detected": true
+        }
+      ],
+      "broken": {
+        "exit_code": 1,
+        "identical": false,
+        "mismatched": 32
+      },
+      "kernel": {
+        "dimensions": {
+          "n_embd": 64,
+          "n_ff": 128,
+          "n_expert": 32,
+          "n_expert_used": 4,
+          "prefill_tokens": 8,
+          "threads": 4
+        },
+        "memory": {
+          "resident_reference_bytes": 1048576,
+          "arena_bytes": 557056,
+          "slot_bytes": 32768,
+          "slots": 17,
+          "prefill_union": 17
+        },
+        "rounds": 2,
+        "all_identical": true
+      },
+      "runner_boundaries": {
+        "status": "passed",
+        "returncode": 0
+      },
+      "artifact": {
+        "returncode": 0,
+        "stdout": "PASS valid artifact: {\"stage\": \"install\", \"ok\": true, \"sha\": \"f16194347ce4a1d3037bf76a0b20adbaccea8e6a858c5225aedaafdccd7455bd\", \"hash_seconds\": 0.00217231}\nPASS same-size bit flip: {\"stage\": \"open\", \"ok\": false, \"error\": \"artifact SHA-256 does not match the enrolled identity\"}\nPASS wrong artifact with matching sidecar: {\"stage\": \"open\", \"ok\": false, \"error\": \"artifact SHA-256 does not match the enrolled identity\"}\nPASS swapped in-bounds offsets: {\"stage\": \"install\", \"ok\": false, \"error\": \"GGUF extent mismatch for blk.0.ffn_gate_exps.weight\"}\nPASS missing routed tensor: {\"stage\": \"install\", \"ok\": false, \"error\": \"routed GGUF tensor is missing from manifest: blk.0.ffn_down_exps.weight\"}\nPASS duplicate tensor: {\"stage\": \"install\", \"ok\": false, \"error\": \"duplicate expert tensor: blk.0.ffn_gate_exps.weight\"}\nPASS replacement after open uses retained FD: {\"stage\": \"install\", \"ok\": true, \"sha\": \"f16194347ce4a1d3037bf76a0b20adbaccea8e6a858c5225aedaafdccd7455bd\", \"hash_seconds\": 0.00556433}\nPASS rename after open uses retained FD: {\"stage\": \"install\", \"ok\": true, \"sha\": \"f16194347ce4a1d3037bf76a0b20adbaccea8e6a858c5225aedaafdccd7455bd\", \"hash_seconds\": 0.00221789}\nPASS hard link does not replace retained FD: {\"stage\": \"install\", \"ok\": true, \"sha\": \"f16194347ce4a1d3037bf76a0b20adbaccea8e6a858c5225aedaafdccd7455bd\", \"hash_seconds\": 0.00561202}\nPASS truncation before install refused: {\"stage\": \"install\", \"ok\": false, \"error\": \"artifact changed after identity verification\"}\nPASS in-place mutation before install refused: {\"stage\": \"install\", \"ok\": false, \"error\": \"artifact changed after identity verification\"}\n",
+        "stderr": ""
+      },
+      "manifest": {
+        "returncode": 0,
+        "stdout": "PASS valid v2 manifest\nPASS wrong tensor_count\nPASS duplicate row\nPASS nbytes mismatch\nPASS overflow\nPASS truncated extent\nPASS unsupported version\nPASS missing layout\nPASS wrong layout\nPASS offset above 4 GiB\n",
+        "stderr": ""
+      }
+    },
+    "sanitizers": {
+      "build": {
+        "configure_returncode": 0,
+        "build_returncode": 0,
+        "configure_tail": "-- The CXX compiler identification is GNU 11.4.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD\n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success\n-- Found Threads: TRUE\n-- Configuring done (0.3s)\n-- Generating done (0.0s)\n-- Build files have been written to: /home/ananth/Documents/ChatGPT/Custom OS/build/inference-sanitizers\n",
+        "build_tail": "ime/prefill_plan.cpp.o\n[7/38] Linking CXX static library libame_prefill.a\n[8/38] Building CXX object CMakeFiles/ame_residency.dir/src/residency/file_source.cpp.o\n[9/38] Building CXX object CMakeFiles/ame_backend_broken.dir/src/backend/artifact.cpp.o\n[10/38] Building CXX object CMakeFiles/ame_backend.dir/src/backend/artifact.cpp.o\n[11/38] Building CXX object CMakeFiles/moe_recovery_gate.dir/bench/moe_recovery_gate.cpp.o\n[12/38] Building CXX object CMakeFiles/moe_stream_gate.dir/bench/moe_stream_gate.cpp.o\n[13/38] Building CXX object CMakeFiles/ame_residency.dir/src/residency/reader_pool.cpp.o\n[14/38] Building CXX object CMakeFiles/moe_stream_gate_broken.dir/bench/moe_stream_gate.cpp.o\n[15/38] Building CXX object CMakeFiles/ame_residency.dir/src/residency/store.cpp.o\n[16/38] Building CXX object CMakeFiles/manifest_gate.dir/bench/manifest_gate.cpp.o\n[17/38] Building CXX object CMakeFiles/artifact_gate.dir/bench/artifact_gate.cpp.o\n[18/38] Building CXX object CMakeFiles/ame_residency.dir/src/residency/layered_store.cpp.o\n[19/38] Linking CXX static library libame_residency.a\n[20/38] Building CXX object CMakeFiles/moe_layered_gate.dir/bench/moe_layered_gate.cpp.o\n[21/38] Building CXX object CMakeFiles/complete_runner.dir/bench/complete_runner.cpp.o\n[22/38] Building CXX object CMakeFiles/moe_kernel_gate.dir/bench/moe_kernel_gate.cpp.o\n[23/38] Linking CXX executable moe_kernel_gate\n[24/38] Building CXX object CMakeFiles/moe_quantized_gate.dir/bench/moe_quantized_gate.cpp.o\n[25/38] Linking CXX executable moe_quantized_gate\n[26/38] Building CXX object CMakeFiles/llama_baseline_stream.dir/bench/llama_baseline.cpp.o\n[27/38] Building CXX object CMakeFiles/ame_backend_broken.dir/src/backend/moe_stream.cpp.o\nIn file included from /media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-graph.h:6,\n                 from /media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-model.h:5,\n                 from /home/ananth/Documents/ChatGPT/Custom OS/src/backend/moe_stream.cpp:8:\n/media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-adapter.h: In member function \u2018uint32_t llama_adapter_lora::get_n_nodes() const\u2019:\n/media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-adapter.h:86:30: warning: conversion from \u2018std::unordered_map<std::__cxx11::basic_string<char>, llama_adapter_lora_weight>::size_type\u2019 {aka \u2018long unsigned int\u2019} to \u2018uint32_t\u2019 {aka \u2018unsigned int\u2019} may change value [-Wconversion]\n   86 |         return ab_map.size() * 6u; // a, b, scale, add, 2 x mul_mat\n      |                ~~~~~~~~~~~~~~^~~~\n[28/38] Building CXX object CMakeFiles/ame_backend.dir/src/backend/moe_stream.cpp.o\nIn file included from /media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-graph.h:6,\n                 from /media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-model.h:5,\n                 from /home/ananth/Documents/ChatGPT/Custom OS/src/backend/moe_stream.cpp:8:\n/media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-adapter.h: In member function \u2018uint32_t llama_adapter_lora::get_n_nodes() const\u2019:\n/media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-adapter.h:86:30: warning: conversion from \u2018std::unordered_map<std::__cxx11::basic_string<char>, llama_adapter_lora_weight>::size_type\u2019 {aka \u2018long unsigned int\u2019} to \u2018uint32_t\u2019 {aka \u2018unsigned int\u2019} may change value [-Wconversion]\n   86 |         return ab_map.size() * 6u; // a, b, scale, add, 2 x mul_mat\n      |                ~~~~~~~~~~~~~~^~~~\n[29/38] Linking CXX static library libame_backend_broken.a\n[30/38] Linking CXX static library libame_backend.a\n[31/38] Linking CXX executable manifest_gate\n[32/38] Linking CXX executable moe_recovery_gate\n[33/38] Linking CXX executable complete_runner\n[34/38] Linking CXX executable moe_layered_gate\n[35/38] Linking CXX executable moe_stream_gate_broken\n[36/38] Linking CXX executable artifact_gate\n[37/38] Linking CXX executable moe_stream_gate\n[38/38] Linking CXX executable llama_baseline_stream\n"
+      },
+      "stream": {
+        "fault": "none",
+        "threads": 4,
+        "slots": 4,
+        "selected": 4,
+        "candidate_status": 0,
+        "identical": true,
+        "failed": false,
+        "cancelled": false,
+        "error": "",
+        "materialize_calls": 1,
+        "reads": 4,
+        "read_bytes": 8192,
+        "arena_bytes": 8192,
+        "mismatched": 0,
+        "max_difference": 0,
+        "passed": true
+      },
+      "faults": [
+        {
+          "name": "fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "read",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "cancel",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": false,
+          "cancelled": true,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "capacity",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "eof",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "read",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "cancel",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": false,
+          "cancelled": true,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "capacity",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "eof",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "read",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "cancel",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": false,
+          "cancelled": true,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "capacity",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "eof",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "capacity-minus-one",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 3,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "capacity-at",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "slots-below-top-k",
+          "fault": "capacity",
+          "threads": 4,
+          "slots": 7,
+          "selected": 8,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_slots-below-top-k",
+          "fault": "none",
+          "threads": 4,
+          "slots": 7,
+          "selected": 7,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "slots-at-top-k",
+          "fault": "none",
+          "threads": 4,
+          "slots": 8,
+          "selected": 8,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "slots-above-top-k",
+          "fault": "none",
+          "threads": 4,
+          "slots": 9,
+          "selected": 8,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        }
+      ],
+      "recovery": {
+        "passed": true,
+        "runs": [
+          {
+            "threads": 1,
+            "cases": [
+              {
+                "fault": "read",
+                "failure_reported": true,
+                "poisoned_without_reset": true,
+                "outcome_cleared": true,
+                "dense_after_reset": true,
+                "moe_identical_after_reset": true,
+                "per_request_deltas": true,
+                "recovered_misses": 4,
+                "recovered_hits": 0,
+                "recovered_bytes": 8192,
+                "passed": true
+              },
+              {
+                "fault": "cancel",
+                "failure_reported": true,
+                "poisoned_without_reset": true,
+                "outcome_cleared": true,
+                "dense_after_reset": true,
+                "moe_identical_after_reset": true,
+                "per_request_deltas": true,
+                "recovered_misses": 0,
+                "recovered_hits": 4,
+                "recovered_bytes": 0,
+                "passed": true
+              }
+            ]
+          },
+          {
+            "threads": 2,
+            "cases": [
+              {
+                "fault": "read",
+                "failure_reported": true,
+                "poisoned_without_reset": true,
+                "outcome_cleared": true,
+                "dense_after_reset": true,
+                "moe_identical_after_reset": true,
+                "per_request_deltas": true,
+                "recovered_misses": 4,
+                "recovered_hits": 0,
+                "recovered_bytes": 8192,
+                "passed": true
+              },
+              {
+                "fault": "cancel",
+                "failure_reported": true,
+                "poisoned_without_reset": true,
+                "outcome_cleared": true,
+                "dense_after_reset": true,
+                "moe_identical_after_reset": true,
+                "per_request_deltas": true,
+                "recovered_misses": 0,
+                "recovered_hits": 4,
+                "recovered_bytes": 0,
+                "passed": true
+              }
+            ]
+          },
+          {
+            "threads": 4,
+            "cases": [
+              {
+                "fault": "read",
+                "failure_reported": true,
+                "poisoned_without_reset": true,
+                "outcome_cleared": true,
+                "dense_after_reset": true,
+                "moe_identical_after_reset": true,
+                "per_request_deltas": true,
+                "recovered_misses": 4,
+                "recovered_hits": 0,
+                "recovered_bytes": 8192,
+                "passed": true
+              },
+              {
+                "fault": "cancel",
+                "failure_reported": true,
+                "poisoned_without_reset": true,
+                "outcome_cleared": true,
+                "dense_after_reset": true,
+                "moe_identical_after_reset": true,
+                "per_request_deltas": true,
+                "recovered_misses": 0,
+                "recovered_hits": 4,
+                "recovered_bytes": 0,
+                "passed": true
+              }
+            ]
+          }
+        ]
+      },
+      "layered": {
+        "passed": true,
+        "runs": [
+          {
+            "threads": 1,
+            "readers": 1,
+            "overlap": false,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 1,
+            "readers": 1,
+            "overlap": true,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 1,
+            "readers": 2,
+            "overlap": false,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 1,
+            "readers": 2,
+            "overlap": true,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 1,
+            "readers": 4,
+            "overlap": false,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 1,
+            "readers": 4,
+            "overlap": true,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 2,
+            "readers": 1,
+            "overlap": false,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 2,
+            "readers": 1,
+            "overlap": true,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 2,
+            "readers": 2,
+            "overlap": false,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 2,
+            "readers": 2,
+            "overlap": true,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 2,
+            "readers": 4,
+            "overlap": false,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 2,
+            "readers": 4,
+            "overlap": true,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 4,
+            "readers": 1,
+            "overlap": false,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 4,
+            "readers": 1,
+            "overlap": true,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 4,
+            "readers": 2,
+            "overlap": false,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 4,
+            "readers": 2,
+            "overlap": true,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 4,
+            "readers": 4,
+            "overlap": false,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          },
+          {
+            "threads": 4,
+            "readers": 4,
+            "overlap": true,
+            "formats": [
+              {
+                "format": "f32",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "ab9b687d2a119845",
+                "arena_bytes": 36864,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q4_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "d07c299ece4cabb3",
+                "arena_bytes": 82944,
+                "metadata_bytes": 21836,
+                "passed": true
+              },
+              {
+                "format": "q6_K",
+                "operators": 24,
+                "mismatched": 0,
+                "counters_match_prediction": true,
+                "geometry_ok": true,
+                "output_digest": "6f022e08ca7ad6d1",
+                "arena_bytes": 122112,
+                "metadata_bytes": 21836,
+                "passed": true
+              }
+            ],
+            "fused_gate_up_refused": true,
+            "arena_below_one_slot_per_layer_refused": true,
+            "derived_pool_within_allowance": true,
+            "union_above_pool_refused": true,
+            "read_failure_then_identical_recovery": true,
+            "cancellation_reported": true,
+            "overlap_checks": true,
+            "passed": true
+          }
+        ],
+        "tiled_forced": true,
+        "tiled_digests": {
+          "forced": {
+            "f32": "ab9b687d2a119845",
+            "q4_K": "d2a70ac0d7b74d6d",
+            "q6_K": "a9368d5d4b5bbb9e"
+          },
+          "plain": {
+            "f32": "ab9b687d2a119845",
+            "q4_K": "d07c299ece4cabb3",
+            "q6_K": "6f022e08ca7ad6d1"
+          }
+        },
+        "tiled_applies_on_host": true
+      },
+      "quantized": [
+        {
+          "type": "q4_k",
+          "role": "gate",
+          "threads": 1,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "gate",
+          "threads": 1,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "gate",
+          "threads": 2,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "gate",
+          "threads": 2,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "gate",
+          "threads": 4,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "gate",
+          "threads": 4,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "up",
+          "threads": 1,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "up",
+          "threads": 1,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "up",
+          "threads": 2,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "up",
+          "threads": 2,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "up",
+          "threads": 4,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "up",
+          "threads": 4,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "down",
+          "threads": 1,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "down",
+          "threads": 1,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "down",
+          "threads": 2,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "down",
+          "threads": 2,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "down",
+          "threads": 4,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "down",
+          "threads": 4,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "gate",
+          "threads": 1,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "gate",
+          "threads": 1,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "gate",
+          "threads": 2,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "gate",
+          "threads": 2,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "gate",
+          "threads": 4,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "gate",
+          "threads": 4,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "up",
+          "threads": 1,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "up",
+          "threads": 1,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "up",
+          "threads": 2,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "up",
+          "threads": 2,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "up",
+          "threads": 4,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "up",
+          "threads": 4,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "down",
+          "threads": 1,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "down",
+          "threads": 1,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "down",
+          "threads": 2,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "down",
+          "threads": 2,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "down",
+          "threads": 4,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "down",
+          "threads": 4,
+          "corrupt_detected": true
+        }
+      ],
+      "broken": {
+        "exit_code": 1,
+        "identical": false,
+        "mismatched": 32
+      },
+      "kernel": {
+        "dimensions": {
+          "n_embd": 64,
+          "n_ff": 128,
+          "n_expert": 32,
+          "n_expert_used": 4,
+          "prefill_tokens": 8,
+          "threads": 4
+        },
+        "memory": {
+          "resident_reference_bytes": 1048576,
+          "arena_bytes": 557056,
+          "slot_bytes": 32768,
+          "slots": 17,
+          "prefill_union": 17
+        },
+        "rounds": 2,
+        "all_identical": true
+      },
+      "runner_boundaries": {
+        "status": "passed",
+        "returncode": 0
+      },
+      "artifact": {
+        "returncode": 0,
+        "stdout": "PASS valid artifact: {\"stage\": \"install\", \"ok\": true, \"sha\": \"f16194347ce4a1d3037bf76a0b20adbaccea8e6a858c5225aedaafdccd7455bd\", \"hash_seconds\": 0.00522517}\nPASS same-size bit flip: {\"stage\": \"open\", \"ok\": false, \"error\": \"artifact SHA-256 does not match the enrolled identity\"}\nPASS wrong artifact with matching sidecar: {\"stage\": \"open\", \"ok\": false, \"error\": \"artifact SHA-256 does not match the enrolled identity\"}\nPASS swapped in-bounds offsets: {\"stage\": \"install\", \"ok\": false, \"error\": \"GGUF extent mismatch for blk.0.ffn_gate_exps.weight\"}\nPASS missing routed tensor: {\"stage\": \"install\", \"ok\": false, \"error\": \"routed GGUF tensor is missing from manifest: blk.0.ffn_down_exps.weight\"}\nPASS duplicate tensor: {\"stage\": \"install\", \"ok\": false, \"error\": \"duplicate expert tensor: blk.0.ffn_gate_exps.weight\"}\nPASS replacement after open uses retained FD: {\"stage\": \"install\", \"ok\": true, \"sha\": \"f16194347ce4a1d3037bf76a0b20adbaccea8e6a858c5225aedaafdccd7455bd\", \"hash_seconds\": 0.00501362}\nPASS rename after open uses retained FD: {\"stage\": \"install\", \"ok\": true, \"sha\": \"f16194347ce4a1d3037bf76a0b20adbaccea8e6a858c5225aedaafdccd7455bd\", \"hash_seconds\": 0.00510054}\nPASS hard link does not replace retained FD: {\"stage\": \"install\", \"ok\": true, \"sha\": \"f16194347ce4a1d3037bf76a0b20adbaccea8e6a858c5225aedaafdccd7455bd\", \"hash_seconds\": 0.00509819}\nPASS truncation before install refused: {\"stage\": \"install\", \"ok\": false, \"error\": \"artifact changed after identity verification\"}\nPASS in-place mutation before install refused: {\"stage\": \"install\", \"ok\": false, \"error\": \"artifact changed after identity verification\"}\n",
+        "stderr": ""
+      },
+      "manifest": {
+        "returncode": 0,
+        "stdout": "PASS valid v2 manifest\nPASS wrong tensor_count\nPASS duplicate row\nPASS nbytes mismatch\nPASS overflow\nPASS truncated extent\nPASS unsupported version\nPASS missing layout\nPASS wrong layout\nPASS offset above 4 GiB\n",
+        "stderr": ""
+      }
+    }
+  },
+  "elapsed_seconds": 100.15651323299971,
+  "passed": true
+}
