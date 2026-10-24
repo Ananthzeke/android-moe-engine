@@ -11,6 +11,7 @@
 #include "cancellation.hpp"
 #include "expert_layout.hpp"
 #include "file_source.hpp"
+#include "reader_pool.hpp"
 #include "result.hpp"
 #include "store.hpp"
 
@@ -52,6 +53,9 @@ struct LayeredOptions {
   bool fadvise_random{false};
   std::uint32_t alignment{64};
   std::span<std::byte> external_arena{};
+  // Reader threads for the misses of one acquire (1 to 4). One reads on the calling thread.
+  unsigned readers{1};
+  std::vector<int> reader_cpus{};
 };
 
 struct LayeredStats {
@@ -164,6 +168,8 @@ class LayeredStore {
   std::int32_t choose_victim(Pool& pool, const std::vector<std::uint8_t>& taken) const;
 
   mutable FileSource source_;
+  std::unique_ptr<ReaderPool> readers_;  // after source_: joined before the source closes
+  std::vector<ReadJob> read_jobs_;       // scratch: one per slice of one acquire
   std::vector<Pool> pools_;
   LayeredOptions options_;
   std::span<std::byte> arena_;

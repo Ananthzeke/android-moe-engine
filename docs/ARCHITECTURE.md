@@ -322,3 +322,23 @@ records, expert tables, maps, scratch, frequency counters); the pool size is der
 `pool / top-k` tokens, capped by the 128-expert lease limit. `--fadvise-random` asks for no
 readahead on the read descriptor and `--fadvise-dontneed` drops each extent's page-cache pages after
 the copy, so the arena is the only copy; both are advisory.
+
+## Bounded reader pool (Unit 5, 2026-10-25)
+
+`--readers N` (1 to 4, default 1) sets the number of reader threads for the misses of one
+acquire, in both cache layouts. `Store::acquire` and `LayeredStore::acquire` first reserve and
+pin every missing slot, then submit one read per slice to `ReaderPool::read_all` and wait on a
+condition variable. `read_all` returns only after every submitted read has finished or been
+skipped: on the first error or on cancellation it stops queued reads, lets in-flight reads end
+at the next chunk boundary, and joins them, so rollback and buffer reuse never race a reader. A
+failed batch marks none of its slots resident. With one reader the reads run on the calling
+thread, as before. `FileSource::read_exact` is safe to call concurrently: byte, syscall and
+fault-injection state are atomic and `pread` is positional; a batch-owned abort flag stops its
+other reads when one fails. Readers can be restricted to a CPU set; `--reader-cpus auto` in the
+server uses the cores whose `cpuinfo_max_freq` is below the maximum, never fixed numbers. Reader
+thread stacks are outside the arena accounting. `O_DIRECT` is not used; GGUF expert offsets are only
+32-byte aligned, so it needs an alignment self-test and is a separate experiment.
+
+`tools/verify.py` runs a `host-tsan` preset (ThreadSanitizer) over the residency, reader-pool,
+layered-store and request-scope tests. TSan needs address-space randomization off on current
+kernels, so those tests run under `setarch -R`.

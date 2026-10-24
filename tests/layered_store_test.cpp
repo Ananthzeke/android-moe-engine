@@ -29,6 +29,7 @@ using ame::residency::SliceExtent;
 using ame::residency::StoreError;
 
 int failures = 0;
+unsigned g_readers = 1;  // reader threads the store under test uses
 void expect(bool condition, std::string_view message) {
   if (!condition) {
     std::cerr << "Layered store test failure: " << message << '\n';
@@ -109,6 +110,7 @@ std::unique_ptr<LayeredStore> open_store(const Fixture& fixture, std::uint32_t l
                                          std::uint32_t slots, LayeredOptions options = {}) {
   auto source = FileSource::open(fixture.file.string());
   if (!source.ok()) return nullptr;
+  options.readers = g_readers;
   std::vector<LayerSpec> specs(layers, make_spec(fixture, slots));
   auto store = LayeredStore::create(std::move(source).value(), std::move(specs), options);
   return store.ok() ? std::move(store).value() : nullptr;
@@ -328,11 +330,14 @@ void check_dontneed_and_random_flags() {
 }  // namespace
 
 int main() {
-  check_slot_bytes_and_views();
-  check_lru_pins_and_refusal();
-  check_lfu_keeps_the_frequent_expert();
-  check_cancellation_and_read_failure_rollback();
-  check_rejected_layouts();
-  check_dontneed_and_random_flags();
+  for (const unsigned readers : {1U, 2U, 4U}) {
+    g_readers = readers;
+    check_slot_bytes_and_views();
+    check_lru_pins_and_refusal();
+    check_lfu_keeps_the_frequent_expert();
+    check_cancellation_and_read_failure_rollback();
+    check_rejected_layouts();
+    check_dontneed_and_random_flags();
+  }
   return failures == 0 ? 0 : 1;
 }

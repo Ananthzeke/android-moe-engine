@@ -343,6 +343,63 @@ void check_injected_read_failure() {
   std::filesystem::remove_all(directory);
 }
 
+// The shipped Store with reader threads: every staged slot equals the file, a failing read
+// unwinds all pins and leaves no read in flight, and the store works again afterwards.
+void check_parallel_store_reads() {
+  const auto directory = temporary_directory();
+  const auto path = directory / "parallel.bin";
+  constexpr std::uint32_t kExperts = 12;
+  constexpr std::uint32_t kPayload = 4096;
+  write_pattern(path, kExperts, kPayload, kPayload);
+  for (const unsigned readers : {2U, 4U}) {
+    auto source = FileSource::open(path.string());
+    expect(source.ok(), "parallel source opens");
+    if (!source.ok()) return;
+    StoreOptions options;
+    options.slot_count = 8;
+    options.readers = readers;
+    auto created = Store::create(std::move(source).value(),
+                                 make_entries(kExperts, kPayload, kPayload), options);
+    expect(created.ok(), "parallel store opens");
+    if (!created.ok()) return;
+    auto& store = *created.value();
+    ame::Cancellation stop;
+    std::vector<ExpertKey> keys;
+    for (std::uint32_t expert = 0; expert < 8; ++expert) keys.push_back(ExpertKey{0, expert});
+    {
+      auto lease = store.acquire(keys, stop);
+      expect(lease.ok(), "parallel acquire");
+      if (lease.ok()) {
+        bool equal = true;
+        for (const auto& key : keys) {
+          const auto payload = lease.value().payload(key);
+          equal = equal && payload.size() == kPayload;
+          for (std::uint32_t index = 0; equal && index < kPayload; ++index) {
+            equal = payload[index] == static_cast<std::byte>((key.expert * 17U + index) & 0xFFU);
+          }
+        }
+        expect(equal, "every staged slot equals the file");
+      }
+    }
+    expect(::setenv("AME_IO_FAIL_AFTER_BYTES",
+                    std::to_string(store.stats().pread_bytes + 3 * kPayload).c_str(), 1) == 0,
+           "set parallel fault limit");
+    store.reload_fault_injection();
+    std::vector<ExpertKey> others;
+    for (std::uint32_t expert = 8; expert < kExperts; ++expert)
+      others.push_back(ExpertKey{0, expert});
+    const auto failed = store.acquire(others, stop);
+    expect(!failed.ok() && failed.error() == StoreError::ReadFailed,
+           "one failing read fails the batch");
+    expect(store.stats().pinned_slots == 0, "a failed batch leaves no pins");
+    (void)::unsetenv("AME_IO_FAIL_AFTER_BYTES");
+    store.reload_fault_injection();
+    const auto again = store.acquire(others, stop);
+    expect(again.ok(), "the store works after the failure");
+  }
+  std::filesystem::remove_all(directory);
+}
+
 void check_sparse_large_file() {
   const auto directory = temporary_directory();
   const auto path = directory / "sparse.bin";
@@ -399,6 +456,7 @@ int main() {
   check_cancel_between_chunks();
   check_eintr_retry();
   check_injected_read_failure();
+  check_parallel_store_reads();
   check_sparse_large_file();
   return failures == 0 ? 0 : 1;
 }

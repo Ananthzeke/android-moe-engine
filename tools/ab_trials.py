@@ -145,6 +145,8 @@ def parse_state(path):
 def summarize(directory):
     rows = []
     for trial in sorted(directory.glob("trial-*")):
+        if not (trial / "trial.json").is_file():
+            continue  # still running, or the harness stopped before writing it
         info = json.loads((trial / "trial.json").read_text())
         row = {"trial": info["trial"], "variant": info["variant"], "failed": info["failed"]}
         for kind in ("short", "long"):

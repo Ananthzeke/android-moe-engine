@@ -13,6 +13,7 @@
 
 #include <unistd.h>
 
+#include <algorithm>
 #include <atomic>
 #include <chrono>
 #include <condition_variable>
@@ -47,6 +48,7 @@ struct Options {
   bool stream = false;
   std::string request_log;
   ame::backend::StreamOptions stream_options;
+  bool reader_cpus_auto = false;  // pin readers to the cores that are not the big cores
   std::string system_root = "/";
 };
 
@@ -809,6 +811,13 @@ int run_server(int argc, char** argv) {
     } else if (arg == "--lfu-halve") {
       if (!next(value)) return 2;
       options.stream_options.lfu_halve_every = static_cast<std::uint32_t>(std::stoul(value));
+    } else if (arg == "--readers") {
+      if (!next(value)) return 2;
+      options.stream_options.readers = static_cast<unsigned>(std::stoul(value));
+      if (options.stream_options.readers < 1 || options.stream_options.readers > 4) return 2;
+    } else if (arg == "--reader-cpus") {
+      if (!next(value) || (value != "auto" && value != "none")) return 2;
+      options.reader_cpus_auto = value == "auto";
     } else if (arg == "--fadvise-random") {
       options.stream_options.fadvise_random = true;
     } else if (arg == "--fadvise-dontneed") {
@@ -844,6 +853,16 @@ int run_server(int argc, char** argv) {
     if (!g_request_log) {
       std::cerr << "cannot open request log " << options.request_log << '\n';
       return 2;
+    }
+  }
+  if (options.reader_cpus_auto && !g_sampler->homogeneous() && !g_sampler->big_cores().empty()) {
+    // Readers copy page-cache data and wait on storage; keep them off the compute cores.
+    for (int cpu = 0; cpu < 256; ++cpu) {
+      const auto& big = g_sampler->big_cores();
+      if (std::find(big.begin(), big.end(), cpu) == big.end() &&
+          std::filesystem::exists("/sys/devices/system/cpu/cpu" + std::to_string(cpu))) {
+        options.stream_options.reader_cpus.push_back(cpu);
+      }
     }
   }
   ame::server::PhaseRecorder startup(*g_sampler, nullptr);

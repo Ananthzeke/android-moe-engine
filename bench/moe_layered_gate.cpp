@@ -188,14 +188,17 @@ int main(int argc, char* argv[]) {
   (void)::setenv("AME_ALLOW_UNVERIFIED_ARTIFACT", "1", 0);
   std::string workdir = ".";
   int threads = 4;
+  unsigned readers = 1;
   for (int index = 1; index < argc; ++index) {
     const std::string_view argument = argv[index];
     if (argument == "--workdir" && index + 1 < argc) {
       workdir = argv[++index];
     } else if (argument == "--threads" && index + 1 < argc) {
       threads = std::atoi(argv[++index]);
+    } else if (argument == "--readers" && index + 1 < argc) {
+      readers = static_cast<unsigned>(std::atoi(argv[++index]));
     } else {
-      std::cerr << "usage: moe_layered_gate [--workdir DIR] [--threads N]\n";
+      std::cerr << "usage: moe_layered_gate [--workdir DIR] [--threads N] [--readers N]\n";
       return 2;
     }
   }
@@ -212,7 +215,7 @@ int main(int argc, char* argv[]) {
 
   bool passed = true;
   std::ostringstream report;
-  report << "{\n  \"formats\": [\n";
+  report << "{\n  \"readers\": " << readers << ",\n  \"formats\": [\n";
   bool first_format = true;
   for (const Format& format : formats) {
     const auto directory = std::filesystem::path(workdir) / format.name;
@@ -234,6 +237,7 @@ int main(int argc, char* argv[]) {
     ame::backend::StreamOptions options;
     options.layout = ame::backend::CacheLayout::Layered;
     options.layer_slots = kPoolSlots;
+    options.readers = readers;
     if (!ame::backend::install_moe_stream(model.file.string(), model.manifest.string(), 1,
                                           64U * 1024U * 1024U, options)) {
       std::cerr << "layered install failed: " << ame::backend::moe_stream_stats().error << '\n';
@@ -295,6 +299,7 @@ int main(int argc, char* argv[]) {
   ame::backend::StreamOptions options;
   options.layout = ame::backend::CacheLayout::Layered;
   options.layer_slots = kPoolSlots;
+  options.readers = readers;
 
   // A fused gate_up tensor cannot be expressed as three role views: refuse at install.
   const auto fused_dir = std::filesystem::path(workdir) / "fused";
@@ -314,14 +319,19 @@ int main(int argc, char* argv[]) {
       !ame::backend::install_moe_stream(model.file.string(), model.manifest.string(), 1, 1024,
                                         derived);
 
-  // A derived pool uses the allowance: 64 KiB over two layers of 3 KiB slots is 8 (the
-  // expert count), and the covered bytes stay below the allowance.
-  const bool derived_ok =
-      ame::backend::install_moe_stream(model.file.string(), model.manifest.string(), 1,
-                                       64U * 1024U, derived) &&
-      ame::backend::moe_stream_stats().layer_slots == kExperts &&
-      ame::backend::moe_stream_stats().arena_bytes + ame::backend::moe_stream_stats().cache_metadata_bytes <=
-          64U * 1024U;
+  // A derived pool is the largest that fits: arena plus bookkeeping stay inside the allowance
+  // and one more slot per layer would not fit (unless every expert already has a slot).
+  constexpr std::uint64_t kAllowance = 64U * 1024U;
+  bool derived_ok = ame::backend::install_moe_stream(model.file.string(), model.manifest.string(),
+                                                     1, kAllowance, derived);
+  if (derived_ok) {
+    const auto stats = ame::backend::moe_stream_stats();
+    const std::uint64_t covered = stats.arena_bytes + stats.cache_metadata_bytes;
+    const std::uint64_t one_more = stats.arena_bytes / stats.layer_slots * (stats.layer_slots + 1) +
+                                   stats.cache_metadata_bytes;
+    derived_ok = covered <= kAllowance && stats.layer_slots >= 1 &&
+                 (stats.layer_slots == kExperts || one_more > kAllowance);
+  }
 
   // Union above the pool fails the graph; so does a read failure. A fresh request then
   // matches the resident reference.

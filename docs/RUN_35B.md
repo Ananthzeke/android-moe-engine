@@ -122,7 +122,8 @@ time.
 
 `--cache legacy|layered` selects the expert cache (default `legacy`). Layered mode also takes
 `--eviction lru|lfu`, `--layer-slots N` (zero derives the pool from `--arena-mib`), `--lfu-halve N`,
-`--fadvise-random` and `--fadvise-dontneed`. `--arena-mib` must cover the arenas plus bookkeeping;
+`--fadvise-random`, `--fadvise-dontneed`, `--readers 1-4` (reader threads, both layouts) and
+`--reader-cpus auto|none` (pin readers off the big cores). `--arena-mib` must cover the arenas plus bookkeeping;
 for 16 slots per layer on the 35B model use `--layer-slots 16 --arena-mib 1152`. See
 [the architecture note](ARCHITECTURE.md#layered-expert-cache-unit-4-2026-10-24).
 

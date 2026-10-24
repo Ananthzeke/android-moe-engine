@@ -11,6 +11,7 @@
 #include "cancellation.hpp"
 #include "expert_layout.hpp"
 #include "file_source.hpp"
+#include "reader_pool.hpp"
 #include "result.hpp"
 
 namespace ame::residency {
@@ -29,6 +30,9 @@ struct StoreOptions {
   // Optional caller-owned arena. When non-empty it must be aligned and at least
   // slot_count * slot_bytes. The store never frees borrowed memory.
   std::span<std::byte> external_arena{};
+  // Reader threads for the misses of one acquire (1 to 4). One reads on the calling thread.
+  unsigned readers{1};
+  std::vector<int> reader_cpus{};
 };
 
 struct StoreStats {
@@ -139,6 +143,7 @@ class Store {
   void release(const Lease& lease) noexcept;
 
   FileSource source_;
+  std::unique_ptr<ReaderPool> readers_;  // after source_: joined before the source closes
   std::vector<EntryState> entries_;
   std::vector<SlotState> slots_;
   std::vector<std::uint8_t> slot_taken_;

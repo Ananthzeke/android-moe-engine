@@ -104,12 +104,15 @@ if arguments.layered_model is not None:
             return json.loads(output.read_text()), logits.read_bytes()
 
         legacy, legacy_logits = harness("legacy", "--moe-slots", 8)
-        for name, extra in (("layered", ["--cache", "layered"]),
+        for name, extra in (("legacy-readers", ["--moe-slots", 8, "--readers", 4]),
+                            ("layered", ["--cache", "layered"]),
+                            ("layered-readers", ["--cache", "layered", "--readers", 4]),
                             ("layered-lfu", ["--cache", "layered", "--eviction", "lfu",
                                              "--fadvise-random", "--fadvise-dontneed"])):
             record, logits = harness(name, *extra)
-            if record["streaming"]["cache_layout"] != "layered":
-                raise SystemExit(f"{name}: layered cache was not used")
+            expected_layout = "layered" if "--cache" in extra else "legacy"
+            if record["streaming"]["cache_layout"] != expected_layout:
+                raise SystemExit(f"{name}: expected the {expected_layout} cache")
             if record["output"]["token_ids"] != legacy["output"]["token_ids"]:
                 raise SystemExit(f"{name}: token IDs differ from the shipped cache")
             if logits != legacy_logits:

@@ -157,12 +157,14 @@ def gate_layered(binary: Path, workdir: Path) -> dict[str, object]:
     workdir.mkdir(parents=True, exist_ok=True)
     runs = []
     for threads in (1, 2, 4):
-        result = run([str(binary), "--workdir", str(workdir / f"t{threads}"),
-                      "--threads", str(threads)], timeout=300)
-        payload = json.loads(result.stdout)
-        if payload.get("passed") is not True:
-            raise RuntimeError(f"layered gate failed with {threads} workers: {payload}")
-        runs.append({"threads": threads, **payload})
+        for readers in (1, 2, 4):
+            result = run([str(binary), "--workdir", str(workdir / f"t{threads}r{readers}"),
+                          "--threads", str(threads), "--readers", str(readers)], timeout=300)
+            payload = json.loads(result.stdout)
+            if payload.get("passed") is not True:
+                raise RuntimeError(f"layered gate failed with {threads} workers and "
+                                   f"{readers} readers: {payload}")
+            runs.append({"threads": threads, **payload})
     return {"passed": True, "runs": runs}
 
 

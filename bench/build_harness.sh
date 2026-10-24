@@ -21,7 +21,7 @@ API=${AME_NDK_API:-31}
 CXX="$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android${API}-clang++"
 STRIP="$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip"
 CXXFLAGS="-std=c++20 -O2 -DNDEBUG"
-ENGINE="src/backend/moe_stream.cpp src/backend/artifact.cpp src/common/sha256.cpp src/model/file_extent.cpp src/model/expert_layout.cpp src/residency/file_source.cpp src/residency/store.cpp src/residency/layered_store.cpp src/runtime/prefill_plan.cpp"
+ENGINE="src/backend/moe_stream.cpp src/backend/artifact.cpp src/common/sha256.cpp src/model/file_extent.cpp src/model/expert_layout.cpp src/residency/file_source.cpp src/residency/store.cpp src/residency/layered_store.cpp src/residency/reader_pool.cpp src/runtime/prefill_plan.cpp"
 ENGINE_INCLUDES="-Isrc/backend -Isrc/model -Isrc/residency -Isrc/common -Isrc/runtime -I$LLAMA/src"
 LIBS_HOST="$HOST_BUILD/ggml/src/libggml.a $HOST_BUILD/ggml/src/libggml-base.a $HOST_BUILD/ggml/src/libggml-cpu.a"
 LIBS_ANDROID="$ANDROID_BUILD/ggml/src/libggml.a $ANDROID_BUILD/ggml/src/libggml-base.a $ANDROID_BUILD/ggml/src/libggml-cpu.a"
@@ -36,7 +36,7 @@ g++ $CXXFLAGS bench/llama_baseline.cpp $ENGINE $ENGINE_INCLUDES \
 
 g++ $CXXFLAGS bench/moe_kernel_gate.cpp \
   src/model/file_extent.cpp src/model/expert_layout.cpp \
-  src/residency/file_source.cpp src/residency/store.cpp src/residency/layered_store.cpp \
+  src/residency/file_source.cpp src/residency/store.cpp src/residency/layered_store.cpp src/residency/reader_pool.cpp \
   -Isrc/model -Isrc/residency -Isrc/common \
   -I"$LLAMA/include" -I"$LLAMA/ggml/include" \
   -Wl,--start-group $LIBS_HOST -Wl,--end-group \
@@ -57,7 +57,7 @@ g++ $CXXFLAGS bench/moe_stream_gate.cpp $ENGINE $ENGINE_INCLUDES \
 
 "$CXX" $CXXFLAGS -static-libstdc++ bench/moe_kernel_gate.cpp \
   src/model/file_extent.cpp src/model/expert_layout.cpp \
-  src/residency/file_source.cpp src/residency/store.cpp src/residency/layered_store.cpp \
+  src/residency/file_source.cpp src/residency/store.cpp src/residency/layered_store.cpp src/residency/reader_pool.cpp \
   -Isrc/model -Isrc/residency -Isrc/common \
   -I"$LLAMA/include" -I"$LLAMA/ggml/include" \
   -Wl,--start-group $LIBS_ANDROID -Wl,--end-group -llog -lm \
@@ -69,7 +69,7 @@ g++ $CXXFLAGS bench/moe_stream_gate.cpp $ENGINE $ENGINE_INCLUDES \
   -Wl,--start-group $LIBS_ANDROID -Wl,--end-group "$OUT/sha256_arm.o" -llog -lm \
   -o "$OUT/moe_stream_gate_android"
 
-"$CXX" $CXXFLAGS -static-libstdc++ bench/moe_quantized_gate.cpp   src/model/file_extent.cpp src/model/expert_layout.cpp   src/residency/file_source.cpp src/residency/store.cpp src/residency/layered_store.cpp   -Isrc/model -Isrc/residency -Isrc/common   -I"$LLAMA/include" -I"$LLAMA/ggml/include"   -Wl,--start-group $LIBS_ANDROID -Wl,--end-group -llog -lm   -o "$OUT/moe_quantized_gate_android"
+"$CXX" $CXXFLAGS -static-libstdc++ bench/moe_quantized_gate.cpp   src/model/file_extent.cpp src/model/expert_layout.cpp   src/residency/file_source.cpp src/residency/store.cpp src/residency/layered_store.cpp src/residency/reader_pool.cpp   -Isrc/model -Isrc/residency -Isrc/common   -I"$LLAMA/include" -I"$LLAMA/ggml/include"   -Wl,--start-group $LIBS_ANDROID -Wl,--end-group -llog -lm   -o "$OUT/moe_quantized_gate_android"
 
 "$CXX" $CXXFLAGS -static-libstdc++ -DAME_STREAMING=1 bench/complete_runner.cpp $ENGINE $ENGINE_INCLUDES \
   -I"$LLAMA/include" -I"$LLAMA/ggml/include" \

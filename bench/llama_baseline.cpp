@@ -333,6 +333,17 @@ ParseResult parse_options(int argc, char* argv[], Options& options) {
       options.stream = true;
       continue;
     }
+    if (argument == "--readers" && index + 1 < argc) {
+      const std::string_view text = argv[++index];
+      unsigned number = 0;
+      const auto parsed = std::from_chars(text.data(), text.data() + text.size(), number);
+      if (parsed.ec != std::errc{} || parsed.ptr != text.data() + text.size() || number < 1 ||
+          number > 4) {
+        return {false, "--readers must be 1 to 4"};
+      }
+      options.stream_options.readers = number;
+      continue;
+    }
     if (argument == "--fadvise-random") {
       options.stream_options.fadvise_random = true;
       continue;
@@ -591,7 +602,7 @@ int main(int argc, char* argv[]) {
                    "       [--tag TAG] [--no-prompt-text] [--stream --manifest PATH]\n"
                    "       [--moe-slots N] [--moe-arena-mib N] [--cache legacy|layered]\n"
                    "       [--eviction lru|lfu] [--layer-slots N] [--lfu-halve N]\n"
-                   "       [--fadvise-random] [--fadvise-dontneed]\n"
+                   "       [--fadvise-random] [--fadvise-dontneed] [--readers 1-4]\n"
                    "       [--cancel-after-ms N]\n";
       return 0;
     }
@@ -1216,6 +1227,8 @@ int main(int argc, char* argv[]) {
   json.string_value(options.stream_options.eviction == ame::backend::Eviction::Lfu ? "lfu" : "lru");
   json.key("layer_slots");
   json.unsigned_value(stream_stats.layer_slots);
+  json.key("readers");
+  json.unsigned_value(options.stream_options.readers);
   json.key("fadvise_random");
   json.bool_value(options.stream_options.fadvise_random);
   json.key("fadvise_dontneed");

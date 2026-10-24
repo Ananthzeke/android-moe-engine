@@ -60,11 +60,11 @@ void FileSource::advise_dontneed(std::uint64_t offset, std::uint64_t length) con
 FileSource::FileSource(FileSource&& other) noexcept
     : descriptor_(other.descriptor_),
       size_bytes_(other.size_bytes_),
-      bytes_read_(other.bytes_read_),
-      eintr_consumed_(other.eintr_consumed_),
-      cancel_injected_(other.cancel_injected_),
-      pread_calls_(other.pread_calls_),
-      pread_bytes_(other.pread_bytes_),
+      bytes_read_(other.bytes_read_.load()),
+      eintr_consumed_(other.eintr_consumed_.load()),
+      cancel_injected_(other.cancel_injected_.load()),
+      pread_calls_(other.pread_calls_.load()),
+      pread_bytes_(other.pread_bytes_.load()),
       fail_limit_(other.fail_limit_),
       cancel_after_chunks_(other.cancel_after_chunks_),
       inject_eintr_once_(other.inject_eintr_once_) {
@@ -79,11 +79,11 @@ FileSource& FileSource::operator=(FileSource&& other) noexcept {
     }
     descriptor_ = other.descriptor_;
     size_bytes_ = other.size_bytes_;
-    bytes_read_ = other.bytes_read_;
-    eintr_consumed_ = other.eintr_consumed_;
-    cancel_injected_ = other.cancel_injected_;
-    pread_calls_ = other.pread_calls_;
-    pread_bytes_ = other.pread_bytes_;
+    bytes_read_ = other.bytes_read_.load();
+    eintr_consumed_ = other.eintr_consumed_.load();
+    cancel_injected_ = other.cancel_injected_.load();
+    pread_calls_ = other.pread_calls_.load();
+    pread_bytes_ = other.pread_bytes_.load();
     fail_limit_ = other.fail_limit_;
     cancel_after_chunks_ = other.cancel_after_chunks_;
     inject_eintr_once_ = other.inject_eintr_once_;
@@ -146,7 +146,8 @@ Result<FileSource, FileError> FileSource::open(const std::string& path) {
 
 Result<void, FileError> FileSource::read_exact(std::uint64_t offset,
                                                std::span<std::byte> destination,
-                                               const Cancellation& stop) const {
+                                               const Cancellation& stop,
+                                               const std::atomic<bool>* abort) const {
   if (descriptor_ < 0) {
     return FileError::ReadFailed;
   }
@@ -155,26 +156,28 @@ Result<void, FileError> FileSource::read_exact(std::uint64_t offset,
   }
   std::size_t completed = 0;
   while (completed < destination.size()) {
-    if (!cancel_injected_ && bytes_read_ >= kReadChunk && cancel_after_chunks_) {
-      cancel_injected_ = true;
+    if (cancel_after_chunks_ && bytes_read_.load() >= kReadChunk &&
+        !cancel_injected_.exchange(true)) {
       const_cast<Cancellation&>(stop).request();
     }
-    if (stop.requested()) {
+    if (stop.requested() || (abort != nullptr && abort->load(std::memory_order_acquire))) {
       return FileError::Cancelled;
     }
     const std::size_t remaining = destination.size() - completed;
     const std::size_t chunk = std::min(remaining, kReadChunk);
-    if (!eintr_consumed_ && inject_eintr_once_) {
-      eintr_consumed_ = true;
+    if (inject_eintr_once_ && !eintr_consumed_.exchange(true)) {
       continue;
     }
-    if (bytes_read_ > fail_limit_ || chunk > fail_limit_ - bytes_read_) {
-      return FileError::ReadFailed;
-    }
-    bytes_read_ += chunk;
+    // Reserve the chunk against the injected limit; the limit holds across threads.
+    std::uint64_t current = bytes_read_.load();
+    do {
+      if (current > fail_limit_ || chunk > fail_limit_ - current) {
+        return FileError::ReadFailed;
+      }
+    } while (!bytes_read_.compare_exchange_weak(current, current + chunk));
     const ssize_t count = ::pread(descriptor_, destination.data() + completed, chunk,
                                   static_cast<off_t>(offset + completed));
-    ++pread_calls_;
+    pread_calls_.fetch_add(1, std::memory_order_relaxed);
     if (count < 0) {
       if (errno == EINTR) {
         continue;
@@ -184,7 +187,7 @@ Result<void, FileError> FileSource::read_exact(std::uint64_t offset,
     if (count == 0) {
       return FileError::UnexpectedEnd;
     }
-    pread_bytes_ += static_cast<std::uint64_t>(count);
+    pread_bytes_.fetch_add(static_cast<std::uint64_t>(count), std::memory_order_relaxed);
     completed += static_cast<std::size_t>(count);
   }
   return {};

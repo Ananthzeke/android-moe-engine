@@ -107,6 +107,7 @@ struct LayerState {
 };
 bool g_layered = false;
 bool g_build_legacy_entries = true;
+StreamOptions g_stream_options;  // the options of the current installation
 std::unique_ptr<LayeredStore> g_layered_store;
 std::vector<LayerState> g_layer_state;
 std::vector<std::uint32_t> g_pool_of_table;         // table_id -> pool index
@@ -347,6 +348,8 @@ Cache* cache_for(std::uint64_t expert_bytes) {
   options.slot_count = g_slots;
   options.alignment = 64;
   options.external_arena = arena->view;
+  options.readers = g_stream_options.readers;
+  options.reader_cpus = g_stream_options.reader_cpus;
   auto store = Store::create(std::move(source).value(), entries->second, options);
   if (!store.ok()) {
     (void)fail_outcome("store creation failed for cache size class");
@@ -459,6 +462,8 @@ bool build_layered_cache(const StreamOptions& options) {
     store_options.fadvise_random = options.fadvise_random;
     store_options.fadvise_dontneed = options.fadvise_dontneed;
     store_options.alignment = 64;
+    store_options.readers = options.readers;
+    store_options.reader_cpus = options.reader_cpus;
     auto store = LayeredStore::create(std::move(source).value(), std::move(layers), store_options);
     if (!store.ok()) {
       return manifest_error("layered cache creation failed");
@@ -921,6 +926,7 @@ bool install_moe_stream(const Artifact& artifact, const std::string& manifest_pa
     return false;
   }
   g_build_legacy_entries = options.layout == CacheLayout::Legacy;
+  g_stream_options = options;
   g_artifact = &artifact;
   std::string recheck_error;
   if (!artifact.recheck(recheck_error)) {
@@ -990,6 +996,7 @@ bool install_moe_stream(const std::string& model_path, const std::string& manife
   g_model_path = model_path;
   g_arena_limit = arena_limit_bytes;
   g_build_legacy_entries = options.layout == CacheLayout::Legacy;
+  g_stream_options = options;
   g_trace_only = std::getenv("AME_MOE_TRACE_ONLY") != nullptr;
   if (!read_manifest(manifest_path, model_bytes)) {
     if (g_stats.error.empty()) {
@@ -1084,6 +1091,7 @@ void uninstall_moe_stream() {
   g_layered_store.reset();
   g_layered = false;
   g_build_legacy_entries = true;
+  g_stream_options = StreamOptions{};
   g_pool_of_table.clear();
   g_slot_offset_of_table.clear();
   g_role_bit_of_table.clear();

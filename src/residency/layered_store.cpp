@@ -53,6 +53,8 @@ std::optional<std::uint32_t> LayerLease::slot_index(std::uint32_t expert) const 
 
 LayeredStore::LayeredStore(FileSource source, std::vector<Pool> pools, LayeredOptions options)
     : source_(std::move(source)), pools_(std::move(pools)), options_(options) {
+  readers_ = std::make_unique<ReaderPool>(source_, options.readers, options.reader_cpus);
+  read_jobs_.reserve(kMaxLeaseExperts * kMaxSlicesPerSlot);
   std::uint64_t total = 0;
   for (auto& pool : pools_) {
     pool.base_offset = total;
@@ -63,7 +65,8 @@ LayeredStore::LayeredStore(FileSource source, std::vector<Pool> pools, LayeredOp
                        pool.slot_of.size() * sizeof(std::int32_t) +
                        pool.slot_state.size() * sizeof(Slot) + pool.taken.size();
   }
-  metadata_bytes_ += pools_.size() * sizeof(Pool);
+  metadata_bytes_ +=
+      pools_.size() * sizeof(Pool) + kMaxLeaseExperts * kMaxSlicesPerSlot * sizeof(ReadJob);
   if (!options.external_arena.empty()) {
     arena_ = options.external_arena.first(static_cast<std::size_t>(total));
     return;
@@ -348,34 +351,42 @@ Result<LayerLease, StoreError> LayeredStore::acquire(std::uint32_t layer,
     lease.store_ = nullptr;
   };
 
+  if (stop.requested()) {
+    rollback();
+    return StoreError::Cancelled;
+  }
+  // One read per slice of every missing expert, all submitted together. read_all returns only
+  // after every read has ended, so a failure or cancellation rolls back with nothing still
+  // writing into a slot.
+  read_jobs_.clear();
   for (std::uint32_t index = 0; index < miss_count; ++index) {
-    if (stop.requested()) {
-      rollback();
-      return StoreError::Cancelled;
-    }
     const std::uint32_t slot = chosen[index];
     const LayerExpert& expert = pool.experts[miss_experts[index]];
     std::byte* slot_base = arena_.data() + pool.base_offset + slot * pool.slot_bytes;
     for (std::uint32_t part = 0; part < expert.slice_count; ++part) {
       const SliceExtent& slice = expert.slices[part];
-      const auto destination = std::span<std::byte>(slot_base + slice.slot_offset,
-                                                    static_cast<std::size_t>(slice.length.value));
-      const auto read_begin = std::chrono::steady_clock::now();
-      const auto read = source_.read_exact(slice.offset.value, destination, stop);
-      stats_.read_seconds +=
-          std::chrono::duration<double>(std::chrono::steady_clock::now() - read_begin).count();
-      if (!read.ok()) {
-        rollback();
-        return read.error() == FileError::Cancelled ? StoreError::Cancelled
-                                                    : StoreError::ReadFailed;
-      }
-      ++stats_.slice_reads;
-      stats_.read_bytes += slice.length.value;
-      if (options_.fadvise_dontneed) {
-        source_.advise_dontneed(slice.offset.value, slice.length.value);
-      }
+      read_jobs_.push_back(
+          ReadJob{slice.offset.value,
+                  std::span<std::byte>(slot_base + slice.slot_offset,
+                                       static_cast<std::size_t>(slice.length.value)),
+                  options_.fadvise_dontneed});
     }
-    list_push_back(pool, slot);
+  }
+  const auto read_begin = std::chrono::steady_clock::now();
+  const auto read = readers_->read_all(read_jobs_, stop);
+  stats_.read_seconds +=
+      std::chrono::duration<double>(std::chrono::steady_clock::now() - read_begin).count();
+  if (!read.ok()) {
+    rollback();
+    return read.error() == FileError::Cancelled ? StoreError::Cancelled : StoreError::ReadFailed;
+  }
+  for (std::uint32_t index = 0; index < miss_count; ++index) {
+    const LayerExpert& expert = pool.experts[miss_experts[index]];
+    stats_.slice_reads += expert.slice_count;
+    for (std::uint32_t part = 0; part < expert.slice_count; ++part) {
+      stats_.read_bytes += expert.slices[part].length.value;
+    }
+    list_push_back(pool, chosen[index]);
   }
   // Hits and loaded slots are pinned for the lease; recency is stamped on release.
   return lease;

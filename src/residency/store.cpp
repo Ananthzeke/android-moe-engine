@@ -77,6 +77,7 @@ Store::Store(FileSource source, std::vector<EntryState> entries, StoreOptions op
       slots_(options.slot_count),
       slot_taken_(options.slot_count, 0),
       slot_bytes_(slot_bytes) {
+  readers_ = std::make_unique<ReaderPool>(source_, options.readers, options.reader_cpus);
   const std::size_t bytes = static_cast<std::size_t>(slot_bytes * options.slot_count);
   if (!options.external_arena.empty()) {
     arena_ = options.external_arena.first(bytes);
@@ -290,27 +291,36 @@ Result<Lease, StoreError> Store::acquire(std::span<const model::ExpertKey> keys,
     lease.store_ = nullptr;
   };
 
+  if (stop.requested()) {
+    rollback();
+    return StoreError::Cancelled;
+  }
+  // Every miss is reserved and pinned; submit one read per slot and wait for all of them.
+  // read_all returns only after every submitted read has ended, so a failure rolls back
+  // with no read still writing into a destination.
+  std::array<ReadJob, kMaxLeaseExperts> jobs{};
   for (std::uint32_t index = 0; index < loading_count; ++index) {
-    if (stop.requested()) {
-      rollback();
-      return StoreError::Cancelled;
-    }
     const std::uint32_t slot_index = loading_slots[index];
-    auto& entry = entries_[static_cast<std::size_t>(slots_[slot_index].entry)];
-    auto destination =
+    const auto& entry = entries_[static_cast<std::size_t>(slots_[slot_index].entry)];
+    jobs[index] = ReadJob{
+        entry.offset.value,
         arena_.subspan(static_cast<std::size_t>(slot_index) * static_cast<std::size_t>(slot_bytes_),
-                       static_cast<std::size_t>(entry.length.value));
-    const auto read_begin = std::chrono::steady_clock::now();
-    const auto read = source_.read_exact(entry.offset.value, destination, stop);
-    stats_.read_seconds +=
-        std::chrono::duration<double>(std::chrono::steady_clock::now() - read_begin).count();
-    if (!read.ok()) {
-      rollback();
-      return read.error() == FileError::Cancelled ? StoreError::Cancelled : StoreError::ReadFailed;
-    }
-    ++stats_.read_calls;
-    stats_.read_bytes += entry.length.value;
+                       static_cast<std::size_t>(entry.length.value)),
+        false};
+  }
+  const auto read_begin = std::chrono::steady_clock::now();
+  const auto read = readers_->read_all(std::span<const ReadJob>(jobs.data(), loading_count), stop);
+  stats_.read_seconds +=
+      std::chrono::duration<double>(std::chrono::steady_clock::now() - read_begin).count();
+  if (!read.ok()) {
+    rollback();
+    return read.error() == FileError::Cancelled ? StoreError::Cancelled : StoreError::ReadFailed;
+  }
+  for (std::uint32_t index = 0; index < loading_count; ++index) {
+    const std::uint32_t slot_index = loading_slots[index];
     auto& slot = slots_[slot_index];
+    ++stats_.read_calls;
+    stats_.read_bytes += entries_[static_cast<std::size_t>(slot.entry)].length.value;
     slot.resident = true;
     slot.tick = ++clock_;
   }
