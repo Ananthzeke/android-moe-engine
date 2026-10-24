@@ -172,3 +172,17 @@ prefill, which this project does not adopt. Option A uses an API that exists at 
 hook as the authority on which experts are staged. The cost is one extra graph segment boundary per
 routed layer per graph, which the phone A/B measures. Evidence and the measured effect are in
 `evidence/core-opt/unit6/`.
+
+## Tiled MUL_MAT_ID for staged experts (2026-10-25)
+
+Patch 0001 skipped the tiled K-quant `MUL_MAT_ID` kernel whenever the materializer staged a compact
+expert tensor, because that kernel read `dst->src[0]`. A staged run therefore used `vec_dot` where the
+resident run used the tiled kernel, so the two could differ in the last bits on hosts that have it. The
+effective expert tensor is now passed through. At the pinned commit the tiled kernel exists only for
+x86 AVX builds (`ggml_tiled_supported` is a stub returning false otherwise) and runs only for experts
+that receive at least eight rows in one graph (`ggml_tiled_min_batch`), so it is inert on the
+Snapdragon 665, whose prefill units are 2 to 8 tokens. No phone prefill A/B was run, because the
+source shows the kernel cannot run there. Host evidence: forcing it with `GGML_CPU_TILED_MM_FORCE=1`,
+`moe_layered_gate` is bit-identical to the resident reference with the fix and mismatches on all 48
+Q4_K/Q6_K operators without it; the harness gives identical token IDs and logits for staged and resident
+runs at the same prefill unit on a 14-token prompt.

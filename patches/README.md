@@ -37,3 +37,12 @@ TTFT from 4.9-8.4 s to about 2.1 s. Apply it after 0001. The consumer API is tes
 cancelled graph leaves behind. `ggml_moe_set_materializer` calls it, so installing or removing a
 materializer starts clean. The project calls it per request, only under exclusive admission after
 the previous context was destroyed. Without it, the next graph aborts after its first node.
+
+Tiled kernel (also in `0001`, files `ggml/src/ggml-cpu/tiled/tiled.{cpp,h}`): the tiled K-quant
+`MUL_MAT_ID` path used to read `dst->src[0]`, so the patch skipped it for every staged tensor and
+those operators ran the per-row `vec_dot` path, which can differ numerically from the resident run.
+`ggml_compute_forward_mul_mat_id_tiled` and its dispatch now take the effective expert tensor, and the
+call site passes `src0_eff`. The tiled kernel is compiled in only for x86 AVX targets
+(`ggml_tiled_supported` is a stub returning false otherwise), so this change is inert on the phone.
+Host evidence: `moe_layered_gate` with `GGML_CPU_TILED_MM_FORCE=1` is bit-identical to the resident
+reference; with the old skip it mismatches on all 24 Q4_K and 24 Q6_K operators.

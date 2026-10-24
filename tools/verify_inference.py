@@ -24,9 +24,10 @@ PATCHES = [ROOT / "patches" / "0001-ggml-moe-materializer.patch",
 
 
 def run(command: list[str], *, cwd: Path = ROOT, timeout: int = 900,
-        check: bool = True) -> subprocess.CompletedProcess[str]:
+        check: bool = True, extra_env: dict[str, str] | None = None
+        ) -> subprocess.CompletedProcess[str]:
     result = subprocess.run(command, cwd=cwd, text=True, capture_output=True,
-                            timeout=timeout, env=environment())
+                            timeout=timeout, env={**environment(), **(extra_env or {})})
     if check and result.returncode != 0:
         raise RuntimeError(f"command failed ({result.returncode}): {' '.join(command)}\n"
                            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}")
@@ -168,7 +169,24 @@ def gate_layered(binary: Path, workdir: Path) -> dict[str, object]:
                     raise RuntimeError(f"layered gate failed with {threads} workers, {readers} "
                                        f"readers, overlap {overlap}: {payload}")
                 runs.append({"threads": threads, **payload})
-    return {"passed": True, "runs": runs}
+    # The tiled K-quant kernel on every expert (x86 hosts): staged tensors must reach the same kernel
+    # as the resident reference, so the gate still passes bit for bit, and on a host that has the
+    # kernel the quantized results differ from the vec_dot ones, proving it ran on staged tensors.
+    forced = run([str(binary), "--workdir", str(workdir / "tiled"), "--threads", "2",
+                  "--readers", "2"], timeout=300, extra_env={"GGML_CPU_TILED_MM_FORCE": "1"})
+    forced_payload = json.loads(forced.stdout)
+    if forced_payload.get("passed") is not True:
+        raise RuntimeError(f"layered gate failed with the tiled kernel forced: {forced_payload}")
+    plain = run([str(binary), "--workdir", str(workdir / "plain"), "--threads", "2",
+                 "--readers", "2"], timeout=300, extra_env={"GGML_CPU_TILED_MM": "0"})
+    digests = {kind: {f["format"]: f["output_digest"] for f in json.loads(text)["formats"]}
+               for kind, text in (("forced", forced.stdout), ("plain", plain.stdout))}
+    import platform
+    tiled_applies = platform.machine() in ("x86_64", "AMD64")
+    if tiled_applies and digests["forced"]["q4_K"] == digests["plain"]["q4_K"]:
+        raise RuntimeError("the forced tiled kernel did not change the staged Q4_K results")
+    return {"passed": True, "runs": runs, "tiled_forced": forced_payload["passed"],
+            "tiled_digests": digests, "tiled_applies_on_host": tiled_applies}
 
 
 def gate_quantized(binary: Path, workdir: Path) -> list[dict[str, object]]:

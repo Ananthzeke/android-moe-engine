@@ -2,6 +2,7 @@
 import argparse
 import hashlib
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -127,6 +128,39 @@ if arguments.layered_model is not None:
                 if stream["overlap"] != "topk" or stream["prefetches_started"] == 0 \
                         or stream["prefetches_consumed"] == 0 or stream["prefetch_fallbacks"] != 0:
                     raise SystemExit(f"{name}: the top-k overlap did not run: {stream}")
+        # Multi-token prefill with the tiled kernel forced on every expert (x86 hosts): a resident
+        # run at the same schedule is the reference for the staged runs. The staged cache must
+        # reach the same kernel as the resident tensors, so tokens and logits stay bit-identical.
+        long_prompt = "The quick brown fox jumps over the lazy dog 0123456789 again and again"
+        def tiled_harness(name, unit, *extra, streamed=True):
+            output, logits = scratch / f"{name}.json", scratch / f"{name}.logits"
+            command = [arguments.harness, "--model", layered_model, "--artifact-sha", layered_digest,
+                       "--prompt", long_prompt, "--max-new-tokens", 4, "--context", 128,
+                       "--threads", 2, "--temperature", 0, "--seed", 1,
+                       "--logits-output", logits, "--output", output]
+            if streamed:
+                command += ["--stream", "--manifest", layered_manifest, "--moe-arena-mib", 64,
+                            "--batch-size", 64, *extra]
+            else:
+                command += ["--batch-size", unit]
+            result = run(command, env={**os.environ, "GGML_CPU_TILED_MM_FORCE": "1"})
+            if result.returncode != 0 or not output.is_file():
+                raise SystemExit(f"{name} failed: {result.returncode} {result.stderr[-600:]}")
+            return json.loads(output.read_text()), logits.read_bytes()
+
+        # Each cache admits its own prefill unit, so each staged run is compared with a resident
+        # run at the same unit (the same schedule), not with one fixed reference.
+        for name, extra in (("tiled-legacy", ["--moe-slots", 8]),
+                            ("tiled-layered", ["--cache", "layered", "--readers", 2]),
+                            ("tiled-overlap", ["--cache", "layered", "--overlap", "topk"])):
+            record, logits = tiled_harness(name, None, *extra)
+            unit = record["options"]["prefill_unit_tokens"]
+            resident, resident_logits = tiled_harness(f"{name}-resident", unit, streamed=False)
+            if len(resident["prompt_token_ids"]) < 8:
+                raise SystemExit("the tiled prefill prompt is too short to be a multi-token prefill")
+            if record["output"]["token_ids"] != resident["output"]["token_ids"] or logits != resident_logits:
+                raise SystemExit(f"{name}: staged run differs from the resident run with the tiled kernel")
+
         # The fused-expert fixture cannot be expressed as three role views: refused at install.
         refused = run([arguments.harness, "--model", model, "--manifest", manifest,
                        "--artifact-sha", digest, "--stream", "--prompt", "a", "--cache", "layered",

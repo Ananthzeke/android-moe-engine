@@ -132,6 +132,18 @@ Output run_op(const Model& model, int layer, int role, bool named,
   return output;
 }
 
+// FNV-1a over the bytes of every result, to compare runs of this program with each other.
+std::uint64_t fold(std::uint64_t hash, const Output& output) {
+  for (const float value : output.values) {
+    std::uint32_t bits = 0;
+    std::memcpy(&bits, &value, sizeof(bits));
+    for (int shift = 0; shift < 32; shift += 8) {
+      hash = (hash ^ ((bits >> shift) & 0xFFU)) * 0x100000001B3ULL;
+    }
+  }
+  return hash;
+}
+
 bool same(const Output& a, const Output& b) {
   return a.status == GGML_STATUS_SUCCESS && b.status == GGML_STATUS_SUCCESS &&
          a.values.size() == b.values.size() &&
@@ -269,6 +281,7 @@ int main(int argc, char* argv[]) {
     std::vector<Predictor> predictors(kLayers, Predictor{{}, kPoolSlots});
     std::size_t compared = 0;
     std::size_t mismatched = 0;
+    std::uint64_t digest = 0xCBF29CE484222325ULL;
     bool counters_ok = true;
     bool callbacks_ok = true;
     std::size_t reference_index = 0;
@@ -287,6 +300,7 @@ int main(int argc, char* argv[]) {
           const Output candidate =
               run_op(model, layer, role, true, step.ids, step.tokens, kTopK, threads);
           ++compared;
+          digest = fold(digest, candidate);
           if (!same(references[reference_index++], candidate)) ++mismatched;
         }
         const auto after = ame::backend::moe_stream_stats();
@@ -318,6 +332,7 @@ int main(int argc, char* argv[]) {
            << "\", \"operators\": " << compared << ", \"mismatched\": " << mismatched
            << ", \"counters_match_prediction\": " << (counters_ok ? "true" : "false")
            << ", \"geometry_ok\": " << (geometry_ok ? "true" : "false")
+           << ", \"output_digest\": \"" << std::hex << digest << std::dec << "\""
            << ", \"arena_bytes\": " << final_stats.arena_bytes
            << ", \"metadata_bytes\": " << final_stats.cache_metadata_bytes
            << ", \"passed\": " << (format_ok ? "true" : "false") << "}";
