@@ -1239,7 +1239,8 @@ int main(int argc, char* argv[]) {
   json.end_object();
 
   std::string write_error;
-  if (!write_text(options.output, json.text() + "\n", write_error)) {
+  const bool output_written = write_text(options.output, json.text() + "\n", write_error);
+  if (!output_written) {
     std::cerr << "output write failed: " << write_error << '\n';
   }
 
@@ -1255,5 +1256,6 @@ int main(int argc, char* argv[]) {
   if (stream_failed || (decode_failed && !cancelled)) {
     return 1;
   }
-  return 0;
+  // Inference may have finished, but without the result file no evidence was delivered.
+  return output_written ? 0 : 4;
 }

@@ -1,5 +1,6 @@
 #include "run_supervisor.hpp"
 
+#include <dirent.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
@@ -102,6 +103,52 @@ std::string started_json(const RunOptions& options, const std::string& started_a
   return output;
 }
 
+// True when some non-zombie process still belongs to the process group. A zombie
+// descendant has already stopped executing and only awaits its reaper.
+bool group_alive(pid_t group) {
+  DIR* proc = ::opendir("/proc");
+  if (proc == nullptr) {
+    return ::killpg(group, 0) == 0 || errno != ESRCH;
+  }
+  bool alive = false;
+  while (const dirent* entry = ::readdir(proc)) {
+    if (entry->d_name[0] < '0' || entry->d_name[0] > '9') {
+      continue;
+    }
+    std::ifstream stat(std::string("/proc/") + entry->d_name + "/stat");
+    std::string line;
+    if (!std::getline(stat, line)) {
+      continue;
+    }
+    const auto close = line.rfind(')');
+    if (close == std::string::npos) {
+      continue;
+    }
+    char state = 0;
+    long parent = 0;
+    long process_group = 0;
+    if (std::sscanf(line.c_str() + close + 1, " %c %ld %ld", &state, &parent, &process_group) ==
+            3 &&
+        process_group == static_cast<long>(group) && state != 'Z' && state != 'X') {
+      alive = true;
+      break;
+    }
+  }
+  ::closedir(proc);
+  return alive;
+}
+
+bool wait_group_gone(pid_t group, std::chrono::milliseconds limit) {
+  const auto deadline = std::chrono::steady_clock::now() + limit;
+  while (group_alive(group)) {
+    if (std::chrono::steady_clock::now() >= deadline) {
+      return false;
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+  }
+  return true;
+}
+
 }  // namespace
 
 Result<RunResult, RunError> supervise(const RunOptions& options) {
@@ -148,6 +195,7 @@ Result<RunResult, RunError> supervise(const RunOptions& options) {
     return RunError::SpawnFailed;
   }
   if (pid == 0) {
+    ::setpgid(0, 0);
     ::dup2(stdout_fd, STDOUT_FILENO);
     ::dup2(stderr_fd, STDERR_FILENO);
     ::close(stdout_fd);
@@ -162,46 +210,61 @@ Result<RunResult, RunError> supervise(const RunOptions& options) {
     ::execvp(options.runner.c_str(), argv.data());
     _exit(127);
   }
+  // Both sides set the group so the leader owns it before either can signal it.
+  (void)::setpgid(pid, pid);
   ::close(stdout_fd);
   ::close(stderr_fd);
 
   int status = 0;
   bool timed_out = false;
   bool reaped = false;
-  while (true) {
-    const pid_t result = ::waitpid(pid, &status, WNOHANG);
-    if (result == pid) {
-      reaped = true;
-      break;
+  bool status_known = false;
+  // Reaps the leader without blocking; ECHILD means the kernel discarded its status.
+  const auto try_reap = [&](int flags) {
+    while (true) {
+      const pid_t result = ::waitpid(pid, &status, flags);
+      if (result == pid) {
+        reaped = true;
+        status_known = true;
+      } else if (result < 0 && errno == EINTR) {
+        continue;
+      } else if (result < 0) {
+        reaped = true;
+      }
+      return;
     }
-    if (result < 0 && errno == ECHILD) {
-      reaped = true;
+  };
+  while (!reaped) {
+    try_reap(WNOHANG);
+    if (reaped) {
       break;
     }
     if (options.timeout_seconds != 0 && std::chrono::steady_clock::now() - started >=
                                             std::chrono::seconds(options.timeout_seconds)) {
       timed_out = true;
-      ::kill(pid, SIGTERM);
+      ::killpg(pid, SIGTERM);
       const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
       while (std::chrono::steady_clock::now() < deadline) {
-        if (::waitpid(pid, &status, WNOHANG) == pid) {
-          reaped = true;
+        try_reap(WNOHANG);
+        if (reaped && !group_alive(pid)) {
           break;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(20));
-      }
-      if (!reaped) {
-        ::kill(pid, SIGKILL);
-        (void)::waitpid(pid, &status, 0);
-        reaped = true;
       }
       break;
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(20));
   }
-  if (!reaped) {
-    (void)::waitpid(pid, &status, 0);
+  // A leader that exited, was terminated, or ignored SIGTERM must not leave descendants.
+  bool descendants_killed = false;
+  if (group_alive(pid)) {
+    descendants_killed = true;
+    ::killpg(pid, SIGKILL);
   }
+  if (!reaped) {
+    try_reap(0);
+  }
+  (void)wait_group_gone(pid, std::chrono::seconds(5));
 
   const auto ended = std::chrono::steady_clock::now();
   RunResult result;
@@ -209,7 +272,10 @@ Result<RunResult, RunError> supervise(const RunOptions& options) {
   result.ended_at = now_iso();
   result.duration_seconds = std::chrono::duration<double>(ended - started).count();
   result.timed_out = timed_out;
-  if (timed_out) {
+  result.descendants_killed = descendants_killed;
+  if (!status_known) {
+    result.status = "unknown";
+  } else if (timed_out) {
     result.status = "timeout";
     if (WIFSIGNALED(status)) {
       result.signal = WTERMSIG(status);
@@ -235,6 +301,8 @@ std::string result_json(const RunResult& result) {
   output += "  \"status\": \"" + escape(result.status) + "\",\n";
   output += "  \"exit_code\": " + std::to_string(result.exit_code) + ",\n";
   output += "  \"signal\": " + std::to_string(result.signal) + ",\n";
+  output += std::string("  \"descendants_killed\": ") +
+            (result.descendants_killed ? "true" : "false") + ",\n";
   output += std::string("  \"timed_out\": ") + (result.timed_out ? "true" : "false") + ",\n";
   char duration[64] = {};
   std::snprintf(duration, sizeof(duration), "%.6f", result.duration_seconds);
