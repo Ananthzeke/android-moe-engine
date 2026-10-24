@@ -63,6 +63,11 @@ void release_moe_stream_leases();
 // re-reads the injected-fault environment, so a test can switch faults between requests.
 void begin_moe_stream_request();
 
+// Label the next graph in the routing trace: phase is "prefill" or "decode", and
+// ubatch_tokens is the number of tokens in the ubatch. Call it once before each
+// llama_decode. Without labels a trace row has phase "unknown" and ubatch 0.
+void label_moe_graph(const char* phase, std::uint32_t ubatch_tokens);
+
 // Bind the loaded backend's source-derived routed/shared expert consumers to the
 // verified manifest. Must be called after model load and before generation.
 bool bind_model_contract(const llama_model* model, std::string& error);

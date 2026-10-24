@@ -896,9 +896,13 @@ int main(int argc, char* argv[]) {
 
   llama_batch batch = llama_batch_init(static_cast<int32_t>(context_params.n_batch), 0, 1);
   std::vector<std::vector<float>> logit_rows;
+  const char* trace_phase = "prefill";
   auto decode_chunk = [&](const std::vector<llama_token>& tokens, int32_t position) -> bool {
     if (tokens.empty()) {
       return true;
+    }
+    if (options.stream) {
+      ame::backend::label_moe_graph(trace_phase, static_cast<std::uint32_t>(tokens.size()));
     }
     batch.n_tokens = static_cast<int32_t>(tokens.size());
     for (std::size_t index = 0; index < tokens.size(); ++index) {
@@ -978,6 +982,7 @@ int main(int argc, char* argv[]) {
   Clock::time_point last_token_time{};
   double decode_seconds = 0.0;
   bool decode_failed = false;
+  trace_phase = "decode";
 
   while (generated.size() < options.max_new_tokens) {
     if (options.stream && ame::backend::moe_stream_failed()) {

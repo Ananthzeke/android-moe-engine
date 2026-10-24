@@ -89,7 +89,38 @@ std::string g_last_tensor;
 MoeStreamStats g_stats{};
 std::ofstream g_trace;
 std::uint64_t g_trace_call = 0;
+std::uint64_t g_trace_request = 0;
+std::uint64_t g_trace_graph = 0;
+std::uint32_t g_trace_ubatch = 0;
+std::string g_trace_phase = "unknown";
+std::vector<char> g_trace_buffer;
 ame::Cancellation g_cancellation;
+
+// Routing trace, format 2: one row per MUL_MAT_ID call. Writes are buffered; the buffer is
+// flushed when the next graph is labelled, at request start, and at uninstall.
+bool open_trace() {
+  const char* trace_path = std::getenv("AME_MOE_TRACE");
+  g_trace_call = 0;
+  g_trace_request = 0;
+  g_trace_graph = 0;
+  g_trace_ubatch = 0;
+  g_trace_phase = "unknown";
+  if (trace_path == nullptr || trace_path[0] == '\0') {
+    return true;
+  }
+  g_trace_buffer.assign(1U << 20, '\0');
+  g_trace.rdbuf()->pubsetbuf(g_trace_buffer.data(),
+                             static_cast<std::streamsize>(g_trace_buffer.size()));
+  g_trace.open(trace_path, std::ios::trunc);
+  if (!g_trace) {
+    g_stats.error = "cannot open routing trace";
+    return false;
+  }
+  g_trace << "# ame-moe-trace 2\n"
+          << "# columns: call request graph phase ubatch tensor n_experts experts...\n";
+  g_trace.flush();
+  return true;
+}
 
 int fail_outcome(std::string message) {
   g_stats.error = std::move(message);
@@ -378,12 +409,12 @@ int materialize(const ggml_tensor* weights, const ggml_tensor* ids) {
   }
   g_stats.max_union = std::max<std::uint64_t>(g_stats.max_union, unique_count);
   if (g_trace.is_open()) {
-    g_trace << g_trace_call << ' ' << spec.name << ' ' << unique_count;
+    g_trace << g_trace_call << ' ' << g_trace_request << ' ' << g_trace_graph << ' '
+            << g_trace_phase << ' ' << g_trace_ubatch << ' ' << spec.name << ' ' << unique_count;
     for (std::uint32_t index = 0; index < unique_count; ++index) {
       g_trace << ' ' << unique[index].expert;
     }
     g_trace << '\n';
-    g_trace.flush();
   }
   ++g_trace_call;
   if (g_trace_only) {
@@ -677,15 +708,8 @@ bool install_moe_stream(const Artifact& artifact, const std::string& manifest_pa
   g_cancellation.reset();
   g_stats.slots = g_slots;
   g_trace_call = 0;
-  if (const char* trace_path = std::getenv("AME_MOE_TRACE");
-      trace_path != nullptr && trace_path[0] != '\0') {
-    g_trace.open(trace_path, std::ios::trunc);
-    if (!g_trace) {
-      g_stats.error = "cannot open routing trace";
-      return false;
-    }
-    g_trace << "# call tensor n_experts experts...\n";
-    g_trace.flush();
+  if (!open_trace()) {
+    return false;
   }
   ggml_moe_set_materializer(materialize);
   g_installed = true;
@@ -726,15 +750,8 @@ bool install_moe_stream(const std::string& model_path, const std::string& manife
   g_cancellation.reset();
   g_stats.slots = g_slots;
   g_trace_call = 0;
-  if (const char* trace_path = std::getenv("AME_MOE_TRACE");
-      trace_path != nullptr && trace_path[0] != '\0') {
-    g_trace.open(trace_path, std::ios::trunc);
-    if (!g_trace) {
-      g_stats.error = "cannot open routing trace";
-      return false;
-    }
-    g_trace << "# call tensor n_experts experts...\n";
-    g_trace.flush();
+  if (!open_trace()) {
+    return false;
   }
   ggml_moe_set_materializer(materialize);
   g_installed = true;
@@ -756,7 +773,23 @@ void release_moe_stream_leases() {
   }
 }
 
+void label_moe_graph(const char* phase, std::uint32_t ubatch_tokens) {
+  if (g_trace.is_open()) {
+    g_trace.flush();
+  }
+  ++g_trace_graph;
+  g_trace_phase = phase != nullptr ? phase : "unknown";
+  g_trace_ubatch = ubatch_tokens;
+}
+
 void begin_moe_stream_request() {
+  if (g_trace.is_open()) {
+    g_trace.flush();
+  }
+  ++g_trace_request;
+  g_trace_graph = 0;
+  g_trace_phase = "unknown";
+  g_trace_ubatch = 0;
   release_moe_stream_leases();
   g_cancellation.reset();
   g_stats.failed = false;

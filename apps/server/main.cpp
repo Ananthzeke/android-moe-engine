@@ -409,7 +409,13 @@ void generate_impl(const Request& request, bool stream,
   llama_batch batch_tokens = llama_batch_init(batch, 0, 1);
   phase.reset();
   phase.emplace(recorder, "prefill");
+  const char* trace_phase = "prefill";
   auto decode = [&](const std::vector<llama_token>& tokens, int position, bool logits) {
+#ifdef AME_STREAMING
+    if (g_options.stream) {
+      ame::backend::label_moe_graph(trace_phase, static_cast<std::uint32_t>(tokens.size()));
+    }
+#endif
     batch_tokens.n_tokens = static_cast<int32_t>(tokens.size());
     for (std::size_t index = 0; index < tokens.size(); ++index) {
       batch_tokens.token[index] = tokens[index];
@@ -442,6 +448,7 @@ void generate_impl(const Request& request, bool stream,
     }
     offset += chunk;
   }
+  trace_phase = "decode";
   phase.reset();
   phase.emplace(recorder, "decode");
   llama_sampler_chain_params sampler_params = llama_sampler_chain_default_params();

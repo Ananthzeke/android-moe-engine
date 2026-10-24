@@ -1,0 +1,12 @@
+                       inp_pos' [i32, ne = {    32,     1,     1,     1 }] is used by node 'Qcur-35' (ROPE)
+llama_graph_n_input_tensors: input tensor '                         inp_pos' [i32, ne = {    32,     1,     1,     1 }] is used by node 'Kcur-35' (ROPE)
+llama_graph_n_input_tensors: input tensor '                         inp_pos' [i32, ne = {    32,     1,     1,     1 }] is used by node 'Qcur-39' (ROPE)
+llama_graph_n_input_tensors: input tensor '                         inp_pos' [i32, ne = {    32,     1,     1,     1 }] is used by node 'Kcur-39' (ROPE)
+llama_graph_n_input_tensors: input tensor '                  inp_mixed_embd' [f32, ne = {  2048,     8,     1,     1 }] is used by node 'node_2' (DUP)
+llama_graph_n_input_tensors: input tensor '                 inp_mixed_slots' [i64, ne = {     8,     1,     1,     1 }] is used by node ' (view)' (SET_ROWS)
+llama_graph_n_input_tensors: input tensor '                inp_mixed_tokens' [i32, ne = {     8,     1,     1,     1 }] is used by node 'node_1' (GET_ROWS)
+llama_graph_n_input_tensors: input tensor '                      inp_tokens' [i32, ne = {     8,     1,     1,     1 }] is used by node 'model.input_embed' (GET_ROWS)
+sched_reserve:        CPU compute buffer size =     7.90 MiB
+sched_reserve: graph: nodes = 3849, splits = 1, input objects = 4, input tensors = 10
+sched_reserve: reserve took 83.92 ms, sched copies = 1
+~llama_context:        CPU compute buffer size is   7.8989 MiB, matches expectation of   7.8989 MiB

@@ -195,6 +195,11 @@ if(BUILD_TESTING)
   ame_project_target(run_supervisor_test)
   add_test(NAME run_supervisor COMMAND run_supervisor_test)
 
+  add_executable(store_replay_driver tests/store_replay_driver.cpp)
+  target_link_libraries(store_replay_driver PRIVATE ame_residency)
+  ame_project_target(store_replay_driver)
+  add_test(NAME replay_routing COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/replay_routing_test.py $<TARGET_FILE:store_replay_driver>)
+
   add_executable(request_scope_test tests/request_scope_test.cpp)
   target_include_directories(request_scope_test PRIVATE apps/server)
   ame_project_target(request_scope_test)
