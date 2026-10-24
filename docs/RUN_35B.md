@@ -125,7 +125,7 @@ time.
 which needs about 3.6 GB of `MemAvailable` after start; `AME_CACHE=legacy` restores the 64-slot cache.
 Measured effect: [Unit 4 evidence](../evidence/core-opt/unit4/README.md)). Layered mode also takes
 `--eviction lru|lfu`, `--layer-slots N` (zero derives the pool from `--arena-mib`), `--lfu-halve N`,
-`--fadvise-random`, `--fadvise-dontneed`, `--readers 1-4` (reader threads, both layouts) and
+`--fadvise-random`, `--fadvise-dontneed`, `--readers 1-4` (reader threads, both layouts; the launcher uses 4) and
 `--reader-cpus auto|none` (pin readers off the big cores), `--overlap topk|off` (layered cache:
 start a layer's reads from the router's top-k result), `--threadpool big|default` and `--poll N`
 (one compute threadpool pinned to the big cores). `--arena-mib` must cover the arenas plus bookkeeping;

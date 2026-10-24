@@ -191,3 +191,15 @@ source shows the kernel cannot run there. Host evidence: forcing it with `GGML_C
 `moe_layered_gate` is bit-identical to the resident reference with the fix and mismatches on all 48
 Q4_K/Q6_K operators without it; the harness gives identical token IDs and logits for staged and resident
 runs at the same prefill unit on a 14-token prompt.
+
+## Four reader threads are the phone default (2026-10-25)
+
+Fifteen alternating fresh-process trials on the phone (evidence/core-opt/unit5) show that reading a layer's
+missing experts with 2 or 4 threads instead of one cuts the short request by 30% and 39% and the 32-token
+request by 24% and 32%, with the same token IDs and the same bytes read; the ranges do not overlap. Pinning
+the readers to the cores with the lower `cpuinfo_max_freq` made no measurable difference (ten more trials), so
+it stays off. The phone launcher starts four readers; the server binary defaults to one. The exactness argument
+is structural: a batch ends only after every read has finished or been skipped, a failed batch publishes
+nothing, and the same bytes land in the same slots in the same lease order as the serial path; it is checked by
+the store tests under AddressSanitizer and ThreadSanitizer and by token and logit parity through the real
+graph.

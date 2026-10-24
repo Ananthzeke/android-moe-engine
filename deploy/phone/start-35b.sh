@@ -7,11 +7,13 @@ SHA=${AME_ARTIFACT_SHA:-671e47e0ec53c665d048b98c3ecbfd5236b5ca9c3e02ed19fc8f81f7
 # Layered expert cache: 32 slots per layer (2.2 GB arena), least recently used, and the kernel is
 # told to drop its own copy of each extent. Measured on the vivo 1920 against the shipped cache
 # (evidence/core-opt/unit4): same token IDs, 28-40% less request time, 2.2 GB more resident memory.
-# It needs about 3.6 GB of MemAvailable after start. AME_CACHE=legacy restores the 64-slot cache.
+# Four reader threads fetch a layer's missing experts in parallel (evidence/core-opt/unit5: a further 22-39%
+# less request time, same token IDs; pinning them to the little cores made no difference). It needs about
+# 3.6 GB of MemAvailable after start. AME_CACHE=legacy restores the 64-slot cache.
 CACHE=${AME_CACHE:-layered}
 if [ "$CACHE" = layered ]; then
   ARENA=${AME_ARENA_MIB:-2200}
-  CACHE_FLAGS="--cache layered --layer-slots ${AME_LAYER_SLOTS:-32} --fadvise-random --fadvise-dontneed"
+  CACHE_FLAGS="--cache layered --layer-slots ${AME_LAYER_SLOTS:-32} --fadvise-random --fadvise-dontneed --readers ${AME_READERS:-4}"
 else
   ARENA=${AME_ARENA_MIB:-256}
   CACHE_FLAGS="--cache legacy"
