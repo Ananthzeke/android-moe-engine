@@ -749,6 +749,15 @@ void release_moe_stream_leases() {
   }
 }
 
+void begin_moe_stream_request() {
+  release_moe_stream_leases();
+  g_cancellation.reset();
+  g_stats.failed = false;
+  g_stats.cancelled = false;
+  g_stats.error.clear();
+  ggml_moe_reset();
+}
+
 void uninstall_moe_stream() {
   ggml_moe_set_materializer(nullptr);
   if (g_trace.is_open()) {

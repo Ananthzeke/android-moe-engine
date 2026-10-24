@@ -52,6 +52,13 @@ void uninstall_moe_stream();
 // all backend workers for a request have drained.
 void release_moe_stream_leases();
 
+// Start one request under exclusive admission. Releases leases, clears the request
+// cancellation, the failed/cancelled/error outcome, and the backend's process-global
+// error latch so the previous request's terminal state cannot abort this one. Call it
+// only when no graph is computing and the previous request's context has been
+// destroyed. Capture the terminal outcome (moe_stream_stats) before calling.
+void begin_moe_stream_request();
+
 // Bind the loaded backend's source-derived routed/shared expert consumers to the
 // verified manifest. Must be called after model load and before generation.
 bool bind_model_contract(const llama_model* model, std::string& error);

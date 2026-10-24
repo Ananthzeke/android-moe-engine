@@ -1,0 +1,2448 @@
+{
+  "schema_version": 1,
+  "gate": "gate1_inference_integration",
+  "llama": {
+    "head": "ff5a23376725e5a889fa0bfb987b7541dc304da0",
+    "diff_sha256": "8aeb80a6822b37032fbb98f60a03285b3a6563392e28bed876bca3b104d228df",
+    "patch_sha256": "8aeb80a6822b37032fbb98f60a03285b3a6563392e28bed876bca3b104d228df",
+    "source": "/media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp"
+  },
+  "libs": "/media/ananth/17AB9D0651C6CC1F/ame-tools/build/llama-host",
+  "configs": {
+    "debug": {
+      "build": {
+        "configure_returncode": 0,
+        "build_returncode": 0,
+        "configure_tail": "-- The CXX compiler identification is GNU 11.4.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Configuring done (0.2s)\n-- Generating done (0.0s)\n-- Build files have been written to: /home/ananth/Documents/ChatGPT/Custom OS/build/inference-debug\n",
+        "build_tail": "34] Building CXX object CMakeFiles/ame_model.dir/src/model/expert_layout.cpp.o\n[3/34] Linking CXX static library libame_model.a\n[4/34] Building CXX object CMakeFiles/ame_crypto.dir/src/common/sha256.cpp.o\n[5/34] Linking CXX static library libame_crypto.a\n[6/34] Building CXX object CMakeFiles/ame_prefill.dir/src/runtime/prefill_plan.cpp.o\n[7/34] Linking CXX static library libame_prefill.a\n[8/34] Building CXX object CMakeFiles/ame_residency.dir/src/residency/file_source.cpp.o\n[9/34] Building CXX object CMakeFiles/ame_backend_broken.dir/src/backend/artifact.cpp.o\n[10/34] Building CXX object CMakeFiles/ame_backend.dir/src/backend/artifact.cpp.o\n[11/34] Building CXX object CMakeFiles/moe_recovery_gate.dir/bench/moe_recovery_gate.cpp.o\n[12/34] Building CXX object CMakeFiles/ame_residency.dir/src/residency/store.cpp.o\n[13/34] Linking CXX static library libame_residency.a\n[14/34] Building CXX object CMakeFiles/moe_stream_gate_broken.dir/bench/moe_stream_gate.cpp.o\n[15/34] Building CXX object CMakeFiles/manifest_gate.dir/bench/manifest_gate.cpp.o\n[16/34] Building CXX object CMakeFiles/moe_stream_gate.dir/bench/moe_stream_gate.cpp.o\n[17/34] Building CXX object CMakeFiles/artifact_gate.dir/bench/artifact_gate.cpp.o\n[18/34] Building CXX object CMakeFiles/moe_kernel_gate.dir/bench/moe_kernel_gate.cpp.o\n[19/34] Building CXX object CMakeFiles/moe_quantized_gate.dir/bench/moe_quantized_gate.cpp.o\n[20/34] Linking CXX executable moe_kernel_gate\n[21/34] Building CXX object CMakeFiles/complete_runner.dir/bench/complete_runner.cpp.o\n[22/34] Linking CXX executable moe_quantized_gate\n[23/34] Building CXX object CMakeFiles/llama_baseline_stream.dir/bench/llama_baseline.cpp.o\n[24/34] Building CXX object CMakeFiles/ame_backend_broken.dir/src/backend/moe_stream.cpp.o\nIn file included from /media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-graph.h:6,\n                 from /media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-model.h:5,\n                 from /home/ananth/Documents/ChatGPT/Custom OS/src/backend/moe_stream.cpp:8:\n/media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-adapter.h: In member function \u2018uint32_t llama_adapter_lora::get_n_nodes() const\u2019:\n/media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-adapter.h:86:30: warning: conversion from \u2018std::unordered_map<std::__cxx11::basic_string<char>, llama_adapter_lora_weight>::size_type\u2019 {aka \u2018long unsigned int\u2019} to \u2018uint32_t\u2019 {aka \u2018unsigned int\u2019} may change value [-Wconversion]\n   86 |         return ab_map.size() * 6u; // a, b, scale, add, 2 x mul_mat\n      |                ~~~~~~~~~~~~~~^~~~\n[25/34] Building CXX object CMakeFiles/ame_backend.dir/src/backend/moe_stream.cpp.o\nIn file included from /media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-graph.h:6,\n                 from /media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-model.h:5,\n                 from /home/ananth/Documents/ChatGPT/Custom OS/src/backend/moe_stream.cpp:8:\n/media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-adapter.h: In member function \u2018uint32_t llama_adapter_lora::get_n_nodes() const\u2019:\n/media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-adapter.h:86:30: warning: conversion from \u2018std::unordered_map<std::__cxx11::basic_string<char>, llama_adapter_lora_weight>::size_type\u2019 {aka \u2018long unsigned int\u2019} to \u2018uint32_t\u2019 {aka \u2018unsigned int\u2019} may change value [-Wconversion]\n   86 |         return ab_map.size() * 6u; // a, b, scale, add, 2 x mul_mat\n      |                ~~~~~~~~~~~~~~^~~~\n[26/34] Linking CXX static library libame_backend_broken.a\n[27/34] Linking CXX static library libame_backend.a\n[28/34] Linking CXX executable moe_stream_gate_broken\n[29/34] Linking CXX executable manifest_gate\n[30/34] Linking CXX executable artifact_gate\n[31/34] Linking CXX executable complete_runner\n[32/34] Linking CXX executable llama_baseline_stream\n[33/34] Linking CXX executable moe_stream_gate\n[34/34] Linking CXX executable moe_recovery_gate\n"
+      },
+      "stream": {
+        "fault": "none",
+        "threads": 4,
+        "slots": 4,
+        "selected": 4,
+        "candidate_status": 0,
+        "identical": true,
+        "failed": false,
+        "cancelled": false,
+        "error": "",
+        "materialize_calls": 1,
+        "reads": 4,
+        "read_bytes": 8192,
+        "arena_bytes": 8192,
+        "mismatched": 0,
+        "max_difference": 0,
+        "passed": true
+      },
+      "faults": [
+        {
+          "name": "fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "read",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "cancel",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": false,
+          "cancelled": true,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "capacity",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "eof",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "read",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "cancel",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": false,
+          "cancelled": true,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "capacity",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "eof",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "read",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "cancel",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": false,
+          "cancelled": true,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "capacity",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "eof",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "capacity-minus-one",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 3,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "capacity-at",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "slots-below-top-k",
+          "fault": "capacity",
+          "threads": 4,
+          "slots": 7,
+          "selected": 8,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_slots-below-top-k",
+          "fault": "none",
+          "threads": 4,
+          "slots": 7,
+          "selected": 7,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "slots-at-top-k",
+          "fault": "none",
+          "threads": 4,
+          "slots": 8,
+          "selected": 8,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "slots-above-top-k",
+          "fault": "none",
+          "threads": 4,
+          "slots": 9,
+          "selected": 8,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        }
+      ],
+      "recovery": {
+        "passed": true,
+        "runs": [
+          {
+            "threads": 1,
+            "cases": [
+              {
+                "fault": "read",
+                "failure_reported": true,
+                "poisoned_without_reset": true,
+                "outcome_cleared": true,
+                "dense_after_reset": true,
+                "moe_identical_after_reset": true,
+                "passed": true
+              },
+              {
+                "fault": "cancel",
+                "failure_reported": true,
+                "poisoned_without_reset": true,
+                "outcome_cleared": true,
+                "dense_after_reset": true,
+                "moe_identical_after_reset": true,
+                "passed": true
+              }
+            ]
+          },
+          {
+            "threads": 2,
+            "cases": [
+              {
+                "fault": "read",
+                "failure_reported": true,
+                "poisoned_without_reset": true,
+                "outcome_cleared": true,
+                "dense_after_reset": true,
+                "moe_identical_after_reset": true,
+                "passed": true
+              },
+              {
+                "fault": "cancel",
+                "failure_reported": true,
+                "poisoned_without_reset": true,
+                "outcome_cleared": true,
+                "dense_after_reset": true,
+                "moe_identical_after_reset": true,
+                "passed": true
+              }
+            ]
+          },
+          {
+            "threads": 4,
+            "cases": [
+              {
+                "fault": "read",
+                "failure_reported": true,
+                "poisoned_without_reset": true,
+                "outcome_cleared": true,
+                "dense_after_reset": true,
+                "moe_identical_after_reset": true,
+                "passed": true
+              },
+              {
+                "fault": "cancel",
+                "failure_reported": true,
+                "poisoned_without_reset": true,
+                "outcome_cleared": true,
+                "dense_after_reset": true,
+                "moe_identical_after_reset": true,
+                "passed": true
+              }
+            ]
+          }
+        ]
+      },
+      "quantized": [
+        {
+          "type": "q4_k",
+          "role": "gate",
+          "threads": 1,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "gate",
+          "threads": 1,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "gate",
+          "threads": 2,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "gate",
+          "threads": 2,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "gate",
+          "threads": 4,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "gate",
+          "threads": 4,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "up",
+          "threads": 1,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "up",
+          "threads": 1,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "up",
+          "threads": 2,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "up",
+          "threads": 2,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "up",
+          "threads": 4,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "up",
+          "threads": 4,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "down",
+          "threads": 1,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "down",
+          "threads": 1,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "down",
+          "threads": 2,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "down",
+          "threads": 2,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "down",
+          "threads": 4,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "down",
+          "threads": 4,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "gate",
+          "threads": 1,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "gate",
+          "threads": 1,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "gate",
+          "threads": 2,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "gate",
+          "threads": 2,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "gate",
+          "threads": 4,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "gate",
+          "threads": 4,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "up",
+          "threads": 1,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "up",
+          "threads": 1,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "up",
+          "threads": 2,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "up",
+          "threads": 2,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "up",
+          "threads": 4,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "up",
+          "threads": 4,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "down",
+          "threads": 1,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "down",
+          "threads": 1,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "down",
+          "threads": 2,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "down",
+          "threads": 2,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "down",
+          "threads": 4,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "down",
+          "threads": 4,
+          "corrupt_detected": true
+        }
+      ],
+      "broken": {
+        "exit_code": 1,
+        "identical": false,
+        "mismatched": 32
+      },
+      "kernel": {
+        "dimensions": {
+          "n_embd": 64,
+          "n_ff": 128,
+          "n_expert": 32,
+          "n_expert_used": 4,
+          "prefill_tokens": 8,
+          "threads": 4
+        },
+        "memory": {
+          "resident_reference_bytes": 1048576,
+          "arena_bytes": 557056,
+          "slot_bytes": 32768,
+          "slots": 17,
+          "prefill_union": 17
+        },
+        "rounds": 2,
+        "all_identical": true
+      },
+      "runner_boundaries": {
+        "status": "passed",
+        "returncode": 0
+      },
+      "artifact": {
+        "returncode": 0,
+        "stdout": "PASS valid artifact: {\"stage\": \"install\", \"ok\": true, \"sha\": \"f16194347ce4a1d3037bf76a0b20adbaccea8e6a858c5225aedaafdccd7455bd\", \"hash_seconds\": 0.00307224}\nPASS same-size bit flip: {\"stage\": \"open\", \"ok\": false, \"error\": \"artifact SHA-256 does not match the enrolled identity\"}\nPASS wrong artifact with matching sidecar: {\"stage\": \"open\", \"ok\": false, \"error\": \"artifact SHA-256 does not match the enrolled identity\"}\nPASS swapped in-bounds offsets: {\"stage\": \"install\", \"ok\": false, \"error\": \"GGUF extent mismatch for blk.0.ffn_gate_exps.weight\"}\nPASS missing routed tensor: {\"stage\": \"install\", \"ok\": false, \"error\": \"routed GGUF tensor is missing from manifest: blk.0.ffn_down_exps.weight\"}\nPASS duplicate tensor: {\"stage\": \"install\", \"ok\": false, \"error\": \"duplicate expert tensor: blk.0.ffn_gate_exps.weight\"}\nPASS replacement after open uses retained FD: {\"stage\": \"install\", \"ok\": true, \"sha\": \"f16194347ce4a1d3037bf76a0b20adbaccea8e6a858c5225aedaafdccd7455bd\", \"hash_seconds\": 0.00305236}\nPASS rename after open uses retained FD: {\"stage\": \"install\", \"ok\": true, \"sha\": \"f16194347ce4a1d3037bf76a0b20adbaccea8e6a858c5225aedaafdccd7455bd\", \"hash_seconds\": 0.00305155}\nPASS hard link does not replace retained FD: {\"stage\": \"install\", \"ok\": true, \"sha\": \"f16194347ce4a1d3037bf76a0b20adbaccea8e6a858c5225aedaafdccd7455bd\", \"hash_seconds\": 0.00774348}\nPASS truncation before install refused: {\"stage\": \"install\", \"ok\": false, \"error\": \"artifact changed after identity verification\"}\nPASS in-place mutation before install refused: {\"stage\": \"install\", \"ok\": false, \"error\": \"artifact changed after identity verification\"}\n",
+        "stderr": ""
+      },
+      "manifest": {
+        "returncode": 0,
+        "stdout": "PASS valid v2 manifest\nPASS wrong tensor_count\nPASS duplicate row\nPASS nbytes mismatch\nPASS overflow\nPASS truncated extent\nPASS unsupported version\nPASS missing layout\nPASS wrong layout\nPASS offset above 4 GiB\n",
+        "stderr": ""
+      }
+    },
+    "release": {
+      "build": {
+        "configure_returncode": 0,
+        "build_returncode": 0,
+        "configure_tail": "-- The CXX compiler identification is GNU 11.4.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Configuring done (0.2s)\n-- Generating done (0.0s)\n-- Build files have been written to: /home/ananth/Documents/ChatGPT/Custom OS/build/inference-release\n",
+        "build_tail": "akeFiles/ame_backend.dir/src/backend/artifact.cpp.o\n[10/34] Building CXX object CMakeFiles/ame_backend_broken.dir/src/backend/artifact.cpp.o\n[11/34] Building CXX object CMakeFiles/manifest_gate.dir/bench/manifest_gate.cpp.o\n[12/34] Building CXX object CMakeFiles/moe_recovery_gate.dir/bench/moe_recovery_gate.cpp.o\n[13/34] Building CXX object CMakeFiles/moe_stream_gate_broken.dir/bench/moe_stream_gate.cpp.o\n[14/34] Building CXX object CMakeFiles/ame_residency.dir/src/residency/store.cpp.o\n[15/34] Linking CXX static library libame_residency.a\n[16/34] Building CXX object CMakeFiles/moe_stream_gate.dir/bench/moe_stream_gate.cpp.o\n[17/34] Building CXX object CMakeFiles/artifact_gate.dir/bench/artifact_gate.cpp.o\n/home/ananth/Documents/ChatGPT/Custom OS/bench/artifact_gate.cpp: In function \u2018void {anonymous}::write_byte(const string&, uint64_t, unsigned char)\u2019:\n/home/ananth/Documents/ChatGPT/Custom OS/bench/artifact_gate.cpp:20:17: warning: ignoring return value of \u2018ssize_t pwrite(int, const void*, size_t, __off_t)\u2019 declared with attribute \u2018warn_unused_result\u2019 [-Wunused-result]\n   20 |   (void)::pwrite(fd, &value, 1, static_cast<off_t>(offset));\n      |         ~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n[18/34] Building CXX object CMakeFiles/complete_runner.dir/bench/complete_runner.cpp.o\n[19/34] Building CXX object CMakeFiles/moe_quantized_gate.dir/bench/moe_quantized_gate.cpp.o\n[20/34] Building CXX object CMakeFiles/moe_kernel_gate.dir/bench/moe_kernel_gate.cpp.o\n[21/34] Linking CXX executable moe_quantized_gate\n[22/34] Linking CXX executable moe_kernel_gate\n[23/34] Building CXX object CMakeFiles/llama_baseline_stream.dir/bench/llama_baseline.cpp.o\n[24/34] Building CXX object CMakeFiles/ame_backend.dir/src/backend/moe_stream.cpp.o\nIn file included from /media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-graph.h:6,\n                 from /media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-model.h:5,\n                 from /home/ananth/Documents/ChatGPT/Custom OS/src/backend/moe_stream.cpp:8:\n/media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-adapter.h: In member function \u2018uint32_t llama_adapter_lora::get_n_nodes() const\u2019:\n/media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-adapter.h:86:30: warning: conversion from \u2018std::unordered_map<std::__cxx11::basic_string<char>, llama_adapter_lora_weight>::size_type\u2019 {aka \u2018long unsigned int\u2019} to \u2018uint32_t\u2019 {aka \u2018unsigned int\u2019} may change value [-Wconversion]\n   86 |         return ab_map.size() * 6u; // a, b, scale, add, 2 x mul_mat\n      |                ~~~~~~~~~~~~~~^~~~\n[25/34] Building CXX object CMakeFiles/ame_backend_broken.dir/src/backend/moe_stream.cpp.o\nIn file included from /media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-graph.h:6,\n                 from /media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-model.h:5,\n                 from /home/ananth/Documents/ChatGPT/Custom OS/src/backend/moe_stream.cpp:8:\n/media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-adapter.h: In member function \u2018uint32_t llama_adapter_lora::get_n_nodes() const\u2019:\n/media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-adapter.h:86:30: warning: conversion from \u2018std::unordered_map<std::__cxx11::basic_string<char>, llama_adapter_lora_weight>::size_type\u2019 {aka \u2018long unsigned int\u2019} to \u2018uint32_t\u2019 {aka \u2018unsigned int\u2019} may change value [-Wconversion]\n   86 |         return ab_map.size() * 6u; // a, b, scale, add, 2 x mul_mat\n      |                ~~~~~~~~~~~~~~^~~~\n[26/34] Linking CXX static library libame_backend.a\n[27/34] Linking CXX static library libame_backend_broken.a\n[28/34] Linking CXX executable manifest_gate\n[29/34] Linking CXX executable moe_stream_gate\n[30/34] Linking CXX executable moe_stream_gate_broken\n[31/34] Linking CXX executable moe_recovery_gate\n[32/34] Linking CXX executable artifact_gate\n[33/34] Linking CXX executable llama_baseline_stream\n[34/34] Linking CXX executable complete_runner\n"
+      },
+      "stream": {
+        "fault": "none",
+        "threads": 4,
+        "slots": 4,
+        "selected": 4,
+        "candidate_status": 0,
+        "identical": true,
+        "failed": false,
+        "cancelled": false,
+        "error": "",
+        "materialize_calls": 1,
+        "reads": 4,
+        "read_bytes": 8192,
+        "arena_bytes": 8192,
+        "mismatched": 0,
+        "max_difference": 0,
+        "passed": true
+      },
+      "faults": [
+        {
+          "name": "fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "read",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "cancel",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": false,
+          "cancelled": true,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "capacity",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "eof",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "read",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "cancel",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": false,
+          "cancelled": true,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "capacity",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "eof",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "read",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "cancel",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": false,
+          "cancelled": true,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "capacity",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "eof",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "capacity-minus-one",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 3,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "capacity-at",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "slots-below-top-k",
+          "fault": "capacity",
+          "threads": 4,
+          "slots": 7,
+          "selected": 8,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_slots-below-top-k",
+          "fault": "none",
+          "threads": 4,
+          "slots": 7,
+          "selected": 7,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "slots-at-top-k",
+          "fault": "none",
+          "threads": 4,
+          "slots": 8,
+          "selected": 8,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "slots-above-top-k",
+          "fault": "none",
+          "threads": 4,
+          "slots": 9,
+          "selected": 8,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        }
+      ],
+      "recovery": {
+        "passed": true,
+        "runs": [
+          {
+            "threads": 1,
+            "cases": [
+              {
+                "fault": "read",
+                "failure_reported": true,
+                "poisoned_without_reset": true,
+                "outcome_cleared": true,
+                "dense_after_reset": true,
+                "moe_identical_after_reset": true,
+                "passed": true
+              },
+              {
+                "fault": "cancel",
+                "failure_reported": true,
+                "poisoned_without_reset": true,
+                "outcome_cleared": true,
+                "dense_after_reset": true,
+                "moe_identical_after_reset": true,
+                "passed": true
+              }
+            ]
+          },
+          {
+            "threads": 2,
+            "cases": [
+              {
+                "fault": "read",
+                "failure_reported": true,
+                "poisoned_without_reset": true,
+                "outcome_cleared": true,
+                "dense_after_reset": true,
+                "moe_identical_after_reset": true,
+                "passed": true
+              },
+              {
+                "fault": "cancel",
+                "failure_reported": true,
+                "poisoned_without_reset": true,
+                "outcome_cleared": true,
+                "dense_after_reset": true,
+                "moe_identical_after_reset": true,
+                "passed": true
+              }
+            ]
+          },
+          {
+            "threads": 4,
+            "cases": [
+              {
+                "fault": "read",
+                "failure_reported": true,
+                "poisoned_without_reset": true,
+                "outcome_cleared": true,
+                "dense_after_reset": true,
+                "moe_identical_after_reset": true,
+                "passed": true
+              },
+              {
+                "fault": "cancel",
+                "failure_reported": true,
+                "poisoned_without_reset": true,
+                "outcome_cleared": true,
+                "dense_after_reset": true,
+                "moe_identical_after_reset": true,
+                "passed": true
+              }
+            ]
+          }
+        ]
+      },
+      "quantized": [
+        {
+          "type": "q4_k",
+          "role": "gate",
+          "threads": 1,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "gate",
+          "threads": 1,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "gate",
+          "threads": 2,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "gate",
+          "threads": 2,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "gate",
+          "threads": 4,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "gate",
+          "threads": 4,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "up",
+          "threads": 1,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "up",
+          "threads": 1,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "up",
+          "threads": 2,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "up",
+          "threads": 2,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "up",
+          "threads": 4,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "up",
+          "threads": 4,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "down",
+          "threads": 1,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "down",
+          "threads": 1,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "down",
+          "threads": 2,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "down",
+          "threads": 2,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "down",
+          "threads": 4,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "down",
+          "threads": 4,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "gate",
+          "threads": 1,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "gate",
+          "threads": 1,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "gate",
+          "threads": 2,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "gate",
+          "threads": 2,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "gate",
+          "threads": 4,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "gate",
+          "threads": 4,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "up",
+          "threads": 1,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "up",
+          "threads": 1,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "up",
+          "threads": 2,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "up",
+          "threads": 2,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "up",
+          "threads": 4,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "up",
+          "threads": 4,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "down",
+          "threads": 1,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "down",
+          "threads": 1,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "down",
+          "threads": 2,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "down",
+          "threads": 2,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "down",
+          "threads": 4,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "down",
+          "threads": 4,
+          "corrupt_detected": true
+        }
+      ],
+      "broken": {
+        "exit_code": 1,
+        "identical": false,
+        "mismatched": 32
+      },
+      "kernel": {
+        "dimensions": {
+          "n_embd": 64,
+          "n_ff": 128,
+          "n_expert": 32,
+          "n_expert_used": 4,
+          "prefill_tokens": 8,
+          "threads": 4
+        },
+        "memory": {
+          "resident_reference_bytes": 1048576,
+          "arena_bytes": 557056,
+          "slot_bytes": 32768,
+          "slots": 17,
+          "prefill_union": 17
+        },
+        "rounds": 2,
+        "all_identical": true
+      },
+      "runner_boundaries": {
+        "status": "passed",
+        "returncode": 0
+      },
+      "artifact": {
+        "returncode": 0,
+        "stdout": "PASS valid artifact: {\"stage\": \"install\", \"ok\": true, \"sha\": \"f16194347ce4a1d3037bf76a0b20adbaccea8e6a858c5225aedaafdccd7455bd\", \"hash_seconds\": 0.00555425}\nPASS same-size bit flip: {\"stage\": \"open\", \"ok\": false, \"error\": \"artifact SHA-256 does not match the enrolled identity\"}\nPASS wrong artifact with matching sidecar: {\"stage\": \"open\", \"ok\": false, \"error\": \"artifact SHA-256 does not match the enrolled identity\"}\nPASS swapped in-bounds offsets: {\"stage\": \"install\", \"ok\": false, \"error\": \"GGUF extent mismatch for blk.0.ffn_gate_exps.weight\"}\nPASS missing routed tensor: {\"stage\": \"install\", \"ok\": false, \"error\": \"routed GGUF tensor is missing from manifest: blk.0.ffn_down_exps.weight\"}\nPASS duplicate tensor: {\"stage\": \"install\", \"ok\": false, \"error\": \"duplicate expert tensor: blk.0.ffn_gate_exps.weight\"}\nPASS replacement after open uses retained FD: {\"stage\": \"install\", \"ok\": true, \"sha\": \"f16194347ce4a1d3037bf76a0b20adbaccea8e6a858c5225aedaafdccd7455bd\", \"hash_seconds\": 0.00221436}\nPASS rename after open uses retained FD: {\"stage\": \"install\", \"ok\": true, \"sha\": \"f16194347ce4a1d3037bf76a0b20adbaccea8e6a858c5225aedaafdccd7455bd\", \"hash_seconds\": 0.00550564}\nPASS hard link does not replace retained FD: {\"stage\": \"install\", \"ok\": true, \"sha\": \"f16194347ce4a1d3037bf76a0b20adbaccea8e6a858c5225aedaafdccd7455bd\", \"hash_seconds\": 0.00221826}\nPASS truncation before install refused: {\"stage\": \"install\", \"ok\": false, \"error\": \"artifact changed after identity verification\"}\nPASS in-place mutation before install refused: {\"stage\": \"install\", \"ok\": false, \"error\": \"artifact changed after identity verification\"}\n",
+        "stderr": ""
+      },
+      "manifest": {
+        "returncode": 0,
+        "stdout": "PASS valid v2 manifest\nPASS wrong tensor_count\nPASS duplicate row\nPASS nbytes mismatch\nPASS overflow\nPASS truncated extent\nPASS unsupported version\nPASS missing layout\nPASS wrong layout\nPASS offset above 4 GiB\n",
+        "stderr": ""
+      }
+    },
+    "sanitizers": {
+      "build": {
+        "configure_returncode": 0,
+        "build_returncode": 0,
+        "configure_tail": "-- The CXX compiler identification is GNU 11.4.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Configuring done (0.2s)\n-- Generating done (0.0s)\n-- Build files have been written to: /home/ananth/Documents/ChatGPT/Custom OS/build/inference-sanitizers\n",
+        "build_tail": "34] Building CXX object CMakeFiles/ame_model.dir/src/model/expert_layout.cpp.o\n[3/34] Linking CXX static library libame_model.a\n[4/34] Building CXX object CMakeFiles/ame_prefill.dir/src/runtime/prefill_plan.cpp.o\n[5/34] Building CXX object CMakeFiles/ame_residency.dir/src/residency/file_source.cpp.o\n[6/34] Linking CXX static library libame_prefill.a\n[7/34] Building CXX object CMakeFiles/ame_crypto.dir/src/common/sha256.cpp.o\n[8/34] Linking CXX static library libame_crypto.a\n[9/34] Building CXX object CMakeFiles/ame_backend.dir/src/backend/artifact.cpp.o\n[10/34] Building CXX object CMakeFiles/ame_backend_broken.dir/src/backend/artifact.cpp.o\n[11/34] Building CXX object CMakeFiles/moe_recovery_gate.dir/bench/moe_recovery_gate.cpp.o\n[12/34] Building CXX object CMakeFiles/moe_stream_gate.dir/bench/moe_stream_gate.cpp.o\n[13/34] Building CXX object CMakeFiles/manifest_gate.dir/bench/manifest_gate.cpp.o\n[14/34] Building CXX object CMakeFiles/moe_stream_gate_broken.dir/bench/moe_stream_gate.cpp.o\n[15/34] Building CXX object CMakeFiles/ame_residency.dir/src/residency/store.cpp.o\n[16/34] Linking CXX static library libame_residency.a\n[17/34] Building CXX object CMakeFiles/artifact_gate.dir/bench/artifact_gate.cpp.o\n[18/34] Building CXX object CMakeFiles/moe_kernel_gate.dir/bench/moe_kernel_gate.cpp.o\n[19/34] Building CXX object CMakeFiles/complete_runner.dir/bench/complete_runner.cpp.o\n[20/34] Linking CXX executable moe_kernel_gate\n[21/34] Building CXX object CMakeFiles/moe_quantized_gate.dir/bench/moe_quantized_gate.cpp.o\n[22/34] Linking CXX executable moe_quantized_gate\n[23/34] Building CXX object CMakeFiles/llama_baseline_stream.dir/bench/llama_baseline.cpp.o\n[24/34] Building CXX object CMakeFiles/ame_backend_broken.dir/src/backend/moe_stream.cpp.o\nIn file included from /media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-graph.h:6,\n                 from /media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-model.h:5,\n                 from /home/ananth/Documents/ChatGPT/Custom OS/src/backend/moe_stream.cpp:8:\n/media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-adapter.h: In member function \u2018uint32_t llama_adapter_lora::get_n_nodes() const\u2019:\n/media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-adapter.h:86:30: warning: conversion from \u2018std::unordered_map<std::__cxx11::basic_string<char>, llama_adapter_lora_weight>::size_type\u2019 {aka \u2018long unsigned int\u2019} to \u2018uint32_t\u2019 {aka \u2018unsigned int\u2019} may change value [-Wconversion]\n   86 |         return ab_map.size() * 6u; // a, b, scale, add, 2 x mul_mat\n      |                ~~~~~~~~~~~~~~^~~~\n[25/34] Linking CXX static library libame_backend_broken.a\n[26/34] Building CXX object CMakeFiles/ame_backend.dir/src/backend/moe_stream.cpp.o\nIn file included from /media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-graph.h:6,\n                 from /media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-model.h:5,\n                 from /home/ananth/Documents/ChatGPT/Custom OS/src/backend/moe_stream.cpp:8:\n/media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-adapter.h: In member function \u2018uint32_t llama_adapter_lora::get_n_nodes() const\u2019:\n/media/ananth/17AB9D0651C6CC1F/ame-tools/src/llama.cpp/src/llama-adapter.h:86:30: warning: conversion from \u2018std::unordered_map<std::__cxx11::basic_string<char>, llama_adapter_lora_weight>::size_type\u2019 {aka \u2018long unsigned int\u2019} to \u2018uint32_t\u2019 {aka \u2018unsigned int\u2019} may change value [-Wconversion]\n   86 |         return ab_map.size() * 6u; // a, b, scale, add, 2 x mul_mat\n      |                ~~~~~~~~~~~~~~^~~~\n[27/34] Linking CXX static library libame_backend.a\n[28/34] Linking CXX executable moe_stream_gate_broken\n[29/34] Linking CXX executable manifest_gate\n[30/34] Linking CXX executable artifact_gate\n[31/34] Linking CXX executable moe_stream_gate\n[32/34] Linking CXX executable complete_runner\n[33/34] Linking CXX executable llama_baseline_stream\n[34/34] Linking CXX executable moe_recovery_gate\n"
+      },
+      "stream": {
+        "fault": "none",
+        "threads": 4,
+        "slots": 4,
+        "selected": 4,
+        "candidate_status": 0,
+        "identical": true,
+        "failed": false,
+        "cancelled": false,
+        "error": "",
+        "materialize_calls": 1,
+        "reads": 4,
+        "read_bytes": 8192,
+        "arena_bytes": 8192,
+        "mismatched": 0,
+        "max_difference": 0,
+        "passed": true
+      },
+      "faults": [
+        {
+          "name": "fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "read",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "cancel",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": false,
+          "cancelled": true,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "capacity",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "eof",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 1,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "read",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "cancel",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": false,
+          "cancelled": true,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "capacity",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "eof",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 2,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "read",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "cancel",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": false,
+          "cancelled": true,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "capacity",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "fault",
+          "fault": "eof",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_fault",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "capacity-minus-one",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 3,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "capacity-at",
+          "fault": "none",
+          "threads": 4,
+          "slots": 4,
+          "selected": 4,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "slots-below-top-k",
+          "fault": "capacity",
+          "threads": 4,
+          "slots": 7,
+          "selected": 8,
+          "candidate_status": 1,
+          "failed": true,
+          "cancelled": false,
+          "identical": false
+        },
+        {
+          "name": "fresh_after_slots-below-top-k",
+          "fault": "none",
+          "threads": 4,
+          "slots": 7,
+          "selected": 7,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "slots-at-top-k",
+          "fault": "none",
+          "threads": 4,
+          "slots": 8,
+          "selected": 8,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        },
+        {
+          "name": "slots-above-top-k",
+          "fault": "none",
+          "threads": 4,
+          "slots": 9,
+          "selected": 8,
+          "candidate_status": 0,
+          "failed": false,
+          "cancelled": false,
+          "identical": true
+        }
+      ],
+      "recovery": {
+        "passed": true,
+        "runs": [
+          {
+            "threads": 1,
+            "cases": [
+              {
+                "fault": "read",
+                "failure_reported": true,
+                "poisoned_without_reset": true,
+                "outcome_cleared": true,
+                "dense_after_reset": true,
+                "moe_identical_after_reset": true,
+                "passed": true
+              },
+              {
+                "fault": "cancel",
+                "failure_reported": true,
+                "poisoned_without_reset": true,
+                "outcome_cleared": true,
+                "dense_after_reset": true,
+                "moe_identical_after_reset": true,
+                "passed": true
+              }
+            ]
+          },
+          {
+            "threads": 2,
+            "cases": [
+              {
+                "fault": "read",
+                "failure_reported": true,
+                "poisoned_without_reset": true,
+                "outcome_cleared": true,
+                "dense_after_reset": true,
+                "moe_identical_after_reset": true,
+                "passed": true
+              },
+              {
+                "fault": "cancel",
+                "failure_reported": true,
+                "poisoned_without_reset": true,
+                "outcome_cleared": true,
+                "dense_after_reset": true,
+                "moe_identical_after_reset": true,
+                "passed": true
+              }
+            ]
+          },
+          {
+            "threads": 4,
+            "cases": [
+              {
+                "fault": "read",
+                "failure_reported": true,
+                "poisoned_without_reset": true,
+                "outcome_cleared": true,
+                "dense_after_reset": true,
+                "moe_identical_after_reset": true,
+                "passed": true
+              },
+              {
+                "fault": "cancel",
+                "failure_reported": true,
+                "poisoned_without_reset": true,
+                "outcome_cleared": true,
+                "dense_after_reset": true,
+                "moe_identical_after_reset": true,
+                "passed": true
+              }
+            ]
+          }
+        ]
+      },
+      "quantized": [
+        {
+          "type": "q4_k",
+          "role": "gate",
+          "threads": 1,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "gate",
+          "threads": 1,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "gate",
+          "threads": 2,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "gate",
+          "threads": 2,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "gate",
+          "threads": 4,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "gate",
+          "threads": 4,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "up",
+          "threads": 1,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "up",
+          "threads": 1,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "up",
+          "threads": 2,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "up",
+          "threads": 2,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "up",
+          "threads": 4,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "up",
+          "threads": 4,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "down",
+          "threads": 1,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "down",
+          "threads": 1,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "down",
+          "threads": 2,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "down",
+          "threads": 2,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q4_k",
+          "role": "down",
+          "threads": 4,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q4_k",
+          "role": "down",
+          "threads": 4,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "gate",
+          "threads": 1,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "gate",
+          "threads": 1,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "gate",
+          "threads": 2,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "gate",
+          "threads": 2,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "gate",
+          "threads": 4,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "gate",
+          "threads": 4,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "up",
+          "threads": 1,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "up",
+          "threads": 1,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "up",
+          "threads": 2,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "up",
+          "threads": 2,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "up",
+          "threads": 4,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "up",
+          "threads": 4,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "down",
+          "threads": 1,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "down",
+          "threads": 1,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "down",
+          "threads": 2,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "down",
+          "threads": 2,
+          "corrupt_detected": true
+        },
+        {
+          "type": "q6_k",
+          "role": "down",
+          "threads": 4,
+          "hits": 4,
+          "misses": 4,
+          "evictions": 3,
+          "prefill_union": 8,
+          "duplicate": true,
+          "noncontiguous": true
+        },
+        {
+          "type": "q6_k",
+          "role": "down",
+          "threads": 4,
+          "corrupt_detected": true
+        }
+      ],
+      "broken": {
+        "exit_code": 1,
+        "identical": false,
+        "mismatched": 32
+      },
+      "kernel": {
+        "dimensions": {
+          "n_embd": 64,
+          "n_ff": 128,
+          "n_expert": 32,
+          "n_expert_used": 4,
+          "prefill_tokens": 8,
+          "threads": 4
+        },
+        "memory": {
+          "resident_reference_bytes": 1048576,
+          "arena_bytes": 557056,
+          "slot_bytes": 32768,
+          "slots": 17,
+          "prefill_union": 17
+        },
+        "rounds": 2,
+        "all_identical": true
+      },
+      "runner_boundaries": {
+        "status": "passed",
+        "returncode": 0
+      },
+      "artifact": {
+        "returncode": 0,
+        "stdout": "PASS valid artifact: {\"stage\": \"install\", \"ok\": true, \"sha\": \"f16194347ce4a1d3037bf76a0b20adbaccea8e6a858c5225aedaafdccd7455bd\", \"hash_seconds\": 0.00525136}\nPASS same-size bit flip: {\"stage\": \"open\", \"ok\": false, \"error\": \"artifact SHA-256 does not match the enrolled identity\"}\nPASS wrong artifact with matching sidecar: {\"stage\": \"open\", \"ok\": false, \"error\": \"artifact SHA-256 does not match the enrolled identity\"}\nPASS swapped in-bounds offsets: {\"stage\": \"install\", \"ok\": false, \"error\": \"GGUF extent mismatch for blk.0.ffn_gate_exps.weight\"}\nPASS missing routed tensor: {\"stage\": \"install\", \"ok\": false, \"error\": \"routed GGUF tensor is missing from manifest: blk.0.ffn_down_exps.weight\"}\nPASS duplicate tensor: {\"stage\": \"install\", \"ok\": false, \"error\": \"duplicate expert tensor: blk.0.ffn_gate_exps.weight\"}\nPASS replacement after open uses retained FD: {\"stage\": \"install\", \"ok\": true, \"sha\": \"f16194347ce4a1d3037bf76a0b20adbaccea8e6a858c5225aedaafdccd7455bd\", \"hash_seconds\": 0.00522106}\nPASS rename after open uses retained FD: {\"stage\": \"install\", \"ok\": true, \"sha\": \"f16194347ce4a1d3037bf76a0b20adbaccea8e6a858c5225aedaafdccd7455bd\", \"hash_seconds\": 0.00518741}\nPASS hard link does not replace retained FD: {\"stage\": \"install\", \"ok\": true, \"sha\": \"f16194347ce4a1d3037bf76a0b20adbaccea8e6a858c5225aedaafdccd7455bd\", \"hash_seconds\": 0.00523451}\nPASS truncation before install refused: {\"stage\": \"install\", \"ok\": false, \"error\": \"artifact changed after identity verification\"}\nPASS in-place mutation before install refused: {\"stage\": \"install\", \"ok\": false, \"error\": \"artifact changed after identity verification\"}\n",
+        "stderr": ""
+      },
+      "manifest": {
+        "returncode": 0,
+        "stdout": "PASS valid v2 manifest\nPASS wrong tensor_count\nPASS duplicate row\nPASS nbytes mismatch\nPASS overflow\nPASS truncated extent\nPASS unsupported version\nPASS missing layout\nPASS wrong layout\nPASS offset above 4 GiB\n",
+        "stderr": ""
+      }
+    }
+  },
+  "elapsed_seconds": 40.04855882099946,
+  "passed": true
+}

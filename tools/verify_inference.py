@@ -140,6 +140,19 @@ def gate_faults(binary: Path, workdir: Path) -> list[dict[str, object]]:
     return checks
 
 
+def gate_recovery(binary: Path, workdir: Path) -> dict[str, object]:
+    workdir.mkdir(parents=True, exist_ok=True)
+    cases = []
+    for threads in (1, 2, 4):
+        result = run([str(binary), "--workdir", str(workdir / f"t{threads}"),
+                      "--threads", str(threads)], timeout=300)
+        payload = json.loads(result.stdout)
+        if payload.get("passed") is not True:
+            raise RuntimeError(f"recovery gate failed with {threads} workers: {payload}")
+        cases.append({"threads": threads, "cases": payload["cases"]})
+    return {"passed": True, "runs": cases}
+
+
 def gate_quantized(binary: Path, workdir: Path) -> list[dict[str, object]]:
     checks: list[dict[str, object]] = []
     for type_name in ("q4_k", "q6_k"):
@@ -223,7 +236,8 @@ def build(config: str, source: Path, libs: Path, build_dir: Path) -> dict[str, o
         configure.append("-DAME_SANITIZERS=ON")
     configured = run(configure, timeout=900)
     built = run(["cmake", "--build", str(build_dir), "--target",
-                 "moe_stream_gate", "moe_stream_gate_broken", "moe_kernel_gate",
+                 "moe_stream_gate", "moe_stream_gate_broken", "moe_recovery_gate",
+                 "moe_kernel_gate",
                  "moe_quantized_gate", "manifest_gate", "artifact_gate",
                  "complete_runner", "llama_baseline_stream"], timeout=1800)
     return {
@@ -277,6 +291,8 @@ def main() -> int:
                                            build_dir / "gate-stream")
             record["faults"] = gate_faults(build_dir / "moe_stream_gate",
                                            build_dir / "gate-faults")
+            record["recovery"] = gate_recovery(build_dir / "moe_recovery_gate",
+                                               build_dir / "gate-recovery")
             record["quantized"] = gate_quantized(build_dir / "moe_quantized_gate",
                                                  build_dir / "gate-quantized")
             record["broken"] = gate_broken(build_dir / "moe_stream_gate_broken",

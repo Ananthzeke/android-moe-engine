@@ -124,3 +124,26 @@ a server restart. [The runbook](RUN_35B.md) gives reproduction commands and timi
 limits. This establishes a short 35B text API path; reference-logit parity,
 long-form qualification, runtime mutation integrity, stop buffering, UTF-8
 buffering, and bounded disconnect cancellation remain separate open work.
+
+## Same-process recovery after a failed request (2026-10-24)
+
+Patch 0001 latched `g_moe_error_latched` on a failed or cancelled `MUL_MAT_ID` and never
+cleared it, so every later graph in the process aborted after its first node. The
+`moe_recovery_gate` reproduces it with the real patched backend: after an injected read
+failure or a cancellation, a dense `ggml_add` graph returns a non-success status. The patch
+now exports `ggml_moe_reset()`, and `ggml_moe_set_materializer` calls it, so installing or
+removing a materializer starts clean. The project calls `begin_moe_stream_request()` under
+exclusive admission, after the previous context is destroyed and its leases released.
+
+Evidence: the recovery gate passes with 1, 2 and 4 workers in Debug, Release and ASan/UBSan
+(`tools/verify_inference.py`); with the reset call commented out the gate fails on the dense
+graph. `complete_runner --recover-after-fault` fails one generation in the materializer, resets,
+and runs a fresh context in the same process; its logits and token IDs equal an uninterrupted
+streamed run byte for byte on the tiny qwen35moe fixture. This satisfies the stricter
+condition in `prompts/DEEPSEEK_STABILITY_AND_IO.md` (drain, lease release, fresh-reference
+parity) for the fixture only. A reset is never issued while another request holds admission.
+
+The server publishes the terminal snapshot inside `RequestScope`, after lease release and
+before admission release, on every exit including failed SSE writes. `/health` reads only the
+published value. Limits: real-35B recovery parity, a blocked `pread`, and backend abort on
+deadline or disconnect remain open.

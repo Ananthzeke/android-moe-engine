@@ -3,6 +3,7 @@
 #include "httplib.h"
 #include "json.hpp"
 #include "llama.h"
+#include "request_scope.hpp"
 #ifdef AME_STREAMING
 #include "artifact.hpp"
 #include "moe_stream.hpp"
@@ -121,28 +122,18 @@ void publish_stream_snapshot() {
                    {"contract_shared", stats.contract_shared},
                    {"failed", stats.failed},
                    {"cancelled", stats.cancelled},
+                   {"error", stats.error.substr(0, 256)},
                    {"artifact_hash_seconds", stats.artifact_hash_seconds}};
   std::lock_guard<std::mutex> lock(g_snapshot_mutex);
   g_stream_snapshot = std::move(snapshot);
 #endif
 }
 
-class RequestAdmission {
- public:
-  RequestAdmission() = default;
-  RequestAdmission(const RequestAdmission&) = delete;
-  RequestAdmission& operator=(const RequestAdmission&) = delete;
-  ~RequestAdmission() { finish(); }
-  void finish() {
-    if (!active_) return;
-    active_ = false;
-    ame::backend::release_moe_stream_leases();
-    g_queue.release();
-  }
-
- private:
-  bool active_ = true;
-};
+std::shared_ptr<ame::server::RequestScope> make_request_scope() {
+  return std::make_shared<ame::server::RequestScope>(ame::server::RequestScope::Hooks{
+      [] { ame::backend::release_moe_stream_leases(); }, [] { publish_stream_snapshot(); },
+      [] { g_queue.release(); }});
+}
 
 std::string json_error(const std::string& message,
                        const std::string& code = "invalid_request_error") {
@@ -347,6 +338,16 @@ bool emit_piece(Generation& generation, std::string& pending, const std::string&
   return true;
 }
 
+std::string backend_error_suffix() {
+#ifdef AME_STREAMING
+  if (g_options.stream) {
+    const std::string error = ame::backend::moe_stream_error();
+    if (!error.empty()) return ": " + error.substr(0, 256);
+  }
+#endif
+  return "";
+}
+
 std::optional<Generation> generate(const Request& request, bool stream,
                                    const std::function<void(const std::string&)>& emit,
                                    std::atomic<bool>& cancelled,
@@ -410,7 +411,7 @@ std::optional<Generation> generate(const Request& request, bool stream,
         request.tokens.begin() + static_cast<std::ptrdiff_t>(offset + chunk));
     if (!decode(piece, static_cast<int>(offset), true)) {
       generation.failed = true;
-      generation.error = "prefill failed";
+      generation.error = "prefill failed" + backend_error_suffix();
       llama_batch_free(batch_tokens);
       llama_free(context);
       return generation;
@@ -476,7 +477,7 @@ std::optional<Generation> generate(const Request& request, bool stream,
     std::vector<llama_token> next{token};
     if (!decode(next, position++, true)) {
       generation.failed = true;
-      generation.error = "decode failed";
+      generation.error = "decode failed" + backend_error_suffix();
       break;
     }
   }
@@ -695,12 +696,12 @@ int run_server(int argc, char** argv) {
       return;
     }
     auto execution_deadline = std::chrono::steady_clock::now() + std::chrono::seconds(300);
-    auto admission_guard = std::make_shared<RequestAdmission>();
+    auto admission_guard = make_request_scope();
+    if (g_options.stream) ame::backend::begin_moe_stream_request();
     if (!request->stream) {
       std::atomic<bool> cancelled{false};
       auto generation =
           generate(*request, false, [](const std::string&) {}, cancelled, execution_deadline);
-      publish_stream_snapshot();
       admission_guard->finish();
       if (!generation.has_value() || generation->failed) {
         set_error(res, 500, generation.has_value() ? generation->error : "generation failed",
@@ -791,7 +792,6 @@ int run_server(int argc, char** argv) {
           const std::string done = "data: [DONE]\n\n";
           sink.write(done.data(), done.size());
           sink.done();
-          publish_stream_snapshot();
           admission_guard->finish();
           return true;
         });

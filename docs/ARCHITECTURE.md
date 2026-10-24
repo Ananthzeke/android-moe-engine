@@ -242,7 +242,13 @@ barrier, so all workers select the same branch. A latched failure causes the CPU
 loop to stop before later nodes consume incomplete output; the harness abort callback
 observes the same state and `llama_decode` returns 2. Expected storage, arena,
 capacity, metadata, and unindexed-expert failures are structured; they no longer call
-`std::abort()`. A failed request requires reopen.
+`std::abort()`. A failed or cancelled request leaves a process-global error latch in the
+patched backend. `begin_moe_stream_request()` clears it, together with the failed/cancelled
+outcome, the request cancellation and the leases. It is called only by the owner of exclusive
+admission, after the failed request's context was destroyed (which drains scheduler work) and
+before the next context exists. Each request builds a fresh context, so no KV or recurrent
+state carries over. The recovery gate and the fail-then-recover token parity check prove this
+for the tested fixtures; real-35B recovery parity is still unverified.
 
 The conservative prefill plan derives expert count and top-k from model metadata and
 sets `n_ubatch` before context construction. Its union bound is

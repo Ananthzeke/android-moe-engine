@@ -77,6 +77,23 @@ def main() -> int:
                                 and read_tokens(str(fresh_tokens)) == streamed_tokens)
                 except (FormatError, OSError):
                     fresh_ok = False
+        recovery_ok = None
+        if case.get("lifecycle"):
+            # Same process: fail one generation in the materializer, reset, run fresh.
+            recovered = args.workdir / f"{case['name']}-recovered.logits"
+            recovered_tokens = args.workdir / f"{case['name']}-recovered.tokens"
+            rec = subprocess.run([str(args.streamed_runner), *common, "--manifest", str(manifest),
+                                  "--sha", digest, "--slots", str(case["slots"]),
+                                  "--recover-after-fault",
+                                  "--output", str(recovered),
+                                  "--tokens-output", str(recovered_tokens)],
+                                 text=True, capture_output=True)
+            try:
+                recovery_ok = (rec.returncode == 0
+                               and read_logits(str(recovered)) == right
+                               and read_tokens(str(recovered_tokens)) == streamed_tokens)
+            except (FormatError, OSError):
+                recovery_ok = False
         corruption_ok = None
         if case.get("corruption") and args.broken_runner is None:
             raise SystemExit(f"{case['name']} requires --broken-runner for its corruption check")
@@ -94,13 +111,15 @@ def main() -> int:
         rows.append({"name": case["name"], "sha256": digest, "mismatched_floats": mismatched,
                      "capacity_refused": capacity_ok, "corruption_detected": corruption_ok,
                      "cancelled": cancelled_ok, "fresh_replay": fresh_ok,
+                     "recovery_after_fault": recovery_ok,
                      "tokens_equal": pristine_tokens == streamed_tokens,
                      "tokens": streamed_tokens,
                      "streamed": json.loads(s.stdout.splitlines()[-1]) if s.stdout.strip() else {}})
     args.output.write_text(json.dumps({"schema_version": 1, "rows": rows}, indent=2) + "\n")
     failed = [r for r in rows if r["mismatched_floats"] != 0 or not r["tokens_equal"]
               or r["capacity_refused"] is False or r["corruption_detected"] is False
-              or r["cancelled"] is False or r["fresh_replay"] is False]
+              or r["cancelled"] is False or r["fresh_replay"] is False
+              or r["recovery_after_fault"] is False]
     for row in rows:
         print(row["name"], "mismatched", row["mismatched_floats"], "tokens", row["tokens"])
     return 1 if failed else 0

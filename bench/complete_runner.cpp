@@ -32,6 +32,7 @@ struct Options {
   std::uint32_t predict = 2;
   std::uint32_t slots = 8;
   bool cancel_before_decode = false;
+  bool recover_after_fault = false;
   std::vector<std::int32_t> prompt_ids;
 };
 
@@ -109,6 +110,8 @@ int main(int argc, char* argv[]) {
       if (!next(options.refusal_output)) return 2;
     } else if (arg == "--cancel-before-decode") {
       options.cancel_before_decode = true;
+    } else if (arg == "--recover-after-fault") {
+      options.recover_after_fault = true;
     } else if (arg == "--prompt-ids") {
       if (!next(text) || !parse_ids(text, options.prompt_ids)) return 2;
     } else if (arg == "--context" || arg == "--threads" || arg == "--batch" ||
@@ -213,108 +216,128 @@ int main(int argc, char* argv[]) {
       return 2;
     }
   }
-  llama_context_params context_params = llama_context_default_params();
-  context_params.n_ctx = options.context;
-  context_params.n_batch = options.batch;
-  context_params.n_ubatch = options.ubatch;
-  context_params.n_threads = static_cast<int32_t>(options.threads);
-  context_params.n_threads_batch = static_cast<int32_t>(options.threads);
-  llama_context* context = llama_init_from_model(model, context_params);
-  if (context == nullptr) {
-    std::cerr << "context failed\n";
-    llama_model_free(model);
-#ifdef AME_STREAMING
-    ame::backend::uninstall_moe_stream();
-#endif
-    llama_backend_free();
-    return 1;
-  }
-
   std::vector<std::vector<float>> logits;
   std::vector<std::int32_t> generated;
-  llama_batch batch = llama_batch_init(static_cast<std::int32_t>(options.batch), 0, 1);
-  // Splits ids into chunks of at most options.batch tokens, the capacity of `batch`.
-  // all_logits collects one row per input token; otherwise only the final row is kept.
-  auto decode_batch = [&](const std::vector<std::int32_t>& ids, std::int32_t position,
-                          bool all_logits) -> bool {
-    for (std::size_t offset = 0; offset < ids.size(); offset += options.batch) {
-      const std::size_t count = std::min<std::size_t>(options.batch, ids.size() - offset);
-      const bool last_chunk = offset + count == ids.size();
-      batch.n_tokens = 0;
-      for (std::size_t chunk_index = 0; chunk_index < count; ++chunk_index) {
-        const std::size_t index = offset + chunk_index;
-        batch.token[batch.n_tokens] = ids[index];
-        batch.pos[batch.n_tokens] = position + static_cast<std::int32_t>(index);
-        batch.n_seq_id[batch.n_tokens] = 1;
-        batch.seq_id[batch.n_tokens][0] = 0;
-        batch.logits[batch.n_tokens] = (all_logits || index + 1 == ids.size()) ? 1 : 0;
-        ++batch.n_tokens;
-      }
-      if (llama_decode(context, batch) != 0) {
-        return false;
-      }
-      if (all_logits) {
-        for (std::int32_t index = 0; index < batch.n_tokens; ++index) {
-          const float* row = llama_get_logits_ith(context, index);
+  // One generation in a fresh context. Returns false on any failure, with the context
+  // and batch already released; the model stays loaded for the caller.
+  const auto attempt = [&]() -> bool {
+    logits.clear();
+    generated.clear();
+    llama_context_params context_params = llama_context_default_params();
+    context_params.n_ctx = options.context;
+    context_params.n_batch = options.batch;
+    context_params.n_ubatch = options.ubatch;
+    context_params.n_threads = static_cast<int32_t>(options.threads);
+    context_params.n_threads_batch = static_cast<int32_t>(options.threads);
+    llama_context* context = llama_init_from_model(model, context_params);
+    if (context == nullptr) {
+      std::cerr << "context failed\n";
+      return false;
+    }
+    llama_batch batch = llama_batch_init(static_cast<std::int32_t>(options.batch), 0, 1);
+    const auto release = [&]() {
+      llama_batch_free(batch);
+      llama_free(context);
+    };
+    // Splits ids into chunks of at most options.batch tokens, the capacity of `batch`.
+    // all_logits collects one row per input token; otherwise only the final row is kept.
+    const auto decode_batch = [&](const std::vector<std::int32_t>& ids, std::int32_t position,
+                                  bool all_logits) -> bool {
+      for (std::size_t offset = 0; offset < ids.size(); offset += options.batch) {
+        const std::size_t count = std::min<std::size_t>(options.batch, ids.size() - offset);
+        const bool last_chunk = offset + count == ids.size();
+        batch.n_tokens = 0;
+        for (std::size_t chunk_index = 0; chunk_index < count; ++chunk_index) {
+          const std::size_t index = offset + chunk_index;
+          batch.token[batch.n_tokens] = ids[index];
+          batch.pos[batch.n_tokens] = position + static_cast<std::int32_t>(index);
+          batch.n_seq_id[batch.n_tokens] = 1;
+          batch.seq_id[batch.n_tokens][0] = 0;
+          batch.logits[batch.n_tokens] = (all_logits || index + 1 == ids.size()) ? 1 : 0;
+          ++batch.n_tokens;
+        }
+        if (llama_decode(context, batch) != 0) {
+          return false;
+        }
+        if (all_logits) {
+          for (std::int32_t index = 0; index < batch.n_tokens; ++index) {
+            const float* row = llama_get_logits_ith(context, index);
+            if (row == nullptr) {
+              return false;
+            }
+            logits.emplace_back(row, row + n_vocab);
+          }
+        } else if (last_chunk) {
+          const float* row = llama_get_logits_ith(context, batch.n_tokens - 1);
           if (row == nullptr) {
             return false;
           }
           logits.emplace_back(row, row + n_vocab);
         }
-      } else if (last_chunk) {
-        const float* row = llama_get_logits_ith(context, batch.n_tokens - 1);
-        if (row == nullptr) {
-          return false;
+      }
+      return true;
+    };
+
+    if (!decode_batch(options.prompt_ids, 0, true)) {
+      std::cerr << "prefill failed\n";
+      release();
+      return false;
+    }
+    std::int32_t position = static_cast<std::int32_t>(options.prompt_ids.size());
+    if (options.cancel_before_decode) {
+#ifdef AME_STREAMING
+      ame::backend::request_moe_stream_cancel();
+#endif
+    }
+    for (std::uint32_t step = 0; step < options.predict; ++step) {
+      const auto& row = logits.back();
+      std::int32_t best = 0;
+      for (std::int32_t id = 1; id < n_vocab; ++id) {
+        if (row[static_cast<std::size_t>(id)] > row[static_cast<std::size_t>(best)]) {
+          best = id;
         }
-        logits.emplace_back(row, row + n_vocab);
+      }
+      generated.push_back(best);
+      if (step + 1 == options.predict) {
+        break;
+      }
+      if (!decode_batch({best}, position++, false)) {
+        std::cerr << "decode failed\n";
+        if (options.cancel_before_decode) {
+          std::cout << "{\"status\": \"cancelled\"}\n";
+        }
+        release();
+        return false;
       }
     }
+    release();
     return true;
   };
-
-  if (!decode_batch(options.prompt_ids, 0, true)) {
-    std::cerr << "prefill failed\n";
-    llama_batch_free(batch);
-    llama_free(context);
+  const auto finish = [&](int code) {
     llama_model_free(model);
 #ifdef AME_STREAMING
     ame::backend::uninstall_moe_stream();
 #endif
     llama_backend_free();
-    return 1;
-  }
-  std::int32_t position = static_cast<std::int32_t>(options.prompt_ids.size());
-  if (options.cancel_before_decode) {
+    return code;
+  };
+
 #ifdef AME_STREAMING
-    ame::backend::request_moe_stream_cancel();
-#endif
+  if (options.recover_after_fault) {
+    // Fail one generation inside the materializer, then run a fresh request in the same
+    // process after the exclusive-owner reset. Only the second run is written out.
+    (void)::setenv("AME_IO_FAIL_AFTER_BYTES", "1", 1);
+    const bool faulted = !attempt();
+    (void)::unsetenv("AME_IO_FAIL_AFTER_BYTES");
+    if (!faulted || !ame::backend::moe_stream_failed()) {
+      std::cerr << "injected fault did not fail the first generation\n";
+      return finish(1);
+    }
+    ame::backend::begin_moe_stream_request();
   }
-  for (std::uint32_t step = 0; step < options.predict; ++step) {
-    const auto& row = logits.back();
-    std::int32_t best = 0;
-    for (std::int32_t id = 1; id < n_vocab; ++id) {
-      if (row[static_cast<std::size_t>(id)] > row[static_cast<std::size_t>(best)]) {
-        best = id;
-      }
-    }
-    generated.push_back(best);
-    if (step + 1 == options.predict) {
-      break;
-    }
-    if (!decode_batch({best}, position++, false)) {
-      std::cerr << "decode failed\n";
-      if (options.cancel_before_decode) {
-        std::cout << "{\"status\": \"cancelled\"}\n";
-      }
-      llama_batch_free(batch);
-      llama_free(context);
-      llama_model_free(model);
-#ifdef AME_STREAMING
-      ame::backend::uninstall_moe_stream();
 #endif
-      llama_backend_free();
-      return 1;
-    }
+  if (!attempt()) {
+    return finish(1);
   }
 
 #ifdef AME_STREAMING
@@ -323,22 +346,17 @@ int main(int argc, char* argv[]) {
     const auto stats = ame::backend::moe_stream_stats();
     if (stats.contract_routed > 0 && stats.materialize_calls == 0) {
       std::cerr << "streaming staged no experts; materializer was bypassed\n";
-      llama_batch_free(batch);
-      llama_free(context);
-      llama_model_free(model);
-      ame::backend::uninstall_moe_stream();
-      llama_backend_free();
-      return 1;
+      return finish(1);
     }
   }
 #endif
   if (!write_logits(options.output, logits)) {
     std::cerr << "cannot write logits\n";
-    return 1;
+    return finish(1);
   }
   if (!options.tokens_output.empty() && !write_tokens(options.tokens_output, generated)) {
     std::cerr << "cannot write tokens\n";
-    return 1;
+    return finish(1);
   }
   std::cout << "{\"prompt_tokens\": " << options.prompt_ids.size()
             << ", \"logit_rows\": " << logits.size()
@@ -363,12 +381,5 @@ int main(int argc, char* argv[]) {
 #endif
   std::cout << "}\n";
 
-  llama_batch_free(batch);
-  llama_free(context);
-  llama_model_free(model);
-#ifdef AME_STREAMING
-  ame::backend::uninstall_moe_stream();
-#endif
-  llama_backend_free();
-  return 0;
+  return finish(0);
 }

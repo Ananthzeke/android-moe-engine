@@ -33,3 +33,7 @@ also exports `llama_internal_get_expert_consumers` from the loaded model's `llam
 **when the materializer is active**. Dense runs keep the prefetch behavior. On a
 9.48 GB MoE this cut peak process RSS from 5.2-6.1 GiB to about 1.2 GiB and reduced
 TTFT from 4.9-8.4 s to about 2.1 s. Apply it after 0001. The consumer API is test/internal only; project code binds it to the verified manifest after model load.
+`ggml_moe_reset()` (patch 0001) clears the outcome and the error latch that a failed or
+cancelled graph leaves behind. `ggml_moe_set_materializer` calls it, so installing or removing a
+materializer starts clean. The project calls it per request, only under exclusive admission after
+the previous context was destroyed. Without it, the next graph aborts after its first node.
