@@ -1,2 +1,3 @@
 #!/system/bin/sh
-pkill -f '/data/local/tmp/ame-api/ame-server' || true
+# Match the process name: a server started as ./ame-server has a relative command line.
+pkill -x ame-server || true

@@ -3,6 +3,7 @@
 #include "httplib.h"
 #include "json.hpp"
 #include "llama.h"
+#include "request_metrics.hpp"
 #include "request_scope.hpp"
 #ifdef AME_STREAMING
 #include "artifact.hpp"
@@ -44,6 +45,8 @@ struct Options {
   int slots = 64;
   std::uint64_t arena_mib = 256;
   bool stream = false;
+  std::string request_log;
+  std::string system_root = "/";
 };
 
 std::atomic<bool> g_ready{false};
@@ -105,6 +108,11 @@ class AdmissionQueue {
 AdmissionQueue g_queue;
 std::mutex g_snapshot_mutex;
 json g_stream_snapshot = json::object();
+json g_last_request = json::object();
+json g_startup_record = json::object();
+std::unique_ptr<ame::server::SystemSampler> g_sampler;
+std::mutex g_request_log_mutex;
+std::ofstream g_request_log;
 
 void publish_stream_snapshot() {
 #ifdef AME_STREAMING
@@ -162,6 +170,7 @@ struct Request {
   bool stream = false;
   bool include_usage = false;
   bool enable_thinking = false;
+  bool debug = false;
   std::vector<std::string> stops;
 };
 
@@ -200,6 +209,13 @@ std::optional<Request> parse_request(const json& body, httplib::Response& res) {
       return std::nullopt;
     }
     request.enable_thinking = body["enable_thinking"].get<bool>();
+  }
+  if (body.contains("ame_debug")) {
+    if (!body["ame_debug"].is_boolean()) {
+      set_error(res, 400, "ame_debug must be a boolean");
+      return std::nullopt;
+    }
+    request.debug = body["ame_debug"].get<bool>();
   }
   if (body.contains("chat_template_kwargs")) {
     set_error(res, 400, "arbitrary template kwargs are unsupported; use enable_thinking");
@@ -290,7 +306,12 @@ struct Generation {
   int completion_tokens = 0;
   bool cancelled = false;
   bool failed = false;
+  bool ended_with_eog = false;
   std::string error;
+  std::vector<llama_token> token_ids;  // every sampled token, including a terminal EOG
+  std::vector<double> step_seconds;    // llama_decode time after each emitted token
+  std::optional<double> ttft_seconds;  // generate() start to first sampled token
+  std::vector<ame::server::PhaseRecord> phases;
 };
 
 bool emit_piece(Generation& generation, std::string& pending, const std::string& piece,
@@ -348,12 +369,13 @@ std::string backend_error_suffix() {
   return "";
 }
 
-std::optional<Generation> generate(const Request& request, bool stream,
-                                   const std::function<void(const std::string&)>& emit,
-                                   std::atomic<bool>& cancelled,
-                                   std::chrono::steady_clock::time_point deadline) {
-  Generation generation;
-  generation.id = id_for();
+void generate_impl(const Request& request, bool stream,
+                   const std::function<void(const std::string&)>& emit,
+                   std::atomic<bool>& cancelled, std::chrono::steady_clock::time_point deadline,
+                   Generation& generation, ame::server::PhaseRecorder& recorder) {
+  const auto generate_begin = std::chrono::steady_clock::now();
+  std::optional<ame::server::PhaseScope> phase;
+  phase.emplace(recorder, "context_create");
   auto deadline_expired = [&] { return std::chrono::steady_clock::now() > deadline; };
   generation.prompt_tokens = static_cast<int>(request.tokens.size());
   llama_context_params params = llama_context_default_params();
@@ -369,7 +391,7 @@ std::optional<Generation> generate(const Request& request, bool stream,
                                           selected, plan_error)) {
       generation.failed = true;
       generation.error = plan_error;
-      return generation;
+      return;
     }
     batch = static_cast<int>(unit);
   }
@@ -382,9 +404,11 @@ std::optional<Generation> generate(const Request& request, bool stream,
   if (context == nullptr) {
     generation.failed = true;
     generation.error = "context creation failed";
-    return generation;
+    return;
   }
   llama_batch batch_tokens = llama_batch_init(batch, 0, 1);
+  phase.reset();
+  phase.emplace(recorder, "prefill");
   auto decode = [&](const std::vector<llama_token>& tokens, int position, bool logits) {
     batch_tokens.n_tokens = static_cast<int32_t>(tokens.size());
     for (std::size_t index = 0; index < tokens.size(); ++index) {
@@ -402,7 +426,7 @@ std::optional<Generation> generate(const Request& request, bool stream,
       generation.error = "request deadline exceeded";
       llama_batch_free(batch_tokens);
       llama_free(context);
-      return generation;
+      return;
     }
     const std::size_t chunk =
         std::min<std::size_t>(static_cast<std::size_t>(batch), request.tokens.size() - offset);
@@ -414,10 +438,12 @@ std::optional<Generation> generate(const Request& request, bool stream,
       generation.error = "prefill failed" + backend_error_suffix();
       llama_batch_free(batch_tokens);
       llama_free(context);
-      return generation;
+      return;
     }
     offset += chunk;
   }
+  phase.reset();
+  phase.emplace(recorder, "decode");
   llama_sampler_chain_params sampler_params = llama_sampler_chain_default_params();
   llama_sampler* sampler = llama_sampler_chain_init(sampler_params);
   if (request.temperature <= 0.0) {
@@ -447,8 +473,14 @@ std::optional<Generation> generate(const Request& request, bool stream,
     }
     const llama_token token = llama_sampler_sample(sampler, context, -1);
     llama_sampler_accept(sampler, token);
+    generation.token_ids.push_back(token);
+    if (!generation.ttft_seconds) {
+      generation.ttft_seconds =
+          std::chrono::duration<double>(std::chrono::steady_clock::now() - generate_begin).count();
+    }
     if (llama_vocab_is_eog(vocab, token)) {
       generation.finish = "stop";
+      generation.ended_with_eog = true;
       break;
     }
     char piece[256] = {};
@@ -475,7 +507,11 @@ std::optional<Generation> generate(const Request& request, bool stream,
     ++generation.completion_tokens;
     if (step + 1 == request.max_tokens) break;
     std::vector<llama_token> next{token};
-    if (!decode(next, position++, true)) {
+    const auto step_begin = std::chrono::steady_clock::now();
+    const bool stepped = decode(next, position++, true);
+    generation.step_seconds.push_back(
+        std::chrono::duration<double>(std::chrono::steady_clock::now() - step_begin).count());
+    if (!stepped) {
       generation.failed = true;
       generation.error = "decode failed" + backend_error_suffix();
       break;
@@ -485,10 +521,179 @@ std::optional<Generation> generate(const Request& request, bool stream,
     if (stream) emit(pending);
     generation.text += pending;
   }
+  phase.reset();
+  phase.emplace(recorder, "context_teardown");
   llama_sampler_free(sampler);
   llama_batch_free(batch_tokens);
   llama_free(context);
+}
+
+ame::server::PhaseRecorder::ExpertSource expert_source() {
+#ifdef AME_STREAMING
+  if (g_options.stream) {
+    return [] {
+      const auto stats = ame::backend::moe_stream_stats();
+      return ame::server::ExpertCounters{stats.hits,        stats.misses,      stats.reads,
+                                         stats.read_bytes,  stats.pread_calls, stats.pread_bytes,
+                                         stats.read_seconds};
+    };
+  }
+#endif
+  return nullptr;
+}
+
+std::optional<Generation> generate(const Request& request, bool stream,
+                                   const std::function<void(const std::string&)>& emit,
+                                   std::atomic<bool>& cancelled,
+                                   std::chrono::steady_clock::time_point deadline) {
+  Generation generation;
+  generation.id = id_for();
+  ame::server::PhaseRecorder recorder(*g_sampler, expert_source());
+  generate_impl(request, stream, emit, cancelled, deadline, generation, recorder);
+  generation.phases = recorder.take();
   return generation;
+}
+
+std::string utc_now() {
+  const std::time_t now = std::time(nullptr);
+  std::tm utc{};
+  gmtime_r(&now, &utc);
+  char buffer[32] = {};
+  std::strftime(buffer, sizeof(buffer), "%Y-%m-%dT%H:%M:%SZ", &utc);
+  return buffer;
+}
+
+// A counter is its value, or null with the reason recorded under "unavailable".
+json counter_json(const ame::server::Counter& counter, const std::string& field,
+                  json& unavailable) {
+  if (counter.value.has_value()) return *counter.value;
+  unavailable.push_back({{"field", field}, {"reason", counter.reason}});
+  return nullptr;
+}
+
+json frequencies_json(const std::vector<ame::server::CoreFrequency>& cores,
+                      const std::string& field, json& unavailable) {
+  json result = json::array();
+  for (const auto& core : cores) {
+    result.push_back(
+        {{"cpu", core.cpu},
+         {"khz", counter_json(core.khz, field + ".cpu" + std::to_string(core.cpu), unavailable)}});
+  }
+  return result;
+}
+
+json phase_json(const ame::server::PhaseRecord& phase, const std::string& prefix,
+                json& unavailable) {
+  const std::string base = prefix + phase.name;
+  json result = {
+      {"name", phase.name},
+      {"seconds", phase.seconds},
+      {"proc_delta",
+       {{"rchar", counter_json(phase.proc_delta.rchar, base + ".proc_delta.rchar", unavailable)},
+        {"read_bytes",
+         counter_json(phase.proc_delta.read_bytes, base + ".proc_delta.read_bytes", unavailable)},
+        {"majflt", counter_json(phase.proc_delta.majflt, base + ".proc_delta.majflt", unavailable)},
+        {"pswpin",
+         counter_json(phase.proc_delta.pswpin, base + ".proc_delta.pswpin", unavailable)}}},
+      {"big_core_khz_start", frequencies_json(phase.khz_start, base + ".khz_start", unavailable)},
+      {"big_core_khz_end", frequencies_json(phase.khz_end, base + ".khz_end", unavailable)}};
+  if (phase.expert_delta.has_value()) {
+    const auto& e = *phase.expert_delta;
+    result["expert_delta"] = {{"hits", e.hits},
+                              {"misses", e.misses},
+                              {"expert_reads", e.expert_reads},
+                              {"expert_bytes", e.expert_bytes},
+                              {"pread_calls", e.pread_calls},
+                              {"pread_bytes", e.pread_bytes},
+                              {"read_seconds", e.read_seconds}};
+  } else {
+    result["expert_delta"] = nullptr;
+  }
+  return result;
+}
+
+json big_cores_json() {
+  json cores = json::array();
+  for (const int cpu : g_sampler->big_cores()) cores.push_back(cpu);
+  return {{"cpus", cores},
+          {"homogeneous", g_sampler->homogeneous()},
+          {"discovery_reason", g_sampler->discovery_reason().empty()
+                                   ? json(nullptr)
+                                   : json(g_sampler->discovery_reason())}};
+}
+
+json request_record(const Generation& generation, double queue_wait_seconds, double total_seconds,
+                    const std::vector<llama_token>& prompt_tokens) {
+  json unavailable = json::array();
+  json phases = json::array();
+  for (const auto& phase : generation.phases) {
+    phases.push_back(phase_json(phase, "phases.", unavailable));
+  }
+  std::string status = "completed";
+  if (generation.failed) {
+    status = generation.error.rfind("request deadline", 0) == 0 ? "deadline_exceeded" : "failed";
+  } else if (generation.cancelled) {
+    status = "cancelled";
+  }
+  json record = {
+      {"schema_version", 1},
+      {"type", "request"},
+      {"request_id", generation.id},
+      {"finished_at", utc_now()},
+      {"status", status},
+      {"error", generation.error.empty() ? json(nullptr) : json(generation.error.substr(0, 256))},
+      {"finish_reason", generation.finish},
+      {"prompt_tokens", generation.prompt_tokens},
+      {"completion_tokens", generation.completion_tokens},
+      {"prompt_token_ids", prompt_tokens},
+      {"token_ids", generation.token_ids},
+      {"ended_with_eog", generation.ended_with_eog},
+      {"queue_wait_seconds", queue_wait_seconds},
+      {"total_seconds", total_seconds},
+      {"ttft_seconds", generation.ttft_seconds ? json(*generation.ttft_seconds) : json(nullptr)},
+      {"decode_step_seconds", generation.step_seconds},
+      {"phases", phases},
+      {"big_cores", big_cores_json()}};
+  record["unavailable"] = unavailable;
+  return record;
+}
+
+// Health carries a bounded copy: long token lists stay in the request log.
+json bounded_for_health(json record) {
+  constexpr std::size_t kLimit = 256;
+  for (const char* key : {"prompt_token_ids", "token_ids", "decode_step_seconds"}) {
+    if (record.contains(key) && record[key].is_array() && record[key].size() > kLimit) {
+      record[key].erase(record[key].begin() + static_cast<std::ptrdiff_t>(kLimit),
+                        record[key].end());
+      record[std::string(key) + "_truncated"] = true;
+    }
+  }
+  return record;
+}
+
+void write_request_log(const json& record) {
+  std::lock_guard<std::mutex> lock(g_request_log_mutex);
+  if (!g_request_log.is_open()) return;
+  g_request_log << record.dump() << '\n';
+  g_request_log.flush();
+  if (!g_request_log) {
+    std::cerr << "request log write failed; further records are not written\n";
+    g_request_log.close();
+  }
+}
+
+// Store the finished request as the health snapshot's last request and append it to the
+// log. Call it before the request scope ends, while admission is still exclusive.
+json record_request(const Generation& generation, const std::vector<llama_token>& prompt_tokens,
+                    std::chrono::steady_clock::time_point handler_begin, double queue_wait) {
+  const double total = std::chrono::duration<double>(Clock::now() - handler_begin).count();
+  json record = request_record(generation, queue_wait, total, prompt_tokens);
+  {
+    std::lock_guard<std::mutex> lock(g_snapshot_mutex);
+    g_last_request = bounded_for_health(record);
+  }
+  write_request_log(record);
+  return record;
 }
 
 json message_json(const Request& request, const Generation& generation) {
@@ -577,6 +782,8 @@ int run_server(int argc, char** argv) {
     } else if (arg == "--arena-mib") {
       if (!next(value)) return 2;
       options.arena_mib = std::stoull(value);
+    } else if (arg == "--request-log") {
+      if (!next(options.request_log)) return 2;
     } else if (arg == "--stream") {
       options.stream = true;
     } else {
@@ -599,6 +806,16 @@ int run_server(int argc, char** argv) {
     std::cerr << "streaming requires --manifest and --artifact-sha\n";
     return 2;
   }
+  const auto process_begin = Clock::now();
+  g_sampler = std::make_unique<ame::server::SystemSampler>(options.system_root);
+  if (!options.request_log.empty()) {
+    g_request_log.open(options.request_log, std::ios::app);
+    if (!g_request_log) {
+      std::cerr << "cannot open request log " << options.request_log << '\n';
+      return 2;
+    }
+  }
+  ame::server::PhaseRecorder startup(*g_sampler, nullptr);
   BackendLifetime backend_lifetime;
   httplib::Server loading_server;
   loading_server.Get("/health", [](const httplib::Request&, httplib::Response& res) {
@@ -616,7 +833,10 @@ int run_server(int argc, char** argv) {
     const auto bytes = std::filesystem::file_size(options.model, size_error);
     if (size_error) return 1;
     std::string error;
+    // Opening hashes the whole artifact; the stage's I/O deltas show that read.
+    startup.begin("artifact_open");
     auto opened = ame::backend::Artifact::open(options.model, {options.artifact_sha, bytes}, error);
+    startup.end();
     if (!opened.ok()) {
       std::cerr << "artifact: " << error << '\n';
       return 1;
@@ -624,9 +844,12 @@ int run_server(int argc, char** argv) {
     artifact = std::move(opened).value();
     std::cerr << "artifact_hash_seconds=" << artifact->hash_seconds()
               << " artifact_bytes=" << artifact->size() << "\n";
-    if (!ame::backend::install_moe_stream(*artifact, options.manifest,
-                                          static_cast<std::uint32_t>(options.slots),
-                                          options.arena_mib * 1024ULL * 1024ULL)) {
+    startup.begin("manifest_install");
+    const bool installed = ame::backend::install_moe_stream(
+        *artifact, options.manifest, static_cast<std::uint32_t>(options.slots),
+        options.arena_mib * 1024ULL * 1024ULL);
+    startup.end();
+    if (!installed) {
       std::cerr << "install: " << ame::backend::moe_stream_stats().error << '\n';
       return 1;
     }
@@ -635,8 +858,10 @@ int run_server(int argc, char** argv) {
   llama_model_params model_params = llama_model_default_params();
   model_params.n_gpu_layers = 0;
   model_params.use_extra_bufts = !options.stream;
+  startup.begin("model_load");
   std::unique_ptr<llama_model, decltype(&llama_model_free)> model_owner(
       llama_model_load_from_file(load_path.c_str(), model_params), &llama_model_free);
+  startup.end();
   g_model = model_owner.get();
   if (g_model == nullptr) {
     std::cerr << "model load failed\n";
@@ -644,13 +869,45 @@ int run_server(int argc, char** argv) {
   }
   if (options.stream) {
     std::string error;
-    if (!ame::backend::bind_model_contract(g_model, error)) {
+    startup.begin("contract_bind");
+    const bool bound = ame::backend::bind_model_contract(g_model, error);
+    startup.end();
+    if (!bound) {
       std::cerr << "contract: " << error << '\n';
       return 1;
     }
   }
+  startup.begin("template_init");
   ame::server::ChatTemplate chat_template(g_model);
+  startup.end();
   g_chat_template = &chat_template;
+  {
+    json unavailable = json::array();
+    json stages = json::array();
+    for (const auto& stage : startup.take())
+      stages.push_back(phase_json(stage, "stages.", unavailable));
+    json record = {{"schema_version", 1},
+                   {"type", "startup"},
+                   {"finished_at", utc_now()},
+                   {"first_ready_seconds",
+                    std::chrono::duration<double>(Clock::now() - process_begin).count()},
+                   {"stages", stages},
+                   {"big_cores", big_cores_json()},
+                   {"unavailable", unavailable}};
+#ifdef AME_STREAMING
+    if (options.stream) {
+      const auto stats = ame::backend::moe_stream_stats();
+      record["artifact_hash_seconds"] = stats.artifact_hash_seconds;
+      record["manifest_validation_seconds"] = stats.manifest_validation_seconds;
+    }
+#endif
+    {
+      std::lock_guard<std::mutex> lock(g_snapshot_mutex);
+      g_startup_record = record;
+    }
+    write_request_log(record);
+    std::cerr << "startup_record=" << record.dump() << '\n';
+  }
   g_ready = true;
   loading_listener.stop();
   httplib::Server server;
@@ -664,6 +921,8 @@ int run_server(int argc, char** argv) {
     {
       std::lock_guard<std::mutex> lock(g_snapshot_mutex);
       if (!g_stream_snapshot.empty()) body["streaming"] = g_stream_snapshot;
+      if (!g_last_request.empty()) body["last_request"] = g_last_request;
+      if (!g_startup_record.empty()) body["startup"] = g_startup_record;
     }
     body["queue"] = g_queue.snapshot();
     res.set_content(body.dump(), "application/json");
@@ -685,7 +944,10 @@ int run_server(int argc, char** argv) {
     }
     auto request = parse_request(body, res);
     if (!request.has_value()) return;
+    const auto handler_begin = std::chrono::steady_clock::now();
     const auto admission = g_queue.acquire();
+    const double queue_wait =
+        std::chrono::duration<double>(std::chrono::steady_clock::now() - handler_begin).count();
     if (admission == AdmissionQueue::Result::Full) {
       res.set_header("Retry-After", "1");
       set_error(res, 429, "four requests are already outstanding", "server_busy");
@@ -702,13 +964,19 @@ int run_server(int argc, char** argv) {
       std::atomic<bool> cancelled{false};
       auto generation =
           generate(*request, false, [](const std::string&) {}, cancelled, execution_deadline);
+      json record;
+      if (generation.has_value()) {
+        record = record_request(*generation, request->tokens, handler_begin, queue_wait);
+      }
       admission_guard->finish();
       if (!generation.has_value() || generation->failed) {
         set_error(res, 500, generation.has_value() ? generation->error : "generation failed",
                   "server_error");
         return;
       }
-      res.set_content(message_json(*request, *generation).dump(), "application/json");
+      json response = message_json(*request, *generation);
+      if (request->debug) response["ame"] = std::move(record);
+      res.set_content(response.dump(), "application/json");
       return;
     }
     res.set_header("Cache-Control", "no-cache");
@@ -718,8 +986,9 @@ int run_server(int argc, char** argv) {
     const std::time_t created = std::time(nullptr);
     Request copied = *request;
     res.set_chunked_content_provider(
-        "text/event-stream", [request = std::move(copied), id, created, execution_deadline,
-                              admission_guard](std::size_t, httplib::DataSink& sink) {
+        "text/event-stream",
+        [request = std::move(copied), id, created, execution_deadline, admission_guard,
+         handler_begin, queue_wait](std::size_t, httplib::DataSink& sink) {
           auto cancelled = std::make_shared<std::atomic<bool>>(false);
           auto send = [&](const json& payload) {
             const std::string data = "data: " + payload.dump() + "\n\n";
@@ -753,6 +1022,10 @@ int run_server(int argc, char** argv) {
                 if (!send(chunk)) cancelled->store(true);
               },
               *cancelled, execution_deadline);
+          if (generation.has_value()) {
+            if (cancelled->load() && !generation->failed) generation->cancelled = true;
+            (void)record_request(*generation, request.tokens, handler_begin, queue_wait);
+          }
           if (!generation.has_value() || generation->failed || cancelled->load()) {
             json error = {{"error",
                            {{"message", generation.has_value() ? generation->error : "cancelled"},

@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <array>
+#include <chrono>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -83,6 +84,7 @@ ggml_tensor g_staged_ids{};
 std::uint32_t g_slots = 0;
 std::uint64_t g_arena_limit = 0;
 bool g_installed = false;
+bool g_trace_only = false;
 std::string g_last_tensor;
 MoeStreamStats g_stats{};
 std::ofstream g_trace;
@@ -384,7 +386,7 @@ int materialize(const ggml_tensor* weights, const ggml_tensor* ids) {
     g_trace.flush();
   }
   ++g_trace_call;
-  if (std::getenv("AME_MOE_TRACE_ONLY") != nullptr) {
+  if (g_trace_only) {
     ++g_stats.materialize_calls;
     return GGML_MOE_PASS_THROUGH;
   }
@@ -658,6 +660,8 @@ bool install_moe_stream(const Artifact& artifact, const std::string& manifest_pa
   }
   g_model_path.clear();
   g_arena_limit = arena_limit_bytes;
+  g_trace_only = std::getenv("AME_MOE_TRACE_ONLY") != nullptr;
+  const auto validation_begin = std::chrono::steady_clock::now();
   if (!read_manifest(manifest_path, artifact.size())) {
     if (g_stats.error.empty()) {
       g_stats.error = "manifest has no expert tensors";
@@ -667,6 +671,8 @@ bool install_moe_stream(const Artifact& artifact, const std::string& manifest_pa
   if (!validate_artifact_layout()) {
     return false;
   }
+  g_stats.manifest_validation_seconds =
+      std::chrono::duration<double>(std::chrono::steady_clock::now() - validation_begin).count();
   g_slots = slots;
   g_cancellation.reset();
   g_stats.slots = g_slots;
@@ -709,6 +715,7 @@ bool install_moe_stream(const std::string& model_path, const std::string& manife
   }
   g_model_path = model_path;
   g_arena_limit = arena_limit_bytes;
+  g_trace_only = std::getenv("AME_MOE_TRACE_ONLY") != nullptr;
   if (!read_manifest(manifest_path, model_bytes)) {
     if (g_stats.error.empty()) {
       g_stats.error = "manifest has no expert tensors";
@@ -755,6 +762,10 @@ void begin_moe_stream_request() {
   g_stats.failed = false;
   g_stats.cancelled = false;
   g_stats.error.clear();
+  for (auto& [key, cache] : g_caches) {
+    (void)key;
+    cache.store->reload_fault_injection();
+  }
   ggml_moe_reset();
 }
 
@@ -795,6 +806,8 @@ MoeStreamStats moe_stream_stats() {
       result.evictions += store_stats.evictions;
       result.reads += store_stats.read_calls;
       result.read_bytes += store_stats.read_bytes;
+      result.pread_calls += store_stats.pread_calls;
+      result.pread_bytes += store_stats.pread_bytes;
       result.read_seconds += store_stats.read_seconds;
     }
   }

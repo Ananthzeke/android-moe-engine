@@ -16,6 +16,8 @@ struct MoeStreamStats {
   std::uint64_t tensor_switches{0};
   std::uint64_t reads{0};
   std::uint64_t read_bytes{0};
+  std::uint64_t pread_calls{0};
+  std::uint64_t pread_bytes{0};
   double read_seconds{0.0};
   std::uint64_t hits{0};
   std::uint64_t misses{0};
@@ -29,6 +31,7 @@ struct MoeStreamStats {
   std::string declared_artifact_sha256;
   std::string verified_artifact_sha256;
   double artifact_hash_seconds{0.0};
+  double manifest_validation_seconds{0.0};
   bool artifact_verified{false};
   bool failed{false};
   bool cancelled{false};
@@ -56,7 +59,8 @@ void release_moe_stream_leases();
 // cancellation, the failed/cancelled/error outcome, and the backend's process-global
 // error latch so the previous request's terminal state cannot abort this one. Call it
 // only when no graph is computing and the previous request's context has been
-// destroyed. Capture the terminal outcome (moe_stream_stats) before calling.
+// destroyed. Capture the terminal outcome (moe_stream_stats) before calling. It also
+// re-reads the injected-fault environment, so a test can switch faults between requests.
 void begin_moe_stream_request();
 
 // Bind the loaded backend's source-derived routed/shared expert consumers to the

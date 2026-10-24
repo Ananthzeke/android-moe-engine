@@ -17,7 +17,8 @@ namespace {
 constexpr std::size_t kReadChunk = 1024U * 1024U;
 
 // Test-only fault injection. AME_IO_FAIL_AFTER_BYTES limits the bytes a single
-// source may read; the next read fails without touching the file.
+// source may read; the next read fails without touching the file. Read by
+// reload_fault_injection(), not per chunk.
 std::uint64_t failure_limit() {
   const char* text = std::getenv("AME_IO_FAIL_AFTER_BYTES");
   if (text == nullptr || text[0] == '\0') {
@@ -31,10 +32,29 @@ std::uint64_t failure_limit() {
 }  // namespace
 
 FileSource::FileSource(int descriptor, std::uint64_t size_bytes) noexcept
-    : descriptor_(descriptor), size_bytes_(size_bytes) {}
+    : descriptor_(descriptor), size_bytes_(size_bytes) {
+  reload_fault_injection();
+}
+
+void FileSource::reload_fault_injection() const noexcept {
+  fail_limit_ = failure_limit();
+  cancel_after_chunks_ = std::getenv("AME_IO_CANCEL_AFTER_CHUNKS") != nullptr;
+  inject_eintr_once_ = std::getenv("AME_IO_INJECT_EINTR_ONCE") != nullptr;
+  cancel_injected_ = false;
+  eintr_consumed_ = false;
+}
 
 FileSource::FileSource(FileSource&& other) noexcept
-    : descriptor_(other.descriptor_), size_bytes_(other.size_bytes_) {
+    : descriptor_(other.descriptor_),
+      size_bytes_(other.size_bytes_),
+      bytes_read_(other.bytes_read_),
+      eintr_consumed_(other.eintr_consumed_),
+      cancel_injected_(other.cancel_injected_),
+      pread_calls_(other.pread_calls_),
+      pread_bytes_(other.pread_bytes_),
+      fail_limit_(other.fail_limit_),
+      cancel_after_chunks_(other.cancel_after_chunks_),
+      inject_eintr_once_(other.inject_eintr_once_) {
   other.descriptor_ = -1;
   other.size_bytes_ = 0;
 }
@@ -46,6 +66,14 @@ FileSource& FileSource::operator=(FileSource&& other) noexcept {
     }
     descriptor_ = other.descriptor_;
     size_bytes_ = other.size_bytes_;
+    bytes_read_ = other.bytes_read_;
+    eintr_consumed_ = other.eintr_consumed_;
+    cancel_injected_ = other.cancel_injected_;
+    pread_calls_ = other.pread_calls_;
+    pread_bytes_ = other.pread_bytes_;
+    fail_limit_ = other.fail_limit_;
+    cancel_after_chunks_ = other.cancel_after_chunks_;
+    inject_eintr_once_ = other.inject_eintr_once_;
     other.descriptor_ = -1;
     other.size_bytes_ = 0;
   }
@@ -114,8 +142,7 @@ Result<void, FileError> FileSource::read_exact(std::uint64_t offset,
   }
   std::size_t completed = 0;
   while (completed < destination.size()) {
-    if (!cancel_injected_ && bytes_read_ >= kReadChunk &&
-        std::getenv("AME_IO_CANCEL_AFTER_CHUNKS") != nullptr) {
+    if (!cancel_injected_ && bytes_read_ >= kReadChunk && cancel_after_chunks_) {
       cancel_injected_ = true;
       const_cast<Cancellation&>(stop).request();
     }
@@ -124,17 +151,17 @@ Result<void, FileError> FileSource::read_exact(std::uint64_t offset,
     }
     const std::size_t remaining = destination.size() - completed;
     const std::size_t chunk = std::min(remaining, kReadChunk);
-    if (!eintr_consumed_ && std::getenv("AME_IO_INJECT_EINTR_ONCE") != nullptr) {
+    if (!eintr_consumed_ && inject_eintr_once_) {
       eintr_consumed_ = true;
       continue;
     }
-    const std::uint64_t limit = failure_limit();
-    if (bytes_read_ > limit || chunk > limit - bytes_read_) {
+    if (bytes_read_ > fail_limit_ || chunk > fail_limit_ - bytes_read_) {
       return FileError::ReadFailed;
     }
     bytes_read_ += chunk;
     const ssize_t count = ::pread(descriptor_, destination.data() + completed, chunk,
                                   static_cast<off_t>(offset + completed));
+    ++pread_calls_;
     if (count < 0) {
       if (errno == EINTR) {
         continue;
@@ -144,6 +171,7 @@ Result<void, FileError> FileSource::read_exact(std::uint64_t offset,
     if (count == 0) {
       return FileError::UnexpectedEnd;
     }
+    pread_bytes_ += static_cast<std::uint64_t>(count);
     completed += static_cast<std::size_t>(count);
   }
   return {};

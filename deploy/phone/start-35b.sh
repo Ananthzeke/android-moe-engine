@@ -8,4 +8,4 @@ exec "$DIR/ame-server" --model "$MODEL" --model-id "${AME_MODEL_ID:-Qwen3.6-35B-
   --stream --manifest "$MANIFEST" --artifact-sha "$SHA" \
   --slots "${AME_SLOTS:-64}" --arena-mib "${AME_ARENA_MIB:-256}" \
   --context "${AME_CONTEXT:-512}" --threads "${AME_THREADS:-4}" \
-  --port "${AME_PORT:-8081}"
+  --port "${AME_PORT:-8081}" ${AME_REQUEST_LOG:+--request-log "$AME_REQUEST_LOG"}

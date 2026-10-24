@@ -11,13 +11,16 @@ root = Path(__file__).resolve().parents[1]
 recorder = root / "tools/run_record.py"
 
 
-def invoke(record_dir, run_id, command, timeout=None, measurement=None, overwrite=False):
+def invoke(record_dir, run_id, command, timeout=None, measurement=None, overwrite=False,
+           request_log=None):
     arguments = [sys.executable, str(recorder), "--record-dir", str(record_dir),
                  "--run-id", run_id, "--tag", "host"]
     if timeout is not None:
         arguments += ["--timeout", str(timeout)]
     if measurement is not None:
         arguments += ["--measurement", str(measurement)]
+    if request_log is not None:
+        arguments += ["--request-log", str(request_log)]
     if overwrite:
         arguments.append("--overwrite")
     arguments += ["--", *command]
@@ -81,3 +84,44 @@ with tempfile.TemporaryDirectory() as directory:
     second = invoke(successful, "fixture-success", [sys.executable, "-c", "pass"])
     if second.returncode != 2:
         raise SystemExit("Recorder overwrote an existing record")
+
+    # A server request log: startup record, requests, and one corrupt line.
+    log = base / "requests.jsonl"
+    lines = [
+        {"type": "startup", "first_ready_seconds": 12.5, "artifact_hash_seconds": 3.0,
+         "manifest_validation_seconds": 0.5,
+         "stages": [{"name": "artifact_open", "seconds": 3.1}, {"name": "model_load", "seconds": 8.0}]},
+        {"type": "request", "request_id": "r1", "status": "completed", "prompt_tokens": 4,
+         "completion_tokens": 3, "token_ids": [5, 6, 7], "total_seconds": 2.0,
+         "phases": [{"name": "prefill", "seconds": 0.5}, {"name": "decode", "seconds": 1.4}]},
+        {"type": "request", "request_id": "r2", "status": "failed", "error": "decode failed",
+         "prompt_tokens": 4, "completion_tokens": 0, "token_ids": [], "total_seconds": 0.7,
+         "phases": [{"name": "prefill", "seconds": 0.6}]},
+    ]
+    log.write_text("\n".join(json.dumps(line) for line in lines) + "\n{not json\n")
+    logged = base / "logged"
+    result = invoke(logged, "fixture-log", [sys.executable, "-c", "pass"], request_log=log)
+    if result.returncode != 0:
+        raise SystemExit(f"Request log recorder failed: {result.stdout}{result.stderr}")
+    finished = json.loads((logged / "result.json").read_text())
+    summary = finished["request_log"]
+    if len(summary["sha256"]) != 64 or summary["startup"]["first_ready_seconds"] != 12.5:
+        raise SystemExit(f"Startup record not summarized: {summary}")
+    if summary["startup"]["stages"] != {"artifact_open": 3.1, "model_load": 8.0}:
+        raise SystemExit(f"Startup stages lost: {summary['startup']}")
+    first, second = summary["requests"]
+    if first["token_ids_count"] != 3 or len(first["token_ids_sha256"]) != 64:
+        raise SystemExit(f"Token IDs not summarized: {first}")
+    if second["status"] != "failed" or second["error"] != "decode failed":
+        raise SystemExit(f"Failed request not retained: {second}")
+    if first["token_ids_sha256"] == second["token_ids_sha256"]:
+        raise SystemExit("Different token lists produced the same hash")
+    if len(summary["parse_errors"]) != 1 or summary["parse_errors"][0]["line"] != 4:
+        raise SystemExit(f"Malformed line not reported: {summary['parse_errors']}")
+
+    absent = base / "no-log"
+    result = invoke(absent, "fixture-no-log", [sys.executable, "-c", "pass"],
+                    request_log=base / "absent.jsonl")
+    finished = json.loads((absent / "result.json").read_text())
+    if finished["request_log"] is not None or not finished.get("request_log_missing"):
+        raise SystemExit("Missing request log was not recorded")

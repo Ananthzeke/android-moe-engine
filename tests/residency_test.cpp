@@ -284,6 +284,7 @@ void check_cancel_between_chunks() {
   expect(source.ok(), "cancel-chunk source opens");
   if (source.ok()) {
     expect(::setenv("AME_IO_CANCEL_AFTER_CHUNKS", "1", 1) == 0, "set cancel injection");
+    source.value().reload_fault_injection();
     std::vector<std::byte> buffer(2U * 1024U * 1024U);
     ame::Cancellation stop;
     const auto result = source.value().read_exact(0, buffer, stop);
@@ -302,6 +303,7 @@ void check_eintr_retry() {
   expect(source.ok(), "eintr source opens");
   if (source.ok()) {
     expect(::setenv("AME_IO_INJECT_EINTR_ONCE", "1", 1) == 0, "set eintr injection");
+    source.value().reload_fault_injection();
     std::array<std::byte, 64> buffer{};
     ame::Cancellation stop;
     const auto result = source.value().read_exact(0, buffer, stop);
@@ -319,16 +321,19 @@ void check_injected_read_failure() {
   expect(source.ok(), "fault source opens");
   if (source.ok()) {
     expect(::setenv("AME_IO_FAIL_AFTER_BYTES", "64", 1) == 0, "set fault limit");
+    source.value().reload_fault_injection();
     std::array<std::byte, 96> buffer{};
     ame::Cancellation stop;
     const auto failed = source.value().read_exact(0, buffer, stop);
     expect(!failed.ok() && failed.error() == ame::residency::FileError::ReadFailed,
            "injected read failure");
     expect(::unsetenv("AME_IO_FAIL_AFTER_BYTES") == 0, "clear fault limit");
+    source.value().reload_fault_injection();
     const auto recovered =
         source.value().read_exact(0, std::span<std::byte>(buffer).first(32), stop);
     expect(recovered.ok(), "source recovers after clearing injection");
     expect(::setenv("AME_IO_FAIL_AFTER_BYTES", "64", 1) == 0, "reset fault limit");
+    source.value().reload_fault_injection();
     const auto too_long =
         source.value().read_exact(0, std::span<std::byte>(buffer).first(96), stop);
     expect(!too_long.ok() && too_long.error() == ame::residency::FileError::ReadFailed,

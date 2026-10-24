@@ -67,7 +67,9 @@ across requests. Restarting repeats verification. A historical direct API monito
 ## Start the server
 
 First check available memory and storage and stop any other inference server
-using the same port. The following stop script stops this package's servers:
+using the same port. The following stop script stops this package's servers. It matches the process name
+`ame-server`; an earlier version matched the absolute path and missed a server started as
+`./ame-server`, so redeploy the script and check `ps -A | grep ame-server` before measuring:
 
 ```sh
 adb shell /data/local/tmp/ame-api/stop.sh
@@ -115,6 +117,12 @@ the phone connects directly to the phone's localhost port.
 The current server creates a fresh context per request. Include earlier messages
 in each request when continuing a conversation. Only one generation runs at a
 time.
+
+## Per-request records
+
+Set `AME_REQUEST_LOG=/data/local/tmp/ame-api/requests.jsonl` before `start-35b.sh` to log
+startup stages and every request. Field definitions and counter scopes are in
+[request records](REQUEST_RECORDS.md).
 
 ## Stop the server
 

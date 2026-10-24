@@ -329,6 +329,8 @@ void Store::release(const Lease& lease) noexcept {
 
 StoreStats Store::stats() const {
   StoreStats result = stats_;
+  result.pread_calls = source_.pread_calls();
+  result.pread_bytes = source_.pread_bytes();
   for (const auto& slot : slots_) {
     if (slot.pins != 0) {
       ++result.pinned_slots;

@@ -108,8 +108,23 @@ bool identical(const Graph& left, const Graph& right) {
                      left.output.size() * sizeof(float)) == 0;
 }
 
+// Lifetime counters only grow. A request's own work is the difference between two
+// snapshots, so a failed or cancelled request cannot leak into the next one.
+struct Counted {
+  std::uint64_t hits{0};
+  std::uint64_t misses{0};
+  std::uint64_t bytes{0};
+};
+
+Counted counted_since(const ame::backend::MoeStreamStats& start) {
+  const auto now = ame::backend::moe_stream_stats();
+  return {now.hits - start.hits, now.misses - start.misses, now.read_bytes - start.read_bytes};
+}
+
 struct Case {
   std::string fault;
+  Counted failed_work;
+  Counted recovered_work;
   bool poisoned{false};
   bool recovered_dense{false};
   bool recovered_moe_identical{false};
@@ -123,21 +138,26 @@ Case run_case(const std::string& fault, const std::vector<float>& experts, const
   result.fault = fault;
   if (fault == "read") {
     (void)::setenv("AME_IO_FAIL_AFTER_BYTES", "1", 1);
+    ame::backend::begin_moe_stream_request();  // re-reads the injected-fault environment
   } else {
     ame::backend::request_moe_stream_cancel();
   }
+  const auto before_failed = ame::backend::moe_stream_stats();
   const Graph failed = run_moe(experts, true, threads);
+  result.failed_work = counted_since(before_failed);
   const auto stats = ame::backend::moe_stream_stats();
   result.failure_reported = failed.status != GGML_STATUS_SUCCESS &&
                             (fault == "read" ? stats.failed && !stats.cancelled
                                              : stats.cancelled && !stats.failed);
-  (void)::unsetenv("AME_IO_FAIL_AFTER_BYTES");
   result.poisoned = run_dense(threads).status != GGML_STATUS_SUCCESS;
+  (void)::unsetenv("AME_IO_FAIL_AFTER_BYTES");
   ame::backend::begin_moe_stream_request();
   const auto cleared = ame::backend::moe_stream_stats();
   result.outcome_cleared = !cleared.failed && !cleared.cancelled && cleared.error.empty();
   result.recovered_dense = dense_correct(run_dense(threads));
+  const auto before_recovered = ame::backend::moe_stream_stats();
   result.recovered_moe_identical = identical(run_moe(experts, true, threads), reference);
+  result.recovered_work = counted_since(before_recovered);
   return result;
 }
 
@@ -194,6 +214,7 @@ int main(int argc, char* argv[]) {
 
   // A new installation also starts with a clean latch.
   (void)::setenv("AME_IO_FAIL_AFTER_BYTES", "1", 1);
+  ame::backend::begin_moe_stream_request();
   (void)run_moe(experts, true, threads);
   (void)::unsetenv("AME_IO_FAIL_AFTER_BYTES");
   ame::backend::uninstall_moe_stream();
@@ -204,8 +225,19 @@ int main(int argc, char* argv[]) {
   const Case* cases[] = {&read_case, &cancel_case};
   for (std::size_t index = 0; index < 2; ++index) {
     const Case& item = *cases[index];
+    // Read fault: the failed request reserves four missing slots (counted as misses) but
+    // reads no bytes; the recovery request misses and reads all four again. Cancellation:
+    // the failed request touched no store; the recovery request finds the four experts
+    // already resident from the previous recovery.
+    const bool read_fault = item.fault == "read";
+    const bool deltas =
+        item.failed_work.bytes == 0 && item.failed_work.misses == (read_fault ? kSelected : 0) &&
+        item.failed_work.hits == 0 &&
+        item.recovered_work.misses == (read_fault ? kSelected : 0) &&
+        item.recovered_work.hits == (read_fault ? 0 : kSelected) &&
+        item.recovered_work.bytes == (read_fault ? kSelected * kExpertBytes : 0);
     const bool ok = item.failure_reported && item.poisoned && item.outcome_cleared &&
-                    item.recovered_dense && item.recovered_moe_identical;
+                    item.recovered_dense && item.recovered_moe_identical && deltas;
     passed = passed && ok;
     std::cout << "    {\"fault\": \"" << item.fault
               << "\", \"failure_reported\": " << (item.failure_reported ? "true" : "false")
@@ -214,6 +246,10 @@ int main(int argc, char* argv[]) {
               << ", \"dense_after_reset\": " << (item.recovered_dense ? "true" : "false")
               << ", \"moe_identical_after_reset\": "
               << (item.recovered_moe_identical ? "true" : "false")
+              << ", \"per_request_deltas\": " << (deltas ? "true" : "false")
+              << ", \"recovered_misses\": " << item.recovered_work.misses
+              << ", \"recovered_hits\": " << item.recovered_work.hits
+              << ", \"recovered_bytes\": " << item.recovered_work.bytes
               << ", \"passed\": " << (ok ? "true" : "false") << "}" << (index == 0 ? "," : "")
               << "\n";
   }

@@ -40,6 +40,17 @@ class FileSource {
                                                    const Cancellation& stop) const;
   [[nodiscard]] bool valid() const noexcept { return descriptor_ >= 0; }
 
+  // Test-only fault injection, read from AME_IO_FAIL_AFTER_BYTES,
+  // AME_IO_CANCEL_AFTER_CHUNKS, and AME_IO_INJECT_EINTR_ONCE. The environment is read
+  // when the source opens and again on each call to this function, never per chunk. Call
+  // it only when no read is in flight. It keeps the source's cumulative byte count.
+  void reload_fault_injection() const noexcept;
+
+  // Actual pread syscalls and the bytes they returned. These differ from the expert
+  // read counts kept by the store, which count completed expert slices.
+  [[nodiscard]] std::uint64_t pread_calls() const noexcept { return pread_calls_; }
+  [[nodiscard]] std::uint64_t pread_bytes() const noexcept { return pread_bytes_; }
+
  private:
   FileSource(int descriptor, std::uint64_t size_bytes) noexcept;
   int descriptor_ = -1;
@@ -47,6 +58,11 @@ class FileSource {
   mutable std::uint64_t bytes_read_ = 0;
   mutable bool eintr_consumed_ = false;
   mutable bool cancel_injected_ = false;
+  mutable std::uint64_t pread_calls_ = 0;
+  mutable std::uint64_t pread_bytes_ = 0;
+  mutable std::uint64_t fail_limit_ = UINT64_MAX;
+  mutable bool cancel_after_chunks_ = false;
+  mutable bool inject_eintr_once_ = false;
 };
 
 }  // namespace ame::residency

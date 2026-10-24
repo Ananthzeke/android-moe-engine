@@ -1,0 +1,9 @@
+MemAvailable:    5795992 kB
+Cached:          5614236 kB
+SwapFree:        4826536 kB
+pswpin 12584975
+pswpout 15737413
+  level: 47
+  temperature: 335
+VmHWM:	 2134712 kB
+VmRSS:	 1998040 kB

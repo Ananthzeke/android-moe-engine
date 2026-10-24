@@ -37,6 +37,8 @@ struct StoreStats {
   std::uint64_t evictions{0};
   std::uint64_t read_calls{0};
   std::uint64_t read_bytes{0};
+  std::uint64_t pread_calls{0};
+  std::uint64_t pread_bytes{0};
   double read_seconds{0.0};
   std::uint64_t pinned_slots{0};
   std::uint64_t resident_slots{0};
@@ -111,6 +113,8 @@ class Store {
     return static_cast<std::uint32_t>(slots_.size());
   }
   [[nodiscard]] StoreStats stats() const;
+  // Re-read the injected-fault environment. Only when no acquire is in flight.
+  void reload_fault_injection() const noexcept { source_.reload_fault_injection(); }
 
  private:
   friend class Lease;
