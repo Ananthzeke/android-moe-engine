@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -56,6 +57,8 @@ struct LayeredOptions {
   // Reader threads for the misses of one acquire (1 to 4). One reads on the calling thread.
   unsigned readers{1};
   std::vector<int> reader_cpus{};
+  // Keep reader threads even for one reader, which begin_acquire needs.
+  bool background_readers{false};
 };
 
 struct LayeredStats {
@@ -66,7 +69,9 @@ struct LayeredStats {
   std::uint64_t read_bytes{0};   // application bytes for those slices
   std::uint64_t pread_calls{0};
   std::uint64_t pread_bytes{0};
-  double read_seconds{0.0};
+  double read_seconds{0.0};       // wall time from starting a batch of reads to its end
+  double read_wait_seconds{0.0};  // time the caller was blocked waiting for reads
+  std::uint64_t async_acquires{0};
 };
 
 class LayeredStore;
@@ -120,10 +125,33 @@ class LayeredStore {
                                                        std::span<const std::uint32_t> experts,
                                                        const Cancellation& stop);
 
+  // Asynchronous acquisition for overlapping reads with compute. begin_acquire reserves and pins
+  // exactly as acquire does, starts the reads of the missing experts' slices grouped by slice
+  // index (role), and returns at once. The lease answers slot_index immediately, but a slot's
+  // bytes for role r are valid only after wait_role(layer, r) succeeds. There is at most one
+  // pending acquisition per layer, and the store must have been created with background readers.
+  // finish_pending waits for every remaining read and publishes the loaded slots. Releasing the
+  // lease, or beginning another acquisition of the layer, while reads are pending drains them
+  // and drops the slots that were loading. After an error, the failed slots are dropped and the
+  // lease must still be released.
+  [[nodiscard]] Result<LayerLease, StoreError> begin_acquire(std::uint32_t layer,
+                                                             std::span<const std::uint32_t> experts,
+                                                             const Cancellation& stop);
+  [[nodiscard]] Result<void, StoreError> wait_role(std::uint32_t layer, std::uint32_t role);
+  [[nodiscard]] Result<void, StoreError> finish_pending(std::uint32_t layer);
+  [[nodiscard]] bool pending(std::uint32_t layer) const noexcept {
+    return pools_[layer].pending.active;
+  }
+  // Drain and drop every pending acquisition. Call before the arena or the source goes away.
+  void abandon_all_pending() noexcept;
+
   [[nodiscard]] std::uint32_t layer_count() const noexcept {
     return static_cast<std::uint32_t>(pools_.size());
   }
   [[nodiscard]] std::uint32_t slots(std::uint32_t layer) const { return pools_[layer].slots; }
+  [[nodiscard]] std::size_t expert_count(std::uint32_t layer) const {
+    return pools_[layer].experts.size();
+  }
   [[nodiscard]] std::uint64_t slot_bytes(std::uint32_t layer) const {
     return pools_[layer].slot_bytes;
   }
@@ -147,6 +175,23 @@ class LayeredStore {
     std::int32_t next{-1};
     bool listed{false};
   };
+  struct Loaded {
+    std::uint32_t slot{0};
+    std::uint32_t expert{0};
+  };
+  // The slots of one acquisition: hits that were pinned, and misses that are being read.
+  struct Reservation {
+    std::array<Loaded, kMaxLeaseExperts> loaded{};
+    std::uint32_t loaded_count{0};
+    std::array<std::uint32_t, kMaxLeaseExperts> hit_slots{};
+    std::uint32_t hit_count{0};
+  };
+  struct Pending {
+    bool active{false};
+    ReaderPool::BatchHandle batch;
+    Reservation reservation;
+    std::chrono::steady_clock::time_point started;
+  };
   struct Pool {
     std::vector<LayerExpert> experts;
     std::vector<std::int32_t> slot_of;  // expert -> slot, -1 when absent
@@ -158,6 +203,7 @@ class LayeredStore {
     std::int32_t head{-1};  // least recently used
     std::int32_t tail{-1};  // most recently used
     std::uint64_t acquires{0};
+    Pending pending;
   };
 
   LayeredStore(FileSource source, std::vector<Pool> pools, LayeredOptions options);
@@ -165,6 +211,15 @@ class LayeredStore {
   void list_remove(Pool& pool, std::uint32_t slot) noexcept;
   void list_push_back(Pool& pool, std::uint32_t slot) noexcept;
   void release(const LayerLease& lease) noexcept;
+  // Pin the slots for an acquisition: hits first, then misses (evicting victims). Nothing is read.
+  [[nodiscard]] Result<LayerLease, StoreError> reserve(Pool& pool, std::uint32_t layer,
+                                                       std::span<const std::uint32_t> experts,
+                                                       Reservation& reservation);
+  void build_jobs(Pool& pool, const Reservation& reservation);
+  // Empty the slots that were loading. unpin_hits is true when no lease was handed out.
+  void rollback(Pool& pool, const Reservation& reservation, bool unpin_hits) noexcept;
+  void publish(Pool& pool, const Reservation& reservation);
+  void abandon_pending(Pool& pool) noexcept;
   std::int32_t choose_victim(Pool& pool, const std::vector<std::uint8_t>& taken) const;
 
   mutable FileSource source_;

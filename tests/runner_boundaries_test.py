@@ -107,6 +107,9 @@ if arguments.layered_model is not None:
         for name, extra in (("legacy-readers", ["--moe-slots", 8, "--readers", 4]),
                             ("layered", ["--cache", "layered"]),
                             ("layered-readers", ["--cache", "layered", "--readers", 4]),
+                            ("layered-overlap", ["--cache", "layered", "--overlap", "topk",
+                                                 "--readers", 2]),
+                            ("layered-overlap-1", ["--cache", "layered", "--overlap", "topk"]),
                             ("layered-lfu", ["--cache", "layered", "--eviction", "lfu",
                                              "--fadvise-random", "--fadvise-dontneed"])):
             record, logits = harness(name, *extra)
@@ -117,6 +120,13 @@ if arguments.layered_model is not None:
                 raise SystemExit(f"{name}: token IDs differ from the shipped cache")
             if logits != legacy_logits:
                 raise SystemExit(f"{name}: logits differ from the shipped cache")
+            if "--overlap" in extra:
+                # The real scheduler delivered the router's top-k tensors and every routed
+                # operator found its layer already started.
+                stream = record["streaming"]
+                if stream["overlap"] != "topk" or stream["prefetches_started"] == 0 \
+                        or stream["prefetches_consumed"] == 0 or stream["prefetch_fallbacks"] != 0:
+                    raise SystemExit(f"{name}: the top-k overlap did not run: {stream}")
         # The fused-expert fixture cannot be expressed as three role views: refused at install.
         refused = run([arguments.harness, "--model", model, "--manifest", manifest,
                        "--artifact-sha", digest, "--stream", "--prompt", "a", "--cache", "layered",

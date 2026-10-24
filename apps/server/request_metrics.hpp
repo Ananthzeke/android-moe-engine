@@ -56,6 +56,7 @@ struct ExpertCounters {
   std::uint64_t pread_calls{0};
   std::uint64_t pread_bytes{0};
   double read_seconds{0.0};
+  double read_wait_seconds{0.0};  // generation thread blocked on reads
 };
 
 inline ExpertCounters operator-(const ExpertCounters& end, const ExpertCounters& start) {
@@ -66,7 +67,10 @@ inline ExpertCounters operator-(const ExpertCounters& end, const ExpertCounters&
           sub(end.expert_bytes, start.expert_bytes),
           sub(end.pread_calls, start.pread_calls),
           sub(end.pread_bytes, start.pread_bytes),
-          end.read_seconds >= start.read_seconds ? end.read_seconds - start.read_seconds : 0.0};
+          end.read_seconds >= start.read_seconds ? end.read_seconds - start.read_seconds : 0.0,
+          end.read_wait_seconds >= start.read_wait_seconds
+              ? end.read_wait_seconds - start.read_wait_seconds
+              : 0.0};
 }
 
 inline Counter delta(const Counter& start, const Counter& end) {

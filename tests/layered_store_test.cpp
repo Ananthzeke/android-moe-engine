@@ -29,7 +29,8 @@ using ame::residency::SliceExtent;
 using ame::residency::StoreError;
 
 int failures = 0;
-unsigned g_readers = 1;  // reader threads the store under test uses
+unsigned g_readers = 1;     // reader threads the store under test uses
+bool g_background = false;  // readers stay alive for asynchronous acquisition
 void expect(bool condition, std::string_view message) {
   if (!condition) {
     std::cerr << "Layered store test failure: " << message << '\n';
@@ -111,6 +112,7 @@ std::unique_ptr<LayeredStore> open_store(const Fixture& fixture, std::uint32_t l
   auto source = FileSource::open(fixture.file.string());
   if (!source.ok()) return nullptr;
   options.readers = g_readers;
+  options.background_readers = g_background;
   std::vector<LayerSpec> specs(layers, make_spec(fixture, slots));
   auto store = LayeredStore::create(std::move(source).value(), std::move(specs), options);
   return store.ok() ? std::move(store).value() : nullptr;
@@ -327,6 +329,111 @@ void check_dontneed_and_random_flags() {
   std::filesystem::remove_all(fixture.directory);
 }
 
+// Asynchronous acquisition: the lease is usable at once, a role is valid after wait_role, and
+// every exit path drains the reads before a slot or the store can go away.
+void check_async_acquire() {
+  const auto fixture = make_fixture("async", 6, {1U << 20, 1U << 20, 1U << 20});
+  g_background = true;
+  const auto role_equal = [&](LayeredStore& store, const ame::residency::LayerLease& lease,
+                              std::uint32_t expert, std::uint32_t role) {
+    const auto slot = lease.slot_index(expert);
+    if (!slot) return false;
+    const auto pool = store.pool_arena(0);
+    const std::uint64_t base = *slot * fixture.slot_bytes + role * fixture.role_bytes[0];
+    for (std::uint64_t index = 0; index < 4096; ++index) {
+      if (pool[static_cast<std::size_t>(base + index * 251 % fixture.role_bytes[0])] !=
+          fixture.expected(expert, role, index * 251 % fixture.role_bytes[0])) {
+        return false;
+      }
+    }
+    return true;
+  };
+  {
+    auto store = open_store(fixture, 1, 4);
+    if (store == nullptr) return expect(false, "async store opens");
+    ame::Cancellation stop;
+    auto lease = store->begin_acquire(0, ids({0, 2, 4}), stop);
+    expect(lease.ok(), "begin_acquire returns a lease");
+    if (!lease.ok()) return;
+    expect(store->pending(0), "reads are pending");
+    expect(lease.value().slot_index(2).has_value(), "slots are known before the reads end");
+    for (std::uint32_t role = 0; role < 3; ++role) {
+      expect(store->wait_role(0, role).ok(), "wait_role succeeds");
+      for (const std::uint32_t expert : {0U, 2U, 4U}) {
+        expect(role_equal(*store, lease.value(), expert, role),
+               "a role's bytes equal the file once its wait returned");
+      }
+    }
+    expect(store->finish_pending(0).ok() && !store->pending(0), "finish publishes the slots");
+    const auto stats = store->stats();
+    expect(stats.misses == 3 && stats.slice_reads == 9 && stats.async_acquires == 1,
+           "an async acquire counts like a synchronous one");
+    lease = ame::residency::LayerLease{};
+    auto again = store->acquire(0, ids({0, 2, 4}), stop);
+    expect(again.ok() && store->stats().hits == 3, "the published slots are hits afterwards");
+  }
+  {
+    // Releasing a lease with reads pending drains them and drops the loading slots.
+    auto store = open_store(fixture, 1, 4);
+    if (store == nullptr) return expect(false, "async store opens");
+    ame::Cancellation stop;
+    {
+      auto lease = store->begin_acquire(0, ids({1, 3}), stop);
+      expect(lease.ok() && store->pending(0), "pending before release");
+    }
+    expect(!store->pending(0) && store->resident_slots() == 0,
+           "a lease released with reads pending leaves nothing resident");
+    auto again = store->acquire(0, ids({1, 3}), stop);
+    expect(again.ok() && store->stats().hits == 0, "the dropped experts are misses again");
+  }
+  {
+    // A failure after the first role: that role is valid, the next one reports the error, and
+    // the store recovers. One reader keeps the order deterministic.
+    g_readers = 1;
+    auto store = open_store(fixture, 1, 4);
+    if (store == nullptr) return expect(false, "async store opens");
+    ame::Cancellation stop;
+    const std::uint64_t first_role_bytes = 3U * fixture.role_bytes[0];
+    expect(
+        ::setenv("AME_IO_FAIL_AFTER_BYTES", std::to_string(first_role_bytes + 100).c_str(), 1) == 0,
+        "set fault limit");
+    store->reload_fault_injection();
+    auto lease = store->begin_acquire(0, ids({0, 1, 2}), stop);
+    expect(lease.ok(), "begin succeeds before any read fails");
+    if (!lease.ok()) return;
+    expect(store->wait_role(0, 0).ok(), "the role read before the failure is valid");
+    expect(role_equal(*store, lease.value(), 1, 0), "and its bytes are the file's");
+    const auto failed = store->wait_role(0, 1);
+    expect(!failed.ok() && failed.error() == StoreError::ReadFailed, "the next role reports it");
+    expect(!store->pending(0), "the failed acquisition is no longer pending");
+    expect(store->resident_slots() == 0, "the slots that were loading are dropped");
+    lease = ame::residency::LayerLease{};
+    (void)::unsetenv("AME_IO_FAIL_AFTER_BYTES");
+    store->reload_fault_injection();
+    auto recovered = store->acquire(0, ids({0, 1, 2}), stop);
+    expect(recovered.ok() && role_equal(*store, recovered.value(), 2, 2),
+           "the layer works again after the failure");
+  }
+  {
+    // Cancellation before the reads are queued, and refusal without background readers.
+    auto store = open_store(fixture, 1, 4);
+    if (store == nullptr) return expect(false, "async store opens");
+    ame::Cancellation cancelled;
+    cancelled.request();
+    const auto none = store->begin_acquire(0, ids({0}), cancelled);
+    expect(!none.ok() && none.error() == StoreError::Cancelled && !store->pending(0),
+           "a cancelled begin leaves nothing pending");
+    g_background = false;
+    auto synchronous = open_store(fixture, 1, 4);
+    ame::Cancellation stop;
+    const auto refused = synchronous->begin_acquire(0, ids({0}), stop);
+    expect(!refused.ok() && refused.error() == StoreError::InvalidOptions,
+           "begin_acquire needs background readers");
+  }
+  g_background = false;
+  std::filesystem::remove_all(fixture.directory);
+}
+
 }  // namespace
 
 int main() {
@@ -338,6 +445,7 @@ int main() {
     check_cancellation_and_read_failure_rollback();
     check_rejected_layouts();
     check_dontneed_and_random_flags();
+    check_async_acquire();
   }
   return failures == 0 ? 0 : 1;
 }

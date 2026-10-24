@@ -144,6 +144,23 @@ std::uint64_t slot_bytes_for(std::uint64_t expert_bytes) {
   return align(align(align(expert_bytes) + expert_bytes) + expert_bytes);
 }
 
+// What the llama scheduler does between graph segments: ask whether the router's top-k tensor
+// is wanted, then hand it over once computed. The tensor name carries the layer.
+bool deliver_topk(int layer, const std::vector<std::int32_t>& ids, int tokens, int top_k,
+                  bool* asked) {
+  ggml_init_params params{};
+  params.mem_size = 1U * 1024U * 1024U;
+  ggml_context* context = ggml_init(params);
+  ggml_tensor* topk = ggml_new_tensor_2d(context, GGML_TYPE_I32, top_k, tokens);
+  const std::string name = "ffn_moe_topk-" + std::to_string(layer);
+  ggml_set_name(topk, name.c_str());
+  std::memcpy(topk->data, ids.data(), ids.size() * sizeof(std::int32_t));
+  *asked = ame::backend::moe_eval_callback(topk, true, nullptr);
+  const bool delivered = ame::backend::moe_eval_callback(topk, false, nullptr);
+  ggml_free(context);
+  return delivered;
+}
+
 struct Step {
   int tokens;
   std::vector<std::int32_t> ids;  // tokens x top_k
@@ -189,16 +206,19 @@ int main(int argc, char* argv[]) {
   std::string workdir = ".";
   int threads = 4;
   unsigned readers = 1;
+  bool overlap = false;
   for (int index = 1; index < argc; ++index) {
     const std::string_view argument = argv[index];
     if (argument == "--workdir" && index + 1 < argc) {
       workdir = argv[++index];
     } else if (argument == "--threads" && index + 1 < argc) {
       threads = std::atoi(argv[++index]);
+    } else if (argument == "--overlap") {
+      overlap = true;
     } else if (argument == "--readers" && index + 1 < argc) {
       readers = static_cast<unsigned>(std::atoi(argv[++index]));
     } else {
-      std::cerr << "usage: moe_layered_gate [--workdir DIR] [--threads N] [--readers N]\n";
+      std::cerr << "usage: moe_layered_gate [--workdir DIR] [--threads N] [--readers N] [--overlap]\n";
       return 2;
     }
   }
@@ -215,7 +235,8 @@ int main(int argc, char* argv[]) {
 
   bool passed = true;
   std::ostringstream report;
-  report << "{\n  \"readers\": " << readers << ",\n  \"formats\": [\n";
+  report << "{\n  \"readers\": " << readers << ",\n  \"overlap\": "
+         << (overlap ? "true" : "false") << ",\n  \"formats\": [\n";
   bool first_format = true;
   for (const Format& format : formats) {
     const auto directory = std::filesystem::path(workdir) / format.name;
@@ -238,6 +259,7 @@ int main(int argc, char* argv[]) {
     options.layout = ame::backend::CacheLayout::Layered;
     options.layer_slots = kPoolSlots;
     options.readers = readers;
+    options.overlap = overlap;
     if (!ame::backend::install_moe_stream(model.file.string(), model.manifest.string(), 1,
                                           64U * 1024U * 1024U, options)) {
       std::cerr << "layered install failed: " << ame::backend::moe_stream_stats().error << '\n';
@@ -248,6 +270,7 @@ int main(int argc, char* argv[]) {
     std::size_t compared = 0;
     std::size_t mismatched = 0;
     bool counters_ok = true;
+    bool callbacks_ok = true;
     std::size_t reference_index = 0;
     for (const Step& step : steps) {
       for (int layer = 0; layer < kLayers; ++layer) {
@@ -255,6 +278,11 @@ int main(int argc, char* argv[]) {
         Predictor& predictor = predictors[static_cast<std::size_t>(layer)];
         const Predictor mark = predictor;
         predictor.visit(step.ids);
+        if (overlap) {
+          bool asked = false;
+          const bool delivered = deliver_topk(layer, step.ids, step.tokens, kTopK, &asked);
+          callbacks_ok = callbacks_ok && asked && delivered;
+        }
         for (int role = 0; role < 3; ++role) {
           const Output candidate =
               run_op(model, layer, role, true, step.ids, step.tokens, kTopK, threads);
@@ -270,7 +298,11 @@ int main(int argc, char* argv[]) {
                       after.reads - before.reads == 3 * (predictor.misses - mark.misses) &&
                       after.read_bytes - before.read_bytes ==
                           3 * model.expert_bytes * (predictor.misses - mark.misses) &&
-                      after.materialize_calls - before.materialize_calls == 3;
+                      after.materialize_calls - before.materialize_calls == 3 &&
+                      after.prefetches_started - before.prefetches_started == (overlap ? 1U : 0U) &&
+                      after.prefetches_consumed - before.prefetches_consumed ==
+                          (overlap ? 3U : 0U) &&
+                      after.prefetch_fallbacks == before.prefetch_fallbacks;
       }
     }
     const auto final_stats = ame::backend::moe_stream_stats();
@@ -279,7 +311,8 @@ int main(int argc, char* argv[]) {
         final_stats.arena_bytes ==
             static_cast<std::uint64_t>(kLayers) * kPoolSlots * slot_bytes_for(model.expert_bytes) &&
         final_stats.cache_metadata_bytes > 0 && final_stats.arena_bytes == installed.arena_bytes;
-    const bool format_ok = mismatched == 0 && counters_ok && geometry_ok && !final_stats.failed;
+    const bool format_ok = mismatched == 0 && counters_ok && callbacks_ok && geometry_ok &&
+                           !final_stats.failed;
     passed = passed && format_ok;
     report << (first_format ? "" : ",\n") << "    {\"format\": \"" << format.name
            << "\", \"operators\": " << compared << ", \"mismatched\": " << mismatched
@@ -300,6 +333,7 @@ int main(int argc, char* argv[]) {
   options.layout = ame::backend::CacheLayout::Layered;
   options.layer_slots = kPoolSlots;
   options.readers = readers;
+  options.overlap = overlap;
 
   // A fused gate_up tensor cannot be expressed as three role views: refuse at install.
   const auto fused_dir = std::filesystem::path(workdir) / "fused";
@@ -369,7 +403,62 @@ int main(int argc, char* argv[]) {
                          ame::backend::moe_stream_stats().cancelled;
   ame::backend::uninstall_moe_stream();
 
-  const bool refusals = fused_refused && tiny_arena_refused && derived_ok && union_refused &&
+  // Overlap only: the callback ignores other tensors and unknown layers, an armed layer that is
+  // never consumed is drained and dropped at request start, a read failure surfaces at the
+  // operator, and cancellation starts nothing.
+  bool overlap_checks = true;
+  if (overlap) {
+    ame::backend::uninstall_moe_stream();
+    (void)ame::backend::install_moe_stream(model.file.string(), model.manifest.string(), 1,
+                                           64U * 1024U * 1024U, options);
+    ggml_init_params params{};
+    params.mem_size = 1U * 1024U * 1024U;
+    ggml_context* context = ggml_init(params);
+    ggml_tensor* other = ggml_new_tensor_2d(context, GGML_TYPE_I32, kTopK, 1);
+    ggml_set_name(other, "ffn_moe_weights-0");
+    overlap_checks = overlap_checks && !ame::backend::moe_eval_callback(other, true, nullptr);
+    ggml_free(context);
+    bool asked = false;
+    (void)deliver_topk(7, four, 1, kTopK, &asked);  // a layer the model does not have
+    overlap_checks = overlap_checks && asked &&
+                     ame::backend::moe_stream_stats().prefetches_started == 0;
+
+    // Armed but never consumed.
+    (void)deliver_topk(0, four, 1, kTopK, &asked);
+    overlap_checks = overlap_checks && ame::backend::moe_stream_stats().prefetches_started == 1;
+    ame::backend::begin_moe_stream_request();
+    overlap_checks = overlap_checks && ame::backend::moe_stream_stats().resident_slots == 0;
+    const Output after_drop = run_op(model, 0, 0, true, four, 1, kTopK, threads);
+    ame::backend::uninstall_moe_stream();
+    const Output resident_reference = run_op(model, 0, 0, true, four, 1, kTopK, threads);
+    overlap_checks = overlap_checks && same(after_drop, resident_reference);
+
+    // A read failure after the callback armed the layer.
+    (void)ame::backend::install_moe_stream(model.file.string(), model.manifest.string(), 1,
+                                           64U * 1024U * 1024U, options);
+    (void)::setenv("AME_IO_FAIL_AFTER_BYTES", "1", 1);
+    ame::backend::begin_moe_stream_request();
+    (void)deliver_topk(0, four, 1, kTopK, &asked);
+    const Output armed_failure = run_op(model, 0, 0, true, four, 1, kTopK, threads);
+    overlap_checks = overlap_checks && armed_failure.status != GGML_STATUS_SUCCESS &&
+                     ame::backend::moe_stream_stats().failed;
+    (void)::unsetenv("AME_IO_FAIL_AFTER_BYTES");
+    ame::backend::begin_moe_stream_request();
+    (void)deliver_topk(0, four, 1, kTopK, &asked);
+    const Output armed_recovery = run_op(model, 0, 0, true, four, 1, kTopK, threads);
+    overlap_checks = overlap_checks && same(armed_recovery, resident_reference);
+
+    // Cancellation: nothing is started.
+    ame::backend::begin_moe_stream_request();
+    const auto started_before = ame::backend::moe_stream_stats().prefetches_started;
+    ame::backend::request_moe_stream_cancel();
+    (void)deliver_topk(1, four, 1, kTopK, &asked);
+    overlap_checks = overlap_checks &&
+                     ame::backend::moe_stream_stats().prefetches_started == started_before;
+    ame::backend::uninstall_moe_stream();
+  }
+
+  const bool refusals = overlap_checks && fused_refused && tiny_arena_refused && derived_ok && union_refused &&
                         recovery_ok && cancel_ok;
   passed = passed && refusals;
   report << "  \"fused_gate_up_refused\": " << (fused_refused ? "true" : "false")
@@ -379,6 +468,7 @@ int main(int argc, char* argv[]) {
          << ",\n  \"union_above_pool_refused\": " << (union_refused ? "true" : "false")
          << ",\n  \"read_failure_then_identical_recovery\": " << (recovery_ok ? "true" : "false")
          << ",\n  \"cancellation_reported\": " << (cancel_ok ? "true" : "false")
+         << ",\n  \"overlap_checks\": " << (overlap_checks ? "true" : "false")
          << ",\n  \"passed\": " << (passed ? "true" : "false") << "\n}\n";
   std::cout << report.str();
   return passed ? 0 : 1;

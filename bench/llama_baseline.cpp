@@ -344,6 +344,14 @@ ParseResult parse_options(int argc, char* argv[], Options& options) {
       options.stream_options.readers = number;
       continue;
     }
+    if (argument == "--overlap" && index + 1 < argc) {
+      const std::string_view text = argv[++index];
+      if (text != "topk" && text != "off") {
+        return {false, "--overlap must be topk or off"};
+      }
+      options.stream_options.overlap = text == "topk";
+      continue;
+    }
     if (argument == "--fadvise-random") {
       options.stream_options.fadvise_random = true;
       continue;
@@ -602,7 +610,7 @@ int main(int argc, char* argv[]) {
                    "       [--tag TAG] [--no-prompt-text] [--stream --manifest PATH]\n"
                    "       [--moe-slots N] [--moe-arena-mib N] [--cache legacy|layered]\n"
                    "       [--eviction lru|lfu] [--layer-slots N] [--lfu-halve N]\n"
-                   "       [--fadvise-random] [--fadvise-dontneed] [--readers 1-4]\n"
+                   "       [--fadvise-random] [--fadvise-dontneed] [--readers 1-4] [--overlap topk|off]\n"
                    "       [--cancel-after-ms N]\n";
       return 0;
     }
@@ -779,6 +787,10 @@ int main(int argc, char* argv[]) {
   };
   context_params.abort_callback_data = nullptr;
 
+  if (options.stream && options.stream_options.overlap) {
+    context_params.cb_eval = ame::backend::moe_eval_callback;
+    context_params.cb_eval_user_data = nullptr;
+  }
   llama_context* context = llama_init_from_model(model, context_params);
   if (context == nullptr) {
     std::cerr << "context creation failed\n";
@@ -1229,6 +1241,16 @@ int main(int argc, char* argv[]) {
   json.unsigned_value(stream_stats.layer_slots);
   json.key("readers");
   json.unsigned_value(options.stream_options.readers);
+  json.key("overlap");
+  json.string_value(options.stream_options.overlap ? "topk" : "off");
+  json.key("prefetches_started");
+  json.unsigned_value(stream_stats.prefetches_started);
+  json.key("prefetches_consumed");
+  json.unsigned_value(stream_stats.prefetches_consumed);
+  json.key("prefetch_fallbacks");
+  json.unsigned_value(stream_stats.prefetch_fallbacks);
+  json.key("read_wait_seconds");
+  json.double_value(stream_stats.read_wait_seconds);
   json.key("fadvise_random");
   json.bool_value(options.stream_options.fadvise_random);
   json.key("fadvise_dontneed");

@@ -342,3 +342,25 @@ thread stacks are outside the arena accounting. `O_DIRECT` is not used; GGUF exp
 `tools/verify.py` runs a `host-tsan` preset (ThreadSanitizer) over the residency, reader-pool,
 layered-store and request-scope tests. TSan needs address-space randomization off on current
 kernels, so those tests run under `setarch -R`.
+
+## Taking reads out of the operator barrier (Unit 6, 2026-10-25)
+
+Option A was chosen: the llama context's `cb_eval` callback (`ame::backend::moe_eval_callback`)
+observes the router's `ffn_moe_topk-<layer>` tensor. With `--overlap topk` (layered cache only),
+the callback reserves that layer's slots with `LayeredStore::begin_acquire` and queues the reads on
+the background readers, grouped by role. The `MUL_MAT_ID` hook then calls `wait_role` for its own
+role's slices only, so gate compute overlaps the up and down reads, and reads also overlap the work
+between the router and the first routed operator. The hook still derives the experts from the
+operator's own `ids` tensor and stages exactly those; the callback only decides when reads start. If
+the lease the callback started does not cover the operator's experts, or a role arrives twice, the
+operator falls back to a synchronous acquire (counted as `prefetch_fallbacks`). Leases, a failed read,
+cancellation and `begin_moe_stream_request()` all drain pending reads before any slot is dropped. Patch
+0001 is unchanged.
+
+At the pinned commit the scheduler, with a callback set, splits each graph segment at every node the
+callback asks for, computes up to it, synchronizes the backend and calls the callback with the data
+ready (`ggml_backend_sched_compute_splits`, ggml-backend.cpp). The callback therefore runs between
+two `ggml_graph_compute` calls with no compute thread inside it, and the reads it queues run during
+the next compute call. `--threadpool big` creates one `ggml_threadpool` pinned (strict) to the cores
+found with the highest `cpuinfo_max_freq` and attaches it to every context with
+`llama_attach_threadpool`; `--poll N` sets its polling level (0 none to 100).

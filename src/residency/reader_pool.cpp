@@ -7,20 +7,10 @@
 
 namespace ame::residency {
 
-struct ReaderPool::Batch {
-  std::span<const ReadJob> jobs;
-  const Cancellation* stop{nullptr};
-  std::atomic<bool> abort{false};
-  std::mutex mutex;
-  std::condition_variable done;
-  std::size_t finished{0};  // jobs completed, failed, or skipped
-  bool failed{false};
-  FileError first_error{FileError::ReadFailed};
-};
-
-ReaderPool::ReaderPool(const FileSource& source, unsigned threads, std::vector<int> cpus)
+ReaderPool::ReaderPool(const FileSource& source, unsigned threads, std::vector<int> cpus,
+                       bool background)
     : source_(source), threads_(std::clamp(threads, 1U, kMaxReaders)), cpus_(std::move(cpus)) {
-  if (threads_ > 1) {
+  if (threads_ > 1 || background) {
     workers_.reserve(threads_);
     for (unsigned index = 0; index < threads_; ++index) {
       workers_.emplace_back([this] { worker(); });
@@ -56,23 +46,24 @@ void ReaderPool::worker() {
   }
 #endif
   while (true) {
-    Batch* batch = nullptr;
+    BatchHandle batch;
     std::size_t index = 0;
     {
       std::unique_lock<std::mutex> lock(mutex_);
       work_ready_.wait(lock, [this] { return shutting_down_ || !queue_.empty(); });
       if (queue_.empty()) {
-        return;  // shutting down with nothing left
+        return;
       }
       std::tie(batch, index) = queue_.front();
       queue_.pop_front();
     }
     FileError error = FileError::ReadFailed;
     bool ok = true;
+    const ReadJob& job = batch->jobs[index];
+    bool skipped = false;
     if (batch->abort.load(std::memory_order_acquire)) {
-      ok = true;  // skipped after an earlier failure; not an error of its own
+      skipped = true;
     } else {
-      const ReadJob& job = batch->jobs[index];
       const auto result =
           source_.read_exact(job.offset, job.destination, *batch->stop, &batch->abort);
       if (!result.ok()) {
@@ -84,17 +75,59 @@ void ReaderPool::worker() {
     }
     {
       std::lock_guard<std::mutex> lock(batch->mutex);
+      if (!ok || skipped) {
+        batch->group_failed[job.group] = true;
+      }
       if (!ok && !batch->failed) {
         batch->failed = true;
         batch->first_error = error;
         batch->abort.store(true, std::memory_order_release);
       }
+      --batch->group_remaining[job.group];
       ++batch->finished;
-      if (batch->finished == batch->jobs.size()) {
-        batch->done.notify_all();
-      }
+      batch->done.notify_all();
     }
   }
+}
+
+ReaderPool::BatchHandle ReaderPool::submit(std::span<const ReadJob> jobs,
+                                           const Cancellation& stop) {
+  auto batch = std::make_shared<Batch>();
+  batch->jobs.assign(jobs.begin(), jobs.end());
+  batch->stop = &stop;
+  for (ReadJob& job : batch->jobs) {
+    job.group = std::min<std::uint8_t>(job.group, kMaxGroups - 1);
+    ++batch->group_remaining[job.group];
+  }
+  if (batch->jobs.empty()) {
+    return batch;
+  }
+  {
+    std::lock_guard<std::mutex> lock(mutex_);
+    for (std::size_t index = 0; index < batch->jobs.size(); ++index) {
+      queue_.emplace_back(batch, index);
+    }
+  }
+  work_ready_.notify_all();
+  return batch;
+}
+
+Result<void, FileError> ReaderPool::wait_group(const BatchHandle& batch, unsigned group) {
+  std::unique_lock<std::mutex> lock(batch->mutex);
+  batch->done.wait(lock, [&] { return batch->failed || batch->group_remaining[group] == 0; });
+  if (batch->group_remaining[group] == 0 && !batch->group_failed[group]) {
+    return {};
+  }
+  return batch->failed ? batch->first_error : FileError::ReadFailed;
+}
+
+Result<void, FileError> ReaderPool::wait_all(const BatchHandle& batch) {
+  std::unique_lock<std::mutex> lock(batch->mutex);
+  batch->done.wait(lock, [&] { return batch->finished == batch->jobs.size(); });
+  if (batch->failed) {
+    return batch->first_error;
+  }
+  return {};
 }
 
 Result<void, FileError> ReaderPool::read_all(std::span<const ReadJob> jobs,
@@ -102,7 +135,7 @@ Result<void, FileError> ReaderPool::read_all(std::span<const ReadJob> jobs,
   if (jobs.empty()) {
     return {};
   }
-  if (threads_ == 1) {
+  if (workers_.empty()) {
     for (const ReadJob& job : jobs) {
       const auto result = source_.read_exact(job.offset, job.destination, stop);
       if (!result.ok()) {
@@ -114,22 +147,7 @@ Result<void, FileError> ReaderPool::read_all(std::span<const ReadJob> jobs,
     }
     return {};
   }
-  Batch batch;
-  batch.jobs = jobs;
-  batch.stop = &stop;
-  {
-    std::lock_guard<std::mutex> lock(mutex_);
-    for (std::size_t index = 0; index < jobs.size(); ++index) {
-      queue_.emplace_back(&batch, index);
-    }
-  }
-  work_ready_.notify_all();
-  std::unique_lock<std::mutex> lock(batch.mutex);
-  batch.done.wait(lock, [&] { return batch.finished == jobs.size(); });
-  if (batch.failed) {
-    return batch.first_error;
-  }
-  return {};
+  return wait_all(submit(jobs, stop));
 }
 
 }  // namespace ame::residency

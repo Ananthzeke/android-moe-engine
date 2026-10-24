@@ -159,3 +159,16 @@ layer visit (three slices per expert), no cross-layer eviction, a pool that can 
 an arena that can be the only cache when the kernel is told to drop its copy. Per-layer LRU is the
 default policy; LFU stays behind a flag. The phone A/B that decides the default layout is in
 `evidence/core-opt/unit4/`. The shipped layout stays the default until that gate is met.
+
+## Overlap through the eval callback, not a graph-level remap (2026-10-25)
+
+Two ways to start reads before the expert operator were considered. Option B, porting the id-remap
+structure of llama.cpp PR 25294 (an extra op after top-k that makes the expert matmuls index cache
+slots directly), needs a new ggml op and graph surgery, a larger patch than 0001, and tracks an open
+PR; its parity reports show divergence that grows with generation length for its wave-partitioned
+prefill, which this project does not adopt. Option A uses an API that exists at the pinned commit
+(`llama_context_params.cb_eval`, the `ffn_moe_topk-<layer>` name, `ggml_backend_sched_eval_callback`,
+`llama_attach_threadpool`, `ggml_threadpool_new`), needs no patch change, and keeps the per-operator
+hook as the authority on which experts are staged. The cost is one extra graph segment boundary per
+routed layer per graph, which the phone A/B measures. Evidence and the measured effect are in
+`evidence/core-opt/unit6/`.

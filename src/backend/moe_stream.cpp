@@ -104,6 +104,7 @@ using ame::residency::LayerLease;
 struct LayerState {
   LayerLease lease;
   std::uint8_t visited{0};  // roles served in the current visit, one bit per role
+  bool armed{false};        // the lease was begun by the top-k callback; reads may be in flight
 };
 bool g_layered = false;
 bool g_build_legacy_entries = true;
@@ -113,6 +114,9 @@ std::vector<LayerState> g_layer_state;
 std::vector<std::uint32_t> g_pool_of_table;         // table_id -> pool index
 std::vector<std::uint64_t> g_slot_offset_of_table;  // table_id -> role offset inside a slot
 std::vector<std::uint8_t> g_role_bit_of_table;
+std::vector<std::uint8_t> g_role_of_table;               // table_id -> 0 gate, 1 up, 2 down
+std::map<std::uint32_t, std::uint32_t> g_pool_of_layer;  // layer number -> pool index
+bool g_overlap = false;
 
 // Routing trace, format 2: one row per MUL_MAT_ID call. Writes are buffered; the buffer is
 // flushed when the next graph is labelled, at request start, and at uninstall.
@@ -396,6 +400,8 @@ bool build_layered_cache(const StreamOptions& options) {
   g_pool_of_table.assign(g_specs.size(), 0);
   g_slot_offset_of_table.assign(g_specs.size(), 0);
   g_role_bit_of_table.assign(g_specs.size(), 0);
+  g_role_of_table.assign(g_specs.size(), 0);
+  g_pool_of_layer.clear();
   for (const auto& [layer, group] : groups) {
     for (const TensorSpec* spec : group) {
       if (spec == nullptr) {
@@ -414,8 +420,10 @@ bool build_layered_cache(const StreamOptions& options) {
       g_pool_of_table[group[role]->table_id] = pool_index;
       g_slot_offset_of_table[group[role]->table_id] = cursor;
       g_role_bit_of_table[group[role]->table_id] = static_cast<std::uint8_t>(1U << role);
+      g_role_of_table[group[role]->table_id] = static_cast<std::uint8_t>(role);
       cursor += group[role]->expert_bytes;
     }
+    g_pool_of_layer[layer] = pool_index;
     layer_numbers.push_back(layer);
     slot_bytes_of_layer.push_back(align_up(cursor, kAlign));
     total_slot_bytes += slot_bytes_of_layer.back();
@@ -464,6 +472,7 @@ bool build_layered_cache(const StreamOptions& options) {
     store_options.alignment = 64;
     store_options.readers = options.readers;
     store_options.reader_cpus = options.reader_cpus;
+    store_options.background_readers = options.overlap;
     auto store = LayeredStore::create(std::move(source).value(), std::move(layers), store_options);
     if (!store.ok()) {
       return manifest_error("layered cache creation failed");
@@ -486,6 +495,7 @@ bool build_layered_cache(const StreamOptions& options) {
     g_stats.layered = true;
     g_slots = slots;
     g_layered = true;
+    g_overlap = options.overlap;
     return true;
   }
   return manifest_error("the arena allowance of " + std::to_string(g_arena_limit) +
@@ -501,31 +511,75 @@ int stage_layered(const TensorSpec& spec, const ggml_tensor* weights, const ggml
   const std::uint32_t pool = g_pool_of_table[spec.table_id];
   LayerState& state = g_layer_state[pool];
   const std::uint8_t bit = g_role_bit_of_table[spec.table_id];
-  if (!state.lease.valid() || (state.visited & bit) != 0) {
-    state.lease = LayerLease{};
-    state.visited = 0;
-  }
-  bool covered = state.lease.valid();
-  for (std::uint32_t index = 0; covered && index < unique_count; ++index) {
-    covered = state.lease.slot_index(unique[index].expert).has_value();
-  }
-  if (!covered) {
-    state.lease = LayerLease{};
-    std::array<std::uint32_t, ame::residency::kMaxLeaseExperts> experts{};
-    for (std::uint32_t index = 0; index < unique_count; ++index) {
-      experts[index] = unique[index].expert;
+  const auto covers = [&] {
+    bool covered = state.lease.valid();
+    for (std::uint32_t index = 0; covered && index < unique_count; ++index) {
+      covered = state.lease.slot_index(unique[index].expert).has_value();
     }
-    auto lease = g_layered_store->acquire(
-        pool, std::span<const std::uint32_t>(experts.data(), unique_count), g_cancellation);
-    if (!lease.ok()) {
-      if (lease.error() == ame::residency::StoreError::Cancelled || g_cancellation.requested()) {
-        return cancel_outcome("cancelled during materialization: " + spec.name);
+    return covered;
+  };
+  bool used_armed = false;
+  if (state.armed) {
+    if ((state.visited & bit) == 0 && covers()) {
+      // The top-k callback already reserved this layer and started its reads: wait only for
+      // this role's slices.
+      const auto waited = g_layered_store->wait_role(pool, g_role_of_table[spec.table_id]);
+      if (!waited.ok()) {
+        state.lease = LayerLease{};
+        state.armed = false;
+        state.visited = 0;
+        if (waited.error() == ame::residency::StoreError::Cancelled || g_cancellation.requested()) {
+          return cancel_outcome("cancelled during materialization: " + spec.name);
+        }
+        return fail_outcome("layer store read failed for " + spec.name);
       }
-      return fail_outcome("layer store acquire failed for " + spec.name);
+      used_armed = true;
+      ++g_stats.prefetches_consumed;
+    } else {
+      // Not usable for this operator (a role came twice, or the experts differ): start over
+      // with a synchronous acquire. This drains the pending reads first.
+      ++g_stats.prefetch_fallbacks;
+      state.lease = LayerLease{};
+      state.armed = false;
+      state.visited = 0;
     }
-    state.lease = std::move(lease).value();
+  }
+  if (!used_armed) {
+    if (!state.lease.valid() || (state.visited & bit) != 0) {
+      state.lease = LayerLease{};
+      state.visited = 0;
+    }
+    if (!covers()) {
+      state.lease = LayerLease{};
+      std::array<std::uint32_t, ame::residency::kMaxLeaseExperts> experts{};
+      for (std::uint32_t index = 0; index < unique_count; ++index) {
+        experts[index] = unique[index].expert;
+      }
+      auto lease = g_layered_store->acquire(
+          pool, std::span<const std::uint32_t>(experts.data(), unique_count), g_cancellation);
+      if (!lease.ok()) {
+        if (lease.error() == ame::residency::StoreError::Cancelled || g_cancellation.requested()) {
+          return cancel_outcome("cancelled during materialization: " + spec.name);
+        }
+        return fail_outcome("layer store acquire failed for " + spec.name);
+      }
+      state.lease = std::move(lease).value();
+    }
   }
   state.visited = static_cast<std::uint8_t>(state.visited | bit);
+  if (state.armed && state.visited == 7) {
+    // Every role has been served: publish the loaded slots and end the asynchronous visit.
+    const auto finished = g_layered_store->finish_pending(pool);
+    state.armed = false;
+    if (!finished.ok()) {
+      state.lease = LayerLease{};
+      state.visited = 0;
+      if (finished.error() == ame::residency::StoreError::Cancelled || g_cancellation.requested()) {
+        return cancel_outcome("cancelled during materialization: " + spec.name);
+      }
+      return fail_outcome("layer store read failed for " + spec.name);
+    }
+  }
 
   const auto* ids_bytes = static_cast<const char*>(ids->data);
   g_remapped.resize(static_cast<std::size_t>(n_ids * tokens));
@@ -710,6 +764,70 @@ int materialize(const ggml_tensor* weights, const ggml_tensor* ids) {
   return GGML_MOE_STAGED;
 }
 
+// Called by the scheduler between graph segments. For the router's top-k tensor of a routed
+// layer, reserve the layer's slots and start its reads in the background.
+void prefetch_layer(const ggml_tensor* topk) {
+  if (!g_overlap || !g_layered || g_cancellation.requested() || topk->type != GGML_TYPE_I32 ||
+      topk->data == nullptr) {
+    return;
+  }
+  char* end = nullptr;
+  const long layer_number = std::strtol(topk->name + 13, &end, 10);
+  if (end == topk->name + 13 || layer_number < 0) {
+    return;
+  }
+  const auto pool = g_pool_of_layer.find(static_cast<std::uint32_t>(layer_number));
+  if (pool == g_pool_of_layer.end()) {
+    return;
+  }
+  const int64_t n_ids = topk->ne[0];
+  const int64_t tokens = topk->ne[1];
+  if (n_ids <= 0 || tokens <= 0 || n_ids * tokens > 1048576) {
+    return;
+  }
+  std::array<std::uint32_t, ame::residency::kMaxLeaseExperts> experts{};
+  std::uint32_t count = 0;
+  const auto* bytes = static_cast<const char*>(topk->data);
+  const std::uint32_t expert_count =
+      static_cast<std::uint32_t>(g_layered_store->expert_count(pool->second));
+  for (int64_t token = 0; token < tokens; ++token) {
+    for (int64_t rank = 0; rank < n_ids; ++rank) {
+      std::int32_t expert = 0;
+      std::memcpy(&expert,
+                  bytes + static_cast<std::size_t>(token) * topk->nb[1] +
+                      static_cast<std::size_t>(rank) * topk->nb[0],
+                  sizeof(expert));
+      if (expert < 0 || static_cast<std::uint32_t>(expert) >= expert_count) {
+        return;  // let the operator report the bad id
+      }
+      bool seen = false;
+      for (std::uint32_t index = 0; index < count; ++index) {
+        if (experts[index] == static_cast<std::uint32_t>(expert)) {
+          seen = true;
+          break;
+        }
+      }
+      if (seen) continue;
+      if (count >= ame::residency::kMaxLeaseExperts) {
+        return;  // too many for a lease; the operator reports it
+      }
+      experts[count++] = static_cast<std::uint32_t>(expert);
+    }
+  }
+  LayerState& state = g_layer_state[pool->second];
+  state.lease = LayerLease{};  // ends the previous visit and drains anything still pending
+  state.visited = 0;
+  state.armed = false;
+  auto lease = g_layered_store->begin_acquire(
+      pool->second, std::span<const std::uint32_t>(experts.data(), count), g_cancellation);
+  if (!lease.ok()) {
+    return;  // the operator's own acquire reports the reason
+  }
+  state.lease = std::move(lease).value();
+  state.armed = true;
+  ++g_stats.prefetches_started;
+}
+
 bool bind_model_contract_impl(const llama_model* model, std::string& error) {
   if (model == nullptr || g_artifact == nullptr) {
     error = "contract requires a loaded model and verified artifact";
@@ -859,6 +977,17 @@ bool validate_artifact_layout() {
 
 }  // namespace
 
+bool moe_eval_callback(struct ggml_tensor* tensor, bool ask, void* user_data) {
+  (void)user_data;
+  if (!g_overlap || tensor == nullptr || std::strncmp(tensor->name, "ffn_moe_topk-", 13) != 0) {
+    return false;
+  }
+  if (!ask) {
+    prefetch_layer(tensor);
+  }
+  return true;
+}
+
 bool bind_model_contract(const llama_model* model, std::string& error) {
   return bind_model_contract_impl(model, error);
 }
@@ -948,6 +1077,10 @@ bool install_moe_stream(const Artifact& artifact, const std::string& manifest_pa
   }
   g_stats.manifest_validation_seconds =
       std::chrono::duration<double>(std::chrono::steady_clock::now() - validation_begin).count();
+  if (options.overlap && options.layout != CacheLayout::Layered) {
+    g_stats.error = "the top-k overlap needs the layered cache";
+    return false;
+  }
   if (options.layout == CacheLayout::Layered) {
     if (!build_layered_cache(options)) {
       return false;
@@ -1035,9 +1168,13 @@ void release_moe_stream_leases() {
     (void)key;
     cache.lease = Lease{};
   }
+  if (g_layered_store) {
+    g_layered_store->abandon_all_pending();  // every read has ended before a slot is dropped
+  }
   for (auto& state : g_layer_state) {
     state.lease = LayerLease{};
     state.visited = 0;
+    state.armed = false;
   }
 }
 
@@ -1087,7 +1224,13 @@ void uninstall_moe_stream() {
   }
   g_caches.clear();
   g_arenas.clear();
+  if (g_layered_store) {
+    g_layered_store->abandon_all_pending();
+  }
   g_layer_state.clear();  // leases first: they point into the store
+  g_overlap = false;
+  g_pool_of_layer.clear();
+  g_role_of_table.clear();
   g_layered_store.reset();
   g_layered = false;
   g_build_legacy_entries = true;
@@ -1119,6 +1262,7 @@ MoeStreamStats moe_stream_stats() {
     result.pread_calls += store_stats.pread_calls;
     result.pread_bytes += store_stats.pread_bytes;
     result.read_seconds += store_stats.read_seconds;
+    result.read_wait_seconds += store_stats.read_wait_seconds;
     result.resident_slots = g_layered_store->resident_slots();
   }
   for (const auto& [key, cache] : g_caches) {

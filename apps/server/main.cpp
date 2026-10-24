@@ -1,5 +1,6 @@
 #define CPPHTTPLIB_IMPLEMENTATION
 #include "chat_template.hpp"
+#include "ggml-cpu.h"
 #include "httplib.h"
 #include "json.hpp"
 #include "llama.h"
@@ -49,6 +50,8 @@ struct Options {
   std::string request_log;
   ame::backend::StreamOptions stream_options;
   bool reader_cpus_auto = false;  // pin readers to the cores that are not the big cores
+  bool threadpool_big = false;    // one ggml threadpool pinned to the big cores
+  int poll = 50;                  // threadpool polling level, 0 (none) to 100
   std::string system_root = "/";
 };
 
@@ -58,6 +61,7 @@ std::string g_error;
 llama_model* g_model = nullptr;
 ame::server::ChatTemplate* g_chat_template = nullptr;
 Options g_options;
+ggml_threadpool* g_threadpool = nullptr;
 std::atomic<std::uint64_t> g_counter{0};
 
 class AdmissionQueue {
@@ -134,6 +138,10 @@ void publish_stream_snapshot() {
                    {"cache_metadata_bytes", stats.cache_metadata_bytes},
                    {"resident_slots", stats.resident_slots},
                    {"pread_calls", stats.pread_calls},
+                   {"read_wait_seconds", stats.read_wait_seconds},
+                   {"prefetches_started", stats.prefetches_started},
+                   {"prefetches_consumed", stats.prefetches_consumed},
+                   {"prefetch_fallbacks", stats.prefetch_fallbacks},
                    {"contract_routed", stats.contract_routed},
                    {"contract_shared", stats.contract_shared},
                    {"failed", stats.failed},
@@ -408,7 +416,16 @@ void generate_impl(const Request& request, bool stream,
   params.n_ubatch = batch;
   params.n_threads = g_options.threads;
   params.n_threads_batch = g_options.threads;
+#ifdef AME_STREAMING
+  if (g_options.stream && g_options.stream_options.overlap) {
+    params.cb_eval = ame::backend::moe_eval_callback;
+    params.cb_eval_user_data = nullptr;
+  }
+#endif
   llama_context* context = llama_init_from_model(g_model, params);
+  if (context != nullptr && g_threadpool != nullptr) {
+    llama_attach_threadpool(context, g_threadpool, g_threadpool);
+  }
   if (context == nullptr) {
     generation.failed = true;
     generation.error = "context creation failed";
@@ -548,9 +565,9 @@ ame::server::PhaseRecorder::ExpertSource expert_source() {
   if (g_options.stream) {
     return [] {
       const auto stats = ame::backend::moe_stream_stats();
-      return ame::server::ExpertCounters{stats.hits,        stats.misses,      stats.reads,
-                                         stats.read_bytes,  stats.pread_calls, stats.pread_bytes,
-                                         stats.read_seconds};
+      return ame::server::ExpertCounters{
+          stats.hits,        stats.misses,      stats.reads,        stats.read_bytes,
+          stats.pread_calls, stats.pread_bytes, stats.read_seconds, stats.read_wait_seconds};
     };
   }
 #endif
@@ -620,7 +637,8 @@ json phase_json(const ame::server::PhaseRecord& phase, const std::string& prefix
                               {"expert_bytes", e.expert_bytes},
                               {"pread_calls", e.pread_calls},
                               {"pread_bytes", e.pread_bytes},
-                              {"read_seconds", e.read_seconds}};
+                              {"read_seconds", e.read_seconds},
+                              {"read_wait_seconds", e.read_wait_seconds}};
   } else {
     result["expert_delta"] = nullptr;
   }
@@ -815,6 +833,16 @@ int run_server(int argc, char** argv) {
       if (!next(value)) return 2;
       options.stream_options.readers = static_cast<unsigned>(std::stoul(value));
       if (options.stream_options.readers < 1 || options.stream_options.readers > 4) return 2;
+    } else if (arg == "--overlap") {
+      if (!next(value) || (value != "topk" && value != "off")) return 2;
+      options.stream_options.overlap = value == "topk";
+    } else if (arg == "--threadpool") {
+      if (!next(value) || (value != "big" && value != "default")) return 2;
+      options.threadpool_big = value == "big";
+    } else if (arg == "--poll") {
+      if (!next(value)) return 2;
+      options.poll = std::stoi(value);
+      if (options.poll < 0 || options.poll > 100) return 2;
     } else if (arg == "--reader-cpus") {
       if (!next(value) || (value != "auto" && value != "none")) return 2;
       options.reader_cpus_auto = value == "auto";
@@ -863,6 +891,26 @@ int run_server(int argc, char** argv) {
           std::filesystem::exists("/sys/devices/system/cpu/cpu" + std::to_string(cpu))) {
         options.stream_options.reader_cpus.push_back(cpu);
       }
+    }
+  }
+  struct ThreadpoolLifetime {
+    ~ThreadpoolLifetime() {
+      if (g_threadpool != nullptr) ggml_threadpool_free(g_threadpool);
+      g_threadpool = nullptr;
+    }
+  } threadpool_lifetime;
+  if (options.threadpool_big && !g_sampler->homogeneous() && !g_sampler->big_cores().empty()) {
+    // Compute threads on the big cores only, polling at the requested level.
+    ggml_threadpool_params pool_params = ggml_threadpool_params_default(options.threads);
+    for (const int cpu : g_sampler->big_cores()) {
+      if (cpu >= 0 && cpu < GGML_MAX_N_THREADS) pool_params.cpumask[cpu] = true;
+    }
+    pool_params.strict_cpu = true;
+    pool_params.poll = static_cast<uint32_t>(options.poll);
+    g_threadpool = ggml_threadpool_new(&pool_params);
+    if (g_threadpool == nullptr) {
+      std::cerr << "threadpool creation failed\n";
+      return 1;
     }
   }
   ame::server::PhaseRecorder startup(*g_sampler, nullptr);
@@ -943,6 +991,10 @@ int run_server(int argc, char** argv) {
                     std::chrono::duration<double>(Clock::now() - process_begin).count()},
                    {"stages", stages},
                    {"big_cores", big_cores_json()},
+                   {"threadpool", g_threadpool != nullptr ? "big_cores_pinned" : "default"},
+                   {"poll", options.poll},
+                   {"overlap", options.stream_options.overlap ? "topk" : "off"},
+                   {"readers", options.stream_options.readers},
                    {"unavailable", unavailable}};
 #ifdef AME_STREAMING
     if (options.stream) {
