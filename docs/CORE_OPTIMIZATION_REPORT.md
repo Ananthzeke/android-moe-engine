@@ -1,7 +1,8 @@
 # Core optimization report (2026-10-24 to 2026-10-25)
 
 Executes `prompts/SONNET_CORE_OPTIMIZATION.md` on branch `perf/core-optimization`, which sits on
-`fix/audit-a1-a7` (pull request 3). Nothing is pushed. Every number below is read from a retained record under
+`fix/audit-a1-a7` (pull request 3). The branch is pushed as pull request 4 against `main`, so merging it also
+merges the pull request 3 commit. Every number below is read from a retained record under
 `evidence/core-opt/`; each unit's directory has its own README with tables, method and limits. The device is the
 vivo 1920 (Snapdragon 665, 8 GB, Android 12, charger connected), the artifact is the enrolled Qwen3.6-35B-A3B
 Q4_K_M (SHA-256 `671e47e0...5140c7`), the backend is llama.cpp `ff5a233`.
