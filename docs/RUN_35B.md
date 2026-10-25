@@ -127,8 +127,8 @@ Measured effect: [Unit 4 evidence](../evidence/core-opt/unit4/README.md)). Layer
 `--eviction lru|lfu`, `--layer-slots N` (zero derives the pool from `--arena-mib`), `--lfu-halve N`,
 `--fadvise-random`, `--fadvise-dontneed`, `--readers 1-4` (reader threads, both layouts; the launcher uses 4) and
 `--reader-cpus auto|none` (pin readers off the big cores), `--overlap topk|off` (layered cache:
-start a layer's reads from the router's top-k result), `--threadpool big|default` and `--poll N`
-(one compute threadpool pinned to the big cores). `--arena-mib` must cover the arenas plus bookkeeping;
+start a layer's reads from the router's top-k result; use it only together with `--threadpool big`), `--threadpool big|default` and
+`--poll N` (one compute threadpool pinned to the big cores; the launcher uses `--poll 0`). `--arena-mib` must cover the arenas plus bookkeeping;
 for 16 slots per layer on the 35B model use `--layer-slots 16 --arena-mib 1152`. See
 [the architecture note](ARCHITECTURE.md#layered-expert-cache-unit-4-2026-10-24).
 

@@ -203,3 +203,12 @@ is structural: a batch ends only after every read has finished or been skipped, 
 nothing, and the same bytes land in the same slots in the same lease order as the serial path; it is checked by
 the store tests under AddressSanitizer and ThreadSanitizer and by token and logit parity through the real
 graph.
+
+## The overlap needs a pinned compute pool (2026-10-25)
+
+Twenty alternating phone trials (evidence/core-opt/unit6) with four readers: the top-k overlap alone is 30% slower
+(decode step +58%) although it cuts the time blocked on reads from 12 s to 1 s, because compute inflates from 18 s to 44 s
+while reader threads run; the same overlap with one compute threadpool pinned to the big cores and no polling is 7.8%
+faster than neither (32-token request 50.1 to 46.2 s, short request 23.3 to 22.0 s, ranges disjoint), and the pinned
+pool alone changes nothing measurable. Token IDs are identical in all trials. The phone launcher enables both together;
+the binary defaults stay off, and the overlap is documented as unsafe for speed without the pinned pool.

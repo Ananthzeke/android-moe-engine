@@ -9,11 +9,16 @@ SHA=${AME_ARTIFACT_SHA:-671e47e0ec53c665d048b98c3ecbfd5236b5ca9c3e02ed19fc8f81f7
 # (evidence/core-opt/unit4): same token IDs, 28-40% less request time, 2.2 GB more resident memory.
 # Four reader threads fetch a layer's missing experts in parallel (evidence/core-opt/unit5: a further 22-39%
 # less request time, same token IDs; pinning them to the little cores made no difference). It needs about
-# 3.6 GB of MemAvailable after start. AME_CACHE=legacy restores the 64-slot cache.
+# 3.6 GB of MemAvailable after start. The top-k overlap starts a layer's reads from the router result and
+# a threadpool pinned to the big cores keeps compute away from the reader threads (evidence/core-opt/unit6:
+# a further 5-8%; the overlap without the pinned pool is 30% slower, so AME_OVERLAP=off AME_THREADPOOL=default
+# go together). AME_CACHE=legacy restores the 64-slot cache.
 CACHE=${AME_CACHE:-layered}
 if [ "$CACHE" = layered ]; then
   ARENA=${AME_ARENA_MIB:-2200}
   CACHE_FLAGS="--cache layered --layer-slots ${AME_LAYER_SLOTS:-32} --fadvise-random --fadvise-dontneed --readers ${AME_READERS:-4}"
+  if [ "${AME_OVERLAP:-topk}" = topk ]; then CACHE_FLAGS="$CACHE_FLAGS --overlap topk"; fi
+  if [ "${AME_THREADPOOL:-big}" = big ]; then CACHE_FLAGS="$CACHE_FLAGS --threadpool big --poll ${AME_POLL:-0}"; fi
 else
   ARENA=${AME_ARENA_MIB:-256}
   CACHE_FLAGS="--cache legacy"

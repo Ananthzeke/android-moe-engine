@@ -1,0 +1,2 @@
+01-03 03:17:24.543   512   512 I auditd  : type=1400 audit(0.0:12): avc: denied { getattr } for comm="logd.writer" scontext=u:r:logd:s0 tcontext=u:r:lmkd:s0 tclass=process permissive=0
+10-19 07:54:56.235   512   512 I auditd  : type=1400 audit(0.0:3350): avc: denied { getattr } for comm="logd.writer" scontext=u:r:logd:s0 tcontext=u:r:lmkd:s0 tclass=process permissive=0
