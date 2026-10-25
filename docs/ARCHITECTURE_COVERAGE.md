@@ -8,6 +8,7 @@ Date: 2026-10-19. Scope: tiny upstream-generated fixtures, exact tested layouts.
 | qwen2moe sparse | ordinary transformer MoE | 8 / 2, slots 4 | exact | exact | exact | yes | yes |
 | qwen2moe | ordinary transformer MoE | 2 / 2 | exact | exact | exact | no (all selected) | yes |
 | granite-moe | non-Qwen transformer MoE | 2 / 2 | exact | exact | exact | no (all selected) | yes |
+| smallthinker sparse | transformer MoE, pre-attention router | 8 / 2, 4 slots | exact | exact | exact | yes | yes |
 
 All matched comparisons produced zero mismatched logits and identical tokens. Sparse
 qwen35moe used a 4-slot arena, 56 misses, 48 evictions, 56 reads, 33,030,144 read
@@ -45,3 +46,9 @@ Still not unified:
 - No variable-size experts, shards, arbitrary expert-axis layouts, or unsupported
   companion semantics are accepted.
 - Only the tested contiguous-plane CPU consumer is supported.
+
+## Model-support fixtures (feat/moe-model-support)
+
+Rows added by `tests/arch_fixture_test.py` (run by `tools/verify_inference.py` with `--arch-fixture NAME[:SLOTS]=PATH`). Each fixture is the upstream `test-llama-archs` model regenerated with 8 experts and top-2 routing (`AME_FIXTURE_EXPERTS=8`), then quantized with the pinned `llama-quantize`. Every streamed run (shipped cache, layered cache, layered cache with 4 readers and the top-k overlap) is compared with a resident run at the same prefill unit, with the CPU extra buffer types off in both (`--no-extra-bufts`): tokens and logits are bit-identical, every streamed run evicts, and a capacity below top-k is refused under both cache layouts. The "same storage core" column holds for all of them: no per-architecture code exists in `src/`.
+
+Real-artifact evidence per model is under `evidence/models/<model>/`.

@@ -114,6 +114,26 @@
         "evidence/api/phone-35b-direct/run.json"
       ],
       "note": "Text-only storage-backed expert streaming on the physical phone. Historical harness: 5 runs across contexts 512, 1024, and 2048, identical tokens, 28-38 MB arena, ~2.06-2.09 GiB peak RSS, 0.37-0.69 decode tokens/s. New bounded API smoke at context 512: JSON Hello! and SSE 4, normal stops with default thinking disabled, ~2.09 GiB peak RSS. API wall times are separate from historical decode throughput. No full-resident reference parity or hard process cap; long-form API qualification remains open."
+    },
+    {
+      "id": "Tiiny/SmallThinker-4BA0.6B-Instruct-GGUF",
+      "role": "moe_streaming_wave1_resident_reference",
+      "architecture": "smallthinker_moe_32x4",
+      "source": "https://huggingface.co/Tiiny/SmallThinker-4BA0.6B-Instruct-GGUF",
+      "revision": "b6ca58deaddfaa18501040b24cc88294c26f84b8",
+      "license": "apache-2.0",
+      "verified_on_target": true,
+      "artifact_sha256": "f9e03828eaebdeef503b907f7bc0fabfd4392bdbd8edc9f5433c8530d7e5a6fb",
+      "artifact_file": "SmallThinker-4B-A0.6B-Instruct.Q4_K.gguf",
+      "artifact_bytes": 2630212704,
+      "quantization": "Q4_K",
+      "support_status": "supported_cpu_streaming_host_and_phone_prefer_resident_when_it_fits",
+      "evidence": [
+        "evidence/models/smallthinker-4b-a0.6b/README.md",
+        "evidence/models/smallthinker-4b-a0.6b/host-parity.json",
+        "evidence/models/smallthinker-4b-a0.6b/phone-ab-summary.json"
+      ],
+      "note": "32 layers, 32 experts, top-4, separate gate/up/down (down Q4_K in 16 layers and Q6_K in 16). Streamed token IDs and logits equal a resident run at the same prefill unit on the host and on the phone. On the phone resident decodes 8.29 tokens/s versus 4.44 streamed with the shipped cache and 1.92 with the layered preset, because the file fits in the page cache."
     }
   ]
 }

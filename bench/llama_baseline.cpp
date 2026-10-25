@@ -276,6 +276,9 @@ struct Options {
   bool chat = false;
   bool include_prompt_text = true;
   bool stream = false;
+  // Resident runs normally keep the CPU extra buffer types (repacked weights). A streamed run
+  // cannot, so a resident reference that must share its kernels turns them off.
+  bool no_extra_bufts = false;
   bool cancel_before_decode = false;
   std::string logits_output;
   std::string manifest;
@@ -331,6 +334,10 @@ ParseResult parse_options(int argc, char* argv[], Options& options) {
     }
     if (argument == "--stream") {
       options.stream = true;
+      continue;
+    }
+    if (argument == "--no-extra-bufts") {
+      options.no_extra_bufts = true;
       continue;
     }
     if (argument == "--readers" && index + 1 < argc) {
@@ -611,7 +618,7 @@ int main(int argc, char* argv[]) {
                    "       [--moe-slots N] [--moe-arena-mib N] [--cache legacy|layered]\n"
                    "       [--eviction lru|lfu] [--layer-slots N] [--lfu-halve N]\n"
                    "       [--fadvise-random] [--fadvise-dontneed] [--readers 1-4] [--overlap topk|off]\n"
-                   "       [--cancel-after-ms N]\n";
+                   "       [--cancel-after-ms N] [--no-extra-bufts]\n";
       return 0;
     }
     std::cerr << parsed.error << '\n';
@@ -733,7 +740,7 @@ int main(int argc, char* argv[]) {
   model_params.lazy_mode =
       options.mmap ? LLAMA_LAZY_MODE_AUTO : LLAMA_LAZY_MODE_OFF;
   model_params.check_tensors = false;
-  model_params.use_extra_bufts = !options.stream;
+  model_params.use_extra_bufts = !options.stream && !options.no_extra_bufts;
 
   llama_model* model = llama_model_load_from_file(model_load_path.c_str(), model_params);
   if (model == nullptr) {
@@ -888,6 +895,8 @@ int main(int argc, char* argv[]) {
   json.unsigned_value(prefill_unit);
   json.key("effective_ubatch_tokens");
   json.unsigned_value(static_cast<std::uint64_t>(llama_n_ubatch(context)));
+  json.key("extra_buffer_types");
+  json.bool_value(!options.stream && !options.no_extra_bufts);
   json.end_object();
 
   json.key("prompt");

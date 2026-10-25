@@ -84,9 +84,11 @@ def run_trial(arguments, number, name, variant_args, directory):
     record = {"trial": number, "variant": name, "args": variant_args, "failed": None}
     shell(serial, "pkill -x ame-server; sleep 3; ps -A | grep -c ame-server")
     (directory / "state-before.txt").write_text(shell(serial, STATE_SCRIPT).stdout)
-    log = f"{PACKAGE}/ab-{number:02d}-{name}.jsonl"
-    command = (f"cd {PACKAGE}; rm -f {log}; nohup ./ame-server --model {MODEL} "
-               f"--model-id Qwen3.6-35B-A3B --stream --manifest {MANIFEST} --artifact-sha {SHA} "
+    package = arguments.package
+    log = f"{package}/ab-{number:02d}-{name}.jsonl"
+    command = (f"cd {package}; rm -f {log}; nohup ./ame-server --model {arguments.model} "
+               f"--model-id {arguments.model_id} --stream --manifest {arguments.manifest} "
+               f"--artifact-sha {arguments.sha} "
                f"--context 512 --threads 4 --port {arguments.port} --request-log {log} "
                f"{variant_args} > ab-start.log 2>&1 < /dev/null & echo $!")
     pid = shell(serial, command).stdout.strip().splitlines()[-1]
@@ -97,12 +99,12 @@ def run_trial(arguments, number, name, variant_args, directory):
     if ready is None:
         record["failed"] = "server not ready"
         (directory / "server-start.log").write_text(
-            shell(serial, f"tail -c 2000 {PACKAGE}/ab-start.log").stdout)
+            shell(serial, f"tail -c 2000 {package}/ab-start.log").stdout)
     else:
         (directory / "health-ready.json").write_text(http(base + "/health")[1])
         rows = []
         for kind, template in (("short", SHORT), ("long", LONG)):
-            body = {"model": "Qwen3.6-35B-A3B", "temperature": 0, "ame_debug": True, **template}
+            body = {"model": arguments.model_id, "temperature": 0, "ame_debug": True, **template}
             status, text, seconds = http(base + "/v1/chat/completions", body, arguments.timeout)
             try:
                 parsed = json.loads(text)
@@ -233,6 +235,11 @@ def main():
     run.add_argument("--trials", type=int, default=5, help="trials per variant")
     run.add_argument("--output-dir", type=Path, required=True)
     run.add_argument("--serial")
+    run.add_argument("--package", default=PACKAGE, help="device directory holding ame-server")
+    run.add_argument("--model", default=MODEL, help="device path of the GGUF")
+    run.add_argument("--manifest", default=MANIFEST, help="device path of the expert manifest")
+    run.add_argument("--sha", default=SHA, help="enrolled artifact SHA-256")
+    run.add_argument("--model-id", default="Qwen3.6-35B-A3B", help="model name for requests")
     run.add_argument("--port", type=int, default=8081)
     run.add_argument("--ready-timeout", type=float, default=1800)
     run.add_argument("--timeout", type=float, default=900)

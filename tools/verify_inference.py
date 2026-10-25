@@ -260,6 +260,29 @@ def gate_runner_boundaries(build_dir: Path, fixture: Path | None,
     return {"status": "passed", "returncode": result.returncode}
 
 
+def gate_arch_fixtures(build_dir: Path, fixtures: list[str], quantize: Path | None) -> object:
+    """Streamed-versus-resident parity for tiny sparse fixtures of other MoE architectures.
+
+    Each item is NAME[:SLOTS]=PATH. The float model and its Q4_K_M and Q6_K quantizations (when a
+    llama-quantize binary is given) run through every cache layout.
+    """
+    if not fixtures:
+        return {"status": "not_run", "reason": "no --arch-fixture or AME_ARCH_FIXTURES supplied"}
+    results = []
+    for item in fixtures:
+        label, _, path = item.partition("=")
+        name, _, slots = label.partition(":")
+        command = [sys.executable, str(ROOT / "tests" / "arch_fixture_test.py"),
+                   "--harness", str(build_dir / "llama_baseline_stream"),
+                   "--fixture", path, "--name", name, "--slots", slots or "4"]
+        if quantize is not None:
+            command += ["--quantize", str(quantize)]
+        result = run(command, timeout=900)
+        results.append({"architecture": name, "status": "passed", "returncode": result.returncode,
+                        "summary": result.stdout.strip().splitlines()[-1] if result.stdout.strip() else ""})
+    return results
+
+
 def build(config: str, source: Path, libs: Path, build_dir: Path) -> dict[str, object]:
     shutil.rmtree(build_dir, ignore_errors=True)
     configure = [
@@ -304,6 +327,13 @@ def main() -> int:
                         default=Path(os.environ["AME_LAYERED_FIXTURE_MODEL"])
                         if os.environ.get("AME_LAYERED_FIXTURE_MODEL") else None,
                         help="tiny MoE with separate gate/up/down experts (qwen2moe)")
+    parser.add_argument("--arch-fixture", action="append", default=[],
+                        help="NAME[:SLOTS]=PATH to a tiny sparse MoE fixture of another architecture "
+                             "(repeatable; AME_ARCH_FIXTURES holds a semicolon-separated list)")
+    parser.add_argument("--quantize-bin", type=Path,
+                        default=Path(os.environ["AME_LLAMA_QUANTIZE"])
+                        if os.environ.get("AME_LLAMA_QUANTIZE") else None,
+                        help="llama-quantize, for the Q4_K_M and Q6_K arch fixture variants")
     parser.add_argument("--skip-sanitizers", action="store_true")
     args = parser.parse_args()
 
@@ -314,6 +344,8 @@ def main() -> int:
         print("error: --llama-libs or AME_LLAMA_HOST_LIB_DIR is required", file=sys.stderr)
         return 2
 
+    arch_fixtures = args.arch_fixture or [item for item in
+                                          os.environ.get("AME_ARCH_FIXTURES", "").split(";") if item]
     configs = [item.strip() for item in args.configs.split(",") if item.strip()]
     if args.skip_sanitizers:
         configs = [item for item in configs if item != "sanitizers"]
@@ -347,6 +379,7 @@ def main() -> int:
                                             build_dir / "gate-kernel" / "result.json")
             record["runner_boundaries"] = gate_runner_boundaries(build_dir, args.fixture_model,
                                                              args.layered_fixture_model)
+            record["arch_fixtures"] = gate_arch_fixtures(build_dir, arch_fixtures, args.quantize_bin)
             manifest = run([sys.executable, str(ROOT / "tests" / "manifest_gate_test.py"),
                             "--binary", str(build_dir / "manifest_gate")], timeout=300)
             artifact = run([sys.executable, str(ROOT / "tests" / "artifact_gate_test.py"),

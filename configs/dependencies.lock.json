@@ -83,6 +83,20 @@
         "evidence/phase4/qwen36-stream-03.json",
         "evidence/phase4/qwen36-stream-aggregate.json"
       ]
+    },
+    {
+      "id": "Tiiny/SmallThinker-4BA0.6B-Instruct-GGUF",
+      "artifact_file": "SmallThinker-4B-A0.6B-Instruct.Q4_K.gguf",
+      "artifact_sha256": "f9e03828eaebdeef503b907f7bc0fabfd4392bdbd8edc9f5433c8530d7e5a6fb",
+      "file_bytes": 2630212704,
+      "source": "https://huggingface.co/Tiiny/SmallThinker-4BA0.6B-Instruct-GGUF",
+      "revision": "b6ca58deaddfaa18501040b24cc88294c26f84b8",
+      "quantization": "Q4_K",
+      "license": "apache-2.0",
+      "role": "moe_wave1",
+      "evidence": [
+        "evidence/models/smallthinker-4b-a0.6b/README.md"
+      ]
     }
   ],
   "patches": [
