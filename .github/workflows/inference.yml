@@ -22,6 +22,13 @@ jobs:
           .venv/bin/cmake -S /tmp/llama.cpp -B /tmp/llama-build -GNinja             -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DLLAMA_CURL=OFF -DGGML_NATIVE=OFF -DGGML_OPENMP=OFF
           .venv/bin/cmake --build /tmp/llama-build --target llama -j 2
       - run: |
+          export PATH="$GITHUB_WORKSPACE/.venv/bin:$PATH"
+          export AME_LLAMA_SOURCE=/tmp/llama.cpp AME_LLAMA_BUILD=/tmp/llama-archs-build
+          sh tools/generate_qwen35_fixture.sh /tmp/fixture
+          sh tools/generate_qwen35_fixture.sh /tmp/fixture-layered 1234 0.1 qwen2moe
+      - run: |
           AME_LLAMA_SOURCE_DIR=/tmp/llama.cpp \
           AME_LLAMA_HOST_LIB_DIR=/tmp/llama-build \
+          AME_FIXTURE_MODEL=/tmp/fixture/qwen35moe-moe.gguf \
+          AME_LAYERED_FIXTURE_MODEL=/tmp/fixture-layered/qwen2moe-moe.gguf \
           .venv/bin/python tools/verify_inference.py --configs debug,release,sanitizers

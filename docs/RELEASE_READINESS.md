@@ -118,10 +118,13 @@ Evidence: [35B phone verified run](../evidence/unit2/qwen36-unit2-verified.json)
   records; the decode case retained two partial tokens but did not label the run
   successful.
 
-Remaining limitations: no compute-failure injection through the backend, no
-deterministic cancellation exactly between two read chunks, and no same-process
-reset. Reopen is required after failure or cancellation; that is the release
-contract for this unit.
+Remaining limitations: no compute-failure injection through the backend and no
+deterministic cancellation exactly between two read chunks. Same-process reset after a
+failed or cancelled request was originally not provided (reopen was the contract).
+Update 2026-10-24: `begin_moe_stream_request()` now clears the backend error latch under exclusive
+admission, after the failed request's context is destroyed and its leases released; it is proven for the
+tested fixtures (recovery gate, and a token/logit-identical fresh request after an injected failure in the
+same process, see `evidence/core-opt/unit1-integration.json`). Real-35B recovery parity is not established.
 
 Evidence: [worker/fault matrix](../evidence/hardening/gate1-integration.json),
 [read failure](../evidence/unit1/unit1-read-failure.json),

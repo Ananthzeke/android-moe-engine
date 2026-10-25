@@ -1,0 +1,572 @@
+{
+  "ame": {
+    "big_cores": {
+      "cpus": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "discovery_reason": null,
+      "homogeneous": true
+    },
+    "completion_tokens": 2,
+    "decode_step_seconds": [
+      0.590670495,
+      0.508774719
+    ],
+    "ended_with_eog": true,
+    "error": null,
+    "finish_reason": "stop",
+    "finished_at": "2026-10-24T19:21:36Z",
+    "phases": [
+      {
+        "big_core_khz_end": [
+          {
+            "cpu": 0,
+            "khz": 3977754
+          },
+          {
+            "cpu": 1,
+            "khz": 3991186
+          },
+          {
+            "cpu": 2,
+            "khz": 1778064
+          },
+          {
+            "cpu": 3,
+            "khz": 1774048
+          },
+          {
+            "cpu": 4,
+            "khz": 1771332
+          },
+          {
+            "cpu": 5,
+            "khz": 1774287
+          },
+          {
+            "cpu": 6,
+            "khz": 1400000
+          },
+          {
+            "cpu": 7,
+            "khz": 1397192
+          },
+          {
+            "cpu": 8,
+            "khz": 1420780
+          },
+          {
+            "cpu": 9,
+            "khz": 1396679
+          },
+          {
+            "cpu": 10,
+            "khz": 1400000
+          },
+          {
+            "cpu": 11,
+            "khz": 1400000
+          }
+        ],
+        "big_core_khz_start": [
+          {
+            "cpu": 0,
+            "khz": 1209908
+          },
+          {
+            "cpu": 1,
+            "khz": 1397152
+          },
+          {
+            "cpu": 2,
+            "khz": 1396706
+          },
+          {
+            "cpu": 3,
+            "khz": 1400000
+          },
+          {
+            "cpu": 4,
+            "khz": 1394972
+          },
+          {
+            "cpu": 5,
+            "khz": 1400000
+          },
+          {
+            "cpu": 6,
+            "khz": 3000000
+          },
+          {
+            "cpu": 7,
+            "khz": 3000000
+          },
+          {
+            "cpu": 8,
+            "khz": 1395298
+          },
+          {
+            "cpu": 9,
+            "khz": 1397272
+          },
+          {
+            "cpu": 10,
+            "khz": 1400000
+          },
+          {
+            "cpu": 11,
+            "khz": 1400000
+          }
+        ],
+        "expert_delta": {
+          "expert_bytes": 0,
+          "expert_reads": 0,
+          "hits": 0,
+          "misses": 0,
+          "pread_bytes": 0,
+          "pread_calls": 0,
+          "read_seconds": 0.0,
+          "read_wait_seconds": 0.0
+        },
+        "name": "context_create",
+        "proc_delta": {
+          "majflt": 0,
+          "pswpin": 0,
+          "rchar": 4424,
+          "read_bytes": 0
+        },
+        "seconds": 0.090030037
+      },
+      {
+        "big_core_khz_end": [
+          {
+            "cpu": 0,
+            "khz": 3994283
+          },
+          {
+            "cpu": 1,
+            "khz": 1397108
+          },
+          {
+            "cpu": 2,
+            "khz": 1774887
+          },
+          {
+            "cpu": 3,
+            "khz": 1400000
+          },
+          {
+            "cpu": 4,
+            "khz": 1770486
+          },
+          {
+            "cpu": 5,
+            "khz": 1400000
+          },
+          {
+            "cpu": 6,
+            "khz": 2137959
+          },
+          {
+            "cpu": 7,
+            "khz": 3992189
+          },
+          {
+            "cpu": 8,
+            "khz": 1758654
+          },
+          {
+            "cpu": 9,
+            "khz": 1774149
+          },
+          {
+            "cpu": 10,
+            "khz": 2740642
+          },
+          {
+            "cpu": 11,
+            "khz": 3000000
+          }
+        ],
+        "big_core_khz_start": [
+          {
+            "cpu": 0,
+            "khz": 3977642
+          },
+          {
+            "cpu": 1,
+            "khz": 3960787
+          },
+          {
+            "cpu": 2,
+            "khz": 1774046
+          },
+          {
+            "cpu": 3,
+            "khz": 1774048
+          },
+          {
+            "cpu": 4,
+            "khz": 1771332
+          },
+          {
+            "cpu": 5,
+            "khz": 1774287
+          },
+          {
+            "cpu": 6,
+            "khz": 1597326
+          },
+          {
+            "cpu": 7,
+            "khz": 1397000
+          },
+          {
+            "cpu": 8,
+            "khz": 1420780
+          },
+          {
+            "cpu": 9,
+            "khz": 1396679
+          },
+          {
+            "cpu": 10,
+            "khz": 1400000
+          },
+          {
+            "cpu": 11,
+            "khz": 1400000
+          }
+        ],
+        "expert_delta": {
+          "expert_bytes": 6246236160,
+          "expert_reads": 10590,
+          "hits": 2283,
+          "misses": 3530,
+          "pread_bytes": 6246236160,
+          "pread_calls": 10590,
+          "read_seconds": 8.174765724000004,
+          "read_wait_seconds": 7.466785972000046
+        },
+        "name": "prefill",
+        "proc_delta": {
+          "majflt": 3505,
+          "pswpin": 27048,
+          "rchar": 6246240584,
+          "read_bytes": 11256066048
+        },
+        "seconds": 11.004552232
+      },
+      {
+        "big_core_khz_end": [
+          {
+            "cpu": 0,
+            "khz": 1403376
+          },
+          {
+            "cpu": 1,
+            "khz": 1832061
+          },
+          {
+            "cpu": 2,
+            "khz": 3989866
+          },
+          {
+            "cpu": 3,
+            "khz": 3977418
+          },
+          {
+            "cpu": 4,
+            "khz": 1774436
+          },
+          {
+            "cpu": 5,
+            "khz": 1527127
+          },
+          {
+            "cpu": 6,
+            "khz": 1400000
+          },
+          {
+            "cpu": 7,
+            "khz": 3977104
+          },
+          {
+            "cpu": 8,
+            "khz": 1771206
+          },
+          {
+            "cpu": 9,
+            "khz": 1400000
+          },
+          {
+            "cpu": 10,
+            "khz": 1400000
+          },
+          {
+            "cpu": 11,
+            "khz": 3993183
+          }
+        ],
+        "big_core_khz_start": [
+          {
+            "cpu": 0,
+            "khz": 3994283
+          },
+          {
+            "cpu": 1,
+            "khz": 1397108
+          },
+          {
+            "cpu": 2,
+            "khz": 1774887
+          },
+          {
+            "cpu": 3,
+            "khz": 1400000
+          },
+          {
+            "cpu": 4,
+            "khz": 1770486
+          },
+          {
+            "cpu": 5,
+            "khz": 1400000
+          },
+          {
+            "cpu": 6,
+            "khz": 2137959
+          },
+          {
+            "cpu": 7,
+            "khz": 3992189
+          },
+          {
+            "cpu": 8,
+            "khz": 1758654
+          },
+          {
+            "cpu": 9,
+            "khz": 1774149
+          },
+          {
+            "cpu": 10,
+            "khz": 2740642
+          },
+          {
+            "cpu": 11,
+            "khz": 3000000
+          }
+        ],
+        "expert_delta": {
+          "expert_bytes": 550305792,
+          "expert_reads": 933,
+          "hits": 329,
+          "misses": 311,
+          "pread_bytes": 550305792,
+          "pread_calls": 933,
+          "read_seconds": 0.7561432370000016,
+          "read_wait_seconds": 0.6785993699999997
+        },
+        "name": "decode",
+        "proc_delta": {
+          "majflt": 8,
+          "pswpin": 100,
+          "rchar": 550310218,
+          "read_bytes": 905179136
+        },
+        "seconds": 1.104392166
+      },
+      {
+        "big_core_khz_end": [
+          {
+            "cpu": 0,
+            "khz": 3802076
+          },
+          {
+            "cpu": 1,
+            "khz": 3000000
+          },
+          {
+            "cpu": 2,
+            "khz": 3989866
+          },
+          {
+            "cpu": 3,
+            "khz": 3978938
+          },
+          {
+            "cpu": 4,
+            "khz": 1775552
+          },
+          {
+            "cpu": 5,
+            "khz": 1400000
+          },
+          {
+            "cpu": 6,
+            "khz": 1397275
+          },
+          {
+            "cpu": 7,
+            "khz": 1834877
+          },
+          {
+            "cpu": 8,
+            "khz": 1397085
+          },
+          {
+            "cpu": 9,
+            "khz": 1400000
+          },
+          {
+            "cpu": 10,
+            "khz": 1400000
+          },
+          {
+            "cpu": 11,
+            "khz": 1397008
+          }
+        ],
+        "big_core_khz_start": [
+          {
+            "cpu": 0,
+            "khz": 3802076
+          },
+          {
+            "cpu": 1,
+            "khz": 1832061
+          },
+          {
+            "cpu": 2,
+            "khz": 3989866
+          },
+          {
+            "cpu": 3,
+            "khz": 3977746
+          },
+          {
+            "cpu": 4,
+            "khz": 1768142
+          },
+          {
+            "cpu": 5,
+            "khz": 1527127
+          },
+          {
+            "cpu": 6,
+            "khz": 1400000
+          },
+          {
+            "cpu": 7,
+            "khz": 3988901
+          },
+          {
+            "cpu": 8,
+            "khz": 1774062
+          },
+          {
+            "cpu": 9,
+            "khz": 1400000
+          },
+          {
+            "cpu": 10,
+            "khz": 1400000
+          },
+          {
+            "cpu": 11,
+            "khz": 3993183
+          }
+        ],
+        "expert_delta": {
+          "expert_bytes": 0,
+          "expert_reads": 0,
+          "hits": 0,
+          "misses": 0,
+          "pread_bytes": 0,
+          "pread_calls": 0,
+          "read_seconds": 0.0,
+          "read_wait_seconds": 0.0
+        },
+        "name": "context_teardown",
+        "proc_delta": {
+          "majflt": 8,
+          "pswpin": 6,
+          "rchar": 4426,
+          "read_bytes": 487424
+        },
+        "seconds": 0.012215975
+      }
+    ],
+    "prompt_token_ids": [
+      248045,
+      846,
+      198,
+      44240,
+      23066,
+      303,
+      799,
+      2716,
+      11316,
+      13,
+      21134,
+      5774,
+      1973,
+      31626,
+      13,
+      248046,
+      198,
+      248045,
+      74455,
+      198,
+      248068,
+      271,
+      248069,
+      271
+    ],
+    "prompt_tokens": 24,
+    "queue_wait_seconds": 3.61e-07,
+    "request_id": "chatcmpl-144141-0",
+    "schema_version": 1,
+    "status": "completed",
+    "token_ids": [
+      9419,
+      0,
+      248046
+    ],
+    "total_seconds": 12.21392755,
+    "ttft_seconds": 11.099525243,
+    "type": "request",
+    "unavailable": []
+  },
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Hello!",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792869696,
+  "id": "chatcmpl-144141-0",
+  "model": "Qwen3.6-35B-A3B",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 2,
+    "prompt_tokens": 24,
+    "total_tokens": 26
+  }
+}

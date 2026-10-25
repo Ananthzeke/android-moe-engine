@@ -1,0 +1,22 @@
+{
+  "trial": 8,
+  "variant": "l16",
+  "args": "--cache layered --eviction lru --layer-slots 16 --arena-mib 1152 --fadvise-random --fadvise-dontneed",
+  "failed": null,
+  "pid": "23195",
+  "ready_wait_seconds": 185.8284240990033,
+  "requests": [
+    {
+      "kind": "short",
+      "http_status": 200,
+      "client_seconds": 46.27207725899643,
+      "ok": true
+    },
+    {
+      "kind": "long",
+      "http_status": 200,
+      "client_seconds": 111.52771008499985,
+      "ok": true
+    }
+  ]
+}

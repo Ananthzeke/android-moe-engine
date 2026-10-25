@@ -1,19 +1,8 @@
 #!/usr/bin/env python3
 """Execute pristine-vs-streamed complete-model comparisons from an explicit matrix."""
-import argparse, hashlib, json, pathlib, struct, subprocess, sys
+import argparse, hashlib, json, pathlib, subprocess, sys
 
-def read_logits(path):
-    data = pathlib.Path(path).read_bytes(); off = 0
-    count = struct.unpack_from("<Q", data, off)[0]; off += 8; rows = []
-    for _ in range(count):
-        width = struct.unpack_from("<Q", data, off)[0]; off += 8
-        rows.append(data[off:off + 4 * width]); off += 4 * width
-    return rows
-
-def read_tokens(path):
-    data = pathlib.Path(path).read_bytes()
-    count = struct.unpack_from("<Q", data, 0)[0]
-    return list(struct.unpack_from("<%di" % count, data, 8))
+from logit_io import FormatError, count_mismatched_floats, read_logits, read_tokens
 
 def main() -> int:
     parser = argparse.ArgumentParser()
@@ -48,10 +37,16 @@ def main() -> int:
                             "--tokens-output", str(streamed) + ".tokens"], text=True, capture_output=True)
         if p.returncode != 0 or s.returncode != 0:
             raise SystemExit(f"run failed for {case['name']}: {p.stderr[-300:]} {s.stderr[-300:]}")
-        left, right = read_logits(str(pristine) + ".logits"), read_logits(str(streamed) + ".logits")
-        mismatched = sum(1 for a, b in zip(left, right)
-                         for x, y in zip(struct.iter_unpack("<f", a), struct.iter_unpack("<f", b))
-                         if x != y)
+        try:
+            left, right = read_logits(str(pristine) + ".logits"), read_logits(str(streamed) + ".logits")
+            mismatched = count_mismatched_floats(left, right)
+            pristine_tokens = read_tokens(str(pristine) + ".tokens")
+            streamed_tokens = read_tokens(str(streamed) + ".tokens")
+        except FormatError as error:
+            raise SystemExit(f"invalid output for {case['name']}: {error}")
+        if len(streamed_tokens) != case["predict"]:
+            raise SystemExit(f"{case['name']}: expected {case['predict']} tokens, "
+                             f"got {len(streamed_tokens)}")
         capacity_ok = None
         if case.get("capacity_slots"):
             cap = subprocess.run([str(args.streamed_runner), *common, "--manifest", str(manifest),
@@ -77,34 +72,54 @@ def main() -> int:
             if fresh_run.returncode != 0:
                 fresh_ok = False
             else:
-                fresh_rows = read_logits(str(fresh))
-                fresh_ok = right == fresh_rows
-                # token file is written alongside fresh logits by the runner
-                if fresh_tokens.exists():
-                    fresh_ok = fresh_ok and read_tokens(str(fresh_tokens)) == read_tokens(str(streamed) + ".tokens")
+                try:
+                    fresh_ok = (right == read_logits(str(fresh))
+                                and read_tokens(str(fresh_tokens)) == streamed_tokens)
+                except (FormatError, OSError):
+                    fresh_ok = False
+        recovery_ok = None
+        if case.get("lifecycle"):
+            # Same process: fail one generation in the materializer, reset, run fresh.
+            recovered = args.workdir / f"{case['name']}-recovered.logits"
+            recovered_tokens = args.workdir / f"{case['name']}-recovered.tokens"
+            rec = subprocess.run([str(args.streamed_runner), *common, "--manifest", str(manifest),
+                                  "--sha", digest, "--slots", str(case["slots"]),
+                                  "--recover-after-fault",
+                                  "--output", str(recovered),
+                                  "--tokens-output", str(recovered_tokens)],
+                                 text=True, capture_output=True)
+            try:
+                recovery_ok = (rec.returncode == 0
+                               and read_logits(str(recovered)) == right
+                               and read_tokens(str(recovered_tokens)) == streamed_tokens)
+            except (FormatError, OSError):
+                recovery_ok = False
         corruption_ok = None
-        if case.get("corruption") and args.broken_runner is not None:
+        if case.get("corruption") and args.broken_runner is None:
+            raise SystemExit(f"{case['name']} requires --broken-runner for its corruption check")
+        if case.get("corruption"):
             broken = args.workdir / f"{case['name']}-broken.logits"
             b = subprocess.run([str(args.broken_runner), *common, "--manifest", str(manifest),
                                 "--sha", digest, "--slots", str(case["slots"]),
                                 "--output", str(broken)], text=True, capture_output=True)
             if b.returncode != 0:
                 raise SystemExit(f"broken run failed for {case['name']}")
-            left_b, right_b = left, read_logits(str(broken))
-            differing = sum(1 for x, y in zip(left_b, right_b)
-                            for u, v in zip(struct.iter_unpack("<f", x), struct.iter_unpack("<f", y))
-                            if u != v)
-            corruption_ok = differing > 0
+            try:
+                corruption_ok = count_mismatched_floats(left, read_logits(str(broken))) > 0
+            except FormatError as error:
+                raise SystemExit(f"invalid broken output for {case['name']}: {error}")
         rows.append({"name": case["name"], "sha256": digest, "mismatched_floats": mismatched,
                      "capacity_refused": capacity_ok, "corruption_detected": corruption_ok,
                      "cancelled": cancelled_ok, "fresh_replay": fresh_ok,
-                     "tokens_equal": read_tokens(str(pristine) + ".tokens") == read_tokens(str(streamed) + ".tokens"),
-                     "tokens": read_tokens(str(streamed) + ".tokens"),
+                     "recovery_after_fault": recovery_ok,
+                     "tokens_equal": pristine_tokens == streamed_tokens,
+                     "tokens": streamed_tokens,
                      "streamed": json.loads(s.stdout.splitlines()[-1]) if s.stdout.strip() else {}})
     args.output.write_text(json.dumps({"schema_version": 1, "rows": rows}, indent=2) + "\n")
     failed = [r for r in rows if r["mismatched_floats"] != 0 or not r["tokens_equal"]
               or r["capacity_refused"] is False or r["corruption_detected"] is False
-              or r["cancelled"] is False or r["fresh_replay"] is False]
+              or r["cancelled"] is False or r["fresh_replay"] is False
+              or r["recovery_after_fault"] is False]
     for row in rows:
         print(row["name"], "mismatched", row["mismatched_floats"], "tokens", row["tokens"])
     return 1 if failed else 0

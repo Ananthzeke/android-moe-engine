@@ -1,0 +1,12 @@
+MemAvailable:    5654304 kB
+Cached:          5456564 kB
+SwapFree:        4416588 kB
+pswpin 12442503
+pswpout 15610291
+  level: 47
+  temperature: 310
+cpu0 1305600 schedutil
+cpu4 2016000 schedutil
+pmi632-tz
+pmi632-ibat-lvl0
+pm6125-tz

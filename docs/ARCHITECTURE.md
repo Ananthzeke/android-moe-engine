@@ -242,7 +242,13 @@ barrier, so all workers select the same branch. A latched failure causes the CPU
 loop to stop before later nodes consume incomplete output; the harness abort callback
 observes the same state and `llama_decode` returns 2. Expected storage, arena,
 capacity, metadata, and unindexed-expert failures are structured; they no longer call
-`std::abort()`. A failed request requires reopen.
+`std::abort()`. A failed or cancelled request leaves a process-global error latch in the
+patched backend. `begin_moe_stream_request()` clears it, together with the failed/cancelled
+outcome, the request cancellation and the leases. It is called only by the owner of exclusive
+admission, after the failed request's context was destroyed (which drains scheduler work) and
+before the next context exists. Each request builds a fresh context, so no KV or recurrent
+state carries over. The recovery gate and the fail-then-recover token parity check prove this
+for the tested fixtures; real-35B recovery parity is still unverified.
 
 The conservative prefill plan derives expert count and top-k from model metadata and
 sets `n_ubatch` before context construction. Its union bound is
@@ -292,3 +298,69 @@ cleanup. The loading listener
 has scope-owned stop/join on C++ failure paths. These changes do not alter model
 mathematics, routing, or the expert materializer contract. The enrolled 35B phone
 JSON/SSE smoke and its timing limits are recorded in [RUN_35B.md](RUN_35B.md).
+
+## Layered expert cache (Unit 4, 2026-10-24)
+
+`--cache layered` (adapter `CacheLayout::Layered`, `src/residency/layered_store`) replaces the
+shared (tensor, expert) pool with one pool per routed layer. A slot holds the gate, up and
+down slices of one expert contiguously, each role starting on a 64-byte boundary. The first
+routed tensor of a layer visit acquires every selected expert for all three roles; the other
+two roles find them leased. The staged tensor of each role is a view of the pool:
+`data = pool + role_offset`, `nb[2] = slot_bytes`, `ne[2] = slots_in_layer`. Patch 0001 reads
+`src0_eff->nb[2]`, so no backend change was needed; bit-exact results with F32, Q4_K and Q6_K
+experts are checked by `moe_layered_gate`. Eviction inside a pool is LRU (an intrusive recency
+list; the walk only passes pinned slots) or LFU with periodic halving and an LRU tie-break
+(`--eviction`). A slot is never evicted while pinned. `--cache legacy` keeps the previous design in
+the same binary so A/B runs differ only by flags.
+
+The layered cache refuses what it cannot express: a routed tensor that is not a separate gate,
+up or down tensor (for example a fused `gate_up`), roles with different expert counts, a pool
+below top-k, or an arena allowance that cannot hold one slot per layer. It never falls back to
+loading a full expert bank. `--arena-mib` is the allowance for arenas plus bookkeeping (slot
+records, expert tables, maps, scratch, frequency counters); the pool size is derived from it unless
+`--layer-slots` is given. `plan_model_prefill` uses the per-layer pool, so the prefill unit is
+`pool / top-k` tokens, capped by the 128-expert lease limit. `--fadvise-random` asks for no
+readahead on the read descriptor and `--fadvise-dontneed` drops each extent's page-cache pages after
+the copy, so the arena is the only copy; both are advisory.
+
+## Bounded reader pool (Unit 5, 2026-10-25)
+
+`--readers N` (1 to 4, default 1) sets the number of reader threads for the misses of one
+acquire, in both cache layouts. `Store::acquire` and `LayeredStore::acquire` first reserve and
+pin every missing slot, then submit one read per slice to `ReaderPool::read_all` and wait on a
+condition variable. `read_all` returns only after every submitted read has finished or been
+skipped: on the first error or on cancellation it stops queued reads, lets in-flight reads end
+at the next chunk boundary, and joins them, so rollback and buffer reuse never race a reader. A
+failed batch marks none of its slots resident. With one reader the reads run on the calling
+thread, as before. `FileSource::read_exact` is safe to call concurrently: byte, syscall and
+fault-injection state are atomic and `pread` is positional; a batch-owned abort flag stops its
+other reads when one fails. Readers can be restricted to a CPU set; `--reader-cpus auto` in the
+server uses the cores whose `cpuinfo_max_freq` is below the maximum, never fixed numbers. Reader
+thread stacks are outside the arena accounting. `O_DIRECT` is not used; GGUF expert offsets are only
+32-byte aligned, so it needs an alignment self-test and is a separate experiment.
+
+`tools/verify.py` runs a `host-tsan` preset (ThreadSanitizer) over the residency, reader-pool,
+layered-store and request-scope tests. TSan needs address-space randomization off on current
+kernels, so those tests run under `setarch -R`.
+
+## Taking reads out of the operator barrier (Unit 6, 2026-10-25)
+
+Option A was chosen: the llama context's `cb_eval` callback (`ame::backend::moe_eval_callback`)
+observes the router's `ffn_moe_topk-<layer>` tensor. With `--overlap topk` (layered cache only),
+the callback reserves that layer's slots with `LayeredStore::begin_acquire` and queues the reads on
+the background readers, grouped by role. The `MUL_MAT_ID` hook then calls `wait_role` for its own
+role's slices only, so gate compute overlaps the up and down reads, and reads also overlap the work
+between the router and the first routed operator. The hook still derives the experts from the
+operator's own `ids` tensor and stages exactly those; the callback only decides when reads start. If
+the lease the callback started does not cover the operator's experts, or a role arrives twice, the
+operator falls back to a synchronous acquire (counted as `prefetch_fallbacks`). Leases, a failed read,
+cancellation and `begin_moe_stream_request()` all drain pending reads before any slot is dropped. Patch
+0001 is unchanged.
+
+At the pinned commit the scheduler, with a callback set, splits each graph segment at every node the
+callback asks for, computes up to it, synchronizes the backend and calls the callback with the data
+ready (`ggml_backend_sched_compute_splits`, ggml-backend.cpp). The callback therefore runs between
+two `ggml_graph_compute` calls with no compute thread inside it, and the reads it queues run during
+the next compute call. `--threadpool big` creates one `ggml_threadpool` pinned (strict) to the cores
+found with the highest `cpuinfo_max_freq` and attaches it to every context with
+`llama_attach_threadpool`; `--poll N` sets its polling level (0 none to 100).

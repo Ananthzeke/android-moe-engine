@@ -281,6 +281,7 @@ struct Options {
   std::string manifest;
   std::uint32_t moe_slots = 64;
   std::uint32_t moe_arena_mib = 512;
+  ame::backend::StreamOptions stream_options;
 };
 
 struct ParseResult {
@@ -330,6 +331,56 @@ ParseResult parse_options(int argc, char* argv[], Options& options) {
     }
     if (argument == "--stream") {
       options.stream = true;
+      continue;
+    }
+    if (argument == "--readers" && index + 1 < argc) {
+      const std::string_view text = argv[++index];
+      unsigned number = 0;
+      const auto parsed = std::from_chars(text.data(), text.data() + text.size(), number);
+      if (parsed.ec != std::errc{} || parsed.ptr != text.data() + text.size() || number < 1 ||
+          number > 4) {
+        return {false, "--readers must be 1 to 4"};
+      }
+      options.stream_options.readers = number;
+      continue;
+    }
+    if (argument == "--overlap" && index + 1 < argc) {
+      const std::string_view text = argv[++index];
+      if (text != "topk" && text != "off") {
+        return {false, "--overlap must be topk or off"};
+      }
+      options.stream_options.overlap = text == "topk";
+      continue;
+    }
+    if (argument == "--fadvise-random") {
+      options.stream_options.fadvise_random = true;
+      continue;
+    }
+    if (argument == "--fadvise-dontneed") {
+      options.stream_options.fadvise_dontneed = true;
+      continue;
+    }
+    if ((argument == "--cache" || argument == "--eviction" || argument == "--layer-slots" ||
+         argument == "--lfu-halve") &&
+        index + 1 < argc) {
+      const std::string_view text = argv[++index];
+      if (argument == "--cache" && (text == "legacy" || text == "layered")) {
+        options.stream_options.layout = text == "layered" ? ame::backend::CacheLayout::Layered
+                                                          : ame::backend::CacheLayout::Legacy;
+      } else if (argument == "--eviction" && (text == "lru" || text == "lfu")) {
+        options.stream_options.eviction =
+            text == "lfu" ? ame::backend::Eviction::Lfu : ame::backend::Eviction::Lru;
+      } else if (argument == "--layer-slots" || argument == "--lfu-halve") {
+        std::uint32_t number = 0;
+        const auto parsed = std::from_chars(text.data(), text.data() + text.size(), number);
+        if (parsed.ec != std::errc{} || parsed.ptr != text.data() + text.size()) {
+          return {false, "Invalid number for " + std::string(argument)};
+        }
+        (argument == "--layer-slots" ? options.stream_options.layer_slots
+                                     : options.stream_options.lfu_halve_every) = number;
+      } else {
+        return {false, "Invalid value for " + std::string(argument)};
+      }
       continue;
     }
     if (argument == "--help") {
@@ -557,7 +608,9 @@ int main(int argc, char* argv[]) {
                    "       [--top-p F] [--no-mmap] [--artifact-sha HEX] [--output PATH]\n"
                    "       [--backend-commit SHA] [--binary-sha HEX] [--run-id ID]\n"
                    "       [--tag TAG] [--no-prompt-text] [--stream --manifest PATH]\n"
-                   "       [--moe-slots N] [--moe-arena-mib N]\n"
+                   "       [--moe-slots N] [--moe-arena-mib N] [--cache legacy|layered]\n"
+                   "       [--eviction lru|lfu] [--layer-slots N] [--lfu-halve N]\n"
+                   "       [--fadvise-random] [--fadvise-dontneed] [--readers 1-4] [--overlap topk|off]\n"
                    "       [--cancel-after-ms N]\n";
       return 0;
     }
@@ -663,7 +716,7 @@ int main(int argc, char* argv[]) {
     const std::uint64_t arena_bytes =
         static_cast<std::uint64_t>(options.moe_arena_mib) * 1024ULL * 1024ULL;
     if (!ame::backend::install_moe_stream(*artifact, options.manifest, options.moe_slots,
-                                          arena_bytes)) {
+                                          arena_bytes, options.stream_options)) {
       const auto stats = ame::backend::moe_stream_stats();
       std::cerr << "moe stream install failed: " << stats.error << '\n';
       (void)emit_status(options, "failed", "manifest_layout", stats.error);
@@ -734,6 +787,10 @@ int main(int argc, char* argv[]) {
   };
   context_params.abort_callback_data = nullptr;
 
+  if (options.stream && options.stream_options.overlap) {
+    context_params.cb_eval = ame::backend::moe_eval_callback;
+    context_params.cb_eval_user_data = nullptr;
+  }
   llama_context* context = llama_init_from_model(model, context_params);
   if (context == nullptr) {
     std::cerr << "context creation failed\n";
@@ -896,9 +953,13 @@ int main(int argc, char* argv[]) {
 
   llama_batch batch = llama_batch_init(static_cast<int32_t>(context_params.n_batch), 0, 1);
   std::vector<std::vector<float>> logit_rows;
+  const char* trace_phase = "prefill";
   auto decode_chunk = [&](const std::vector<llama_token>& tokens, int32_t position) -> bool {
     if (tokens.empty()) {
       return true;
+    }
+    if (options.stream) {
+      ame::backend::label_moe_graph(trace_phase, static_cast<std::uint32_t>(tokens.size()));
     }
     batch.n_tokens = static_cast<int32_t>(tokens.size());
     for (std::size_t index = 0; index < tokens.size(); ++index) {
@@ -978,6 +1039,7 @@ int main(int argc, char* argv[]) {
   Clock::time_point last_token_time{};
   double decode_seconds = 0.0;
   bool decode_failed = false;
+  trace_phase = "decode";
 
   while (generated.size() < options.max_new_tokens) {
     if (options.stream && ame::backend::moe_stream_failed()) {
@@ -1171,8 +1233,36 @@ int main(int argc, char* argv[]) {
   }
   json.key("slots");
   json.unsigned_value(stream_stats.slots);
+  json.key("cache_layout");
+  json.string_value(stream_stats.layered ? "layered" : "legacy");
+  json.key("eviction");
+  json.string_value(options.stream_options.eviction == ame::backend::Eviction::Lfu ? "lfu" : "lru");
+  json.key("layer_slots");
+  json.unsigned_value(stream_stats.layer_slots);
+  json.key("readers");
+  json.unsigned_value(options.stream_options.readers);
+  json.key("overlap");
+  json.string_value(options.stream_options.overlap ? "topk" : "off");
+  json.key("prefetches_started");
+  json.unsigned_value(stream_stats.prefetches_started);
+  json.key("prefetches_consumed");
+  json.unsigned_value(stream_stats.prefetches_consumed);
+  json.key("prefetch_fallbacks");
+  json.unsigned_value(stream_stats.prefetch_fallbacks);
+  json.key("read_wait_seconds");
+  json.double_value(stream_stats.read_wait_seconds);
+  json.key("fadvise_random");
+  json.bool_value(options.stream_options.fadvise_random);
+  json.key("fadvise_dontneed");
+  json.bool_value(options.stream_options.fadvise_dontneed);
   json.key("arena_bytes");
   json.unsigned_value(stream_stats.arena_bytes);
+  json.key("cache_metadata_bytes");
+  json.unsigned_value(stream_stats.cache_metadata_bytes);
+  json.key("pread_calls");
+  json.unsigned_value(stream_stats.pread_calls);
+  json.key("pread_bytes");
+  json.unsigned_value(stream_stats.pread_bytes);
   json.key("materialize_calls");
   json.unsigned_value(stream_stats.materialize_calls);
   json.key("tensor_switches");
@@ -1239,7 +1329,8 @@ int main(int argc, char* argv[]) {
   json.end_object();
 
   std::string write_error;
-  if (!write_text(options.output, json.text() + "\n", write_error)) {
+  const bool output_written = write_text(options.output, json.text() + "\n", write_error);
+  if (!output_written) {
     std::cerr << "output write failed: " << write_error << '\n';
   }
 
@@ -1255,5 +1346,6 @@ int main(int argc, char* argv[]) {
   if (stream_failed || (decode_failed && !cancelled)) {
     return 1;
   }
-  return 0;
+  // Inference may have finished, but without the result file no evidence was delivered.
+  return output_written ? 0 : 4;
 }

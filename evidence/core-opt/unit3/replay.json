@@ -1,0 +1,866 @@
+{
+  "schema_version": 1,
+  "trace": {
+    "path": "evidence/core-opt/unit3/routing-35b-330tok.trace",
+    "sha256": "25d044c618901ce2eb000c202c2325129b6751c963b8e4f433e81b9c0107f9cc",
+    "rows": 40080,
+    "rows_by_phase": {
+      "prefill": 600,
+      "decode": 39480
+    },
+    "graphs": 334,
+    "layers": 40
+  },
+  "parameters": {
+    "slice_bytes": 589824,
+    "halve_every": 32,
+    "budget_slices": [
+      960,
+      1920,
+      2880,
+      3840
+    ]
+  },
+  "results": [
+    {
+      "policy": "store_lru",
+      "budget_slices": 960,
+      "budget_bytes": 566231040,
+      "total_slots": 960,
+      "slots_per_layer": null,
+      "slot_bytes": 589824,
+      "protect_until_consumed": false,
+      "phases": {
+        "decode": {
+          "lookups": 315840,
+          "hits": 114495,
+          "misses": 201345,
+          "hit_rate": 0.36250949848024316,
+          "bytes_read": 118758113280,
+          "bytes_needed": 186290012160,
+          "slice_hit_rate": 0.36250949848024316,
+          "refused_calls": 0,
+          "graphs": 329,
+          "bytes_read_per_graph": 360966909.66565347
+        },
+        "prefill": {
+          "lookups": 17622,
+          "hits": 0,
+          "misses": 17622,
+          "hit_rate": 0.0,
+          "bytes_read": 10393878528,
+          "bytes_needed": 10393878528,
+          "slice_hit_rate": 0.0,
+          "refused_calls": 0,
+          "graphs": 5,
+          "bytes_read_per_graph": 2078775705.6
+        }
+      }
+    },
+    {
+      "policy": "shared_layer_lru",
+      "budget_slices": 960,
+      "budget_bytes": 566231040,
+      "total_slots": 320,
+      "slots_per_layer": null,
+      "slot_bytes": 1769472,
+      "protect_until_consumed": false,
+      "phases": {
+        "decode": {
+          "lookups": 105280,
+          "hits": 38165,
+          "misses": 67115,
+          "hit_rate": 0.36250949848024316,
+          "bytes_read": 118758113280,
+          "bytes_needed": 186290012160,
+          "slice_hit_rate": 0.36250949848024316,
+          "refused_calls": 0,
+          "graphs": 329,
+          "bytes_read_per_graph": 360966909.66565347
+        },
+        "prefill": {
+          "lookups": 5874,
+          "hits": 0,
+          "misses": 5874,
+          "hit_rate": 0.0,
+          "bytes_read": 10393878528,
+          "bytes_needed": 10393878528,
+          "slice_hit_rate": 0.0,
+          "refused_calls": 0,
+          "graphs": 5,
+          "bytes_read_per_graph": 2078775705.6
+        }
+      }
+    },
+    {
+      "policy": "per_layer_lru",
+      "budget_slices": 960,
+      "budget_bytes": 566231040,
+      "total_slots": 320,
+      "slots_per_layer": 8,
+      "slot_bytes": 1769472,
+      "protect_until_consumed": false,
+      "phases": {
+        "decode": {
+          "lookups": 105280,
+          "hits": 38165,
+          "misses": 67115,
+          "hit_rate": 0.36250949848024316,
+          "bytes_read": 118758113280,
+          "bytes_needed": 186290012160,
+          "slice_hit_rate": 0.36250949848024316,
+          "refused_calls": 0,
+          "graphs": 329,
+          "bytes_read_per_graph": 360966909.66565347
+        },
+        "prefill": {
+          "lookups": 5874,
+          "hits": 5,
+          "misses": 5869,
+          "hit_rate": 0.0008512087163772557,
+          "bytes_read": 10385031168,
+          "bytes_needed": 10393878528,
+          "slice_hit_rate": 0.0008512087163772275,
+          "refused_calls": 195,
+          "graphs": 5,
+          "bytes_read_per_graph": 2077006233.6
+        }
+      }
+    },
+    {
+      "policy": "per_layer_lfu",
+      "budget_slices": 960,
+      "budget_bytes": 566231040,
+      "total_slots": 320,
+      "slots_per_layer": 8,
+      "slot_bytes": 1769472,
+      "protect_until_consumed": false,
+      "phases": {
+        "decode": {
+          "lookups": 105280,
+          "hits": 38165,
+          "misses": 67115,
+          "hit_rate": 0.36250949848024316,
+          "bytes_read": 118758113280,
+          "bytes_needed": 186290012160,
+          "slice_hit_rate": 0.36250949848024316,
+          "refused_calls": 0,
+          "graphs": 329,
+          "bytes_read_per_graph": 360966909.66565347
+        },
+        "prefill": {
+          "lookups": 5874,
+          "hits": 5,
+          "misses": 5869,
+          "hit_rate": 0.0008512087163772557,
+          "bytes_read": 10385031168,
+          "bytes_needed": 10393878528,
+          "slice_hit_rate": 0.0008512087163772275,
+          "refused_calls": 195,
+          "graphs": 5,
+          "bytes_read_per_graph": 2077006233.6
+        }
+      }
+    },
+    {
+      "policy": "per_layer_lru_protect",
+      "budget_slices": 960,
+      "budget_bytes": 566231040,
+      "total_slots": 320,
+      "slots_per_layer": 8,
+      "slot_bytes": 1769472,
+      "protect_until_consumed": true,
+      "phases": {
+        "decode": {
+          "lookups": 105280,
+          "hits": 38165,
+          "misses": 67115,
+          "hit_rate": 0.36250949848024316,
+          "bytes_read": 118758113280,
+          "bytes_needed": 186290012160,
+          "slice_hit_rate": 0.36250949848024316,
+          "refused_calls": 0,
+          "graphs": 329,
+          "bytes_read_per_graph": 360966909.66565347
+        },
+        "prefill": {
+          "lookups": 5874,
+          "hits": 5,
+          "misses": 5869,
+          "hit_rate": 0.0008512087163772557,
+          "bytes_read": 10385031168,
+          "bytes_needed": 10393878528,
+          "slice_hit_rate": 0.0008512087163772275,
+          "refused_calls": 195,
+          "graphs": 5,
+          "bytes_read_per_graph": 2077006233.6
+        }
+      }
+    },
+    {
+      "policy": "per_layer_lfu_protect",
+      "budget_slices": 960,
+      "budget_bytes": 566231040,
+      "total_slots": 320,
+      "slots_per_layer": 8,
+      "slot_bytes": 1769472,
+      "protect_until_consumed": true,
+      "phases": {
+        "decode": {
+          "lookups": 105280,
+          "hits": 38165,
+          "misses": 67115,
+          "hit_rate": 0.36250949848024316,
+          "bytes_read": 118758113280,
+          "bytes_needed": 186290012160,
+          "slice_hit_rate": 0.36250949848024316,
+          "refused_calls": 0,
+          "graphs": 329,
+          "bytes_read_per_graph": 360966909.66565347
+        },
+        "prefill": {
+          "lookups": 5874,
+          "hits": 5,
+          "misses": 5869,
+          "hit_rate": 0.0008512087163772557,
+          "bytes_read": 10385031168,
+          "bytes_needed": 10393878528,
+          "slice_hit_rate": 0.0008512087163772275,
+          "refused_calls": 195,
+          "graphs": 5,
+          "bytes_read_per_graph": 2077006233.6
+        }
+      }
+    },
+    {
+      "policy": "store_lru",
+      "budget_slices": 1920,
+      "budget_bytes": 1132462080,
+      "total_slots": 1920,
+      "slots_per_layer": null,
+      "slot_bytes": 589824,
+      "protect_until_consumed": false,
+      "phases": {
+        "decode": {
+          "lookups": 315840,
+          "hits": 150043,
+          "misses": 165797,
+          "hit_rate": 0.47506015704154003,
+          "bytes_read": 97791049728,
+          "bytes_needed": 186290012160,
+          "slice_hit_rate": 0.47506015704154003,
+          "refused_calls": 0,
+          "graphs": 329,
+          "bytes_read_per_graph": 297237233.2158055
+        },
+        "prefill": {
+          "lookups": 17622,
+          "hits": 108,
+          "misses": 17514,
+          "hit_rate": 0.006128702757916241,
+          "bytes_read": 10330177536,
+          "bytes_needed": 10393878528,
+          "slice_hit_rate": 0.006128702757916216,
+          "refused_calls": 0,
+          "graphs": 5,
+          "bytes_read_per_graph": 2066035507.2
+        }
+      }
+    },
+    {
+      "policy": "shared_layer_lru",
+      "budget_slices": 1920,
+      "budget_bytes": 1132462080,
+      "total_slots": 640,
+      "slots_per_layer": null,
+      "slot_bytes": 1769472,
+      "protect_until_consumed": false,
+      "phases": {
+        "decode": {
+          "lookups": 105280,
+          "hits": 50054,
+          "misses": 55226,
+          "hit_rate": 0.47543693009118543,
+          "bytes_read": 97720860672,
+          "bytes_needed": 186290012160,
+          "slice_hit_rate": 0.4754369300911854,
+          "refused_calls": 0,
+          "graphs": 329,
+          "bytes_read_per_graph": 297023892.6200608
+        },
+        "prefill": {
+          "lookups": 5874,
+          "hits": 36,
+          "misses": 5838,
+          "hit_rate": 0.006128702757916241,
+          "bytes_read": 10330177536,
+          "bytes_needed": 10393878528,
+          "slice_hit_rate": 0.006128702757916216,
+          "refused_calls": 0,
+          "graphs": 5,
+          "bytes_read_per_graph": 2066035507.2
+        }
+      }
+    },
+    {
+      "policy": "per_layer_lru",
+      "budget_slices": 1920,
+      "budget_bytes": 1132462080,
+      "total_slots": 640,
+      "slots_per_layer": 16,
+      "slot_bytes": 1769472,
+      "protect_until_consumed": false,
+      "phases": {
+        "decode": {
+          "lookups": 105280,
+          "hits": 53263,
+          "misses": 52017,
+          "hit_rate": 0.5059175531914893,
+          "bytes_read": 92042625024,
+          "bytes_needed": 186290012160,
+          "slice_hit_rate": 0.5059175531914893,
+          "refused_calls": 0,
+          "graphs": 329,
+          "bytes_read_per_graph": 279764817.70212764
+        },
+        "prefill": {
+          "lookups": 5874,
+          "hits": 7,
+          "misses": 5867,
+          "hit_rate": 0.001191692202928158,
+          "bytes_read": 10381492224,
+          "bytes_needed": 10393878528,
+          "slice_hit_rate": 0.0011916922029281407,
+          "refused_calls": 156,
+          "graphs": 5,
+          "bytes_read_per_graph": 2076298444.8
+        }
+      }
+    },
+    {
+      "policy": "per_layer_lfu",
+      "budget_slices": 1920,
+      "budget_bytes": 1132462080,
+      "total_slots": 640,
+      "slots_per_layer": 16,
+      "slot_bytes": 1769472,
+      "protect_until_consumed": false,
+      "phases": {
+        "decode": {
+          "lookups": 105280,
+          "hits": 53780,
+          "misses": 51500,
+          "hit_rate": 0.5108282674772037,
+          "bytes_read": 91127808000,
+          "bytes_needed": 186290012160,
+          "slice_hit_rate": 0.5108282674772037,
+          "refused_calls": 0,
+          "graphs": 329,
+          "bytes_read_per_graph": 276984218.8449848
+        },
+        "prefill": {
+          "lookups": 5874,
+          "hits": 6,
+          "misses": 5868,
+          "hit_rate": 0.0010214504596527069,
+          "bytes_read": 10383261696,
+          "bytes_needed": 10393878528,
+          "slice_hit_rate": 0.0010214504596527396,
+          "refused_calls": 156,
+          "graphs": 5,
+          "bytes_read_per_graph": 2076652339.2
+        }
+      }
+    },
+    {
+      "policy": "per_layer_lru_protect",
+      "budget_slices": 1920,
+      "budget_bytes": 1132462080,
+      "total_slots": 640,
+      "slots_per_layer": 16,
+      "slot_bytes": 1769472,
+      "protect_until_consumed": true,
+      "phases": {
+        "decode": {
+          "lookups": 105280,
+          "hits": 53263,
+          "misses": 52017,
+          "hit_rate": 0.5059175531914893,
+          "bytes_read": 92042625024,
+          "bytes_needed": 186290012160,
+          "slice_hit_rate": 0.5059175531914893,
+          "refused_calls": 0,
+          "graphs": 329,
+          "bytes_read_per_graph": 279764817.70212764
+        },
+        "prefill": {
+          "lookups": 5874,
+          "hits": 7,
+          "misses": 5867,
+          "hit_rate": 0.001191692202928158,
+          "bytes_read": 10381492224,
+          "bytes_needed": 10393878528,
+          "slice_hit_rate": 0.0011916922029281407,
+          "refused_calls": 156,
+          "graphs": 5,
+          "bytes_read_per_graph": 2076298444.8
+        }
+      }
+    },
+    {
+      "policy": "per_layer_lfu_protect",
+      "budget_slices": 1920,
+      "budget_bytes": 1132462080,
+      "total_slots": 640,
+      "slots_per_layer": 16,
+      "slot_bytes": 1769472,
+      "protect_until_consumed": true,
+      "phases": {
+        "decode": {
+          "lookups": 105280,
+          "hits": 53780,
+          "misses": 51500,
+          "hit_rate": 0.5108282674772037,
+          "bytes_read": 91127808000,
+          "bytes_needed": 186290012160,
+          "slice_hit_rate": 0.5108282674772037,
+          "refused_calls": 0,
+          "graphs": 329,
+          "bytes_read_per_graph": 276984218.8449848
+        },
+        "prefill": {
+          "lookups": 5874,
+          "hits": 6,
+          "misses": 5868,
+          "hit_rate": 0.0010214504596527069,
+          "bytes_read": 10383261696,
+          "bytes_needed": 10393878528,
+          "slice_hit_rate": 0.0010214504596527396,
+          "refused_calls": 156,
+          "graphs": 5,
+          "bytes_read_per_graph": 2076652339.2
+        }
+      }
+    },
+    {
+      "policy": "store_lru",
+      "budget_slices": 2880,
+      "budget_bytes": 1698693120,
+      "total_slots": 2880,
+      "slots_per_layer": null,
+      "slot_bytes": 589824,
+      "protect_until_consumed": false,
+      "phases": {
+        "decode": {
+          "lookups": 315840,
+          "hits": 185702,
+          "misses": 130138,
+          "hit_rate": 0.5879622593718339,
+          "bytes_read": 76758515712,
+          "bytes_needed": 186290012160,
+          "slice_hit_rate": 0.5879622593718339,
+          "refused_calls": 0,
+          "graphs": 329,
+          "bytes_read_per_graph": 233308558.39513677
+        },
+        "prefill": {
+          "lookups": 17622,
+          "hits": 401,
+          "misses": 17221,
+          "hit_rate": 0.02275564635115197,
+          "bytes_read": 10157359104,
+          "bytes_needed": 10393878528,
+          "slice_hit_rate": 0.022755646351152015,
+          "refused_calls": 0,
+          "graphs": 5,
+          "bytes_read_per_graph": 2031471820.8
+        }
+      }
+    },
+    {
+      "policy": "shared_layer_lru",
+      "budget_slices": 2880,
+      "budget_bytes": 1698693120,
+      "total_slots": 960,
+      "slots_per_layer": null,
+      "slot_bytes": 1769472,
+      "protect_until_consumed": false,
+      "phases": {
+        "decode": {
+          "lookups": 105280,
+          "hits": 61947,
+          "misses": 43333,
+          "hit_rate": 0.5884023556231003,
+          "bytes_read": 76676530176,
+          "bytes_needed": 186290012160,
+          "slice_hit_rate": 0.5884023556231003,
+          "refused_calls": 0,
+          "graphs": 329,
+          "bytes_read_per_graph": 233059362.23708206
+        },
+        "prefill": {
+          "lookups": 5874,
+          "hits": 135,
+          "misses": 5739,
+          "hit_rate": 0.022982635342185902,
+          "bytes_read": 10154999808,
+          "bytes_needed": 10393878528,
+          "slice_hit_rate": 0.02298263534218592,
+          "refused_calls": 0,
+          "graphs": 5,
+          "bytes_read_per_graph": 2030999961.6
+        }
+      }
+    },
+    {
+      "policy": "per_layer_lru",
+      "budget_slices": 2880,
+      "budget_bytes": 1698693120,
+      "total_slots": 960,
+      "slots_per_layer": 24,
+      "slot_bytes": 1769472,
+      "protect_until_consumed": false,
+      "phases": {
+        "decode": {
+          "lookups": 105280,
+          "hits": 63554,
+          "misses": 41726,
+          "hit_rate": 0.6036664133738602,
+          "bytes_read": 73832988672,
+          "bytes_needed": 186290012160,
+          "slice_hit_rate": 0.6036664133738602,
+          "refused_calls": 0,
+          "graphs": 329,
+          "bytes_read_per_graph": 224416378.94224924
+        },
+        "prefill": {
+          "lookups": 5874,
+          "hits": 60,
+          "misses": 5814,
+          "hit_rate": 0.010214504596527068,
+          "bytes_read": 10287710208,
+          "bytes_needed": 10393878528,
+          "slice_hit_rate": 0.010214504596527063,
+          "refused_calls": 150,
+          "graphs": 5,
+          "bytes_read_per_graph": 2057542041.6
+        }
+      }
+    },
+    {
+      "policy": "per_layer_lfu",
+      "budget_slices": 2880,
+      "budget_bytes": 1698693120,
+      "total_slots": 960,
+      "slots_per_layer": 24,
+      "slot_bytes": 1769472,
+      "protect_until_consumed": false,
+      "phases": {
+        "decode": {
+          "lookups": 105280,
+          "hits": 62766,
+          "misses": 42514,
+          "hit_rate": 0.5961816109422492,
+          "bytes_read": 75227332608,
+          "bytes_needed": 186290012160,
+          "slice_hit_rate": 0.5961816109422493,
+          "refused_calls": 0,
+          "graphs": 329,
+          "bytes_read_per_graph": 228654506.40729484
+        },
+        "prefill": {
+          "lookups": 5874,
+          "hits": 60,
+          "misses": 5814,
+          "hit_rate": 0.010214504596527068,
+          "bytes_read": 10287710208,
+          "bytes_needed": 10393878528,
+          "slice_hit_rate": 0.010214504596527063,
+          "refused_calls": 150,
+          "graphs": 5,
+          "bytes_read_per_graph": 2057542041.6
+        }
+      }
+    },
+    {
+      "policy": "per_layer_lru_protect",
+      "budget_slices": 2880,
+      "budget_bytes": 1698693120,
+      "total_slots": 960,
+      "slots_per_layer": 24,
+      "slot_bytes": 1769472,
+      "protect_until_consumed": true,
+      "phases": {
+        "decode": {
+          "lookups": 105280,
+          "hits": 63554,
+          "misses": 41726,
+          "hit_rate": 0.6036664133738602,
+          "bytes_read": 73832988672,
+          "bytes_needed": 186290012160,
+          "slice_hit_rate": 0.6036664133738602,
+          "refused_calls": 0,
+          "graphs": 329,
+          "bytes_read_per_graph": 224416378.94224924
+        },
+        "prefill": {
+          "lookups": 5874,
+          "hits": 60,
+          "misses": 5814,
+          "hit_rate": 0.010214504596527068,
+          "bytes_read": 10287710208,
+          "bytes_needed": 10393878528,
+          "slice_hit_rate": 0.010214504596527063,
+          "refused_calls": 150,
+          "graphs": 5,
+          "bytes_read_per_graph": 2057542041.6
+        }
+      }
+    },
+    {
+      "policy": "per_layer_lfu_protect",
+      "budget_slices": 2880,
+      "budget_bytes": 1698693120,
+      "total_slots": 960,
+      "slots_per_layer": 24,
+      "slot_bytes": 1769472,
+      "protect_until_consumed": true,
+      "phases": {
+        "decode": {
+          "lookups": 105280,
+          "hits": 62766,
+          "misses": 42514,
+          "hit_rate": 0.5961816109422492,
+          "bytes_read": 75227332608,
+          "bytes_needed": 186290012160,
+          "slice_hit_rate": 0.5961816109422493,
+          "refused_calls": 0,
+          "graphs": 329,
+          "bytes_read_per_graph": 228654506.40729484
+        },
+        "prefill": {
+          "lookups": 5874,
+          "hits": 60,
+          "misses": 5814,
+          "hit_rate": 0.010214504596527068,
+          "bytes_read": 10287710208,
+          "bytes_needed": 10393878528,
+          "slice_hit_rate": 0.010214504596527063,
+          "refused_calls": 150,
+          "graphs": 5,
+          "bytes_read_per_graph": 2057542041.6
+        }
+      }
+    },
+    {
+      "policy": "store_lru",
+      "budget_slices": 3840,
+      "budget_bytes": 2264924160,
+      "total_slots": 3840,
+      "slots_per_layer": null,
+      "slot_bytes": 589824,
+      "protect_until_consumed": false,
+      "phases": {
+        "decode": {
+          "lookups": 315840,
+          "hits": 211675,
+          "misses": 104165,
+          "hit_rate": 0.6701969351570415,
+          "bytes_read": 61439016960,
+          "bytes_needed": 186290012160,
+          "slice_hit_rate": 0.6701969351570416,
+          "refused_calls": 0,
+          "graphs": 329,
+          "bytes_read_per_graph": 186744732.4012158
+        },
+        "prefill": {
+          "lookups": 17622,
+          "hits": 2065,
+          "misses": 15557,
+          "hit_rate": 0.11718306662126887,
+          "bytes_read": 9175891968,
+          "bytes_needed": 10393878528,
+          "slice_hit_rate": 0.11718306662126887,
+          "refused_calls": 0,
+          "graphs": 5,
+          "bytes_read_per_graph": 1835178393.6
+        }
+      }
+    },
+    {
+      "policy": "shared_layer_lru",
+      "budget_slices": 3840,
+      "budget_bytes": 2264924160,
+      "total_slots": 1280,
+      "slots_per_layer": null,
+      "slot_bytes": 1769472,
+      "protect_until_consumed": false,
+      "phases": {
+        "decode": {
+          "lookups": 105280,
+          "hits": 70585,
+          "misses": 34695,
+          "hit_rate": 0.6704502279635258,
+          "bytes_read": 61391831040,
+          "bytes_needed": 186290012160,
+          "slice_hit_rate": 0.6704502279635258,
+          "refused_calls": 0,
+          "graphs": 329,
+          "bytes_read_per_graph": 186601310.1519757
+        },
+        "prefill": {
+          "lookups": 5874,
+          "hits": 944,
+          "misses": 4930,
+          "hit_rate": 0.16070820565202587,
+          "bytes_read": 8723496960,
+          "bytes_needed": 10393878528,
+          "slice_hit_rate": 0.16070820565202593,
+          "refused_calls": 0,
+          "graphs": 5,
+          "bytes_read_per_graph": 1744699392.0
+        }
+      }
+    },
+    {
+      "policy": "per_layer_lru",
+      "budget_slices": 3840,
+      "budget_bytes": 2264924160,
+      "total_slots": 1280,
+      "slots_per_layer": 32,
+      "slot_bytes": 1769472,
+      "protect_until_consumed": false,
+      "phases": {
+        "decode": {
+          "lookups": 105280,
+          "hits": 71103,
+          "misses": 34177,
+          "hit_rate": 0.6753704407294833,
+          "bytes_read": 60475244544,
+          "bytes_needed": 186290012160,
+          "slice_hit_rate": 0.6753704407294833,
+          "refused_calls": 0,
+          "graphs": 329,
+          "bytes_read_per_graph": 183815332.96048632
+        },
+        "prefill": {
+          "lookups": 5874,
+          "hits": 824,
+          "misses": 5050,
+          "hit_rate": 0.14027919645897174,
+          "bytes_read": 8935833600,
+          "bytes_needed": 10393878528,
+          "slice_hit_rate": 0.1402791964589717,
+          "refused_calls": 82,
+          "graphs": 5,
+          "bytes_read_per_graph": 1787166720.0
+        }
+      }
+    },
+    {
+      "policy": "per_layer_lfu",
+      "budget_slices": 3840,
+      "budget_bytes": 2264924160,
+      "total_slots": 1280,
+      "slots_per_layer": 32,
+      "slot_bytes": 1769472,
+      "protect_until_consumed": false,
+      "phases": {
+        "decode": {
+          "lookups": 105280,
+          "hits": 70484,
+          "misses": 34796,
+          "hit_rate": 0.6694908814589665,
+          "bytes_read": 61570547712,
+          "bytes_needed": 186290012160,
+          "slice_hit_rate": 0.6694908814589666,
+          "refused_calls": 0,
+          "graphs": 329,
+          "bytes_read_per_graph": 187144521.92097265
+        },
+        "prefill": {
+          "lookups": 5874,
+          "hits": 821,
+          "misses": 5053,
+          "hit_rate": 0.13976847122914537,
+          "bytes_read": 8941142016,
+          "bytes_needed": 10393878528,
+          "slice_hit_rate": 0.13976847122914537,
+          "refused_calls": 82,
+          "graphs": 5,
+          "bytes_read_per_graph": 1788228403.2
+        }
+      }
+    },
+    {
+      "policy": "per_layer_lru_protect",
+      "budget_slices": 3840,
+      "budget_bytes": 2264924160,
+      "total_slots": 1280,
+      "slots_per_layer": 32,
+      "slot_bytes": 1769472,
+      "protect_until_consumed": true,
+      "phases": {
+        "decode": {
+          "lookups": 105280,
+          "hits": 71103,
+          "misses": 34177,
+          "hit_rate": 0.6753704407294833,
+          "bytes_read": 60475244544,
+          "bytes_needed": 186290012160,
+          "slice_hit_rate": 0.6753704407294833,
+          "refused_calls": 0,
+          "graphs": 329,
+          "bytes_read_per_graph": 183815332.96048632
+        },
+        "prefill": {
+          "lookups": 5874,
+          "hits": 824,
+          "misses": 5050,
+          "hit_rate": 0.14027919645897174,
+          "bytes_read": 8935833600,
+          "bytes_needed": 10393878528,
+          "slice_hit_rate": 0.1402791964589717,
+          "refused_calls": 82,
+          "graphs": 5,
+          "bytes_read_per_graph": 1787166720.0
+        }
+      }
+    },
+    {
+      "policy": "per_layer_lfu_protect",
+      "budget_slices": 3840,
+      "budget_bytes": 2264924160,
+      "total_slots": 1280,
+      "slots_per_layer": 32,
+      "slot_bytes": 1769472,
+      "protect_until_consumed": true,
+      "phases": {
+        "decode": {
+          "lookups": 105280,
+          "hits": 70484,
+          "misses": 34796,
+          "hit_rate": 0.6694908814589665,
+          "bytes_read": 61570547712,
+          "bytes_needed": 186290012160,
+          "slice_hit_rate": 0.6694908814589666,
+          "refused_calls": 0,
+          "graphs": 329,
+          "bytes_read_per_graph": 187144521.92097265
+        },
+        "prefill": {
+          "lookups": 5874,
+          "hits": 821,
+          "misses": 5053,
+          "hit_rate": 0.13976847122914537,
+          "bytes_read": 8941142016,
+          "bytes_needed": 10393878528,
+          "slice_hit_rate": 0.13976847122914537,
+          "refused_calls": 82,
+          "graphs": 5,
+          "bytes_read_per_graph": 1788228403.2
+        }
+      }
+    }
+  ]
+}

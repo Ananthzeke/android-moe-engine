@@ -6,8 +6,8 @@ ordered patch against llama.cpp `ff5a23376725e5a889fa0bfb987b7541dc304da0`.
 It adds `ggml/include/ggml-moe.h`, an optional materializer call in
 `ggml_compute_forward_mul_mat_id`. Thread 0 calls the hook before row grouping; after
 a barrier all workers use the returned compact expert tensor and remapped ID array.
-The tiled fast path is skipped when a materializer staged the tensor because that path
-reads `dst->src[0]` directly. The `MUL_MAT_ID` graph workspace is sized to the
+A staged tensor runs the same kernel as the resident one, including the tiled fast path;
+see the tiled-kernel note below. The `MUL_MAT_ID` graph workspace is sized to the
 materializer's declared slot count so a cache may exceed a tensor's expert count. Weak default getters keep an unpatched build linkable;
 the project supplies strong definitions.
 
@@ -33,3 +33,21 @@ also exports `llama_internal_get_expert_consumers` from the loaded model's `llam
 **when the materializer is active**. Dense runs keep the prefetch behavior. On a
 9.48 GB MoE this cut peak process RSS from 5.2-6.1 GiB to about 1.2 GiB and reduced
 TTFT from 4.9-8.4 s to about 2.1 s. Apply it after 0001. The consumer API is test/internal only; project code binds it to the verified manifest after model load.
+`ggml_moe_reset()` (patch 0001) clears the outcome and the error latch that a failed or
+cancelled graph leaves behind. `ggml_moe_set_materializer` calls it, so installing or removing a
+materializer starts clean. The project calls it per request, only under exclusive admission after
+the previous context was destroyed. Without it, the next graph aborts after its first node.
+
+Tiled kernel (also in `0001`, files `ggml/src/ggml-cpu/tiled/tiled.{cpp,h}`): the tiled K-quant
+`MUL_MAT_ID` path used to read `dst->src[0]`, so the patch skipped it for every staged tensor and
+those operators ran the per-row `vec_dot` path, which can differ numerically from the resident run.
+`ggml_compute_forward_mul_mat_id_tiled` and its dispatch now take the effective expert tensor, and the
+call site passes `src0_eff`. The tiled kernel is compiled in only for x86 AVX targets
+(`ggml_tiled_supported` is a stub returning false otherwise), so this change is inert on the phone.
+Host evidence: `moe_layered_gate` with `GGML_CPU_TILED_MM_FORCE=1` is bit-identical to the resident
+reference; with the old skip it mismatches on all 24 Q4_K and 24 Q6_K operators.
+
+These tiled-file changes are the largest part of `0001` and do nothing on the phone. They stay
+because streamed-versus-resident parity is checked on x86 hosts. Without them a host prefill that
+gives an expert eight or more rows runs the tiled kernel when resident and `vec_dot` when staged,
+so a real-35B reference comparison on the host would not be bit-exact.

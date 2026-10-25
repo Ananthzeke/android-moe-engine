@@ -1,0 +1,19 @@
+MemTotal:        7834596 kB
+MemAvailable:    5823780 kB
+Cached:          3015636 kB
+SwapTotal:       6291452 kB
+SwapFree:        4845384 kB
+workingset_refault 590467003
+pswpin 15072748
+pswpout 18797425
+pgmajfault 11048393
+zram_mm_stat cat: /sys/block/zram0/mm_stat: Permission denied
+battery level: 58 temperature: 376
+cpu0 1804800
+cpu1 614400
+cpu2 864000
+cpu3 1305600
+cpu4 1401600
+cpu5 1056000
+cpu6 1056000
+cpu7 1804800

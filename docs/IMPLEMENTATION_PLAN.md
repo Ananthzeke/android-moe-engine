@@ -299,6 +299,10 @@ Only after CPU evidence earns the cost, consider an Android host app, GPU execut
 
 A whole-layer streaming comparison may help a later dense-model study. First prove that one layer and its shared/state/workspace requirements fit, and record its repeated per-token I/O cost. It is not a substitute for selective expert lifetime. Any next-unit overlap needs admission of current and future weight materializations together, plus cancellation and failure cleanup.
 
+### Phase 5 status
+
+The measured limiter was expert read time. Seven units from `prompts/SONNET_CORE_OPTIMIZATION.md` were executed one at a time with token-ID parity and phone A/B gates: lifecycle fixes, per-request records, an exact routing replay, a layer-partitioned cache, a reader pool, top-k read overlap with a pinned compute pool, and the tiled kernel for staged tensors (inert on ARM). Results, negative findings and the deferred candidates (context reuse, next-layer prefetch, fs-verity, non-dotprod Q4_K, `O_DIRECT`) are in [CORE_OPTIMIZATION_REPORT.md](CORE_OPTIMIZATION_REPORT.md). Next-layer prefetch is still unimplemented, and the overlap here starts only the current layer's reads.
+
 ## Delivery units
 
 Commit phases as reviewable units. Each unit includes what changed, the commands actually run, evidence locations, limitations, and the next unit. Do not commit weights or private raw device logs. A build success establishes buildability, not target performance.

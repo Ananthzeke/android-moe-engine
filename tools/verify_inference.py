@@ -24,9 +24,10 @@ PATCHES = [ROOT / "patches" / "0001-ggml-moe-materializer.patch",
 
 
 def run(command: list[str], *, cwd: Path = ROOT, timeout: int = 900,
-        check: bool = True) -> subprocess.CompletedProcess[str]:
+        check: bool = True, extra_env: dict[str, str] | None = None
+        ) -> subprocess.CompletedProcess[str]:
     result = subprocess.run(command, cwd=cwd, text=True, capture_output=True,
-                            timeout=timeout, env=environment())
+                            timeout=timeout, env={**environment(), **(extra_env or {})})
     if check and result.returncode != 0:
         raise RuntimeError(f"command failed ({result.returncode}): {' '.join(command)}\n"
                            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}")
@@ -140,6 +141,54 @@ def gate_faults(binary: Path, workdir: Path) -> list[dict[str, object]]:
     return checks
 
 
+def gate_recovery(binary: Path, workdir: Path) -> dict[str, object]:
+    workdir.mkdir(parents=True, exist_ok=True)
+    cases = []
+    for threads in (1, 2, 4):
+        result = run([str(binary), "--workdir", str(workdir / f"t{threads}"),
+                      "--threads", str(threads)], timeout=300)
+        payload = json.loads(result.stdout)
+        if payload.get("passed") is not True:
+            raise RuntimeError(f"recovery gate failed with {threads} workers: {payload}")
+        cases.append({"threads": threads, "cases": payload["cases"]})
+    return {"passed": True, "runs": cases}
+
+
+def gate_layered(binary: Path, workdir: Path) -> dict[str, object]:
+    workdir.mkdir(parents=True, exist_ok=True)
+    runs = []
+    for threads in (1, 2, 4):
+        for readers in (1, 2, 4):
+            for overlap in (False, True):
+                result = run([str(binary), "--workdir",
+                              str(workdir / f"t{threads}r{readers}o{int(overlap)}"),
+                              "--threads", str(threads), "--readers", str(readers),
+                              *(["--overlap"] if overlap else [])], timeout=300)
+                payload = json.loads(result.stdout)
+                if payload.get("passed") is not True:
+                    raise RuntimeError(f"layered gate failed with {threads} workers, {readers} "
+                                       f"readers, overlap {overlap}: {payload}")
+                runs.append({"threads": threads, **payload})
+    # The tiled K-quant kernel on every expert (x86 hosts): staged tensors must reach the same kernel
+    # as the resident reference, so the gate still passes bit for bit, and on a host that has the
+    # kernel the quantized results differ from the vec_dot ones, proving it ran on staged tensors.
+    forced = run([str(binary), "--workdir", str(workdir / "tiled"), "--threads", "2",
+                  "--readers", "2"], timeout=300, extra_env={"GGML_CPU_TILED_MM_FORCE": "1"})
+    forced_payload = json.loads(forced.stdout)
+    if forced_payload.get("passed") is not True:
+        raise RuntimeError(f"layered gate failed with the tiled kernel forced: {forced_payload}")
+    plain = run([str(binary), "--workdir", str(workdir / "plain"), "--threads", "2",
+                 "--readers", "2"], timeout=300, extra_env={"GGML_CPU_TILED_MM": "0"})
+    digests = {kind: {f["format"]: f["output_digest"] for f in json.loads(text)["formats"]}
+               for kind, text in (("forced", forced.stdout), ("plain", plain.stdout))}
+    import platform
+    tiled_applies = platform.machine() in ("x86_64", "AMD64")
+    if tiled_applies and digests["forced"]["q4_K"] == digests["plain"]["q4_K"]:
+        raise RuntimeError("the forced tiled kernel did not change the staged Q4_K results")
+    return {"passed": True, "runs": runs, "tiled_forced": forced_payload["passed"],
+            "tiled_digests": digests, "tiled_applies_on_host": tiled_applies}
+
+
 def gate_quantized(binary: Path, workdir: Path) -> list[dict[str, object]]:
     checks: list[dict[str, object]] = []
     for type_name in ("q4_k", "q6_k"):
@@ -199,6 +248,18 @@ def gate_kernel(binary: Path, workdir: Path, output: Path) -> dict[str, object]:
             "all_identical": True}
 
 
+def gate_runner_boundaries(build_dir: Path, fixture: Path | None,
+                           layered: Path | None = None) -> dict[str, object]:
+    if fixture is None:
+        return {"status": "not_run", "reason": "no --fixture-model or AME_FIXTURE_MODEL supplied"}
+    result = run([sys.executable, str(ROOT / "tests" / "runner_boundaries_test.py"),
+                  "--complete-runner", str(build_dir / "complete_runner"),
+                  "--harness", str(build_dir / "llama_baseline_stream"),
+                  "--model", str(fixture),
+                  *(["--layered-model", str(layered)] if layered else [])], timeout=600)
+    return {"status": "passed", "returncode": result.returncode}
+
+
 def build(config: str, source: Path, libs: Path, build_dir: Path) -> dict[str, object]:
     shutil.rmtree(build_dir, ignore_errors=True)
     configure = [
@@ -213,7 +274,9 @@ def build(config: str, source: Path, libs: Path, build_dir: Path) -> dict[str, o
         configure.append("-DAME_SANITIZERS=ON")
     configured = run(configure, timeout=900)
     built = run(["cmake", "--build", str(build_dir), "--target",
-                 "moe_stream_gate", "moe_stream_gate_broken", "moe_kernel_gate",
+                 "moe_stream_gate", "moe_stream_gate_broken", "moe_recovery_gate",
+                 "moe_layered_gate",
+                 "moe_kernel_gate",
                  "moe_quantized_gate", "manifest_gate", "artifact_gate",
                  "complete_runner", "llama_baseline_stream"], timeout=1800)
     return {
@@ -233,6 +296,14 @@ def main() -> int:
     parser.add_argument("--configs", default="debug,release,sanitizers")
     parser.add_argument("--evidence", type=Path,
                         default=ROOT / "evidence" / "hardening" / "gate1-integration.json")
+    parser.add_argument("--fixture-model", type=Path,
+                        default=Path(os.environ["AME_FIXTURE_MODEL"])
+                        if os.environ.get("AME_FIXTURE_MODEL") else None,
+                        help="tiny MoE GGUF for the runner boundary tests")
+    parser.add_argument("--layered-fixture-model", type=Path,
+                        default=Path(os.environ["AME_LAYERED_FIXTURE_MODEL"])
+                        if os.environ.get("AME_LAYERED_FIXTURE_MODEL") else None,
+                        help="tiny MoE with separate gate/up/down experts (qwen2moe)")
     parser.add_argument("--skip-sanitizers", action="store_true")
     args = parser.parse_args()
 
@@ -263,6 +334,10 @@ def main() -> int:
                                            build_dir / "gate-stream")
             record["faults"] = gate_faults(build_dir / "moe_stream_gate",
                                            build_dir / "gate-faults")
+            record["recovery"] = gate_recovery(build_dir / "moe_recovery_gate",
+                                               build_dir / "gate-recovery")
+            record["layered"] = gate_layered(build_dir / "moe_layered_gate",
+                                             build_dir / "gate-layered")
             record["quantized"] = gate_quantized(build_dir / "moe_quantized_gate",
                                                  build_dir / "gate-quantized")
             record["broken"] = gate_broken(build_dir / "moe_stream_gate_broken",
@@ -270,6 +345,8 @@ def main() -> int:
             record["kernel"] = gate_kernel(build_dir / "moe_kernel_gate",
                                             build_dir / "gate-kernel",
                                             build_dir / "gate-kernel" / "result.json")
+            record["runner_boundaries"] = gate_runner_boundaries(build_dir, args.fixture_model,
+                                                             args.layered_fixture_model)
             manifest = run([sys.executable, str(ROOT / "tests" / "manifest_gate_test.py"),
                             "--binary", str(build_dir / "manifest_gate")], timeout=300)
             artifact = run([sys.executable, str(ROOT / "tests" / "artifact_gate_test.py"),

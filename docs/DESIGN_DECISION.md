@@ -124,3 +124,91 @@ a server restart. [The runbook](RUN_35B.md) gives reproduction commands and timi
 limits. This establishes a short 35B text API path; reference-logit parity,
 long-form qualification, runtime mutation integrity, stop buffering, UTF-8
 buffering, and bounded disconnect cancellation remain separate open work.
+
+## Same-process recovery after a failed request (2026-10-24)
+
+Patch 0001 latched `g_moe_error_latched` on a failed or cancelled `MUL_MAT_ID` and never
+cleared it, so every later graph in the process aborted after its first node. The
+`moe_recovery_gate` reproduces it with the real patched backend: after an injected read
+failure or a cancellation, a dense `ggml_add` graph returns a non-success status. The patch
+now exports `ggml_moe_reset()`, and `ggml_moe_set_materializer` calls it, so installing or
+removing a materializer starts clean. The project calls `begin_moe_stream_request()` under
+exclusive admission, after the previous context is destroyed and its leases released.
+
+Evidence: the recovery gate passes with 1, 2 and 4 workers in Debug, Release and ASan/UBSan
+(`tools/verify_inference.py`); with the reset call commented out the gate fails on the dense
+graph. `complete_runner --recover-after-fault` fails one generation in the materializer, resets,
+and runs a fresh context in the same process; its logits and token IDs equal an uninterrupted
+streamed run byte for byte on the tiny qwen35moe fixture. This satisfies the stricter
+condition in `prompts/DEEPSEEK_STABILITY_AND_IO.md` (drain, lease release, fresh-reference
+parity) for the fixture only. A reset is never issued while another request holds admission.
+
+The server publishes the terminal snapshot inside `RequestScope`, after lease release and
+before admission release, on every exit including failed SSE writes. `/health` reads only the
+published value. Limits: real-35B recovery parity, a blocked `pread`, and backend abort on
+deadline or disconnect remain open.
+
+## One cache owner: a layer-keyed, layer-partitioned arena (2026-10-24)
+
+The routing replay of a 330-token phone trace (`evidence/core-opt/unit3/README.md`) shows
+that capacity, not policy, sets the reads per token: 566 MB with the shipped 64-slot design,
+then 361, 280, 224 and 184 MB at 0.57, 1.13, 1.70 and 2.26 GB. Per-layer partitioning
+and LFU change the hit rate by at most 3.1 points over a (tensor, expert) LRU of the same bytes.
+The layered cache is built for what partitioning does buy: one reservation and one read batch per
+layer visit (three slices per expert), no cross-layer eviction, a pool that can be sized per layer, and
+an arena that can be the only cache when the kernel is told to drop its copy. Per-layer LRU is the
+default policy; LFU stays behind a flag. The phone A/B that decides the default layout is in
+`evidence/core-opt/unit4/`: with 32 slots per layer (2.26 GB), LRU, and the kernel told to drop its
+copy, requests were 28 to 40% faster than the shipped cache with identical token IDs in 25 trials, outside
+the run-to-run spread; with 16 slots per layer the gain was mixed (faster prefill, slower decode) and
+keeping the kernel's copy was 8% slower. The phone launcher defaults to the 32-slot layered cache; the
+server binary keeps the shipped cache as its default because 2.2 GB is not a safe default for an unknown
+device.
+
+## Overlap through the eval callback, not a graph-level remap (2026-10-25)
+
+Two ways to start reads before the expert operator were considered. Option B, porting the id-remap
+structure of llama.cpp PR 25294 (an extra op after top-k that makes the expert matmuls index cache
+slots directly), needs a new ggml op and graph surgery, a larger patch than 0001, and tracks an open
+PR; its parity reports show divergence that grows with generation length for its wave-partitioned
+prefill, which this project does not adopt. Option A uses an API that exists at the pinned commit
+(`llama_context_params.cb_eval`, the `ffn_moe_topk-<layer>` name, `ggml_backend_sched_eval_callback`,
+`llama_attach_threadpool`, `ggml_threadpool_new`), needs no patch change, and keeps the per-operator
+hook as the authority on which experts are staged. The cost is one extra graph segment boundary per
+routed layer per graph, which the phone A/B measures. Evidence and the measured effect are in
+`evidence/core-opt/unit6/`.
+
+## Tiled MUL_MAT_ID for staged experts (2026-10-25)
+
+Patch 0001 skipped the tiled K-quant `MUL_MAT_ID` kernel whenever the materializer staged a compact
+expert tensor, because that kernel read `dst->src[0]`. A staged run therefore used `vec_dot` where the
+resident run used the tiled kernel, so the two could differ in the last bits on hosts that have it. The
+effective expert tensor is now passed through. At the pinned commit the tiled kernel exists only for
+x86 AVX builds (`ggml_tiled_supported` is a stub returning false otherwise) and runs only for experts
+that receive at least eight rows in one graph (`ggml_tiled_min_batch`), so it is inert on the
+Snapdragon 665, whose prefill units are 2 to 8 tokens. No phone prefill A/B was run, because the
+source shows the kernel cannot run there. Host evidence: forcing it with `GGML_CPU_TILED_MM_FORCE=1`,
+`moe_layered_gate` is bit-identical to the resident reference with the fix and mismatches on all 48
+Q4_K/Q6_K operators without it; the harness gives identical token IDs and logits for staged and resident
+runs at the same prefill unit on a 14-token prompt.
+
+## Four reader threads are the phone default (2026-10-25)
+
+Fifteen alternating fresh-process trials on the phone (evidence/core-opt/unit5) show that reading a layer's
+missing experts with 2 or 4 threads instead of one cuts the short request by 30% and 39% and the 32-token
+request by 24% and 32%, with the same token IDs and the same bytes read; the ranges do not overlap. Pinning
+the readers to the cores with the lower `cpuinfo_max_freq` made no measurable difference (ten more trials), so
+it stays off. The phone launcher starts four readers; the server binary defaults to one. The exactness argument
+is structural: a batch ends only after every read has finished or been skipped, a failed batch publishes
+nothing, and the same bytes land in the same slots in the same lease order as the serial path; it is checked by
+the store tests under AddressSanitizer and ThreadSanitizer and by token and logit parity through the real
+graph.
+
+## The overlap needs a pinned compute pool (2026-10-25)
+
+Twenty alternating phone trials (evidence/core-opt/unit6) with four readers: the top-k overlap alone is 30% slower
+(decode step +58%) although it cuts the time blocked on reads from 12 s to 1 s, because compute inflates from 18 s to 44 s
+while reader threads run; the same overlap with one compute threadpool pinned to the big cores and no polling is 7.8%
+faster than neither (32-token request 50.1 to 46.2 s, short request 23.3 to 22.0 s, ranges disjoint), and the pinned
+pool alone changes nothing measurable. Token IDs are identical in all trials. The phone launcher enables both together;
+the binary defaults stay off, and the overlap is documented as unsafe for speed without the pinned pool.

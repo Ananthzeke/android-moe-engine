@@ -11,6 +11,7 @@
 #include "cancellation.hpp"
 #include "expert_layout.hpp"
 #include "file_source.hpp"
+#include "reader_pool.hpp"
 #include "result.hpp"
 
 namespace ame::residency {
@@ -29,6 +30,9 @@ struct StoreOptions {
   // Optional caller-owned arena. When non-empty it must be aligned and at least
   // slot_count * slot_bytes. The store never frees borrowed memory.
   std::span<std::byte> external_arena{};
+  // Reader threads for the misses of one acquire (1 to 4). One reads on the calling thread.
+  unsigned readers{1};
+  std::vector<int> reader_cpus{};
 };
 
 struct StoreStats {
@@ -37,6 +41,8 @@ struct StoreStats {
   std::uint64_t evictions{0};
   std::uint64_t read_calls{0};
   std::uint64_t read_bytes{0};
+  std::uint64_t pread_calls{0};
+  std::uint64_t pread_bytes{0};
   double read_seconds{0.0};
   std::uint64_t pinned_slots{0};
   std::uint64_t resident_slots{0};
@@ -111,6 +117,8 @@ class Store {
     return static_cast<std::uint32_t>(slots_.size());
   }
   [[nodiscard]] StoreStats stats() const;
+  // Re-read the injected-fault environment. Only when no acquire is in flight.
+  void reload_fault_injection() const noexcept { source_.reload_fault_injection(); }
 
  private:
   friend class Lease;
@@ -135,6 +143,7 @@ class Store {
   void release(const Lease& lease) noexcept;
 
   FileSource source_;
+  std::unique_ptr<ReaderPool> readers_;  // after source_: joined before the source closes
   std::vector<EntryState> entries_;
   std::vector<SlotState> slots_;
   std::vector<std::uint8_t> slot_taken_;

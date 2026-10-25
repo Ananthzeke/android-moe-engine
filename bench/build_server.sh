@@ -11,7 +11,7 @@ CMAKE=${AME_CMAKE:-$REPO/.venv/bin/cmake}
 PYTHON=${AME_PYTHON:-$REPO/.venv/bin/python}
 CXX="$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android31-clang++"
 STRIP="$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip"
-ENGINE="src/backend/moe_stream.cpp src/backend/artifact.cpp src/common/sha256.cpp src/model/file_extent.cpp src/model/expert_layout.cpp src/runtime/prefill_plan.cpp src/residency/file_source.cpp src/residency/store.cpp"
+ENGINE="src/backend/moe_stream.cpp src/backend/artifact.cpp src/common/sha256.cpp src/model/file_extent.cpp src/model/expert_layout.cpp src/runtime/prefill_plan.cpp src/residency/file_source.cpp src/residency/store.cpp src/residency/layered_store.cpp src/residency/reader_pool.cpp"
 INCLUDES="-Isrc/backend -Isrc/model -Isrc/residency -Isrc/common -Isrc/runtime -I$LLAMA/include -I$LLAMA/src -I$LLAMA/ggml/include -I$LLAMA/common -I$LLAMA/vendor/cpp-httplib -I$LLAMA/vendor/nlohmann"
 mkdir -p "$OUT"
 cd "$REPO"

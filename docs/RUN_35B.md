@@ -67,7 +67,9 @@ across requests. Restarting repeats verification. A historical direct API monito
 ## Start the server
 
 First check available memory and storage and stop any other inference server
-using the same port. The following stop script stops this package's servers:
+using the same port. The following stop script stops this package's servers. It matches the process name
+`ame-server`; an earlier version matched the absolute path and missed a server started as
+`./ame-server`, so redeploy the script and check `ps -A | grep ame-server` before measuring:
 
 ```sh
 adb shell /data/local/tmp/ame-api/stop.sh
@@ -115,6 +117,26 @@ the phone connects directly to the phone's localhost port.
 The current server creates a fresh context per request. Include earlier messages
 in each request when continuing a conversation. Only one generation runs at a
 time.
+
+## Cache layout flags
+
+`--cache legacy|layered` selects the expert cache (the server's default is `legacy`; the phone launcher
+`deploy/phone/start-35b.sh` starts the layered cache with 32 slots per layer and a 2,200 MiB allowance,
+which needs about 3.6 GB of `MemAvailable` after start; `AME_CACHE=legacy` restores the 64-slot cache.
+Measured effect: [Unit 4 evidence](../evidence/core-opt/unit4/README.md)). Layered mode also takes
+`--eviction lru|lfu`, `--layer-slots N` (zero derives the pool from `--arena-mib`), `--lfu-halve N`,
+`--fadvise-random`, `--fadvise-dontneed`, `--readers 1-4` (reader threads, both layouts; the launcher uses 4) and
+`--reader-cpus auto|none` (pin readers off the big cores), `--overlap topk|off` (layered cache:
+start a layer's reads from the router's top-k result; use it only together with `--threadpool big`), `--threadpool big|default` and
+`--poll N` (one compute threadpool pinned to the big cores; the launcher uses `--poll 0`). `--arena-mib` must cover the arenas plus bookkeeping;
+for 16 slots per layer on the 35B model use `--layer-slots 16 --arena-mib 1152`. See
+[the architecture note](ARCHITECTURE.md#layered-expert-cache-unit-4-2026-10-24).
+
+## Per-request records
+
+Set `AME_REQUEST_LOG=/data/local/tmp/ame-api/requests.jsonl` before `start-35b.sh` to log
+startup stages and every request. Field definitions and counter scopes are in
+[request records](REQUEST_RECORDS.md).
 
 ## Stop the server
 

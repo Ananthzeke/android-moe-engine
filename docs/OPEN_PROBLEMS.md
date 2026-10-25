@@ -228,6 +228,8 @@ fresh request afterward.
 - 64-slot demand reads remain the default. Store hits are zero.
 - Physical flash traffic was not measured; page-cache state is uncontrolled.
 
+**Update (core optimization series):** question 1 is partly answered. Queue depth matters on this storage (four readers cut the 32-token request 31.5%), and capacity partitioned per layer cut bytes and time (layered cache, 32 slots per layer, -39.5%); the 1,024-slot global cache above remains a measured loss. Dropping the kernel page-cache copy was 8.4% faster. Question 5 remains open: only the current layer's reads are overlapped. See [the report](CORE_OPTIMIZATION_REPORT.md) and `evidence/core-opt/`.
+
 **Questions for research**
 
 1. Why did fewer bytes not reduce read time? Is the bottleneck per-read

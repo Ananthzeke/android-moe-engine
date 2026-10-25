@@ -1,0 +1,7 @@
+artifact_hash_seconds=168.687 artifact_bytes=20419565568
+llama_model_loader: loaded meta data with 43 key-value pairs and 733 tensors from /proc/self/fd/5 (version GGUF V3 (latest))
+llama_model_loader: Dumping metadata keys/values. Note: KV overrides do not apply in this output.
+llama_model_loader: - kv   0:                       general.architecture str              = qwen35moe
+llama_model_loader: - kv   1:                               general.type str              = model
+llama_model_loader: - kv   2:                     general.sampling.top_k i32              = 20
+llama_model_loader: - kv 

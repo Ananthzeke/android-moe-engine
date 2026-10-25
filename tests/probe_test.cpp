@@ -58,6 +58,10 @@ std::filesystem::path build_fixture() {
              "Features\t: fp asimd aes\n"
              "CPU implementer\t: 0x41\n");
   write_file(root / "sys/devices/system/cpu/online", "0-1\n");
+  // Mount table with the fixture root on f2fs, which advertises verity.
+  write_file(root / "proc/self/mounts", "rootfs / rootfs ro 0 0\n/dev/block/dm-4 " + root.string() +
+                                            " f2fs rw,seclabel 0 0\n");
+  write_file(root / "sys/fs/f2fs/features/verity", "");
   write_file(root / "sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq", "1804800\n");
   write_file(root / "sys/class/thermal/thermal_zone0/type", "cpu-0-0\n");
   write_file(root / "sys/class/thermal/thermal_zone0/temp", "31000\n");
@@ -96,6 +100,9 @@ void check_fixture() {
   expect(snapshot.storage.total_bytes.has_value() && *snapshot.storage.total_bytes > 0,
          "storage total");
   expect(snapshot.storage.available_bytes.has_value(), "storage available");
+  expect(snapshot.storage.filesystem == "f2fs", "filesystem from the longest matching mount");
+  expect(snapshot.storage.verity_advertised == true, "verity advertised by the feature file");
+  expect(contains(to_json(snapshot), "\"verity_advertised\": true"), "verity in the JSON");
 
   expect(snapshot.thermal.size() == 2, "thermal zone count");
   expect(snapshot.thermal[0].name == "thermal_zone0", "thermal name");

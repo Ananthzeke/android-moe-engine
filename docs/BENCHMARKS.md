@@ -57,3 +57,21 @@ Tiny complete-model and quantized operator parity are recorded in [complete veri
 Follow [the 35B source-build and launch guide](RUN_35B.md) and record the exact engine/backend/binary/artifact identities and command. Use the same prompts, template, output limits, thread count, slots, and context for comparisons. Capture request timers and counter deltas, thermal state, system memory, and repeated alternating baseline/candidate trials. Keep failures and unavailable counters. Publish correctness and memory outcomes beside speed results.
 
 The [validation contract](VALIDATION.md) and [research experiment order](../research.md) define the next measurements. No new phone throughput was measured while preparing this public repository.
+
+## Core optimization series (2026-10-24 to 2026-10-25)
+
+Controlled alternating A/B trials on the vivo 1920 with fresh server processes, five trials per arm, one prompt
+pair (24-token prompt with 8 new tokens, 27-token prompt with 32 new tokens), charger connected. Raw per-trial
+records, memory state, and commands are in `evidence/core-opt/`; each unit directory has a README with its table,
+method and limits. Summary of medians (token IDs identical in every trial of every arm):
+
+| Change | 32-token request | Short request | Evidence |
+| --- | ---: | ---: | --- |
+| Shipped cache (64 slots, 256 MiB) | 122.3 s | 55.4 s | [Unit 4](../evidence/core-opt/unit4/README.md) |
+| Layered cache, 32 slots per layer (2.2 GB) | 74.0 s | 40.0 s | same |
+| plus four reader threads | 51.2 s | 25.9 s | [Unit 5](../evidence/core-opt/unit5/README.md) |
+
+Process startup is 170.6 s on a clean restart, 99% of it the whole-artifact SHA-256
+([Unit 2](../evidence/core-opt/unit2/README.md)). These are request wall times from the server's own records, including
+context creation, prefill and decode; application bytes, block-layer bytes and major faults are separate columns in the
+evidence. They are measurements of one device, one workload and one storage state, not forecasts for other devices.

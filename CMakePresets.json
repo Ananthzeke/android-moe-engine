@@ -37,6 +37,17 @@
       }
     },
     {
+      "name": "host-tsan",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/host-tsan",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "BUILD_TESTING": true,
+        "AME_SANITIZERS": false,
+        "AME_THREAD_SANITIZER": true
+      }
+    },
+    {
       "name": "android-arm64",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/android-arm64",
@@ -66,6 +77,10 @@
     {
       "name": "host-sanitizers",
       "configurePreset": "host-sanitizers"
+    },
+    {
+      "name": "host-tsan",
+      "configurePreset": "host-tsan"
     },
     {
       "name": "android-arm64",
@@ -101,6 +116,21 @@
       },
       "execution": {
         "noTestsAction": "error"
+      }
+    },
+    {
+      "name": "host-tsan",
+      "configurePreset": "host-tsan",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error"
+      },
+      "filter": {
+        "include": {
+          "name": "^(residency|reader_pool|layered_store|request_scope)$"
+        }
       }
     }
   ]

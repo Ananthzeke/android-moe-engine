@@ -70,6 +70,58 @@ def measurement_record(path):
     return record
 
 
+def request_log_record(path):
+    """Summarize a server request log: JSON lines, a startup record, and request records.
+
+    The file itself is hashed so the summary can be checked against it. Token IDs stay in
+    the log; the summary keeps their count and SHA-256 so two runs can be compared without
+    copying long lists. Malformed lines are listed, never skipped silently.
+    """
+    record = file_record(path)
+    if record is None:
+        return None
+    summary = {"startup": None, "requests": [], "parse_errors": []}
+    for number, line in enumerate(Path(path).read_text().splitlines(), start=1):
+        if not line.strip():
+            continue
+        try:
+            entry = json.loads(line)
+        except ValueError as error:
+            summary["parse_errors"].append({"line": number, "error": str(error)})
+            continue
+        kind = entry.get("type") if isinstance(entry, dict) else None
+        if kind == "startup":
+            summary["startup"] = {
+                "first_ready_seconds": entry.get("first_ready_seconds"),
+                "artifact_hash_seconds": entry.get("artifact_hash_seconds"),
+                "manifest_validation_seconds": entry.get("manifest_validation_seconds"),
+                "stages": {stage.get("name"): stage.get("seconds")
+                           for stage in entry.get("stages", [])},
+            }
+        elif kind == "request":
+            token_ids = entry.get("token_ids")
+            ids_hash = None
+            if isinstance(token_ids, list):
+                ids_hash = hashlib.sha256(json.dumps(token_ids).encode()).hexdigest()
+            summary["requests"].append({
+                "line": number,
+                "request_id": entry.get("request_id"),
+                "status": entry.get("status"),
+                "error": entry.get("error"),
+                "prompt_tokens": entry.get("prompt_tokens"),
+                "completion_tokens": entry.get("completion_tokens"),
+                "token_ids_count": len(token_ids) if isinstance(token_ids, list) else None,
+                "token_ids_sha256": ids_hash,
+                "total_seconds": entry.get("total_seconds"),
+                "phase_seconds": {phase.get("name"): phase.get("seconds")
+                                  for phase in entry.get("phases", [])},
+            })
+        else:
+            summary["parse_errors"].append({"line": number, "error": "unknown record type"})
+    record.update(summary)
+    return record
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--record-dir", required=True, help="directory for start, logs, and result")
@@ -77,6 +129,7 @@ def main():
     parser.add_argument("--tag", default="host", help="physical_target, host, or emulator")
     parser.add_argument("--timeout", type=float, default=None, help="seconds before termination")
     parser.add_argument("--measurement", help="JSON path the command writes")
+    parser.add_argument("--request-log", help="server request log (JSON lines) to summarize")
     parser.add_argument("--cwd", default=None)
     parser.add_argument("--overwrite", action="store_true")
     parser.add_argument("command", nargs=argparse.REMAINDER,
@@ -106,6 +159,7 @@ def main():
         "cwd": str(Path(arguments.cwd or os.getcwd()).resolve()),
         "timeout_seconds": arguments.timeout,
         "measurement_path": arguments.measurement,
+        "request_log_path": arguments.request_log,
         "host_pid": os.getpid(),
     })
 
@@ -178,6 +232,11 @@ def main():
         "stderr": file_record(stderr_path),
         "measurement": measurement,
     }
+    if arguments.request_log:
+        requests = request_log_record(arguments.request_log)
+        result["request_log"] = requests
+        if requests is None:
+            result["request_log_missing"] = True
     if error_text is not None:
         result["error"] = error_text
     if arguments.measurement and measurement is None:

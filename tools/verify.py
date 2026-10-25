@@ -42,7 +42,7 @@ def main():
     run([sys.executable, "tools/check_scaffold.py"])
     environment = os.environ.copy()
     environment["PATH"] = str(Path(ninja).parent) + os.pathsep + environment.get("PATH", "")
-    for preset in ("host-debug", "host-release", "host-sanitizers"):
+    for preset in ("host-debug", "host-release", "host-sanitizers", "host-tsan"):
         run([cmake, "--preset", preset, f"-DCMAKE_MAKE_PROGRAM={ninja}",
              f"-DPython3_EXECUTABLE={sys.executable}"], environment)
         run([cmake, "--build", "--preset", preset], environment)

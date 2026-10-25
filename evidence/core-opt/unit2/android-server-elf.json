@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "gate": "gate1_android_elf",
+  "binary": "/media/ananth/17AB9D0651C6CC1F/ame-tools/build/harness/ame-server-android",
+  "sha256": "c9ca9704008844a143eb65cbc980559c49675050101cad1f0be75d264e4e67e8",
+  "size_bytes": 9012192,
+  "elf64": true,
+  "machine_aarch64": true,
+  "type": "DYN (Shared object file)",
+  "interpreter": "[Requesting program interpreter: /system/bin/linker64]",
+  "needed": [
+    "liblog.so",
+    "libm.so",
+    "libdl.so",
+    "libc.so"
+  ],
+  "attributes_present": false,
+  "forbidden_instructions": [],
+  "passed": true
+}

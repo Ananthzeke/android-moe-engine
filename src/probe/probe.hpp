@@ -49,6 +49,12 @@ struct StorageSnapshot {
   std::optional<std::uint64_t> available_bytes;
   std::optional<std::uint64_t> free_bytes;
   std::optional<std::uint64_t> fragment_size_bytes;
+  // Filesystem type of the mount holding `path`, from the mount table.
+  std::optional<std::string> filesystem;
+  // Whether the kernel advertises fs-verity for that filesystem type (a feature file under
+  // /sys/fs/<type>/features). It says nothing about whether a given file can have verity
+  // enabled or whether the shell user may enable it; nothing is enabled or written.
+  std::optional<bool> verity_advertised;
 };
 
 struct OsSnapshot {

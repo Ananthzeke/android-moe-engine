@@ -1,0 +1,11 @@
+MemTotal:        7834596 kB
+MemFree:          272876 kB
+MemAvailable:    5567396 kB
+Buffers:            8956 kB
+Cached:          5351816 kB
+SwapCached:       112028 kB
+pswpin 12417065
+pswpout 15549354
+  AC powered: true
+  level: 46
+  temperature: 303
