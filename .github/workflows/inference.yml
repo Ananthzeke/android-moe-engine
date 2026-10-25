@@ -22,8 +22,8 @@ jobs:
           .venv/bin/cmake -S /tmp/llama.cpp -B /tmp/llama-build -GNinja             -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DLLAMA_CURL=OFF -DGGML_NATIVE=OFF -DGGML_OPENMP=OFF
           .venv/bin/cmake --build /tmp/llama-build --target llama -j 2
       - run: |
-          PATH="$GITHUB_WORKSPACE/.venv/bin:$PATH" \
-          AME_LLAMA_SOURCE=/tmp/llama.cpp AME_LLAMA_BUILD=/tmp/llama-archs-build \
+          export PATH="$GITHUB_WORKSPACE/.venv/bin:$PATH"
+          export AME_LLAMA_SOURCE=/tmp/llama.cpp AME_LLAMA_BUILD=/tmp/llama-archs-build
           sh tools/generate_qwen35_fixture.sh /tmp/fixture
           sh tools/generate_qwen35_fixture.sh /tmp/fixture-layered 1234 0.1 qwen2moe
       - run: |
