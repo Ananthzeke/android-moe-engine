@@ -8,7 +8,7 @@ python3 -m venv .venv
 .venv/bin/python tools/verify.py
 ```
 
-Only bootstrap requires network access. Verification downloads nothing and fails if tooling is missing. It checks pinned clang-format 18.1.8, documentation/configuration, then configures, builds, and runs CTest for `host-debug`, `host-release`, and `host-sanitizers` (ASan + UBSan). CI runs this same full matrix through the same command. Tool lookup prefers binaries beside the invoking Python, then PATH. CMake requires 3.22+; the bootstrap pins 3.31.6 and Ninja 1.11.1.4. Compiler and OS identity still need recording for experimental results.
+Only bootstrap requires network access. Verification downloads nothing and fails if tooling is missing. It checks pinned clang-format 18.1.8, documentation/configuration, then configures, builds, and runs CTest for `host-debug`, `host-release`, `host-sanitizers` (ASan + UBSan), and `host-tsan` (ThreadSanitizer, run under `setarch -R` because it cannot map its shadow memory under full ASLR on some kernels). CI runs this same full matrix through the same command. Tool lookup prefers binaries beside the invoking Python, then PATH. CMake requires 3.22+; the bootstrap pins 3.31.6 and Ninja 1.11.1.4. Compiler and OS identity still need recording for experimental results.
 
 Fix C++ formatting separately:
 

@@ -39,6 +39,8 @@ The following are historical observations on the physical Snapdragon 665 phone, 
 
 Other API runs took 246.77 s for two completion tokens and 284.02 s for one. They have different prompts, builds, and timing conditions. See [benchmark definitions, variation, raw evidence, and failed cases](docs/BENCHMARKS.md). Short prompts in a larger allocated context do not establish long-context performance. The near-context API request exceeded a 300 s client deadline.
 
+The table above predates the core-optimization series. With the phone launcher's current defaults (layered per-layer expert cache of 32 slots per layer in a 2.2 GB arena, four reader threads, top-k read overlap, compute threads pinned to the big cores), paired fresh-process A/B medians on the same phone show a 32-token request falling from 122.3 s to about 46 s and decode rising from 0.51 to 1.13 tokens/s, with identical emitted token IDs in every trial. Process peak RSS rises to about 4.4 GB, so the 36 MiB arena and 2.01 GiB RSS rows no longer describe the launcher defaults; the server binary's own defaults are unchanged. Method, per-unit evidence and limits: [core optimization report](docs/CORE_OPTIMIZATION_REPORT.md).
+
 ## What is implemented
 
 [Smaller MoE phone results](docs/SMALLER_MOE_RESULTS.md) compare Granite 1B and 3B,
