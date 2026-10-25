@@ -1,0 +1,22 @@
+{
+  "trial": 4,
+  "variant": "o1tp",
+  "args": "--cache layered --eviction lru --layer-slots 32 --arena-mib 2200 --fadvise-random --fadvise-dontneed --readers 4 --overlap topk --threadpool big --poll 0",
+  "failed": null,
+  "pid": "15988",
+  "ready_wait_seconds": 195.84669521600154,
+  "requests": [
+    {
+      "kind": "short",
+      "http_status": 200,
+      "client_seconds": 21.949597033002647,
+      "ok": true
+    },
+    {
+      "kind": "long",
+      "http_status": 200,
+      "client_seconds": 45.8778871100003,
+      "ok": true
+    }
+  ]
+}

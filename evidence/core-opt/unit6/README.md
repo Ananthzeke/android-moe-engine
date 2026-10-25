@@ -62,3 +62,31 @@ recorded at the end of this file.
 One prompt pair, five trials per arm, charger connected, two instants of frequency per phase. The 7.8% gain is small
 next to the Unit 4 and Unit 5 gains and rests on a pinned threadpool that other devices may not need or tolerate; on a
 homogeneous-core device `--threadpool big` is ignored. `--poll 0` was chosen a priori and not swept.
+
+## Diagnostic follow-up: does pinning only the readers fix the overlap? (`../unit6b/`)
+
+Question: with `--overlap topk` alone the compute share of decode rose from 18 s to 44 s. Is that reader threads contending
+for the big cores (then `--reader-cpus auto`, which pins readers to cpu0-3, should fix it), or does it need the compute pool
+pinned? Same binary, method and prompts as above; fifteen fresh-process trials, five per arm, alternating, no failures.
+Raw records and `summary.md` are in `../unit6b/`.
+
+- `o1tp`: overlap + `--threadpool big --poll 0` (the shipped default)
+- `o1a`: overlap + `--reader-cpus auto` (readers pinned to cpu0-3, compute threads unpinned)
+- `o1tpa`: both
+
+| metric | o1a | o1tp | o1tpa |
+| --- | --- | --- | --- |
+| short request, total s | 23.74 [23.64, 23.87] | 21.85 [21.66, 22.17] | 21.71 [21.64, 21.77] |
+| 32-token request, total s | 64.48 [52.96, 65.44] | 46.16 [45.65, 46.20] | 45.91 [45.59, 46.22] |
+| decode median step s | 1.421 [1.088, 1.475] | 0.853 [0.836, 0.864] | 0.851 [0.843, 0.855] |
+| decode tokens/s | 0.695 [0.685, 0.924] | 1.127 [1.111, 1.140] | 1.126 [1.114, 1.130] |
+
+Token IDs are identical in all 15 trials and equal to every earlier series; bytes read and peak RSS match the other arms.
+
+Result: pinning only the readers does **not** repair the overlap (`o1a` is within 0.3 s of the unpinned `o1` of the main
+series on the short request and about 40% slower than `o1tp` on the 32-token request). One `o1a` trial was much faster
+(32-token total 52.96 s, step 1.088 s); the other four are 64.1-65.4 s. The cause of that single trial is not known and is not
+explained here. Pinning the readers in addition to the compute pool (`o1tpa`) gains nothing over `o1tp` (ranges overlap). So the
+cost of the unpinned overlap comes from the compute threads' placement, not from the reader threads' placement alone, and the
+compute pool pin is what the launcher keeps. The mechanism (scheduler migration of the compute threads onto cores the readers
+are also using, versus the per-layer callback barrier) was not isolated further.

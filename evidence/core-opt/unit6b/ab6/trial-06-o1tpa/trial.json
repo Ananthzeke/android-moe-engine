@@ -1,0 +1,22 @@
+{
+  "trial": 6,
+  "variant": "o1tpa",
+  "args": "--cache layered --eviction lru --layer-slots 32 --arena-mib 2200 --fadvise-random --fadvise-dontneed --readers 4 --overlap topk --threadpool big --poll 0 --reader-cpus auto",
+  "failed": null,
+  "pid": "22161",
+  "ready_wait_seconds": 165.7113372599997,
+  "requests": [
+    {
+      "kind": "short",
+      "http_status": 200,
+      "client_seconds": 21.809306865005055,
+      "ok": true
+    },
+    {
+      "kind": "long",
+      "http_status": 200,
+      "client_seconds": 46.115789187999326,
+      "ok": true
+    }
+  ]
+}
