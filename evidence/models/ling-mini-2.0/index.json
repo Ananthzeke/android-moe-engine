@@ -1,0 +1,1103 @@
+{
+  "admission": {
+    "decision": "unknown",
+    "full_resident_tensor_bytes": 9905077248,
+    "mem_available_bytes": 0,
+    "reason": "no_memory_observation",
+    "streaming_decision": "requires_backend_workspace_proof",
+    "streaming_decode_live_bytes_estimate": 691829760,
+    "streaming_integrated": false,
+    "streaming_reason": "workspace_state_and_page_cache_not_covered"
+  },
+  "dense_without_expert_tensors": false,
+  "experts": {
+    "decode_live_bytes_per_layer": 18358272,
+    "decode_union_bytes_per_layer": 16318464,
+    "expert_bytes_per_layer": 2039808,
+    "expert_bytes_per_layer_min": 1769472,
+    "expert_bytes_total": 9229565952,
+    "expert_tensor_count": 57,
+    "layers": [
+      {
+        "expert_bytes": 2039808,
+        "layer": 1,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 485446176,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 860160,
+            "name": "blk.1.ffn_down_exps.weight",
+            "nbytes": 220200960,
+            "offset": 478948352,
+            "role": "ffn_down_exps",
+            "type": "q6_K",
+            "type_id": 14
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 706507296,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.1.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 700009472,
+            "role": "ffn_gate_exps",
+            "type": "q4_K",
+            "type_id": 12
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 860197408,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.1.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 853699584,
+            "role": "ffn_up_exps",
+            "type": "q4_K",
+            "type_id": 12
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 2,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 1018477088,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.2.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 1011979264,
+            "role": "ffn_down_exps",
+            "type": "q4_K",
+            "type_id": 12
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 1170061856,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.2.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 1163564032,
+            "role": "ffn_gate_exps",
+            "type": "q4_K",
+            "type_id": 12
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 1323751968,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.2.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 1317254144,
+            "role": "ffn_up_exps",
+            "type": "q4_K",
+            "type_id": 12
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 3,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 1482031648,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.3.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 1475533824,
+            "role": "ffn_down_exps",
+            "type": "q4_K",
+            "type_id": 12
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 1633616416,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.3.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 1627118592,
+            "role": "ffn_gate_exps",
+            "type": "q4_K",
+            "type_id": 12
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 1787306528,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.3.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 1780808704,
+            "role": "ffn_up_exps",
+            "type": "q4_K",
+            "type_id": 12
+          }
+        }
+      },
+      {
+        "expert_bytes": 2039808,
+        "layer": 4,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 1945586208,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 860160,
+            "name": "blk.4.ffn_down_exps.weight",
+            "nbytes": 220200960,
+            "offset": 1939088384,
+            "role": "ffn_down_exps",
+            "type": "q6_K",
+            "type_id": 14
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 2166647328,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.4.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 2160149504,
+            "role": "ffn_gate_exps",
+            "type": "q4_K",
+            "type_id": 12
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 2320337440,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.4.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 2313839616,
+            "role": "ffn_up_exps",
+            "type": "q4_K",
+            "type_id": 12
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 5,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 2478617120,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.5.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 2472119296,
+            "role": "ffn_down_exps",
+            "type": "q4_K",
+            "type_id": 12
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 2630201888,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.5.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 2623704064,
+            "role": "ffn_gate_exps",
+            "type": "q4_K",
+            "type_id": 12
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 2783892000,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.5.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 2777394176,
+            "role": "ffn_up_exps",
+            "type": "q4_K",
+            "type_id": 12
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 6,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 2942171680,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.6.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 2935673856,
+            "role": "ffn_down_exps",
+            "type": "q4_K",
+            "type_id": 12
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 3093756448,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.6.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 3087258624,
+            "role": "ffn_gate_exps",
+            "type": "q4_K",
+            "type_id": 12
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 3247446560,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.6.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 3240948736,
+            "role": "ffn_up_exps",
+            "type": "q4_K",
+            "type_id": 12
+          }
+        }
+      },
+      {
+        "expert_bytes": 2039808,
+        "layer": 7,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 3405726240,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 860160,
+            "name": "blk.7.ffn_down_exps.weight",
+            "nbytes": 220200960,
+            "offset": 3399228416,
+            "role": "ffn_down_exps",
+            "type": "q6_K",
+            "type_id": 14
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 3626787360,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.7.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 3620289536,
+            "role": "ffn_gate_exps",
+            "type": "q4_K",
+            "type_id": 12
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 3780477472,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.7.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 3773979648,
+            "role": "ffn_up_exps",
+            "type": "q4_K",
+            "type_id": 12
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 8,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 3938757152,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.8.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 3932259328,
+            "role": "ffn_down_exps",
+            "type": "q4_K",
+            "type_id": 12
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 4090341920,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.8.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 4083844096,
+            "role": "ffn_gate_exps",
+            "type": "q4_K",
+            "type_id": 12
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 4244032032,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.8.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 4237534208,
+            "role": "ffn_up_exps",
+            "type": "q4_K",
+            "type_id": 12
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 9,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 4402311712,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.9.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 4395813888,
+            "role": "ffn_down_exps",
+            "type": "q4_K",
+            "type_id": 12
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 4553896480,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.9.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 4547398656,
+            "role": "ffn_gate_exps",
+            "type": "q4_K",
+            "type_id": 12
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 4707586592,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.9.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 4701088768,
+            "role": "ffn_up_exps",
+            "type": "q4_K",
+            "type_id": 12
+          }
+        }
+      },
+      {
+        "expert_bytes": 2039808,
+        "layer": 10,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 4865866272,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 860160,
+            "name": "blk.10.ffn_down_exps.weight",
+            "nbytes": 220200960,
+            "offset": 4859368448,
+            "role": "ffn_down_exps",
+            "type": "q6_K",
+            "type_id": 14
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 5086927392,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.10.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 5080429568,
+            "role": "ffn_gate_exps",
+            "type": "q4_K",
+            "type_id": 12
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 5240617504,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.10.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 5234119680,
+            "role": "ffn_up_exps",
+            "type": "q4_K",
+            "type_id": 12
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 11,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 5398897184,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.11.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 5392399360,
+            "role": "ffn_down_exps",
+            "type": "q4_K",
+            "type_id": 12
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 5550481952,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.11.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 5543984128,
+            "role": "ffn_gate_exps",
+            "type": "q4_K",
+            "type_id": 12
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 5704172064,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.11.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 5697674240,
+            "role": "ffn_up_exps",
+            "type": "q4_K",
+            "type_id": 12
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 12,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 5862451744,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.12.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 5855953920,
+            "role": "ffn_down_exps",
+            "type": "q4_K",
+            "type_id": 12
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 6014036512,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.12.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 6007538688,
+            "role": "ffn_gate_exps",
+            "type": "q4_K",
+            "type_id": 12
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 6167726624,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.12.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 6161228800,
+            "role": "ffn_up_exps",
+            "type": "q4_K",
+            "type_id": 12
+          }
+        }
+      },
+      {
+        "expert_bytes": 2039808,
+        "layer": 13,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 6326006304,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 860160,
+            "name": "blk.13.ffn_down_exps.weight",
+            "nbytes": 220200960,
+            "offset": 6319508480,
+            "role": "ffn_down_exps",
+            "type": "q6_K",
+            "type_id": 14
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 6547067424,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.13.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 6540569600,
+            "role": "ffn_gate_exps",
+            "type": "q4_K",
+            "type_id": 12
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 6700757536,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.13.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 6694259712,
+            "role": "ffn_up_exps",
+            "type": "q4_K",
+            "type_id": 12
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 14,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 6859037216,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.14.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 6852539392,
+            "role": "ffn_down_exps",
+            "type": "q4_K",
+            "type_id": 12
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 7010621984,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.14.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 7004124160,
+            "role": "ffn_gate_exps",
+            "type": "q4_K",
+            "type_id": 12
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 7164312096,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.14.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 7157814272,
+            "role": "ffn_up_exps",
+            "type": "q4_K",
+            "type_id": 12
+          }
+        }
+      },
+      {
+        "expert_bytes": 1769472,
+        "layer": 15,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 7322591776,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.15.ffn_down_exps.weight",
+            "nbytes": 150994944,
+            "offset": 7316093952,
+            "role": "ffn_down_exps",
+            "type": "q4_K",
+            "type_id": 12
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 7474176544,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.15.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 7467678720,
+            "role": "ffn_gate_exps",
+            "type": "q4_K",
+            "type_id": 12
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 7627866656,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.15.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 7621368832,
+            "role": "ffn_up_exps",
+            "type": "q4_K",
+            "type_id": 12
+          }
+        }
+      },
+      {
+        "expert_bytes": 2039808,
+        "layer": 16,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 7786146336,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 860160,
+            "name": "blk.16.ffn_down_exps.weight",
+            "nbytes": 220200960,
+            "offset": 7779648512,
+            "role": "ffn_down_exps",
+            "type": "q6_K",
+            "type_id": 14
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 8007207456,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.16.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 8000709632,
+            "role": "ffn_gate_exps",
+            "type": "q4_K",
+            "type_id": 12
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 8160897568,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.16.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 8154399744,
+            "role": "ffn_up_exps",
+            "type": "q4_K",
+            "type_id": 12
+          }
+        }
+      },
+      {
+        "expert_bytes": 2039808,
+        "layer": 17,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 8319177248,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 860160,
+            "name": "blk.17.ffn_down_exps.weight",
+            "nbytes": 220200960,
+            "offset": 8312679424,
+            "role": "ffn_down_exps",
+            "type": "q6_K",
+            "type_id": 14
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 8540238368,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.17.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 8533740544,
+            "role": "ffn_gate_exps",
+            "type": "q4_K",
+            "type_id": 12
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 8693928480,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.17.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 8687430656,
+            "role": "ffn_up_exps",
+            "type": "q4_K",
+            "type_id": 12
+          }
+        }
+      },
+      {
+        "expert_bytes": 2039808,
+        "layer": 18,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 8852208160,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 860160,
+            "name": "blk.18.ffn_down_exps.weight",
+            "nbytes": 220200960,
+            "offset": 8845710336,
+            "role": "ffn_down_exps",
+            "type": "q6_K",
+            "type_id": 14
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 9073269280,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.18.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 9066771456,
+            "role": "ffn_gate_exps",
+            "type": "q4_K",
+            "type_id": 12
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 9226959392,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.18.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 9220461568,
+            "role": "ffn_up_exps",
+            "type": "q4_K",
+            "type_id": 12
+          }
+        }
+      },
+      {
+        "expert_bytes": 2039808,
+        "layer": 19,
+        "n_expert": 256,
+        "roles": {
+          "ffn_down_exps": {
+            "absolute_offset": 9385239072,
+            "dims": [
+              512,
+              2048,
+              256
+            ],
+            "expert_bytes": 860160,
+            "name": "blk.19.ffn_down_exps.weight",
+            "nbytes": 220200960,
+            "offset": 9378741248,
+            "role": "ffn_down_exps",
+            "type": "q6_K",
+            "type_id": 14
+          },
+          "ffn_gate_exps": {
+            "absolute_offset": 9606300192,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.19.ffn_gate_exps.weight",
+            "nbytes": 150994944,
+            "offset": 9599802368,
+            "role": "ffn_gate_exps",
+            "type": "q4_K",
+            "type_id": 12
+          },
+          "ffn_up_exps": {
+            "absolute_offset": 9759990304,
+            "dims": [
+              2048,
+              512,
+              256
+            ],
+            "expert_bytes": 589824,
+            "name": "blk.19.ffn_up_exps.weight",
+            "nbytes": 150994944,
+            "offset": 9753492480,
+            "role": "ffn_up_exps",
+            "type": "q4_K",
+            "type_id": 12
+          }
+        }
+      }
+    ],
+    "n_expert": 256,
+    "n_layer": 19,
+    "prefill_union_max_bytes_per_layer": 522190848,
+    "prefill_union_min_bytes_per_layer": 16318464,
+    "shared_expert_bytes_per_layer": 2039808,
+    "shared_expert_bytes_total": 36052992,
+    "shared_expert_tensor_count": 57,
+    "top_k": 8
+  },
+  "gguf": {
+    "alignment": 32,
+    "architecture": "bailingmoe2",
+    "array_keys": [
+      "tokenizer.ggml.merges",
+      "tokenizer.ggml.token_type",
+      "tokenizer.ggml.tokens"
+    ],
+    "data_start": 6497824,
+    "header_end": 6497823,
+    "kv_count": 45,
+    "metadata": {
+      "bailingmoe2.attention.head_count": 16,
+      "bailingmoe2.attention.head_count_kv": 4,
+      "bailingmoe2.attention.key_length": 128,
+      "bailingmoe2.attention.layer_norm_rms_epsilon": 9.999999974752427e-07,
+      "bailingmoe2.attention.value_length": 128,
+      "bailingmoe2.block_count": 20,
+      "bailingmoe2.context_length": 32768,
+      "bailingmoe2.embedding_length": 2048,
+      "bailingmoe2.expert_count": 256,
+      "bailingmoe2.expert_feed_forward_length": 512,
+      "bailingmoe2.expert_gating_func": 2,
+      "bailingmoe2.expert_group_count": 8,
+      "bailingmoe2.expert_group_used_count": 4,
+      "bailingmoe2.expert_shared_count": 1,
+      "bailingmoe2.expert_shared_feed_forward_length": 512,
+      "bailingmoe2.expert_used_count": 8,
+      "bailingmoe2.expert_weights_norm": 1,
+      "bailingmoe2.expert_weights_scale": 2.5,
+      "bailingmoe2.feed_forward_length": 5120,
+      "bailingmoe2.leading_dense_block_count": 1,
+      "bailingmoe2.nextn_predict_layers": 0,
+      "bailingmoe2.rope.dimension_count": 64,
+      "bailingmoe2.rope.freq_base": 600000.0,
+      "bailingmoe2.rope.scaling.type": "none",
+      "bailingmoe2.vocab_size": 157184,
+      "general.architecture": "bailingmoe2",
+      "general.basename": "Ling",
+      "general.file_type": 15,
+      "general.license": "MIT License",
+      "general.name": "Ling Mini 2.0",
+      "general.quantization_version": 2,
+      "general.size_label": "mini",
+      "general.type": "model",
+      "general.version": "2.0",
+      "tokenizer.chat_template": "{% set thinking_option = 'off' %}\n{{- '<role>SYSTEM</role>' }}\n{%- if messages[0].role == 'system' %}\n    {{- messages[0].content + '\\n' }}\n{%- endif %}\n{%- if tools %}\n    {{- \"# Tools\\n\\nYou may call one or more functions to assist with the user query.\\n\\nYou are provided with function signatures within <tools></tools> XML tags:\\n<tools>\" }}\n    {%- for tool in tools %}\n        {{- \"\\n\" }}\n        {{- tool | tojson }}\n    {%- endfor %}\n    {{- \"\\n</tools>\\n\\nFor each function call, return a json object with function name and arguments within <tool_call></tool_call> XML tags:\\n<tool_call>\\n{\\\"name\\\": <function-name>, \\\"arguments\\\": <args-json-object>}\\n</tool_call>\\n\" }}\n{%- endif %}\n{{- 'detailed thinking ' + thinking_option + '<|role_end|>' }}\n{%- set ns = namespace(multi_step_tool=true, last_query_index=messages|length - 1) %}\n{%- for message in messages[::-1] %}\n    {%- set index = (messages|length - 1) - loop.index0 %}\n    {%- if ns.multi_step_tool and message.role == \"user\" and message.content is string and not(message.content.startswith('<tool_response>') and message.content.endswith('</tool_response>')) %}\n        {%- set ns.multi_step_tool = false %}\n        {%- set ns.last_query_index = index %}\n    {%- endif %}\n{%- endfor %}\n{%- for message in messages %}\n    {%- if message.content is string %}\n        {%- set content = message.content %}\n    {%- else %}\n        {%- set content = '' %}\n    {%- endif %}\n    {%- if message.role == \"user\" %}\n        {{- '<role>HUMAN</role>' + message.content + '<|role_end|>' }}\n    {%- elif message.role == \"system\" and not loop.first %}\n        {{- '<role>SYSTEM</role>' + message.content + '<|role_end|>' }}\n    {%- elif message.role == \"assistant\" %}\n        {%- set reasoning_content = '' %}\n        {%- if message.reasoning_content is string %}\n            {%- set reasoning_content = message.reasoning_content %}\n        {%- else %}\n            {%- if '</think>' in content %}\n                {%- set reasoning_content = content.split('</think>')[0].rstrip('\\n').split('<think>')[-1].lstrip('\\n') %}\n                {%- set content = content.split('</think>')[-1].lstrip('\\n') %}\n            {%- endif %}\n        {%- endif %}\n        {%- if loop.index0 > ns.last_query_index %}\n            {%- if reasoning_content %}\n                {{- '<role>ASSISTANT</role>' + '\\n<think>\\n' + reasoning_content.strip('\\n') + '\\n</think>\\n\\n' + content.lstrip('\\n') }}\n            {%- else %}\n                {{- '<role>ASSISTANT</role>' + content }}\n            {%- endif %}\n        {%- else %}\n            {{- '<role>ASSISTANT</role>' + content }}\n        {%- endif %}\n        {%- if message.tool_calls %}\n            {%- for tool_call in message.tool_calls %}\n                {%- if (loop.first and content) or (not loop.first) %}\n                    {{- '\\n' }}\n                {%- endif %}\n                {%- if tool_call.function %}\n                    {%- set tool_call = tool_call.function %}\n                {%- endif %}\n                {{- '<tool_call>\\n{\"name\": \"' }}\n                {{- tool_call.name }}\n                {{- '\", \"arguments\": ' }}\n                {%- if tool_call.arguments is string %}\n                    {{- tool_call.arguments }}\n                {%- else %}\n                    {{- tool_call.arguments | tojson }}\n                {%- endif %}\n                {{- '}\\n</tool_call>' }}\n            {%- endfor %}\n        {%- endif %}\n        {{- '<|role_end|>' }}\n    {%- elif message.role == \"tool\" %}\n        {%- if loop.first or (messages[loop.index0 - 1].role != \"tool\") %}\n            {{- '<role>OBSERVATION</role>' }}\n        {%- endif %}\n        {{- '\\n<tool_response>\\n' }}\n        {{- content }}\n        {{- '\\n</tool_response>' }}\n        {%- if loop.last or (messages[loop.index0 + 1].role != \"tool\") %}\n            {{- '<|role_end|>' }}\n        {%- endif %}\n    {%- endif %}\n{%- endfor %}\n{%- if add_generation_prompt %}\n    {{- '<role>ASSISTANT</role>' }}\n{%- endif %}",
+      "tokenizer.ggml.add_bos_token": 0,
+      "tokenizer.ggml.add_eos_token": 0,
+      "tokenizer.ggml.bos_token_id": 156891,
+      "tokenizer.ggml.eos_token_id": 156895,
+      "tokenizer.ggml.model": "gpt2",
+      "tokenizer.ggml.padding_token_id": 156892,
+      "tokenizer.ggml.pre": "bailingmoe2"
+    },
+    "tensor_count": 278,
+    "version": 3
+  },
+  "limitations": [
+    "Only metadata and tensor information were read; tensor payloads were not loaded.",
+    "Tensor bounds use the declared file size, not downloaded data.",
+    "Backend workspace, KV/recurrent state, packing, and page-cache behavior are not covered.",
+    "No inference or expert streaming was executed."
+  ],
+  "observed_at": "2026-10-25T09:12:22Z",
+  "schema_version": 1,
+  "source": {
+    "file_size": 9911575072,
+    "prefix_bytes": 134217728,
+    "prefix_sha256": "7113bb68f0d7644dbca51823f3319578ab051f16fc5982efe82420bebc46fb6c",
+    "url": null
+  },
+  "storage": {
+    "artifact_bytes": 9911575072,
+    "available_bytes": 0,
+    "fits_available_storage": null,
+    "transfer_and_temporary_space_reserved": false
+  },
+  "tensor_bytes": {
+    "expert": 9229565952,
+    "nonexpert": 675511296,
+    "total": 9905077248
+  },
+  "tool": "gguf_index"
+}

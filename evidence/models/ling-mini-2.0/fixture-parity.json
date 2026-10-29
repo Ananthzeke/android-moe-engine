@@ -1,0 +1,214 @@
+{
+  "schema_version": 1,
+  "architecture": "bailingmoe2",
+  "slots": 3,
+  "fixture_sha256": "b60fb7b1ebfafbb9ad4b26ac72713c3fee042850065789b81ccc15941140874d",
+  "variants": [
+    "float",
+    "q4_k_m",
+    "q6_k"
+  ],
+  "rows": [
+    {
+      "variant": "float",
+      "cache": "legacy",
+      "prefill_unit": 1,
+      "token_ids": [
+        88,
+        83,
+        84,
+        44,
+        32,
+        7
+      ],
+      "tokens_equal": true,
+      "logits_equal": true,
+      "misses": 114,
+      "evictions": 111,
+      "experts": 8,
+      "top_k": 2
+    },
+    {
+      "variant": "float",
+      "cache": "layered",
+      "prefill_unit": 1,
+      "token_ids": [
+        88,
+        83,
+        84,
+        44,
+        32,
+        7
+      ],
+      "tokens_equal": true,
+      "logits_equal": true,
+      "misses": 4,
+      "evictions": 1,
+      "experts": 8,
+      "top_k": 2
+    },
+    {
+      "variant": "float",
+      "cache": "layered-readers-overlap",
+      "prefill_unit": 1,
+      "token_ids": [
+        88,
+        83,
+        84,
+        44,
+        32,
+        7
+      ],
+      "tokens_equal": true,
+      "logits_equal": true,
+      "misses": 4,
+      "evictions": 1,
+      "experts": 8,
+      "top_k": 2
+    },
+    {
+      "variant": "float",
+      "cache": "legacy",
+      "refused_below_top_k": true
+    },
+    {
+      "variant": "float",
+      "cache": "layered",
+      "refused_below_top_k": true
+    },
+    {
+      "variant": "q4_k_m",
+      "cache": "legacy",
+      "prefill_unit": 1,
+      "token_ids": [
+        88,
+        46,
+        54,
+        78,
+        50,
+        7
+      ],
+      "tokens_equal": true,
+      "logits_equal": true,
+      "misses": 63,
+      "evictions": 57,
+      "experts": 8,
+      "top_k": 2
+    },
+    {
+      "variant": "q4_k_m",
+      "cache": "layered",
+      "prefill_unit": 1,
+      "token_ids": [
+        88,
+        46,
+        54,
+        78,
+        50,
+        7
+      ],
+      "tokens_equal": true,
+      "logits_equal": true,
+      "misses": 5,
+      "evictions": 2,
+      "experts": 8,
+      "top_k": 2
+    },
+    {
+      "variant": "q4_k_m",
+      "cache": "layered-readers-overlap",
+      "prefill_unit": 1,
+      "token_ids": [
+        88,
+        46,
+        54,
+        78,
+        50,
+        7
+      ],
+      "tokens_equal": true,
+      "logits_equal": true,
+      "misses": 5,
+      "evictions": 2,
+      "experts": 8,
+      "top_k": 2
+    },
+    {
+      "variant": "q4_k_m",
+      "cache": "legacy",
+      "refused_below_top_k": true
+    },
+    {
+      "variant": "q4_k_m",
+      "cache": "layered",
+      "refused_below_top_k": true
+    },
+    {
+      "variant": "q6_k",
+      "cache": "legacy",
+      "prefill_unit": 1,
+      "token_ids": [
+        88,
+        83,
+        84,
+        44,
+        32,
+        7
+      ],
+      "tokens_equal": true,
+      "logits_equal": true,
+      "misses": 58,
+      "evictions": 52,
+      "experts": 8,
+      "top_k": 2
+    },
+    {
+      "variant": "q6_k",
+      "cache": "layered",
+      "prefill_unit": 1,
+      "token_ids": [
+        88,
+        83,
+        84,
+        44,
+        32,
+        7
+      ],
+      "tokens_equal": true,
+      "logits_equal": true,
+      "misses": 4,
+      "evictions": 1,
+      "experts": 8,
+      "top_k": 2
+    },
+    {
+      "variant": "q6_k",
+      "cache": "layered-readers-overlap",
+      "prefill_unit": 1,
+      "token_ids": [
+        88,
+        83,
+        84,
+        44,
+        32,
+        7
+      ],
+      "tokens_equal": true,
+      "logits_equal": true,
+      "misses": 4,
+      "evictions": 1,
+      "experts": 8,
+      "top_k": 2
+    },
+    {
+      "variant": "q6_k",
+      "cache": "legacy",
+      "refused_below_top_k": true
+    },
+    {
+      "variant": "q6_k",
+      "cache": "layered",
+      "refused_below_top_k": true
+    }
+  ]
+}
